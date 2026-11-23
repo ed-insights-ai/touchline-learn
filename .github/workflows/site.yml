@@ -1,0 +1,79 @@
+name: Site
+
+# One pipeline, three gates, one release:
+#   labs   the sample regenerates byte for byte, and every lab ends as expected
+#   build  the site type-checks, builds, and has no broken internal link
+#   deploy publishes to GitHub Pages, only from main, only if both gates passed
+# No secrets are used anywhere in this file.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  labs:
+    name: Sample and labs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install lab dependencies
+        run: pip install -r labs/requirements.txt
+      - name: The sample regenerates byte for byte
+        run: python sample/generate.py --check
+      - name: Every lab ends as expected
+        run: python labs/run_all.py
+
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Type-check content and config
+        run: npm run check
+      - name: Build
+        run: npm run build
+      - name: Check internal links
+        run: python3 scripts/check_links.py
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [labs, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

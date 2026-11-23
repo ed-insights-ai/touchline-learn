@@ -1,0 +1,116 @@
+{
+ "schema": "learn.sample/1",
+ "description": "An invented conference in the shape of a Touchline data home. No real school, player, score or page appears in it.",
+ "level": "d2",
+ "seasons": [
+  2025,
+  2026
+ ],
+ "conference": "PLC",
+ "genders": [
+  "men",
+  "women"
+ ],
+ "files": [
+  {
+   "path": "data/coverage.json",
+   "bytes": 38919,
+   "sha256": "e260382a4210d046d5f9c77f158d3f5218683d9c79cd507dab3bdda91a3ed86e"
+  },
+  {
+   "path": "data/fixtures/2025-men-plc.json",
+   "bytes": 27546,
+   "sha256": "1acc1e0e45b2ea71eeab8c511a3a192bb9d7e4e5db85bb9612a63a7d6842d173"
+  },
+  {
+   "path": "data/fixtures/2025-women-plc.json",
+   "bytes": 29822,
+   "sha256": "c7ea93360b4b399cbfb57aa1d616c945bacf66da81c93f2a7d356109126a0114"
+  },
+  {
+   "path": "data/fixtures/2026-men-plc.json",
+   "bytes": 37632,
+   "sha256": "0d047dcde2e36f6cb4b175b6e025249610b7b89a41606ea4c752d31544a98fd0"
+  },
+  {
+   "path": "data/fixtures/2026-women-plc.json",
+   "bytes": 37866,
+   "sha256": "bee92f1ba8cef3c064a35f169700a43517aad88f0f0179cdc0a457392865eec0"
+  },
+  {
+   "path": "data/matches/2025-men-plc.json",
+   "bytes": 579561,
+   "sha256": "e0fc748ad3a57381f31fe2d36cba8b32ba09fccfa16a5e28309c3e2a40955ae1"
+  },
+  {
+   "path": "data/matches/2025-women-plc.json",
+   "bytes": 784465,
+   "sha256": "29f5549d507eaf33d74ce77316a202652df3376da94da29d216aceb37073a346"
+  },
+  {
+   "path": "data/matches/2026-men-plc.json",
+   "bytes": 970849,
+   "sha256": "d15fecc6c9d6fa238ba0883ccc77dd5fa82dd82d61640e5a05394831f8fb1cb5"
+  },
+  {
+   "path": "data/matches/2026-women-plc.json",
+   "bytes": 994283,
+   "sha256": "a05ef296878a5ddc2d501a4ced46c38f0bac9866449a052061d86f8ee4d85259"
+  },
+  {
+   "path": "data/reference/aliases.json",
+   "bytes": 692,
+   "sha256": "c4eed9bd795a2340a4cc000a1f7c762d17218c0ec354ff0f4fb689708a444eb4"
+  },
+  {
+   "path": "data/reference/membership.json",
+   "bytes": 3620,
+   "sha256": "65fb1405f60a1997138902346aa751ec527a7d4388c999d85badd7823f639ba9"
+  },
+  {
+   "path": "data/reference/programmes.json",
+   "bytes": 1681,
+   "sha256": "8120015e7ee2b1ef19b19be1bd39186c019fc12d5377d38710e7bb67a3317673"
+  },
+  {
+   "path": "data/rosters/2025-men-plc.json",
+   "bytes": 36309,
+   "sha256": "98f58d9a0f3bfdf664fdf30c3bcea9233d09b27fe19fdcb9748efe5ea3f4e799"
+  },
+  {
+   "path": "data/rosters/2025-women-plc.json",
+   "bytes": 36544,
+   "sha256": "db48c765fde0ef775d985f73d13d762f24ecb7fbc23587e39b60a33403ec5d89"
+  },
+  {
+   "path": "data/rosters/2026-men-plc.json",
+   "bytes": 48180,
+   "sha256": "21b7e3ef28f5130ba517802b335f0a583e0dc47423da2210ba93581f66037d5b"
+  },
+  {
+   "path": "data/rosters/2026-women-plc.json",
+   "bytes": 48456,
+   "sha256": "ccb1b0d494811badf04c8af2368bd9881c9b7dfaba7e2d962167cc781dabef8c"
+  },
+  {
+   "path": "data/stats/2025-men-plc.json",
+   "bytes": 52831,
+   "sha256": "bcd14e5b7b104925e25eeff8c9bb2409087765a50c01e7a3a8caae08a666ae0d"
+  },
+  {
+   "path": "data/stats/2025-women-plc.json",
+   "bytes": 44529,
+   "sha256": "dc37a42e9faf1226bb1c5ef0eab612aa8c8a0bedd7287536f8e79d8c46865c92"
+  },
+  {
+   "path": "data/stats/2026-men-plc.json",
+   "bytes": 70397,
+   "sha256": "ce9e52e7af87d5563509a326a234473adb07b1cca6a2e01a317a60d5c300f756"
+  },
+  {
+   "path": "data/stats/2026-women-plc.json",
+   "bytes": 70368,
+   "sha256": "ecf51268713ad8a74563d52b37e3c0f3d95b42860d1de1d9d4fbd5ece5acaeb6"
+  }
+ ]
+}

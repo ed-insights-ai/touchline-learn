@@ -1,0 +1,37 @@
+---
+// Seven pipeline steps in three zones. Colours come from src/styles/theme.css.
+const steps = [
+  { n: 1, x: 28, w: 122, title: "Fetch", lines: ["Ask each school", "site for 4 kinds", "of page. Only", "re-fetch what", "has changed."] },
+  { n: 2, x: 162, w: 122, title: "Archive", lines: ["Save the page", "untouched,", "before anything", "reads it."] },
+  { n: 3, x: 320, w: 122, title: "Prove", lines: ["Is this really", "the season and", "match we asked", "for? If unsure,", "refuse it."] },
+  { n: 4, x: 454, w: 122, title: "Parse", lines: ["Turn messy", "HTML into typed", "records: games,", "players, stats,", "box scores."] },
+  { n: 5, x: 588, w: 122, title: "Resolve", lines: ["Give every team", "one identity.", "Write the season", "files and note", "what is missing."] },
+  { n: 6, x: 722, w: 116, title: "Check", lines: ["Automatic gates:", "shape, parity,", "agreement. A", "failure stops", "the release."] },
+  { n: 7, x: 872, w: 102, title: "Build", lines: ["Site pages,", "the desk's", "database,", "journals."] },
+];
+const arrows = ["M150 137 H159", "M284 137 H317", "M442 137 H451", "M576 137 H585", "M710 137 H719", "M838 137 H869"];
+---
+
+<div class="tl-diagram not-content">
+  <svg viewBox="0 0 1000 250" role="img" aria-label="Seven pipeline steps in three zones: fetch and archive in the raw zone; prove, parse, resolve and check in the clean zone; build and publish in the derived zone.">
+    <defs>
+      <marker id="tl-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"></path></marker>
+    </defs>
+    <rect class="zr" x="14" y="16" width="282" height="218" rx="12"></rect>
+    <text class="z" x="28" y="40">RAW ZONE</text><text class="s" x="110" y="40">pages exactly as served</text>
+    <rect class="zc" x="306" y="16" width="544" height="218" rx="12"></rect>
+    <text class="z" x="320" y="40">CLEAN ZONE</text><text class="s" x="416" y="40">season files with a fixed shape</text>
+    <rect class="zd" x="860" y="16" width="126" height="218" rx="12"></rect>
+    <text class="z" x="872" y="40">DERIVED</text>
+    {steps.map((s) => (
+      <g>
+        <rect class="box" x={s.x} y="62" width={s.w} height="150" rx="8"></rect>
+        <circle class="num" cx={s.x + 18} cy="82" r="9"></circle>
+        <text class="numt" x={s.x + 14.5} y="86">{s.n}</text>
+        <text class="t" x={s.x + 34} y="87">{s.title}</text>
+        {s.lines.map((line, i) => <text class="s" x={s.x + 12} y={112 + i * 16}>{line}</text>)}
+      </g>
+    ))}
+    {arrows.map((d) => <path class="ar" d={d} marker-end="url(#tl-ah)"></path>)}
+  </svg>
+</div>

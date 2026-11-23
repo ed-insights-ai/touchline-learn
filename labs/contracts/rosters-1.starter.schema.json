@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "touchline.rosters/1 (starter: far too permissive)",
+  "type": "object",
+  "required": ["schema"],
+  "properties": {
+    "schema": { "type": "string" }
+  }
+}

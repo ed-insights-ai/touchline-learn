@@ -1,0 +1,58 @@
+{
+ "alder-ridge": [
+  "ARU",
+  "Alder Ridge"
+ ],
+ "brightwater-state": [
+  "BSU",
+  "Brightwater State"
+ ],
+ "cedar-hollow": [
+  "CHU",
+  "Cedar Hollow"
+ ],
+ "dunmore": [
+  "DUN",
+  "Dunmore"
+ ],
+ "eastmarch-state": [
+  "EMSU",
+  "Eastmarch State"
+ ],
+ "fallow-point": [
+  "FPU",
+  "Fallow Point"
+ ],
+ "st-oswin": [
+  "SOU",
+  "St. Oswin"
+ ],
+ "hartwell-tech": [
+  "HTU",
+  "Hartwell Tech"
+ ],
+ "westmarch-state": [
+  "WMSU",
+  "Westmarch State"
+ ],
+ "lakeshore-am": [
+  "LAM",
+  "Lakeshore A&M"
+ ],
+ "pine-barrens": [
+  "PBU",
+  "Pine Barrens"
+ ],
+ "north-quarry": [
+  "NQC",
+  "North Quarry"
+ ],
+ "st-brannoc": [
+  "SBC",
+  "St. Brannoc"
+ ],
+ "oswin-state": [
+  "OSU",
+  "Oswin State"
+ ]
+}

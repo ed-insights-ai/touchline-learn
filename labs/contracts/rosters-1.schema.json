@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "touchline.rosters/1 (teaching copy, one possible answer)",
+  "type": "object",
+  "required": ["schema", "season", "gender", "collected_at", "rosters"],
+  "properties": {
+    "schema": { "const": "touchline.rosters/1" },
+    "season": { "type": "integer", "minimum": 2000 },
+    "gender": { "enum": ["men", "women"] },
+    "collected_at": { "type": "string", "format": "date-time" },
+    "rosters": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["programme", "source_url", "players"],
+        "properties": {
+          "programme": { "type": "string" },
+          "source_url": { "type": "string", "pattern": "^https://" },
+          "players": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "source_url"],
+              "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "number": { "type": "string", "pattern": "^[0-9]{1,2}$" },
+                "position": { "type": "string" },
+                "height": { "type": "string" },
+                "weight": { "type": "string" },
+                "hometown": { "type": "string" },
+                "class_year": { "type": "string" },
+                "source_url": { "type": "string", "pattern": "^https://" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

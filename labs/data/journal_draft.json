@@ -1,0 +1,23 @@
+{
+  "about": "A drafted conference journal for the 2026 men's season, as a language model might return it. Every claim names the figure it rests on in `basis`. Some of these claims are wrong on purpose.",
+  "season": 2026,
+  "gender": "men",
+  "headline": "Alder Ridge sets the pace in the Prairie Lakes",
+  "claims": [
+    { "text": "Alder Ridge won nine of its conference games.",
+      "basis": { "metric": "wins", "team": "alder-ridge", "value": 9 } },
+    { "text": "The Herons conceded only 11 goals in conference play.",
+      "basis": { "metric": "goals_against", "team": "alder-ridge", "value": 11 } },
+    { "text": "Newcomer Hartwell Tech scored 29, the most in the league.",
+      "basis": { "metric": "goals_for", "team": "hartwell-tech", "value": 29 } },
+    { "text": "Cedar Hollow lost eight times.",
+      "basis": { "metric": "losses", "team": "cedar-hollow", "value": 8 } },
+    { "text": "St. Oswin has completed all 14 of its conference games.",
+      "basis": { "metric": "counted", "team": "st-oswin", "value": 14 } },
+    { "text": "Dax Haliford leads the league with six goals.",
+      "basis": { "metric": "player_goals", "team": "HTU", "player": "Dax Haliford", "value": 6 } },
+    { "text": "The Herons are playing with real confidence." },
+    { "text": "Brightwater State averaged 412 fans a game.",
+      "basis": { "metric": "average_attendance", "team": "brightwater-state", "value": 412 } }
+  ]
+}

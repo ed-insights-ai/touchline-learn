@@ -1,0 +1,1483 @@
+{
+ "schema": "touchline.fixtures/2",
+ "season": 2026,
+ "gender": "men",
+ "conference": "PLC",
+ "collected_at": "2026-11-20T12:30:00+00:00",
+ "membership_extrapolated": false,
+ "conference_game_source": "published:schedule-page",
+ "programmes": [
+  {
+   "slug": "alder-ridge",
+   "name": "Alder Ridge",
+   "conference": "PLC",
+   "abbr": "ARU"
+  },
+  {
+   "slug": "brightwater-state",
+   "name": "Brightwater State",
+   "conference": "PLC",
+   "abbr": "BSU"
+  },
+  {
+   "slug": "cedar-hollow",
+   "name": "Cedar Hollow",
+   "conference": "PLC",
+   "abbr": "CHU"
+  },
+  {
+   "slug": "dunmore",
+   "name": "Dunmore",
+   "conference": "PLC",
+   "abbr": "DUN"
+  },
+  {
+   "slug": "eastmarch-state",
+   "name": "Eastmarch State",
+   "conference": "PLC",
+   "abbr": "EMSU"
+  },
+  {
+   "slug": "fallow-point",
+   "name": "Fallow Point",
+   "conference": "PLC",
+   "abbr": "FPU"
+  },
+  {
+   "slug": "hartwell-tech",
+   "name": "Hartwell Tech",
+   "conference": "PLC",
+   "abbr": "HTU"
+  },
+  {
+   "slug": "lakeshore-am",
+   "name": "Lakeshore A&M",
+   "conference": "non_member",
+   "abbr": "LAM"
+  },
+  {
+   "slug": "north-quarry",
+   "name": "North Quarry",
+   "conference": "non_member",
+   "abbr": "NQC"
+  },
+  {
+   "slug": "oswin-state",
+   "name": "Oswin State",
+   "conference": "non_member",
+   "abbr": "OSU"
+  },
+  {
+   "slug": "pine-barrens",
+   "name": "Pine Barrens",
+   "conference": "non_member",
+   "abbr": "PBU"
+  },
+  {
+   "slug": "st-brannoc",
+   "name": "St. Brannoc",
+   "conference": "non_member",
+   "abbr": "SBC"
+  },
+  {
+   "slug": "st-oswin",
+   "name": "St. Oswin",
+   "conference": "PLC",
+   "abbr": "SOU"
+  },
+  {
+   "slug": "westmarch-state",
+   "name": "Westmarch State",
+   "conference": "non_member",
+   "abbr": "WMSU"
+  }
+ ],
+ "fixtures": [
+  {
+   "id": "tally:alder-ridge:8199",
+   "date": "2026-08-21",
+   "home": "alder-ridge",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:cedar-hollow:4921",
+   "date": "2026-08-21",
+   "home": "cedar-hollow",
+   "away": "pine-barrens",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:brightwater-state:9031",
+   "date": "2026-08-22",
+   "home": "brightwater-state",
+   "away": "lakeshore-am",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:dunmore:8524",
+   "date": "2026-08-22",
+   "home": "dunmore",
+   "away": "north-quarry",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 0,
+   "away_score": 5
+  },
+  {
+   "id": "tally:alder-ridge:8200",
+   "date": "2026-08-25",
+   "home": "alder-ridge",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:dunmore:8525",
+   "date": "2026-08-25",
+   "home": "north-quarry",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "North Quarry Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8770",
+   "date": "2026-08-25",
+   "home": "st-oswin",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:eastmarch-state:7309",
+   "date": "2026-08-26",
+   "home": "eastmarch-state",
+   "away": "st-brannoc",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 4,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:9032",
+   "date": "2026-08-26",
+   "home": "lakeshore-am",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Lakeshore A&M Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:hartwell-tech:7584",
+   "date": "2026-08-26",
+   "home": "lakeshore-am",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Lakeshore A&M Soccer Field",
+   "home_score": 3,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:cedar-hollow:4922",
+   "date": "2026-08-27",
+   "home": "cedar-hollow",
+   "away": "pine-barrens",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3587",
+   "date": "2026-08-27",
+   "home": "oswin-state",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Oswin State Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "tally:dunmore:8526",
+   "date": "2026-08-29",
+   "home": "dunmore",
+   "away": "oswin-state",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 3
+  },
+  {
+   "id": "tally:alder-ridge:8201",
+   "date": "2026-08-29",
+   "home": "pine-barrens",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Pine Barrens Soccer Field",
+   "home_score": 5,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8771",
+   "date": "2026-08-29",
+   "home": "pine-barrens",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Pine Barrens Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:brightwater-state:9033",
+   "date": "2026-08-30",
+   "home": "brightwater-state",
+   "away": "north-quarry",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 4,
+   "away_score": 0
+  },
+  {
+   "id": "tally:hartwell-tech:7585",
+   "date": "2026-08-30",
+   "home": "hartwell-tech",
+   "away": "north-quarry",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 3,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:eastmarch-state:7310",
+   "date": "2026-08-30",
+   "home": "westmarch-state",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Westmarch State Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:fallow-point:3588",
+   "date": "2026-08-31",
+   "home": "fallow-point",
+   "away": "lakeshore-am",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4923",
+   "date": "2026-08-31",
+   "home": "st-brannoc",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Brannoc Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:alder-ridge:8202",
+   "date": "2026-09-02",
+   "home": "alder-ridge",
+   "away": "st-brannoc",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "tally:dunmore:8527",
+   "date": "2026-09-02",
+   "home": "lakeshore-am",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Lakeshore A&M Soccer Field",
+   "home_score": 3,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8772",
+   "date": "2026-09-02",
+   "home": "st-oswin",
+   "away": "st-brannoc",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:eastmarch-state:7311",
+   "date": "2026-09-03",
+   "home": "eastmarch-state",
+   "away": "pine-barrens",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 4,
+   "away_score": 3
+  },
+  {
+   "id": "tally:brightwater-state:9034",
+   "date": "2026-09-03",
+   "home": "oswin-state",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Oswin State Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:hartwell-tech:7586",
+   "date": "2026-09-03",
+   "home": "oswin-state",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Oswin State Soccer Field",
+   "home_score": 1,
+   "away_score": 4
+  },
+  {
+   "id": "pressbox:cedar-hollow:4924",
+   "date": "2026-09-04",
+   "home": "cedar-hollow",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 3,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3589",
+   "date": "2026-09-04",
+   "home": "north-quarry",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "North Quarry Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:alder-ridge:8203",
+   "date": "2026-09-08",
+   "home": "alder-ridge",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:cedar-hollow:4925",
+   "date": "2026-09-08",
+   "home": "cedar-hollow",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 6,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:eastmarch-state:7312",
+   "date": "2026-09-08",
+   "home": "eastmarch-state",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 1,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:st-oswin:8773",
+   "date": "2026-09-08",
+   "home": "st-oswin",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4926",
+   "date": "2026-09-13",
+   "home": "cedar-hollow",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:eastmarch-state:7313",
+   "date": "2026-09-13",
+   "home": "eastmarch-state",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "tally:hartwell-tech:7587",
+   "date": "2026-09-13",
+   "home": "hartwell-tech",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 4,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:st-oswin:8774",
+   "date": "2026-09-13",
+   "home": "st-oswin",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 3
+  },
+  {
+   "id": "tally:alder-ridge:8204",
+   "date": "2026-09-16",
+   "home": "alder-ridge",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:cedar-hollow:4927",
+   "date": "2026-09-16",
+   "home": "cedar-hollow",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:eastmarch-state:7314",
+   "date": "2026-09-16",
+   "home": "eastmarch-state",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:hartwell-tech:7588",
+   "date": "2026-09-16",
+   "home": "hartwell-tech",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:cedar-hollow:4928",
+   "date": "2026-09-21",
+   "home": "cedar-hollow",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field"
+  },
+  {
+   "id": "pressbox:eastmarch-state:7315",
+   "date": "2026-09-21",
+   "home": "eastmarch-state",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3590",
+   "date": "2026-09-21",
+   "home": "fallow-point",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:hartwell-tech:7589",
+   "date": "2026-09-21",
+   "home": "hartwell-tech",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8205",
+   "date": "2026-09-24",
+   "home": "alder-ridge",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:cedar-hollow:4929",
+   "date": "2026-09-24",
+   "home": "cedar-hollow",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 1,
+   "away_score": 3
+  },
+  {
+   "id": "tally:fallow-point:3591",
+   "date": "2026-09-24",
+   "home": "fallow-point",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 3,
+   "away_score": 3
+  },
+  {
+   "id": "tally:hartwell-tech:7590",
+   "date": "2026-09-24",
+   "home": "hartwell-tech",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 3,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:cedar-hollow:4930",
+   "date": "2026-09-29",
+   "home": "cedar-hollow",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "tally:dunmore:8528",
+   "date": "2026-09-29",
+   "home": "dunmore",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3592",
+   "date": "2026-09-29",
+   "home": "fallow-point",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:hartwell-tech:7591",
+   "date": "2026-09-29",
+   "home": "hartwell-tech",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:alder-ridge:8206",
+   "date": "2026-10-02",
+   "home": "alder-ridge",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 3,
+   "away_score": 2
+  },
+  {
+   "id": "tally:dunmore:8529",
+   "date": "2026-10-02",
+   "home": "dunmore",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 0,
+   "away_score": 2
+  },
+  {
+   "id": "tally:fallow-point:3593",
+   "date": "2026-10-02",
+   "home": "fallow-point",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 3
+  },
+  {
+   "id": "tally:hartwell-tech:7592",
+   "date": "2026-10-02",
+   "home": "hartwell-tech",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:brightwater-state:9035",
+   "date": "2026-10-07",
+   "home": "brightwater-state",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:dunmore:8530",
+   "date": "2026-10-07",
+   "home": "dunmore",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 3,
+   "away_score": 2
+  },
+  {
+   "id": "tally:fallow-point:3594",
+   "date": "2026-10-07",
+   "home": "fallow-point",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:hartwell-tech:7593",
+   "date": "2026-10-07",
+   "home": "hartwell-tech",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 1,
+   "away_score": 5
+  },
+  {
+   "id": "tally:alder-ridge:8207",
+   "date": "2026-10-10",
+   "home": "alder-ridge",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:9036",
+   "date": "2026-10-10",
+   "home": "brightwater-state",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 4,
+   "away_score": 0
+  },
+  {
+   "id": "tally:dunmore:8531",
+   "date": "2026-10-10",
+   "home": "dunmore",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3595",
+   "date": "2026-10-10",
+   "home": "fallow-point",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:brightwater-state:9037",
+   "date": "2026-10-15",
+   "home": "brightwater-state",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 4,
+   "away_score": 1
+  },
+  {
+   "id": "tally:dunmore:8532",
+   "date": "2026-10-15",
+   "home": "dunmore",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 0,
+   "away_score": 7
+  },
+  {
+   "id": "tally:fallow-point:3596",
+   "date": "2026-10-15",
+   "home": "fallow-point",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 1,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:st-oswin:8775",
+   "date": "2026-10-15",
+   "home": "st-oswin",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:alder-ridge:8208",
+   "date": "2026-10-18",
+   "home": "alder-ridge",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:9038",
+   "date": "2026-10-18",
+   "home": "brightwater-state",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:dunmore:8533",
+   "date": "2026-10-18",
+   "home": "dunmore",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:st-oswin:8776",
+   "date": "2026-10-18",
+   "home": "st-oswin",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:9039",
+   "date": "2026-10-23",
+   "home": "brightwater-state",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 3,
+   "away_score": 2
+  },
+  {
+   "id": "tally:dunmore:8534",
+   "date": "2026-10-23",
+   "home": "dunmore",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:eastmarch-state:7316",
+   "date": "2026-10-23",
+   "home": "eastmarch-state",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 4,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8777",
+   "date": "2026-10-23",
+   "home": "st-oswin",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8209",
+   "date": "2026-10-26",
+   "home": "alder-ridge",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 4,
+   "away_score": 1
+  },
+  {
+   "id": "tally:brightwater-state:9040",
+   "date": "2026-10-26",
+   "home": "brightwater-state",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:eastmarch-state:7317",
+   "date": "2026-10-26",
+   "home": "eastmarch-state",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8778",
+   "date": "2026-10-26",
+   "home": "st-oswin",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:brightwater-state:9041",
+   "date": "2026-10-31",
+   "home": "brightwater-state",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 0,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:cedar-hollow:4931",
+   "date": "2026-10-31",
+   "home": "cedar-hollow",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 0,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:eastmarch-state:7318",
+   "date": "2026-11-21",
+   "home": "eastmarch-state",
+   "away": "fallow-point",
+   "status": "scheduled",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Eastmarch State Soccer Field"
+  },
+  {
+   "id": "pressbox:st-oswin:8779",
+   "date": "2026-11-21",
+   "home": "st-oswin",
+   "away": "dunmore",
+   "status": "scheduled",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field"
+  },
+  {
+   "id": "tally:alder-ridge:8210",
+   "date": "2026-11-15",
+   "home": "alder-ridge",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "postseason",
+    "competition": "conference",
+    "source": "2026 PLC Men's Soccer Tournament",
+    "round_published": "Semifinals"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 4,
+   "away_score": 3
+  },
+  {
+   "id": "tally:hartwell-tech:7594",
+   "date": "2026-11-15",
+   "home": "hartwell-tech",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "postseason",
+    "competition": "conference",
+    "source": "2026 PLC Men's Soccer Tournament",
+    "round_published": "Semifinals"
+   },
+   "time": "13:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8211",
+   "date": "2026-11-22",
+   "home": "alder-ridge",
+   "away": "hartwell-tech",
+   "status": "scheduled",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "conference_game": false,
+   "stage": {
+    "phase": "postseason",
+    "competition": "conference",
+    "source": "2026 PLC Men's Soccer Tournament",
+    "round_published": "Championship"
+   },
+   "neutral": true,
+   "time": "19:00",
+   "venue": "Lakefront Stadium"
+  }
+ ]
+}

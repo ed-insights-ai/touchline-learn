@@ -1,0 +1,1124 @@
+{
+ "schema": "touchline.rosters/1",
+ "season": 2025,
+ "gender": "men",
+ "collected_at": "2025-12-16T12:30:00+00:00",
+ "rosters": {
+  "alder-ridge": {
+   "programme": "alder-ridge",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Dax Ashelund",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "5'5\"",
+     "hometown": "Wren Hollow, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/dax-ashelund/1597"
+    },
+    {
+     "name": "Nils Selelford",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "5'9\"",
+     "hometown": "Tallgrass, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/nils-selelford/5632"
+    },
+    {
+     "name": "Hale Halibell",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Tallgrass, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/hale-halibell/5758"
+    },
+    {
+     "name": "Nils Meranwick",
+     "number": "4",
+     "position": "Defender",
+     "height": "5'2\"",
+     "hometown": "Marrow Creek, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/nils-meranwick/9331"
+    },
+    {
+     "name": "Dov Yarinley",
+     "number": "5",
+     "position": "Defender",
+     "height": "6'11\"",
+     "hometown": "Coldwater Bend, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/dov-yarinley/4619"
+    },
+    {
+     "name": "Tobin Feninwick",
+     "number": "6",
+     "position": "Defender",
+     "height": "5'9\"",
+     "hometown": "Redfern, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/tobin-feninwick/2846"
+    },
+    {
+     "name": "Ulric Brenenley",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'7\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/ulric-brenenley/6584"
+    },
+    {
+     "name": "Ilan Garemark",
+     "number": "8",
+     "position": "Defender",
+     "height": "5'3\"",
+     "hometown": "Mill Prairie, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/ilan-garemark/6301"
+    },
+    {
+     "name": "Corwin Uleby",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "6'8\"",
+     "hometown": "Stonebridge, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/corwin-uleby/6424"
+    },
+    {
+     "name": "Teague Yararstad",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'10\"",
+     "hometown": "Wren Hollow, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/teague-yararstad/9941"
+    },
+    {
+     "name": "Evander Kesinford",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'8\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/evander-kesinford/5473"
+    },
+    {
+     "name": "Ulric Kesorsen",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'10\"",
+     "hometown": "Iron Fork, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/ulric-kesorsen/5300"
+    },
+    {
+     "name": "Ulric Rosinren",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "6'4\"",
+     "hometown": "Wren Hollow, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/ulric-rosinren/4050"
+    },
+    {
+     "name": "Hale Pelindane",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "6'1\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/hale-pelindane/3183"
+    },
+    {
+     "name": "Lorne Caletstad",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'2\"",
+     "hometown": "Marrow Creek, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/lorne-caletstad/3519"
+    },
+    {
+     "name": "Tobin Noretnell",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'2\"",
+     "hometown": "Stonebridge, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/tobin-noretnell/3914"
+    },
+    {
+     "name": "Joss Yarelvik",
+     "number": "17",
+     "position": "Forward",
+     "height": "6'3\"",
+     "hometown": "Stonebridge, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/joss-yarelvik/8420"
+    },
+    {
+     "name": "Wim Yararnell",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'10\"",
+     "hometown": "Larkspur, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/wim-yararnell/6897"
+    },
+    {
+     "name": "Caius Wesanster",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'8\"",
+     "hometown": "Marrow Creek, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/caius-wesanster/4564"
+    },
+    {
+     "name": "Fenn Doriby",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'8\"",
+     "hometown": "Stonebridge, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/roster/fenn-doriby/4977"
+    }
+   ]
+  },
+  "brightwater-state": {
+   "programme": "brightwater-state",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Orrin Pelinwick",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'5\"",
+     "hometown": "Tallgrass, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/orrin-pelinwick/3352"
+    },
+    {
+     "name": "Rafe Doromark",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'4\"",
+     "hometown": "Coldwater Bend, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/rafe-doromark/5861"
+    },
+    {
+     "name": "Lorne Meraster",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'3\"",
+     "hometown": "Wren Hollow, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/lorne-meraster/4171"
+    },
+    {
+     "name": "Corwin Wesetholt",
+     "number": "4",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Mill Prairie, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/corwin-wesetholt/6158"
+    },
+    {
+     "name": "Aldo Barustad",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Wren Hollow, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/aldo-barustad/6398"
+    },
+    {
+     "name": "Corwin Weseford",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'2\"",
+     "hometown": "Marrow Creek, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/corwin-weseford/2587"
+    },
+    {
+     "name": "Bram Quenosen",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'7\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/bram-quenosen/3317"
+    },
+    {
+     "name": "Bram Ashanrick",
+     "number": "8",
+     "position": "Defender",
+     "height": "5'11\"",
+     "hometown": "Wren Hollow, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/bram-ashanrick/9208"
+    },
+    {
+     "name": "Evander Ashinren",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Sable Lake, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/evander-ashinren/4485"
+    },
+    {
+     "name": "Maro Kesiholt",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'5\"",
+     "hometown": "Sable Lake, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/maro-kesiholt/5176"
+    },
+    {
+     "name": "Rafe Norestad",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'7\"",
+     "hometown": "Iron Fork, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/rafe-norestad/5096"
+    },
+    {
+     "name": "Pax Kesusen",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Coldwater Bend, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/pax-kesusen/9973"
+    },
+    {
+     "name": "Tobin Gariwick",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'11\"",
+     "hometown": "Quarry Hill, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/tobin-gariwick/9043"
+    },
+    {
+     "name": "Pax Thalorren",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Tallgrass, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/pax-thalorren/8150"
+    },
+    {
+     "name": "Joss Brenellund",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'5\"",
+     "hometown": "Mill Prairie, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/joss-brenellund/7190"
+    },
+    {
+     "name": "Fenn Torimark",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'5\"",
+     "hometown": "Stonebridge, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/fenn-torimark/6971"
+    },
+    {
+     "name": "Quill Meredane",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'7\"",
+     "hometown": "Wren Hollow, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/quill-meredane/6029"
+    },
+    {
+     "name": "Joss Wesenren",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'11\"",
+     "hometown": "Stonebridge, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/joss-wesenren/7816"
+    },
+    {
+     "name": "Wim Corardane",
+     "number": "19",
+     "position": "Forward",
+     "height": "6'3\"",
+     "hometown": "Iron Fork, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/wim-corardane/9621"
+    },
+    {
+     "name": "Joss Varormark",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'6\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/roster/joss-varormark/4472"
+    }
+   ]
+  },
+  "cedar-hollow": {
+   "programme": "cedar-hollow",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Wim Fenilund",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "5'9\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/wim-fenilund/4776"
+    },
+    {
+     "name": "Wim Yaranell",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'2\"",
+     "hometown": "Wren Hollow, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/wim-yaranell/7205"
+    },
+    {
+     "name": "Bram Pelamore",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'3\"",
+     "hometown": "Iron Fork, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/bram-pelamore/7707"
+    },
+    {
+     "name": "Zeke Uluvik",
+     "number": "4",
+     "position": "Defender",
+     "height": "6'9\"",
+     "hometown": "Wren Hollow, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/zeke-uluvik/5390"
+    },
+    {
+     "name": "Ulric Varuster",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Tallgrass, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/ulric-varuster/8974"
+    },
+    {
+     "name": "Rafe Thalenbell",
+     "number": "6",
+     "position": "Defender",
+     "height": "5'4\"",
+     "hometown": "Mill Prairie, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/rafe-thalenbell/3987"
+    },
+    {
+     "name": "Yarrow Barindane",
+     "number": "7",
+     "position": "Defender",
+     "height": "5'5\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/yarrow-barindane/9229"
+    },
+    {
+     "name": "Dax Yaroren",
+     "number": "8",
+     "position": "Defender",
+     "height": "6'0\"",
+     "hometown": "Mill Prairie, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/dax-yaroren/7272"
+    },
+    {
+     "name": "Wim Brenetrick",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'4\"",
+     "hometown": "Iron Fork, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/wim-brenetrick/5557"
+    },
+    {
+     "name": "Hale Zelelquist",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'1\"",
+     "hometown": "Redfern, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/hale-zelelquist/5368"
+    },
+    {
+     "name": "Yarrow Torinby",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "6'5\"",
+     "hometown": "Larkspur, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/yarrow-torinby/5760"
+    },
+    {
+     "name": "Aldo Thalestad",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'11\"",
+     "hometown": "Larkspur, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/aldo-thalestad/8069"
+    },
+    {
+     "name": "Ulric Thalanstad",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "6'4\"",
+     "hometown": "Mill Prairie, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/ulric-thalanstad/2699"
+    },
+    {
+     "name": "Nils Thalevik",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'9\"",
+     "hometown": "Coldwater Bend, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/nils-thalevik/1822"
+    },
+    {
+     "name": "Lorne Quenoby",
+     "number": "15",
+     "position": "Forward",
+     "height": "6'5\"",
+     "hometown": "Quarry Hill, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/lorne-quenoby/1014"
+    },
+    {
+     "name": "Ilan Doradane",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'9\"",
+     "hometown": "Marrow Creek, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/ilan-doradane/3587"
+    },
+    {
+     "name": "Evander Corarmark",
+     "number": "17",
+     "position": "Forward",
+     "height": "6'9\"",
+     "hometown": "Hazel Run, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/evander-corarmark/4277"
+    },
+    {
+     "name": "Rafe Varawick",
+     "number": "18",
+     "position": "Forward",
+     "height": "6'7\"",
+     "hometown": "Iron Fork, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/rafe-varawick/2440"
+    },
+    {
+     "name": "Nils Gararbell",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'3\"",
+     "hometown": "Marrow Creek, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/nils-gararbell/4861"
+    },
+    {
+     "name": "Caius Kesanby",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'3\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/caius-kesanby/5088"
+    }
+   ]
+  },
+  "eastmarch-state": {
+   "programme": "eastmarch-state",
+   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Caius Brenorbell",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'8\"",
+     "hometown": "Redfern, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/caius-brenorbell/2478"
+    },
+    {
+     "name": "Tobin Varanholt",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "5'5\"",
+     "hometown": "Stonebridge, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/tobin-varanholt/4571"
+    },
+    {
+     "name": "Dov Rosolund",
+     "number": "3",
+     "position": "Defender",
+     "height": "6'4\"",
+     "hometown": "Stonebridge, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/dov-rosolund/1677"
+    },
+    {
+     "name": "Dax Noranquist",
+     "number": "4",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Wren Hollow, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/dax-noranquist/3248"
+    },
+    {
+     "name": "Quill Vararren",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'2\"",
+     "hometown": "Iron Fork, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/quill-vararren/8304"
+    },
+    {
+     "name": "Tobin Torudane",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'0\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/tobin-torudane/4397"
+    },
+    {
+     "name": "Zeke Wesoholt",
+     "number": "7",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Coldwater Bend, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/zeke-wesoholt/3611"
+    },
+    {
+     "name": "Tobin Rosiford",
+     "number": "8",
+     "position": "Defender",
+     "height": "5'2\"",
+     "hometown": "Quarry Hill, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/tobin-rosiford/9406"
+    },
+    {
+     "name": "Bram Dorinholt",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'0\"",
+     "hometown": "Mill Prairie, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/bram-dorinholt/4595"
+    },
+    {
+     "name": "Tobin Ashorvik",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "6'7\"",
+     "hometown": "Tallgrass, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/tobin-ashorvik/5190"
+    },
+    {
+     "name": "Hale Coreldane",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'8\"",
+     "hometown": "Stonebridge, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/hale-coreldane/8761"
+    },
+    {
+     "name": "Nils Varoren",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'1\"",
+     "hometown": "Coldwater Bend, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/nils-varoren/2124"
+    },
+    {
+     "name": "Orrin Pelenholt",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'1\"",
+     "hometown": "Wren Hollow, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/orrin-pelenholt/3634"
+    },
+    {
+     "name": "Caius Zeleholt",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "6'2\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/caius-zeleholt/9375"
+    },
+    {
+     "name": "Ulric Garastad",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'7\"",
+     "hometown": "Marrow Creek, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/ulric-garastad/3871"
+    },
+    {
+     "name": "Ilan Varennell",
+     "number": "16",
+     "position": "Forward",
+     "height": "6'9\"",
+     "hometown": "Sable Lake, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/ilan-varennell/9218"
+    },
+    {
+     "name": "Ulric Baranstad",
+     "number": "17",
+     "position": "Forward",
+     "height": "6'8\"",
+     "hometown": "Mill Prairie, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/ulric-baranstad/1412"
+    },
+    {
+     "name": "Anselm Fenarford",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'5\"",
+     "hometown": "Quarry Hill, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/anselm-fenarford/2361"
+    },
+    {
+     "name": "Soren Fenorster",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'0\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/soren-fenorster/1940"
+    },
+    {
+     "name": "Ulric Pelamark",
+     "number": "20",
+     "position": "Forward",
+     "height": "5'9\"",
+     "hometown": "Hazel Run, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/ulric-pelamark/7713"
+    }
+   ]
+  },
+  "fallow-point": {
+   "programme": "fallow-point",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Yarrow Noremark",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "5'4\"",
+     "hometown": "Marrow Creek, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/yarrow-noremark/1187"
+    },
+    {
+     "name": "Yarrow Wesorsen",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'7\"",
+     "hometown": "Sable Lake, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/yarrow-wesorsen/6830"
+    },
+    {
+     "name": "Caius Haleren",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Sable Lake, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/caius-haleren/7080"
+    },
+    {
+     "name": "Teague Selaholt",
+     "number": "4",
+     "position": "Defender",
+     "height": "5'2\"",
+     "hometown": "Mill Prairie, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/teague-selaholt/2045"
+    },
+    {
+     "name": "Pax Thalanford",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'10\"",
+     "hometown": "Redfern, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/pax-thalanford/1565"
+    },
+    {
+     "name": "Corwin Osenholt",
+     "number": "6",
+     "position": "Defender",
+     "height": "5'7\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/corwin-osenholt/7424"
+    },
+    {
+     "name": "Lorne Wesarbell",
+     "number": "7",
+     "position": "Defender",
+     "height": "5'11\"",
+     "hometown": "Coldwater Bend, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/lorne-wesarbell/7702"
+    },
+    {
+     "name": "Emeric Fenarbell",
+     "number": "8",
+     "position": "Defender",
+     "height": "6'9\"",
+     "hometown": "Coldwater Bend, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/emeric-fenarbell/4835"
+    },
+    {
+     "name": "Bram Thalannell",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "6'11\"",
+     "hometown": "Iron Fork, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/bram-thalannell/1318"
+    },
+    {
+     "name": "Evander Jorister",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'2\"",
+     "hometown": "Marrow Creek, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/evander-jorister/5387"
+    },
+    {
+     "name": "Lorne Thalastad",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'5\"",
+     "hometown": "Sable Lake, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/lorne-thalastad/3728"
+    },
+    {
+     "name": "Caius Garenbell",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'6\"",
+     "hometown": "Larkspur, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/caius-garenbell/7829"
+    },
+    {
+     "name": "Bram Quenenmark",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'8\"",
+     "hometown": "Iron Fork, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/bram-quenenmark/1595"
+    },
+    {
+     "name": "Zeke Halovik",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "6'0\"",
+     "hometown": "Larkspur, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/zeke-halovik/6390"
+    },
+    {
+     "name": "Ulric Osetdane",
+     "number": "15",
+     "position": "Forward",
+     "height": "6'5\"",
+     "hometown": "Mill Prairie, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/ulric-osetdane/2054"
+    },
+    {
+     "name": "Hale Noruholt",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'6\"",
+     "hometown": "Hazel Run, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/hale-noruholt/7243"
+    },
+    {
+     "name": "Joss Cororbell",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'11\"",
+     "hometown": "Stonebridge, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/joss-cororbell/5021"
+    },
+    {
+     "name": "Maro Lamarquist",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'3\"",
+     "hometown": "Mill Prairie, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/maro-lamarquist/3128"
+    },
+    {
+     "name": "Dax Meriley",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'5\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/dax-meriley/5909"
+    },
+    {
+     "name": "Ilan Yaririck",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'2\"",
+     "hometown": "Marrow Creek, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/ilan-yaririck/7816"
+    }
+   ]
+  },
+  "st-oswin": {
+   "programme": "st-oswin",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Rafe Thalester",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'1\"",
+     "hometown": "Hazel Run, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/rafe-thalester/9221"
+    },
+    {
+     "name": "Joss Selinster",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'2\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/joss-selinster/3648"
+    },
+    {
+     "name": "Bram Brenarren",
+     "number": "3",
+     "position": "Defender",
+     "height": "6'3\"",
+     "hometown": "Quarry Hill, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/bram-brenarren/3710"
+    },
+    {
+     "name": "Hale Bararmore",
+     "number": "4",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/hale-bararmore/3707"
+    },
+    {
+     "name": "Tobin Brenansen",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'4\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/tobin-brenansen/7451"
+    },
+    {
+     "name": "Teague Ashester",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Coldwater Bend, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/teague-ashester/5654"
+    },
+    {
+     "name": "Soren Selorster",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'0\"",
+     "hometown": "Mill Prairie, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/soren-selorster/1696"
+    },
+    {
+     "name": "Aldo Nororen",
+     "number": "8",
+     "position": "Defender",
+     "height": "5'4\"",
+     "hometown": "Coldwater Bend, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/aldo-nororen/3517"
+    },
+    {
+     "name": "Zeke Merabell",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "6'8\"",
+     "hometown": "Sable Lake, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/zeke-merabell/9824"
+    },
+    {
+     "name": "Vance Peletholt",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "6'2\"",
+     "hometown": "Iron Fork, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/vance-peletholt/6669"
+    },
+    {
+     "name": "Rafe Yaraholt",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "6'6\"",
+     "hometown": "Sable Lake, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/rafe-yaraholt/6649"
+    },
+    {
+     "name": "Vance Ulorrick",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "6'1\"",
+     "hometown": "Sable Lake, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/vance-ulorrick/9012"
+    },
+    {
+     "name": "Nils Toraholt",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "6'5\"",
+     "hometown": "Stonebridge, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/nils-toraholt/9970"
+    },
+    {
+     "name": "Pax Dorinbell",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'8\"",
+     "hometown": "Mill Prairie, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/pax-dorinbell/7783"
+    },
+    {
+     "name": "Lorne Keseley",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'5\"",
+     "hometown": "Larkspur, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/lorne-keseley/5687"
+    },
+    {
+     "name": "Ulric Wesolund",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'7\"",
+     "hometown": "Coldwater Bend, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/ulric-wesolund/1210"
+    },
+    {
+     "name": "Lorne Joranbell",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'4\"",
+     "hometown": "Wren Hollow, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/lorne-joranbell/3900"
+    },
+    {
+     "name": "Anselm Dororick",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'1\"",
+     "hometown": "Stonebridge, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/anselm-dororick/2649"
+    },
+    {
+     "name": "Corwin Fenorquist",
+     "number": "19",
+     "position": "Forward",
+     "height": "6'2\"",
+     "hometown": "Marrow Creek, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/corwin-fenorquist/1604"
+    },
+    {
+     "name": "Fenn Norinford",
+     "number": "20",
+     "position": "Forward",
+     "height": "5'5\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/fenn-norinford/2289"
+    }
+   ]
+  }
+ }
+}
