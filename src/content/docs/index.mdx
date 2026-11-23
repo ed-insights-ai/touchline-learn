@@ -1,64 +1,59 @@
 ---
 title: Touchline Learn
-description: A teaching guide to a working data platform, for data science students. Ten modules in the order data flows, each with a lab you can run.
+description: Learn how a trustworthy data platform fits together, so you can judge what AI builds. Ten modules in the order data flows.
 template: splash
 hero:
-  tagline: How a real data platform is put together, taught in the order the data flows. Ten modules, each with a lab that runs on your laptop.
+  tagline: AI can build a data pipeline in an afternoon. Learn how a trustworthy one fits together, so you can tell whether to believe the result.
   actions:
-    - text: Start with the platform in one view
+    - text: See how it fits together
       link: ./start/platform/
       icon: right-arrow
-    - text: Set up the labs
-      link: ./start/setup/
+    - text: Try a full lesson
+      link: ./modules/05-identity/
       variant: minimal
 ---
 
-import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+import CourseJourney from "../../components/CourseJourney.astro";
 import PipelineDiagram from "../../components/PipelineDiagram.astro";
 
 Touchline is a working data platform for college soccer. It collects what about
 a thousand school athletics websites publish, turns it into one consistent
 dataset, and publishes it as a public website and a verified analytical
-database. A separate app, Touchline Desk, uses that database for AI-enhanced
-analysis.
+database.
 
-This site uses it as a case study for teaching data engineering to data science
-students. Every technique here is in production, and each one exists because
-something went wrong without it.
+This course uses it as a case study. You will not need to write much code. You
+will learn what each part of a data platform is for, how the parts depend on
+each other, and which questions expose a result that only looks right. Every
+technique here is in production, and each one exists because something went
+wrong without it.
 
 <PipelineDiagram />
 
 ## What you will be able to do
 
-- Explain why a pipeline keeps raw, clean and derived data apart, and what each layer is allowed to depend on.
-- Design a provenance check for a scraped source, and say what should happen when the check fails.
-- Resolve entity names without fuzzy matching, and argue when that is the right choice.
-- Tell the kinds of missing data apart, and represent each one in a schema.
-- Write a data contract, and build a gate that enforces it.
-- Explain what determinism buys, and where a language model can and cannot sit in a pipeline.
-- Reason about access, secrets and cost in a system that mixes public code with private data.
+- Look at a clean AI-built result and name how it could still be wrong.
+- Ask for the evidence that would confirm or overturn it.
+- Explain why raw, clean and derived data stay apart, and what that makes recoverable.
+- Decide where a check belongs, and what should happen when it fails.
+- Tell a false merge from a real one, and unknown data from a true zero.
+- Say where a language model can sit in a pipeline, and where it must not.
 
-## The ten modules
+## The journey
 
-<CardGrid>
-  <LinkCard title="1. Sources and collection" href="./modules/01-collection/" description="A registry, units of work, incremental fetching, and a record of what could not be collected." />
-  <LinkCard title="2. The raw archive" href="./modules/02-archive/" description="Save the source untouched. Fix bugs by replaying it." />
-  <LinkCard title="3. Proof before parse" href="./modules/03-provenance/" description="A page must prove what it is before anyone reads what it says." />
-  <LinkCard title="4. Parsing" href="./modules/04-parsing/" description="Reading pages that were never meant to be data." />
-  <LinkCard title="5. Identity" href="./modules/05-identity/" description="One school, many spellings, and no guessing." />
-  <LinkCard title="6. Contracts and missing data" href="./modules/06-contracts/" description="A written shape, and four different kinds of nothing." />
-  <LinkCard title="7. Gates and parity" href="./modules/07-gates/" description="Checks with the power to stop the line." />
-  <LinkCard title="8. Derived products" href="./modules/08-products/" description="A static site and an analytical database from the same files." />
-  <LinkCard title="9. Where AI fits" href="./modules/09-ai/" description="Code computes, the model writes, and a validator decides." />
-  <LinkCard title="10. Repositories and operations" href="./modules/10-operations/" description="Who holds the keys, what runs when, and what it costs." />
-</CardGrid>
+The course follows one question: an AI tool hands you a clean result, so how do
+you know it is right? Each module answers one part of that question and raises
+the next.
+
+<CourseJourney />
 
 ## Who it is for
 
-Upper-level undergraduates or first-year graduate students in data science,
-statistics or computer science. You should know basic Python or SQL, what JSON
-and HTML are, and what a join is. No knowledge of soccer is needed. One rule is
-enough: a match has two teams and a score, and a season is a set of matches.
+Anyone who works with data and wants to understand how a reliable pipeline is
+put together, especially upper-level or graduate students in data science,
+statistics or computer science. It helps to know what a table and a join are.
+No knowledge of soccer is needed. One rule is enough: a match has two teams and
+a score, and a season is a set of matches.
 
-Instructors will find capstone projects, pacing and an answer key under
+Each module also has an optional lab if you want to run the code. Instructors
+will find capstone projects, pacing and an answer key under
 [Teaching](./teaching/instructor-notes/).

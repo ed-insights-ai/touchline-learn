@@ -5,6 +5,11 @@ sidebar:
   order: 3
 ---
 
+:::note[Labs are optional]
+You can learn every concept in this course on screen. Set up the labs only if
+you want to run the code yourself.
+:::
+
 Every lab runs offline from a fresh clone. Nothing is downloaded while a lab
 runs, and no account or key is needed.
 

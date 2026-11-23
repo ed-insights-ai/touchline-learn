@@ -5,8 +5,10 @@ sidebar:
   order: 4
 ---
 
-Every lab runs on one small data home in `sample/`. It describes the **Prairie
-Lakes Conference**, which does not exist.
+Every lesson and lab uses one small data home in `sample/`. It describes the
+**Prairie Lakes Conference**, which does not exist. You do not need to read this
+page to follow the course. It is here for when you want to know what is behind
+an example.
 
 :::note[Everything in the sample is invented]
 The conference, the eight schools and their opponents, every player, every

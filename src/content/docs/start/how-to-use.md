@@ -7,17 +7,17 @@ sidebar:
 
 ## How it is organized
 
-There are ten modules, in the order data flows. Most share these parts:
+There are ten modules, in the order data flows. Read them in order the first
+time, because each step relies on the one before it. The goal is judgment:
+knowing what each part is for, what breaks without it, and what to ask when an
+AI tool hands you a result.
 
-- **The idea**, in a paragraph.
-- **How Touchline does it**, with the specific rules the platform follows.
-- **An example** from the platform's own history.
-- **Terms**, so you can connect it to the wider literature.
-- **Questions** for discussion.
-- **A lab** you run on your own machine, and an exercise to take further.
+Interactive lessons ask you to decide before they explain. Commit to an answer
+even when you are unsure. A wrong guess you can explain teaches more than a
+right answer you skimmed past.
 
-Work at your own pace. A module and its lab are sized for one sitting. Capstone
-projects and discussion notes are under [Teaching](../../teaching/capstones/).
+Work at your own pace. Each module is sized for one sitting. Capstone projects
+and discussion notes are under [Teaching](../../teaching/capstones/).
 
 ## Two kinds of example
 
@@ -26,18 +26,19 @@ Saint school into a State school, or that the first parity run found 7 timing
 differences, that happened on the real platform. The schools named in those
 stories are real schools, and the facts are ones their own sites published.
 
-**Data in the labs is invented.** The labs run on a small sample built for this
-site: a made-up conference with made-up schools, players, scores and web pages.
+**Data in the lessons and labs is invented.** They run on a small sample built
+for this site: a made-up conference with made-up schools, players, scores and web pages.
 It follows the field names and layout of the real season files, so everything
 you practice transfers. The full Division I and II datasets are private and are
 not needed for anything here. See [The sample data](../sample-data/).
 
 ## What you need
 
-- For reading: nothing.
-- For the labs: Python 3.10 or newer and two packages. See [Set up the labs](../setup/).
+A browser is enough. The labs are optional, for when you want to run the code
+yourself. They need Python 3.10 or newer and two packages. See
+[Set up the labs](../setup/).
 
-## How to read a lab's output
+## If you run a lab
 
 Every lab prints a line that starts `RESULT:` and sets an exit code, because a
 check is more useful when a machine can act on it:

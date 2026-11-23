@@ -1,0 +1,38 @@
+---
+import { journey } from "../data/journey";
+---
+
+<div class="cj not-content">
+  {journey.map((part, i) => (
+    <section class="cj-part">
+      <h3><span>Part {i + 1}</span> {part.title}</h3>
+      <p>{part.aim}</p>
+      <ol start={part.modules[0].n}>
+        {part.modules.map((m) => (
+          <li>
+            <a href={`./modules/${m.slug}/`}>
+              <b>{m.n}</b>
+              <span><strong>{m.name}</strong>{m.question}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))}
+</div>
+
+<style is:global>
+  .cj { display: grid; gap: 1.5rem; margin-top: 1rem; }
+  .cj-part { padding-left: 1rem; border-left: 3px solid var(--sl-color-accent); }
+  .cj-part h3 { margin: 0 0 0.15rem; color: var(--sl-color-white); font-size: 1.2rem; line-height: 1.25; font-weight: 700; }
+  .cj-part h3 span { display: block; color: var(--tl-muted); font-size: 0.85rem; font-weight: 600; }
+  .cj-part p { margin: 0 0 0.6rem; color: var(--tl-ink); }
+  .cj-part ol { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+  .cj-part li { margin: 0; }
+  .cj-part a { display: flex; align-items: center; gap: 0.75rem; min-height: 44px; padding: 0.5rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); text-decoration: none; line-height: 1.3; }
+  .cj-part a:hover { border-color: var(--sl-color-accent); }
+  .cj-part a:focus-visible { outline: 3px solid var(--sl-color-accent); outline-offset: 2px; }
+  .cj-part b { flex: none; width: 1.6rem; color: var(--sl-color-accent); font-size: 1.05rem; text-align: center; font-variant-numeric: tabular-nums; }
+  .cj-part a span { display: grid; font-size: 0.92rem; color: var(--tl-muted); }
+  .cj-part a strong { color: var(--tl-ink); font-size: 1rem; font-weight: 650; }
+</style>
