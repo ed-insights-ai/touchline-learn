@@ -77,18 +77,18 @@ every published name and resolves it.
 ```
 Step 1: the grammar
 '#9 Brightwater St.'         -> 'Brightwater St.'
-'(3) Saint Oswin'            -> 'Saint Oswin'
+'(3) Saint Lambert'          -> 'Saint Lambert'
 110 published spellings reduce to 30
 
 Step 2: exact lookup
-resolved: 60 spellings to 14 programmes
+resolved: 60 spellings to 14 programs
 
 Step 3: what is left needs a ruling
   36  Alder Ridge Univ.
   24  Brightwater St.
-   5  Oswin St.
-  16  Saint Oswin
-  11  Westmarch St.
+   5  Lambert St.
+  16  Saint Lambert
+  11  Westbrook St.
   ...
 ```
 
@@ -101,26 +101,28 @@ The lab ends by running a fuzzy matcher (Python's `difflib`) over the same
 names against the eight member schools:
 
 ```
-FALSE MERGE  'Westmarch St.' -> 'Eastmarch State'
-FALSE MERGE  'Westmarch State' -> 'Eastmarch State'
+FALSE MERGE  'Westbrook St.' -> 'Eastbrook State'
+FALSE MERGE  'Westbrook State' -> 'Eastbrook State'
 2 false merges, and the matcher raised no error for any of them
 ```
 
-Westmarch State is a different school that plays outside the conference. The
-matcher gave its results to Eastmarch State and reported success.
+Westbrook State is a different school that plays outside the conference. The
+matcher gave its results to Eastbrook State and reported success.
 
 **Your turn.**
 
 1. Write your own alias file, mapping each slug to its extra spellings, and run
    `python labs/m05_identity.py --aliases my.json` until step 3 prints nothing.
-   Two of the fourteen need care: decide which school "Oswin St." is, and what
+   Two of the fourteen need care: decide which school "Lambert St." is, and what
    evidence you would want before ruling. Compare with
    `python labs/m05_identity.py --solution`.
-2. Add "St. Oswin" to the alias list of `oswin-state` as well and run again.
+2. Add "St. Lambert" to the alias list of `lambert-state` as well and run again.
    What happens, and why is failing at start-up better than failing at the
    first lookup?
-3. Break the grammar: allow three-digit ranks, then invent a school name the
-   looser grammar would damage.
+3. Break the grammar: in `RANK`, change `#\d{1,2}` to `#?\d{1,3}`, which makes
+   the marker optional and allows three digits. Run
+   `python labs/m05_identity.py --name "100 Mile College"`. What did the looser
+   grammar do to the name?
 4. Lower the fuzzy matcher's cutoff from 0.7 to 0.5. Count the false merges.
    Then raise it to 0.9. What does it stop matching that it should?
 

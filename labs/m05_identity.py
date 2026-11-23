@@ -9,6 +9,7 @@ Nothing is matched by similarity.
     python labs/m05_identity.py                 # the starting alias list
     python labs/m05_identity.py --solution      # with the lab's completed list
     python labs/m05_identity.py --aliases my.json
+    python labs/m05_identity.py --name "100 Mile College"  # try the grammar
 
 The last part runs a fuzzy matcher over the same names to show what it merges.
 """
@@ -24,8 +25,8 @@ from pathlib import Path
 
 from common import DATA, UNITS, heading, load, season_file
 
-# A rank is "#9", "No. 14", "RV" or a seed "(3)", then a space. At most two
-# digits, so the grammar cannot eat a name that starts with a number.
+# A rank is "#9", "No. 14", "RV" or a seed "(3)", then a space. The required
+# marker keeps the grammar from eating a name that starts with a number.
 RANK = re.compile(r"^(?:#\d{1,2}|No\.\s?\d{1,2}|RV|\(\d{1,2}\))\s+")
 
 
@@ -72,7 +73,12 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--aliases", type=Path, help="extra alias entries, slug -> [spellings]")
     ap.add_argument("--solution", action="store_true")
+    ap.add_argument("--name", help="print what the grammar leaves of one name, then stop")
     args = ap.parse_args()
+    if args.name is not None:
+        print(f"{args.name!r} -> {strip_rank(args.name)!r}")
+        print("RESULT: the grammar ran on one name")
+        return 0
 
     aliases = load(DATA / "reference" / "aliases.json")
     extra = Path(__file__).parent / "data" / "aliases_solution.json" if args.solution else args.aliases
@@ -83,13 +89,13 @@ def main() -> int:
 
     names = published_names()
     heading("Step 1: the grammar")
-    for example in ("#9 Brightwater St.", "No. 14 Pine Barrens", "RV Dunmore", "(3) Saint Oswin"):
+    for example in ("#9 Brightwater St.", "No. 14 Pine Barrens", "RV Dunmore", "(3) Saint Lambert"):
         print(f"{example!r:28} -> {strip_rank(example)!r}")
     print(f"{len(names)} published spellings reduce to {len({strip_rank(n) for n in names})}")
 
     heading("Step 2: exact lookup")
     resolved, unknown = resolve(names, index)
-    print(f"resolved: {len(resolved)} spellings to {len(set(resolved.values()))} programmes")
+    print(f"resolved: {len(resolved)} spellings to {len(set(resolved.values()))} programs")
 
     heading("Step 3: what is left needs a ruling")
     for name, n in sorted(unknown.items()):

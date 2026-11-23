@@ -18,13 +18,19 @@ from __future__ import annotations
 
 import argparse
 import copy
+import random
 import sys
+from collections import Counter
 from pathlib import Path
 
-import duckdb
-from jsonschema import Draft202012Validator
+from common import DATA, UNITS, heading, load, require, season_file
 
-from common import DATA, UNITS, heading, load, season_file
+require("duckdb", "jsonschema")
+
+import duckdb  # noqa: E402
+from jsonschema import Draft202012Validator  # noqa: E402
+
+from measures import conference_table, counts, goal_difference  # noqa: E402
 
 HERE = Path(__file__).parent
 
@@ -45,7 +51,7 @@ def broken_fixtures(doc: dict) -> dict[str, dict]:
     return {
         "a score written as text": change(lambda d: d["fixtures"][final].update(home_score="2")),
         "a status the contract never promised": change(lambda d: d["fixtures"][final].update(status="finished")),
-        "a display name where a slug belongs": change(lambda d: d["fixtures"][final].update(home="St. Oswin")),
+        "a display name where a slug belongs": change(lambda d: d["fixtures"][final].update(home="St. Lambert")),
         "one score without the other": change(lambda d: d["fixtures"][final].pop("away_score")),
         "a 0-0 invented for an unplayed game": change(lambda d: d["fixtures"][todo].update(home_score=0, away_score=0)),
         "a record with no citation": change(lambda d: d["fixtures"][final].pop("source_url")),
@@ -63,10 +69,59 @@ def broken_rosters(doc: dict) -> dict[str, dict]:
         "a player with no name": change(lambda d: d["rosters"][team]["players"][0].pop("name")),
         "a shirt number stored as a number": change(lambda d: d["rosters"][team]["players"][0].update(number=7)),
         "a gender the writer never emits": change(lambda d: d.update(gender="mixed")),
-        "a team keyed by display name": change(lambda d: d["rosters"].update({"St. Oswin": d["rosters"][team]})),
+        "a team keyed by display name": change(lambda d: d["rosters"].update({"St. Lambert": d["rosters"][team]})),
         "players as an object, not a list": change(lambda d: d["rosters"][team].update(players={})),
         "a season written as text": change(lambda d: d.update(season="2026")),
     }
+
+
+def goals_per_game(fixtures: list[dict]) -> float:
+    return sum(f["home_score"] + f["away_score"] for f in fixtures) / len(fixtures)
+
+
+def permutation_p(with_box: list[dict], without: list[dict], shuffles: int = 10_000) -> float:
+    """How often a random split of the same games shows a gap at least this large."""
+    totals = [f["home_score"] + f["away_score"] for f in with_box + without]
+    observed = abs(goals_per_game(with_box) - goals_per_game(without))
+    rng, cut, hits = random.Random(0), len(with_box), 0
+    for _ in range(shuffles):
+        rng.shuffle(totals)
+        gap = sum(totals[:cut]) / cut - sum(totals[cut:]) / (len(totals) - cut)
+        hits += abs(gap) >= observed - 1e-9
+    return hits / shuffles
+
+
+def missingness() -> bool:
+    fixtures = load(season_file("fixtures", 2025, "men"))["fixtures"]
+    boxes = load(season_file("matches", 2025, "men"))["matches"]
+    games = [f for f in fixtures if counts(f)]
+    with_box = [f for f in games if f["id"] in boxes]
+    without = [f for f in games if f["id"] not in boxes]
+    exhibitions = sum(f["status"] == "final" and f.get("match_type") == "exhibition" and "home_score" in f
+                      for f in fixtures)
+    publishers = Counter(f["id"].split(":")[1] for f in without)
+    school = publishers.most_common(1)[0][0]
+    home = sum(f["home"] == school for f in without)
+    p = permutation_p(with_box, without)
+    print(f"\n2025 men, counted games ({exhibitions} exhibitions excluded)")
+    print(f"  every counted game  : {goals_per_game(games):.2f} goals per game over {len(games)}")
+    print(f"  with a box score    : {goals_per_game(with_box):.2f} over {len(with_box)}")
+    print(f"  without a box score : {goals_per_game(without):.2f} over {len(without)}")
+    print(f"All {len(without)} missing box scores come from {school}'s site "
+          f"({home} home, {len(without) - home} away).")
+    print(f"Permutation test on the gap: p = {p:.2f}.")
+    print("The coverage record names the mechanism. With 12 games, the gap alone does not establish bias.")
+
+    fixtures_26 = load(season_file("fixtures", 2026, "men"))["fixtures"]
+    boxes_26 = load(season_file("matches", 2026, "men"))["matches"]
+    counted = [f for f in fixtures_26 if counts(f)]
+    subset = [f for f in counted if f["id"] in boxes_26]
+    table_holds = [r[0] for r in conference_table(fixtures_26)] == [r[0] for r in conference_table(subset)]
+    rating_holds = [r[0] for r in goal_difference(fixtures_26)] == [r[0] for r in goal_difference(subset)]
+    print(f"\n2026 men, baseline rankings on the box-score subset ({len(subset)} of {len(counted)} counted games)")
+    print(f"  conference table order       : {'holds' if table_holds else 'CHANGES'}")
+    print(f"  goal difference per game order: {'holds' if rating_holds else 'CHANGES'}")
+    return (len(games), len(without), len(publishers)) == (59, 12, 1) and table_holds and rating_holds
 
 
 def main() -> int:
@@ -116,19 +171,7 @@ def main() -> int:
         WHERE state <> 'complete' AND layer IN ('matches', 'stats') ORDER BY ALL""").fetchall():
         print(*row, sep=" | ")
 
-    # Does the missing box-score coverage bias goals per game? Compare the
-    # estimate from box scores with the answer from the schedule's own scores.
-    files = [str(season_file("fixtures", 2025, "men"))]
-    all_games = db.execute("""
-        SELECT count(*), avg(f.home_score + f.away_score)
-        FROM (SELECT unnest(fixtures) AS f FROM read_json(?))
-        WHERE f.status = 'final' AND f.home_score IS NOT NULL""", files).fetchone()
-    boxes = load(season_file("matches", 2025, "men"))["matches"]
-    box_avg = sum(t["score"] for b in boxes.values() for t in b["teams"]) / len(boxes)
-    print(f"\n2025 men, goals per game from every final : {all_games[1]:.2f} over {all_games[0]} games")
-    print(f"2025 men, goals per game from box scores  : {box_avg:.2f} over {len(boxes)} games")
-    print("The gap is not random: the missing box scores are one school's home games.")
-    ok &= abs(all_games[1] - box_avg) > 0.05
+    ok &= missingness()
 
     print("\nRESULT:", "contracts hold, and every gap has a named reason" if ok else "see the lines above")
     return 0 if ok else 1

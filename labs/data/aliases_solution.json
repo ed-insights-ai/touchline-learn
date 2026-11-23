@@ -5,27 +5,27 @@
  "brightwater-state": [
   "Brightwater St."
  ],
- "cedar-hollow": [
-  "Cedar Hollow (Iowa)"
+ "cedar-grove": [
+  "Cedar Grove (Iowa)"
  ],
  "dunmore": [
   "Dunmore College"
  ],
- "eastmarch-state": [
-  "Eastmarch St."
+ "eastbrook-state": [
+  "Eastbrook St."
  ],
- "fallow-point": [
-  "Fallow Pt."
+ "harbor-point": [
+  "Harbor Pt."
  ],
- "st-oswin": [
-  "Saint Oswin",
-  "St. Oswin (Wis.)"
+ "st-lambert": [
+  "Saint Lambert",
+  "St. Lambert (Wis.)"
  ],
  "hartwell-tech": [
   "Hartwell Technical"
  ],
- "westmarch-state": [
-  "Westmarch St."
+ "westbrook-state": [
+  "Westbrook St."
  ],
  "lakeshore-am": [
   "Lakeshore A&M (Minn.)"
@@ -33,10 +33,10 @@
  "north-quarry": [
   "North Quarry College"
  ],
- "st-brannoc": [
-  "Saint Brannoc"
+ "st-brendan": [
+  "Saint Brendan"
  ],
- "oswin-state": [
-  "Oswin St."
+ "lambert-state": [
+  "Lambert St."
  ]
 }

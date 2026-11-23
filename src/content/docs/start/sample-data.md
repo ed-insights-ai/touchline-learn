@@ -11,7 +11,7 @@ Lakes Conference**, which does not exist.
 :::note[Everything in the sample is invented]
 The conference, the eight schools and their opponents, every player, every
 score and every web page were made up for this site by `sample/generate.py`.
-The addresses end in `.example`, a name reserved so that it can never resolve.
+The URLs end in `.example`, a name reserved so that it can never resolve.
 No record was copied from Touchline's real datasets. What is real is the
 **shape**: the files use the field names and layout of the platform's season
 files, so a query you write here would read the real thing.
@@ -19,7 +19,7 @@ files, so a query you write here would read the real thing.
 
 ## What is in it
 
-```
+```text
 sample/
   generate.py                 the generator; standard library only
   data/                       the clean zone
@@ -70,17 +70,20 @@ pipeline has met.
 
 | Planted | Where | Module |
 |---|---|---|
-| A redirect to a bare address that still proves its season | `raw_html/brightwater-state/` | [3](../../modules/03-provenance/) |
-| Two requests for 2019 answered, with HTTP 200, by 2026 pages | `raw_html/cedar-hollow/`, `raw_html/dunmore/` | [3](../../modules/03-provenance/) |
+| A redirect to a URL with no year that still proves its season | `raw_html/brightwater-state/` | [3](../../modules/03-provenance/) |
+| Two requests for 2019 answered, with HTTP 200, by 2026 pages | `raw_html/cedar-grove/`, `raw_html/dunmore/` | [3](../../modules/03-provenance/) |
+| A page whose URL and title are right, with another season's events embedded | `raw_html/traps/` | [3](../../modules/03-provenance/) |
 | A second page template with the tables in another order | every third box score | [4](../../modules/04-parsing/) |
 | A Fouls row whose template id is `offsides` | every box score | [4](../../modules/04-parsing/) |
-| Card colour carried only by a styling class, and sometimes absent | every box score | [4](../../modules/04-parsing/) |
+| Card color carried only by a styling class, and sometimes absent | every box score | [4](../../modules/04-parsing/) |
 | A score table with three teams | `raw_html/traps/` | [4](../../modules/04-parsing/) |
+| A play-by-play line that says "Goal" and is not a goal | some box scores | [4](../../modules/04-parsing/) |
 | Rankings and seeds in front of team names; several spellings per school | `data/matches/` | [5](../../modules/05-identity/) |
-| Eastmarch State and Westmarch State; St. Oswin and Oswin State | `data/matches/` | [5](../../modules/05-identity/) |
+| Eastbrook State and Westbrook State; St. Lambert and Lambert State | `data/matches/` | [5](../../modules/05-identity/) |
+| Shirt numbers "0" and "00", which are different shirts | `data/rosters/` | [6](../../modules/06-contracts/) |
 | A school that changed conference between seasons | `reference/membership.json` | [6](../../modules/06-contracts/) |
 | All four missing-data states | `data/coverage.json` | [6](../../modules/06-contracts/) |
-| Box scores missing for one school's home games, and that school scores the most | 2025 men | [6](../../modules/06-contracts/) |
+| Twelve box scores missing because one school's site could not be collected (9 home games, 3 away) | 2025 men | [6](../../modules/06-contracts/) |
 | A final whose score was never published | 2026 men | [6](../../modules/06-contracts/), [8](../../modules/08-products/) |
 | Exhibition games with scores | every season | [8](../../modules/08-products/) |
 | Three games played since the official copy; one old score that disagrees | `shadow/` | [7](../../modules/07-gates/) |
@@ -95,20 +98,20 @@ python sample/generate.py --check
 ```
 
 ```
-68 files generated, 0 differ from disk
+70 files generated, 0 differ from disk
 ```
 
-That is the "same input, same output" rule from the platform, applied to this
+That is the platform's determinism rule, applied to this
 site's own data. If you change the generator, run `python sample/generate.py`
 to rewrite the files, then update any lab whose expected output moved.
 
 ## Differences from the real files
 
-- The real platform's fixture ids name real website vendors. The sample uses
-  two invented platform names, `tally` and `pressbox`.
+- The real fixture ids name real website platforms. The sample uses two
+  invented platform names, `tally` and `pressbox`.
 - `reference/programmes.json` and `sample.json` are simplified and carry a
   `learn.` schema tag instead of a `touchline.` one.
 - The contracts in `labs/contracts/` were written for this guide from the
   sample. They are teaching copies, not the platform's own contract files.
 - Real play-by-play runs to more than a hundred lines a match. The sample keeps
-  goals, cards and one untyped line.
+  goals, cards and a few untyped lines.

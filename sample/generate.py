@@ -41,27 +41,33 @@ MEMBERS = {
                     ["Alder Ridge", "Alder Ridge Univ."]),
     "brightwater-state": ("Brightwater State", "BSU", "Pike", "Brightwater, S.D.", "tally",
                           ["Brightwater State", "Brightwater St.", "BSU"]),
-    "cedar-hollow": ("Cedar Hollow", "CHU", "Foxes", "Cedar Hollow, Iowa", "pressbox",
-                     ["Cedar Hollow", "Cedar Hollow (Iowa)"]),
+    "cedar-grove": ("Cedar Grove", "CGU", "Foxes", "Cedar Grove, Iowa", "pressbox",
+                    ["Cedar Grove", "Cedar Grove (Iowa)"]),
     "dunmore": ("Dunmore", "DUN", "Drovers", "Dunmore, Neb.", "tally",
                 ["Dunmore", "Dunmore College"]),
-    "eastmarch-state": ("Eastmarch State", "EMSU", "Marshals", "Eastmarch, N.D.", "pressbox",
-                        ["Eastmarch State", "Eastmarch St.", "EMSU"]),
-    "fallow-point": ("Fallow Point", "FPU", "Kestrels", "Fallow Point, Minn.", "tally",
-                     ["Fallow Point", "Fallow Pt."]),
-    "st-oswin": ("St. Oswin", "SOU", "Monks", "Oswin Falls, Wis.", "pressbox",
-                 ["St. Oswin", "Saint Oswin", "St. Oswin (Wis.)"]),
+    "eastbrook-state": ("Eastbrook State", "EBSU", "Marshals", "Eastbrook, N.D.", "pressbox",
+                       ["Eastbrook State", "Eastbrook St.", "EBSU"]),
+    "harbor-point": ("Harbor Point", "HPC", "Kestrels", "Harbor Point, Minn.", "tally",
+                     ["Harbor Point", "Harbor Pt."]),
+    "st-lambert": ("St. Lambert", "SLC", "Monks", "Lambert Falls, Wis.", "pressbox",
+                   ["St. Lambert", "Saint Lambert", "St. Lambert (Wis.)"]),
     "hartwell-tech": ("Hartwell Tech", "HTU", "Gears", "Hartwell, Iowa", "tally",
                       ["Hartwell Tech", "Hartwell Technical"]),
 }
 # Opponents from outside the conference. Their sites are not collected.
 NON_MEMBERS = {
-    "westmarch-state": ("Westmarch State", "WMSU", ["Westmarch State", "Westmarch St."]),
+    "westbrook-state": ("Westbrook State", "WBSU", ["Westbrook State", "Westbrook St."]),
     "lakeshore-am": ("Lakeshore A&M", "LAM", ["Lakeshore A&M", "Lakeshore A&M (Minn.)"]),
     "pine-barrens": ("Pine Barrens", "PBU", ["Pine Barrens"]),
     "north-quarry": ("North Quarry", "NQC", ["North Quarry", "North Quarry College"]),
-    "st-brannoc": ("St. Brannoc", "SBC", ["St. Brannoc", "Saint Brannoc"]),
-    "oswin-state": ("Oswin State", "OSU", ["Oswin State", "Oswin St."]),
+    "st-brendan": ("St. Brendan", "SBC", ["St. Brendan", "Saint Brendan"]),
+    "lambert-state": ("Lambert State", "LSC", ["Lambert State", "Lambert St."]),
+}
+# Random streams, game order and ids hash these keys, so a display rename cannot change a result.
+STABLE_KEYS = {
+    "cedar-grove": "cedar-hollow", "eastbrook-state": "eastmarch-state", "harbor-point": "fallow-point",
+    "st-lambert": "st-oswin", "westbrook-state": "westmarch-state", "st-brendan": "st-brannoc",
+    "lambert-state": "oswin-state",
 }
 # Hartwell Tech joined in 2026. Before that it played as an independent.
 MEMBERS_BY_SEASON = {
@@ -75,30 +81,37 @@ for g in GENDERS:
     for layer in ("schedule", "roster", "stats", "matches"):
         GAPS[(2025, g, "dunmore", layer)] = (
             "no-collector", "dunmore: site ran on a platform with no reader in 2025")
-GAPS[(2025, "men", "fallow-point", "matches")] = (
+GAPS[(2025, "men", "harbor-point", "matches")] = (
     "unavailable", "[2025] box score pages are no longer served")
-GAPS[(2025, "men", "eastmarch-state", "schedule")] = (
+GAPS[(2025, "men", "eastbrook-state", "schedule")] = (
     "unavailable", "[2025] cannot prove which season was served")
-GAPS[(2025, "men", "eastmarch-state", "matches")] = (
+GAPS[(2025, "men", "eastbrook-state", "matches")] = (
     "unavailable", "[2025] no proven schedule to take box-score links from")
-GAPS[(2025, "women", "st-oswin", "stats")] = (
+GAPS[(2025, "women", "st-lambert", "stats")] = (
     "empty", "[2025] the 2025 statistics page proved its season but listed no players")
 
 FIRST = {
-    "men": ["Aldo", "Bram", "Caius", "Dov", "Emeric", "Fenn", "Garrick", "Hale", "Ilan", "Joss",
-            "Kell", "Lorne", "Maro", "Nils", "Orrin", "Pax", "Quill", "Rafe", "Soren", "Teague",
-            "Ulric", "Vance", "Wim", "Yarrow", "Zeke", "Anselm", "Corwin", "Dax", "Evander", "Tobin"],
-    "women": ["Ada", "Brisa", "Calla", "Dessa", "Elin", "Fia", "Greer", "Hollis", "Ines", "Juno",
-              "Kaia", "Linnea", "Mara", "Nell", "Oona", "Petra", "Quinn", "Romy", "Signe", "Tamsin",
-              "Una", "Vesna", "Wren", "Yael", "Zadie", "Annika", "Corin", "Delphine", "Esme", "Thea"],
+    "men": ["Aaron", "Ben", "Caleb", "Daniel", "Ethan", "Felipe", "Grant", "Henry", "Isaac", "Jacob",
+            "Kevin", "Luke", "Marcus", "Nathan", "Owen", "Paul", "Quinn", "Ryan", "Sam", "Tyler",
+            "Victor", "Will", "Xavier", "Yusuf", "Zach", "Andre", "Carlos", "Devin", "Evan", "Tomas"],
+    "women": ["Abby", "Brianna", "Claire", "Dana", "Emma", "Fatima", "Grace", "Hannah", "Isabel", "Julia",
+              "Kayla", "Lauren", "Maya", "Nora", "Olivia", "Priya", "Rachel", "Sofia", "Taylor", "Uma",
+              "Valerie", "Whitney", "Ximena", "Yasmin", "Zoe", "Alicia", "Camila", "Diana", "Elena", "Tessa"],
 }
-SYL_A = ["Bar", "Cal", "Dor", "Fen", "Gar", "Hal", "Jor", "Kes", "Lam", "Mer", "Nor", "Os", "Pel",
-         "Quen", "Ros", "Sel", "Tor", "Ul", "Var", "Wes", "Yar", "Zel", "Ash", "Bren", "Cor", "Thal"]
-SYL_B = ["a", "e", "i", "o", "u", "an", "en", "in", "or", "el", "ar", "et"]
-SYL_C = ["dane", "wick", "more", "stad", "by", "ren", "vik", "holt", "mark", "ley", "quist", "sen",
-         "ford", "ster", "lund", "nell", "rick", "bell"]
-TOWNS = ["Marrow Creek", "Tallgrass", "Coldwater Bend", "Larkspur", "Iron Fork", "Sable Lake",
-         "Quarry Hill", "Wren Hollow", "Stonebridge", "Hazel Run", "Redfern", "Mill Prairie"]
+# 101 surnames: with squads of 20, the offsets in squad() cannot repeat one within a team.
+LAST = ["Novak", "Reyes", "Jennings", "Radcliffe", "Nguyen", "Sheffield", "Bellamy", "Schmidt", "Langley", "Pemberton",
+        "Meyer", "Fairbanks", "Rivera", "Lindgren", "Brooks", "Vang", "Kendrick", "Holloway", "Wagner", "Carter",
+        "Whitlock", "Calloway", "Becker", "Ali", "Ashworth", "Thao", "Fischer", "Merritt", "Norwood", "Gentry",
+        "Weber", "Torres", "Erickson", "Birch", "Kim", "Schultz", "Yarborough", "Berg", "Mitchell", "Tran",
+        "Koch", "Oakley", "Johansen", "Fenwick", "Hassan", "Klein", "Flores", "Dahl", "Foster", "Ingram",
+        "Hoffman", "Castillo", "Nilsson", "Bennett", "Yang", "Irwin", "Mendoza", "Moen", "Kirkland", "Singh",
+        "Crowley", "Herrera", "Holm", "Quimby", "Pham", "Vogel", "Jimenez", "Strand", "Howard", "Omar",
+        "Baker", "Underhill", "Lund", "Hathaway", "Cho", "Braun", "Lockwood", "Sorensen", "Delaney", "Khan",
+        "Zimmerman", "Ruiz", "Halvorsen", "Sullivan", "Lor", "Hartmann", "Eastman", "Ness", "Parker", "Das",
+        "Keller", "Romero", "Aho", "Ellsworth", "Vickers", "Wolfe", "Dunleavy", "Engel", "Galloway", "Haddad",
+        "Burke"]
+TOWNS = ["Mill Creek", "Fairview", "Clear Lake", "Oak Grove", "Pine City", "Spring Valley",
+         "Red Wing", "Maple Hill", "Stone Bridge", "Hazel Run", "Grand Forks", "Mill Prairie"]
 STATES = ["Minn.", "Iowa", "S.D.", "N.D.", "Neb.", "Wis."]
 CLASSES = ["Freshman", "Sophomore", "Junior", "Senior"]
 POSITIONS = ["GK"] * 2 + ["D"] * 6 + ["M"] * 6 + ["F"] * 6
@@ -107,6 +120,16 @@ POSITIONS = ["GK"] * 2 + ["D"] * 6 + ["M"] * 6 + ["F"] * 6
 def rng_for(*parts: object) -> random.Random:
     """One reproducible random stream per named thing."""
     return random.Random(zlib.crc32("/".join(str(p) for p in parts).encode()))
+
+
+BACKUP_KEEPER_NUMBERS = ("00", "0", "30")
+DELAY_NOTES = ("Kickoff delayed ten minutes for lightning in the area.",
+               "Kickoff delayed twenty minutes for field conditions.",
+               "Kickoff delayed fifteen minutes while officials arrived.")
+
+
+def stable(slug: str) -> str:
+    return STABLE_KEYS.get(slug, slug)
 
 
 def poisson(rng: random.Random, lam: float) -> int:
@@ -138,25 +161,29 @@ def squad(slug: str, gender: str, season: int) -> list[dict]:
     """A 20-player squad. Three quarters of it carries over between seasons."""
     players = []
     for i, pos in enumerate(POSITIONS):
-        cohort = season if rng_for("stay", slug, gender, i, season).random() < 0.25 else 2025
-        r = rng_for("player", slug, gender, i, cohort)
+        key = stable(slug)
+        cohort = season if rng_for("stay", key, gender, i, season).random() < 0.25 else 2025
+        r = rng_for("player", key, gender, i, cohort)
         first = r.choice(FIRST[gender])
-        last = r.choice(SYL_A) + r.choice(SYL_B) + r.choice(SYL_C)
-        pid = str(1000 + zlib.crc32(f"{slug}/{gender}/{i}/{cohort}".encode()) % 9000)
+        # Discarded draws hold height, hometown and class year to their stream.
+        r.randrange(26), r.randrange(12), r.randrange(18)
+        last = LAST[(zlib.crc32(f"{key}/{gender}".encode()) + i + (cohort - 2025) * 37) % len(LAST)]
+        pid = str(1000 + zlib.crc32(f"{key}/{gender}/{i}/{cohort}".encode()) % 9000)
         players.append({
             "name": f"{first} {last}", "player_id": pid, "number": str(i if i else 1) if i < 2 else str(i + 1),
             "position": pos, "height": f"{r.randint(5, 6)}'{r.randint(0, 11)}\"",
             "hometown": f"{r.choice(TOWNS)}, {r.choice(STATES)}",
             "class_year": CLASSES[(season - cohort + r.randint(0, 2)) % 4],
         })
-    players[0]["number"], players[1]["number"] = "1", "30"
+    players[0]["number"] = "1"
+    players[1]["number"] = BACKUP_KEEPER_NUMBERS[zlib.crc32(f"{stable(slug)}/{gender}".encode()) % 3]
     return players
 
 
 def strength(slug: str, gender: str, season: int) -> float:
-    if (slug, gender, season) == ("fallow-point", "men", 2025):
-        return 2.3  # deliberately the highest-scoring side; see the coverage lab
-    return 0.8 + rng_for("strength", slug, gender, season).random() * 1.1
+    if (slug, gender, season) == ("harbor-point", "men", 2025):
+        return 2.3  # deliberately the highest-scoring team; see the coverage lab
+    return 0.8 + rng_for("strength", stable(slug), gender, season).random() * 1.1
 
 
 def round_robin(teams: list[str]) -> list[list[tuple[str, str]]]:
@@ -218,7 +245,7 @@ def build_unit(season: int, gender: str) -> dict:
         return None
 
     def play(g, decide=False):
-        r = rng_for("game", season, gender, g["home"], g["away"], g["day"])
+        r = rng_for("game", season, gender, stable(g["home"]), stable(g["away"]), g["day"])
         lam_h = strength(g["home"], gender, season) * 1.15
         lam_a = strength(g["away"], gender, season)
         hs, as_ = poisson(r, lam_h), poisson(r, lam_a)
@@ -244,7 +271,7 @@ def build_unit(season: int, gender: str) -> dict:
             table[g["away"]][0] += 3 if a > h else 1 if h == a else 0
             table[g["home"]][1] += h - a
             table[g["away"]][1] += a - h
-    seeds = sorted(members, key=lambda s: (-table[s][0], -table[s][1], s))[:4]
+    seeds = sorted(members, key=lambda s: (-table[s][0], -table[s][1], stable(s)))[:4]
     tourney = f"{season} {CONF} {'Men' if gender == 'men' else 'Women'}'s Soccer Tournament"
     semis = []
     for hi, lo in ((0, 3), (1, 2)):
@@ -262,15 +289,16 @@ def build_unit(season: int, gender: str) -> dict:
     games.append(final)
 
     # Number the games per publishing site, as a site's own ids would be.
-    games.sort(key=lambda g: (g["day"], g["home"], g["away"]))
+    games.sort(key=lambda g: (g["day"], stable(g["home"]), stable(g["away"])))
     counters: dict[str, int] = {}
     for g in games:
         pub = publisher(g)
         g["publisher"] = pub
         if pub:
-            base = 3000 + zlib.crc32(f"{pub}/{gender}".encode()) % 6000 + (season - 2025) * 40
+            base = 3000 + zlib.crc32(f"{stable(pub)}/{gender}".encode()) % 6000 + (season - 2025) * 40
             counters[pub] = counters.get(pub, 0) + 1
             g["id"] = f"{MEMBERS[pub][4]}:{pub}:{base + counters[pub]}"
+            g["stable_id"] = f"{MEMBERS[pub][4]}:{stable(pub)}:{base + counters[pub]}"
             g["date"] = add_days(season, g["day"])
 
     listed = [g for g in games if g["publisher"]]
@@ -320,7 +348,7 @@ def build_unit(season: int, gender: str) -> dict:
 
         # The box score: simulated for every played game, kept only where the
         # publishing site's box scores were collected.
-        r = rng_for("box", g["id"])
+        r = rng_for("box", g["stable_id"])
         length = 90 + 20 * (len(g["periods"][0]) > 2)
         teams, scoring, cards, plays = [], [], [], []
         sides = (g["home"], g["away"])
@@ -364,12 +392,16 @@ def build_unit(season: int, gender: str) -> dict:
                 pl["shots"] = max(pl["shots"], pl["sog"])
             sog = sum(pl["sog"] for pl in plines.values())
             shots = sum(pl["shots"] for pl in plines.values())
+            carded = set()
             for _ in range(poisson(r, 1.4)):
                 p = r.choice(pool)
                 roll = r.random()
-                cards.append({"type": "red" if roll < 0.06 else "unknown" if roll < 0.09 else "yellow",
-                              "player": p["name"], "number": p["number"],
-                              "time": f"{r.randint(5, length - 1):02d}:{r.randint(0, 59):02d}", "team": t})
+                card = {"type": "red" if roll < 0.06 else "unknown" if roll < 0.09 else "yellow",
+                        "player": p["name"], "number": p["number"],
+                        "time": f"{r.randint(5, length - 1):02d}:{r.randint(0, 59):02d}", "team": t}
+                if p["player_id"] not in carded:
+                    carded.add(p["player_id"])
+                    cards.append(card)
             teams.append({
                 "name": r.choice((MEMBERS.get(slug) or NON_MEMBERS[slug])[-1]),
                 "abbr": abbr_of(slug), "score": goals[t], "periods": g["periods"][t],
@@ -404,8 +436,15 @@ def build_unit(season: int, gender: str) -> dict:
             if c["type"] != "unknown":
                 play_["type"] = c["type"]
             plays.append(play_)
-        plays.append({"period": "1", "text": "Kickoff delayed ten minutes for lightning in the area.",
-                      "clock": "00:00"})
+        note = rng_for("note", g["stable_id"])
+        if note.random() < 0.12:
+            plays.append({"period": "1", "text": note.choice(DELAY_NOTES), "clock": "00:00"})
+        if note.random() < 0.25:
+            t = note.randint(0, 1)
+            clock = f"{note.randint(5, length - 1):02d}:{note.randint(0, 59):02d}"
+            plays.append({"period": "1" if clock < "45" else "2" if clock < "90" else "OT",
+                          "text": f"Goal disallowed, {teams[t]['abbr']} flagged offside.",
+                          "clock": clock, "team": t})
         plays.sort(key=lambda p: p["clock"])
         box = {"source_url": f"{site(g['publisher'])}/sports/{sport(gender)}/stats/{season}/"
                              f"{g['away'] if g['publisher'] == g['home'] else g['home']}/boxscore/{g['id'].rsplit(':', 1)[1]}",
@@ -586,8 +625,15 @@ def aliases() -> dict:
 
 # --- the raw zone: pages as an invented athletics site would serve them ---------
 
-def schedule_page(slug, gender, season, fixtures, title_year=True, payload_year=None) -> str:
+def schedule_page(slug, gender, season, fixtures, title_year=True, payload=None) -> str:
     label = "Men's" if gender == "men" else "Women's"
+    embedded = ""
+    if payload:
+        events = [{"id": f["id"].rsplit(":", 1)[1], "date": f["date"],
+                   "title": f"{f['date'][:4]} {label} Soccer: {name_of(f['away'])} at {name_of(f['home'])}"}
+                  for f in payload if slug in (f["home"], f["away"])]
+        embedded = ('  <script type="application/json" id="schedule-data">'
+                    f'{json.dumps({"events": events}, ensure_ascii=False)}</script>\n')
     title = f"{season} {label} Soccer Schedule" if title_year else f"{label} Soccer Schedule"
     rows = []
     for f in fixtures:
@@ -608,7 +654,7 @@ def schedule_page(slug, gender, season, fixtures, title_year=True, payload_year=
                     f'<td>{result}</td><td>{link}</td></tr>')
     body = "\n".join(rows)
     return (f"<!doctype html>\n<html>\n<head>\n  <title>{html.escape(title)} - {html.escape(name_of(slug))} Athletics</title>\n"
-            f"</head>\n<body>\n  <h1>{html.escape(title)}</h1>\n  <table>\n    <caption>Schedule</caption>\n"
+            f"{embedded}</head>\n<body>\n  <h1>{html.escape(title)}</h1>\n  <table>\n    <caption>Schedule</caption>\n"
             f"    <tr><th>Date</th><th></th><th>Opponent</th><th>Result</th><th>Links</th></tr>\n{body}\n"
             f"  </table>\n</body>\n</html>\n")
 
@@ -684,16 +730,22 @@ def build() -> dict[str, bytes]:
 
     for slug in MEMBERS:
         base = f"{site(slug)}/sports/mens-soccer/schedule"
-        # Brightwater State redirects the current season to the bare address.
+        # Brightwater State redirects the current season to the URL with no year.
         final = base if slug == "brightwater-state" else f"{base}/2026"
         page(f"{slug}/2026-men-schedule.html", schedule_page(slug, "men", 2026, fx), f"{base}/2026", final)
     # Two requests for 2019 that were answered with something else, both with HTTP 200.
-    base = f"{site('cedar-hollow')}/sports/mens-soccer/schedule"
-    page("cedar-hollow/2019-men-schedule.html", schedule_page("cedar-hollow", "men", 2026, fx),
+    base = f"{site('cedar-grove')}/sports/mens-soccer/schedule"
+    page("cedar-grove/2019-men-schedule.html", schedule_page("cedar-grove", "men", 2026, fx),
          f"{base}/2019", f"{base}/2019")
     base = f"{site('dunmore')}/sports/mens-soccer/schedule"
     page("dunmore/2019-men-schedule.html", schedule_page("dunmore", "men", 2026, fx, title_year=False),
          f"{base}/2019", base)
+
+    # A 2025 page whose address and title are right, with 2026 events embedded in it.
+    base = f"{site('alder-ridge')}/sports/mens-soccer/schedule"
+    page("traps/alder-ridge-2025-embedded.html",
+         schedule_page("alder-ridge", "men", 2025, units[(2025, "men")]["fixtures"]["fixtures"], payload=fx),
+         f"{base}/2025", f"{base}/2025")
 
     boxes = [i for i in u["matches"]["matches"] if i.split(":")[1] == "alder-ridge"]
     for n, fid in enumerate(boxes):
@@ -740,7 +792,7 @@ def main() -> int:
     args = ap.parse_args()
     files = build()
     if args.check:
-        on_disk = {str(p.relative_to(ROOT)): p.read_bytes()
+        on_disk = {p.relative_to(ROOT).as_posix(): p.read_bytes()
                    for d in ("data", "raw_html", "shadow") for p in (ROOT / d).rglob("*") if p.is_file()}
         bad = sorted(k for k in files.keys() | on_disk.keys() if files.get(k) != on_disk.get(k))
         for k in bad:

@@ -1,13 +1,13 @@
 ---
 title: How to use this guide
-description: How the modules are organised, how long they take, and what the examples are drawn from.
+description: How the modules are organized, how to pace yourself, and what the examples are drawn from.
 sidebar:
   order: 2
 ---
 
-## How it is organised
+## How it is organized
 
-There are ten modules, in the order data flows. Each one has the same parts:
+There are ten modules, in the order data flows. Most share these parts:
 
 - **The idea**, in a paragraph.
 - **How Touchline does it**, with the specific rules the platform follows.
@@ -16,8 +16,8 @@ There are ten modules, in the order data flows. Each one has the same parts:
 - **Questions** for discussion.
 - **A lab** you run on your own machine, and an exercise to take further.
 
-A module fits one 50-minute session, or the whole guide fits a three-week unit.
-Capstone projects and an answer key are under [Teaching](../../teaching/capstones/).
+Work at your own pace. A module and its lab are sized for one sitting. Capstone
+projects and discussion notes are under [Teaching](../../teaching/capstones/).
 
 ## Two kinds of example
 
@@ -29,7 +29,7 @@ stories are real schools, and the facts are ones their own sites published.
 **Data in the labs is invented.** The labs run on a small sample built for this
 site: a made-up conference with made-up schools, players, scores and web pages.
 It follows the field names and layout of the real season files, so everything
-you practise transfers. The full Division I and II datasets are private and are
+you practice transfers. The full Division I and II datasets are private and are
 not needed for anything here. See [The sample data](../sample-data/).
 
 ## What you need
@@ -39,8 +39,8 @@ not needed for anything here. See [The sample data](../sample-data/).
 
 ## How to read a lab's output
 
-Every lab ends with a line that starts `RESULT:`. Labs that are gates also set
-an exit code, because a gate is a check a machine can act on:
+Every lab prints a line that starts `RESULT:` and sets an exit code, because a
+check is more useful when a machine can act on it:
 
 | Exit code | Meaning |
 |---|---|

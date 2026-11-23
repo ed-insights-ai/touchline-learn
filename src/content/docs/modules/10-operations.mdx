@@ -7,23 +7,23 @@ import RepoDiagram from "../../../components/RepoDiagram.astro";
 
 ## The idea
 
-A pipeline is also an organisation of code, permissions and money. Where each
+A pipeline is also an organization of code, permissions and money. Where each
 piece lives decides who can change it, who can see it, and what breaks when it
 changes.
 
-## Five repositories, one job each
+## The repositories, one job each
 
 <RepoDiagram />
 
-<p class="tl-caption">Solid green arrows carry data every day. Dashed grey arrows show code or samples being used. Purple boxes are private. Green boxes are open, or are being prepared to open: the website's code is public today, and the contracts and desk repositories are private while their contents are reviewed.</p>
+<p class="tl-caption">Solid green arrows carry data every day. Dashed grey arrows show code or samples being used. Purple boxes are private. Green boxes are open, or are being prepared to open: the website's code is public today, and the contracts repository is private while its contents are reviewed. Touchline Desk is a separate app for AI-enhanced analysis, shown only as the receiver of the database.</p>
 
 | Repository | Visibility | Role | Takes in | Hands out |
 |---|---|---|---|---|
-| Collector (`keelson-rib-touchline`) | private | Scrapers, the school registry, the checks, and the daily workflows. The only holder of keys. | School pages. The site code and the database builder, each at a fixed version. | Season files, raw pages, the signed database, the built site, the contracts |
+| Collector (`keelson-rib-touchline`) | private | Scrapers, the school registry, the checks, and the daily workflows. The only holder of keys. | School pages. The site code at a fixed version. | Season files, raw pages, the signed database, the built site, the contracts |
 | Data homes (`d1-soccer`, `d2-soccer`) | private | The clean dataset, kept under version control. Data only, no code. | Season files | The input to every build |
 | Contracts (`touchline-contracts`) | private for now, meant to be open | File formats and a small sample dataset | Formats and sample from the collector | A safe test input for everyone |
 | Website ([`touchline-ui`](https://github.com/ed-insights-ai/touchline-ui)) | public | Turns season files into pages | Season files in the contract shape | The site |
-| Desk app (`touchline-desk`) | private until reviewed | The desktop app and the database builder | The sample for tests, signed downloads when running | The database builder, and the app |
+| Touchline Desk | private | An app for AI-enhanced analysis. Its internals are outside this course. | The verified analytical database | |
 
 ## Why split it this way
 
@@ -35,32 +35,31 @@ changes.
   gives a full history, a diff of what changed each day, and an undo. It also
   means "which data built this site?" has an exact answer: a commit id.
 - **Public code tests on public data.** Because the contracts repository holds
-  a sample in the real shape, the website and the app can be developed, tested
-  and reviewed without access to the dataset. This site does the same thing
+  a sample in the real shape, the website can be developed, tested and reviewed
+  without access to the dataset. This site does the same thing
   with its own invented sample.
 - **Pinned versions.** The daily workflow uses a recorded, exact version of the
-  website code and of the database builder. A change to either reaches
-  production only when someone moves that pin on purpose. You will know this as
+  code it builds with. A change reaches production only when someone moves that
+  pin on purpose. You will know this as
   dependency pinning, here applied between a team's own repositories.
 
 ## How the repositories stay in step
 
 | Mechanism | What it does |
 |---|---|
-| Contracts | Every file carries a version tag. The collector checks its real output against the contract before uploading anything, so the site and the desk can rely on the shape. |
+| Contracts | Every file carries a version tag. The collector checks its real output against the contract before uploading anything, so every consumer can rely on the shape. |
 | One shared sample | The open repositories never see the full dataset. They build and test on the same small sample. |
-| Fixed versions | A change in the site's code or the database builder reaches production only when the recorded version is moved on purpose. |
-| Agreement check | The site and the desk compute the same figures with different code. Each day the workflow compares team records from both, and a disagreement holds back the release. |
+| Fixed versions | A change in build code reaches production only when the recorded version is moved on purpose. |
+| Agreement check | Two independent implementations compute the same figures. Each day the workflow compares team records from both, and a disagreement holds back the release. |
 | One-way keys | Only the private collector can write to the data homes and the cloud. Public repositories hold no keys, so nothing a stranger submits can reach the data. |
-| Signature | The published database is signed with a key that never leaves the cloud. The desk carries the matching public key and rejects any download that does not verify. |
+| Signature | The published database is signed with a key that never leaves the cloud. A receiver checks the signature with the matching public key. |
 
 ## Automation
 
 A scheduled workflow runs the steps in order: collect, check, build, publish,
-release. Each job starts only if the one before it succeeded. One vendor blocks
-cloud addresses, so those schools are collected by a small runner on a home
-connection that only the private repository can use. If that machine is off,
-those schools are a day stale, an alarm says so, and the rest still publishes.
+release. Each job starts only if the one before it succeeded. If one collection
+job fails, its schools are a day stale, an alarm says so, and the rest still
+publishes.
 
 ## Security, in four rules
 
@@ -107,7 +106,7 @@ credentials allow.
 
 ```
 Order of work
-collect-cloud -> collect-home -> contract-check -> bundle -> snapshot -> site -> release
+collect-first -> collect-second -> contract-check -> bundle -> snapshot -> site -> release
 
 Least privilege
 jobs holding a permission they never use: none
@@ -119,7 +118,7 @@ Then it replays the day with one job failing:
 | What fails | What happens |
 |---|---|
 | Nothing | Everything runs and today's data is released |
-| `collect-home` (the home runner is off) | The contract check runs and reports those schools stale. The release still goes out. |
+| `collect-second` (one collection job) | The contract check runs and reports those schools stale. The release still goes out. |
 | `contract-check` | Everything after it is skipped. Yesterday's release stays in place. |
 | `site` | The snapshot was built, but the release is skipped: the pointer moves only when every gate has passed. |
 
@@ -145,6 +144,6 @@ python labs/m10_jobgraph.py --fail snapshot
 
 ## Exercise
 
-Draw the job graph for the daily run: nodes for collect (two runners), contract
+Draw the job graph for the daily run: nodes for two collection jobs, contract
 check, bundle, snapshot, site, release. Mark which edges are hard dependencies.
 Then mark, for each job, the smallest set of permissions it needs.

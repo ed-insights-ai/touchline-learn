@@ -14,103 +14,103 @@
  "files": [
   {
    "path": "data/coverage.json",
-   "bytes": 38919,
-   "sha256": "e260382a4210d046d5f9c77f158d3f5218683d9c79cd507dab3bdda91a3ed86e"
+   "bytes": 38963,
+   "sha256": "b60a5ff1f955514b49dab7a2b3405f9cf13f7e6bfa78822a12ac6554e9c7d57f"
   },
   {
    "path": "data/fixtures/2025-men-plc.json",
-   "bytes": 27546,
-   "sha256": "1acc1e0e45b2ea71eeab8c511a3a192bb9d7e4e5db85bb9612a63a7d6842d173"
+   "bytes": 27599,
+   "sha256": "2e50914a36e817b3ee2d606bca7df2b946125be0eadcb6fa883af521e769acdf"
   },
   {
    "path": "data/fixtures/2025-women-plc.json",
-   "bytes": 29822,
-   "sha256": "c7ea93360b4b399cbfb57aa1d616c945bacf66da81c93f2a7d356109126a0114"
+   "bytes": 29877,
+   "sha256": "e6324d5c08e7751574d427ddee3c4f6651e15661d0b20d246cba033b9effc84f"
   },
   {
    "path": "data/fixtures/2026-men-plc.json",
-   "bytes": 37632,
-   "sha256": "0d047dcde2e36f6cb4b175b6e025249610b7b89a41606ea4c752d31544a98fd0"
+   "bytes": 37694,
+   "sha256": "4e9f2852bb190cb027ea3fa7e7baae0b41eccbf773c074c6280648b8120579a7"
   },
   {
    "path": "data/fixtures/2026-women-plc.json",
-   "bytes": 37866,
-   "sha256": "bee92f1ba8cef3c064a35f169700a43517aad88f0f0179cdc0a457392865eec0"
+   "bytes": 37921,
+   "sha256": "59088d40a752e19b53eefde082a58edc281046a6365255d855b52498d7798436"
   },
   {
    "path": "data/matches/2025-men-plc.json",
-   "bytes": 579561,
-   "sha256": "e0fc748ad3a57381f31fe2d36cba8b32ba09fccfa16a5e28309c3e2a40955ae1"
+   "bytes": 570084,
+   "sha256": "f596841376c42381eb37320ecec8fd2149929e94938b30916489fd9fae290727"
   },
   {
    "path": "data/matches/2025-women-plc.json",
-   "bytes": 784465,
-   "sha256": "29f5549d507eaf33d74ce77316a202652df3376da94da29d216aceb37073a346"
+   "bytes": 770771,
+   "sha256": "c42504cf2a542cf1256ff9bb9c592758fcecd56f328e2726e905b5e6354fe020"
   },
   {
    "path": "data/matches/2026-men-plc.json",
-   "bytes": 970849,
-   "sha256": "d15fecc6c9d6fa238ba0883ccc77dd5fa82dd82d61640e5a05394831f8fb1cb5"
+   "bytes": 955279,
+   "sha256": "f2b513846b87bfe0cde470eb0edec83f98b060b1e75becbd70e015a4cba0e0a4"
   },
   {
    "path": "data/matches/2026-women-plc.json",
-   "bytes": 994283,
-   "sha256": "a05ef296878a5ddc2d501a4ced46c38f0bac9866449a052061d86f8ee4d85259"
+   "bytes": 980885,
+   "sha256": "ef43b6d2358e3b9076b3e252e2b77ab25719a4894c2f324d4fcfc0b98581726e"
   },
   {
    "path": "data/reference/aliases.json",
-   "bytes": 692,
-   "sha256": "c4eed9bd795a2340a4cc000a1f7c762d17218c0ec354ff0f4fb689708a444eb4"
+   "bytes": 698,
+   "sha256": "d62dccc1250a1a6202287d14d26abf595915d6a0d1dbac4d2154fbd8ea20f986"
   },
   {
    "path": "data/reference/membership.json",
-   "bytes": 3620,
-   "sha256": "65fb1405f60a1997138902346aa751ec527a7d4388c999d85badd7823f639ba9"
+   "bytes": 3621,
+   "sha256": "dc192c2ceba4ea3089b9bbcfbab4d85573730bc885311f9682177cae7121ebaf"
   },
   {
    "path": "data/reference/programmes.json",
-   "bytes": 1681,
-   "sha256": "8120015e7ee2b1ef19b19be1bd39186c019fc12d5377d38710e7bb67a3317673"
+   "bytes": 1688,
+   "sha256": "f198b67958f177332a6a209b167daf05a390f32ad048326241c8e927c2acfc2a"
   },
   {
    "path": "data/rosters/2025-men-plc.json",
-   "bytes": 36309,
-   "sha256": "98f58d9a0f3bfdf664fdf30c3bcea9233d09b27fe19fdcb9748efe5ea3f4e799"
+   "bytes": 35840,
+   "sha256": "35ba177bb163dd5f5d5eda1aeaa12cc04406e8abf3b1bc168701e98ff82fe087"
   },
   {
    "path": "data/rosters/2025-women-plc.json",
-   "bytes": 36544,
-   "sha256": "db48c765fde0ef775d985f73d13d762f24ecb7fbc23587e39b60a33403ec5d89"
+   "bytes": 36203,
+   "sha256": "eb49a1d9534178059afb3679e81c2c53fda103acd8d034e42f15bb7d3e8b7e03"
   },
   {
    "path": "data/rosters/2026-men-plc.json",
-   "bytes": 48180,
-   "sha256": "21b7e3ef28f5130ba517802b335f0a583e0dc47423da2210ba93581f66037d5b"
+   "bytes": 47555,
+   "sha256": "f05674ff5f10c3f5ccc371ab6d6b4cd9f98c001904474c529ae8736caab44bb0"
   },
   {
    "path": "data/rosters/2026-women-plc.json",
-   "bytes": 48456,
-   "sha256": "ccb1b0d494811badf04c8af2368bd9881c9b7dfaba7e2d962167cc781dabef8c"
+   "bytes": 48029,
+   "sha256": "d71085e891d78bfcb6d66920260596f0346c528ed87b5e0ea8509acf42785da7"
   },
   {
    "path": "data/stats/2025-men-plc.json",
-   "bytes": 52831,
-   "sha256": "bcd14e5b7b104925e25eeff8c9bb2409087765a50c01e7a3a8caae08a666ae0d"
+   "bytes": 52407,
+   "sha256": "ef59e249c5369d43ecf2351a1e5ba756281d8bee4b2ee173fc6db66f77777853"
   },
   {
    "path": "data/stats/2025-women-plc.json",
-   "bytes": 44529,
-   "sha256": "dc37a42e9faf1226bb1c5ef0eab612aa8c8a0bedd7287536f8e79d8c46865c92"
+   "bytes": 44221,
+   "sha256": "7a451bcc811a8da5a94af08028f85d8ca3dcbd0ba03d86fd2882540cb5bdf091"
   },
   {
    "path": "data/stats/2026-men-plc.json",
-   "bytes": 70397,
-   "sha256": "ce9e52e7af87d5563509a326a234473adb07b1cca6a2e01a317a60d5c300f756"
+   "bytes": 69820,
+   "sha256": "2709adb71c5ad71a6ef4d3135e78c2c85775056e63a8dbba1bee074008b16a2d"
   },
   {
    "path": "data/stats/2026-women-plc.json",
-   "bytes": 70368,
-   "sha256": "ecf51268713ad8a74563d52b37e3c0f3d95b42860d1de1d9d4fbd5ece5acaeb6"
+   "bytes": 69988,
+   "sha256": "67a3b1d83511e04b3e431e6a5607a1e63c6ec6fdda453f3ed6d6096dbb1aacc6"
   }
  ]
 }

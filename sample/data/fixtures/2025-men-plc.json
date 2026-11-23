@@ -20,10 +20,10 @@
    "abbr": "BSU"
   },
   {
-   "slug": "cedar-hollow",
-   "name": "Cedar Hollow",
+   "slug": "cedar-grove",
+   "name": "Cedar Grove",
    "conference": "PLC",
-   "abbr": "CHU"
+   "abbr": "CGU"
   },
   {
    "slug": "dunmore",
@@ -32,16 +32,16 @@
    "abbr": "DUN"
   },
   {
-   "slug": "eastmarch-state",
-   "name": "Eastmarch State",
+   "slug": "eastbrook-state",
+   "name": "Eastbrook State",
    "conference": "PLC",
-   "abbr": "EMSU"
+   "abbr": "EBSU"
   },
   {
-   "slug": "fallow-point",
-   "name": "Fallow Point",
+   "slug": "harbor-point",
+   "name": "Harbor Point",
    "conference": "PLC",
-   "abbr": "FPU"
+   "abbr": "HPC"
   },
   {
    "slug": "hartwell-tech",
@@ -56,16 +56,16 @@
    "abbr": "LAM"
   },
   {
+   "slug": "lambert-state",
+   "name": "Lambert State",
+   "conference": "non_member",
+   "abbr": "LSC"
+  },
+  {
    "slug": "north-quarry",
    "name": "North Quarry",
    "conference": "non_member",
    "abbr": "NQC"
-  },
-  {
-   "slug": "oswin-state",
-   "name": "Oswin State",
-   "conference": "non_member",
-   "abbr": "OSU"
   },
   {
    "slug": "pine-barrens",
@@ -74,22 +74,22 @@
    "abbr": "PBU"
   },
   {
-   "slug": "st-brannoc",
-   "name": "St. Brannoc",
+   "slug": "st-brendan",
+   "name": "St. Brendan",
    "conference": "non_member",
    "abbr": "SBC"
   },
   {
-   "slug": "st-oswin",
-   "name": "St. Oswin",
+   "slug": "st-lambert",
+   "name": "St. Lambert",
    "conference": "PLC",
-   "abbr": "SOU"
+   "abbr": "SLC"
   },
   {
-   "slug": "westmarch-state",
-   "name": "Westmarch State",
+   "slug": "westbrook-state",
+   "name": "Westbrook State",
    "conference": "non_member",
-   "abbr": "WMSU"
+   "abbr": "WBSU"
   }
  ],
  "fixtures": [
@@ -97,7 +97,7 @@
    "id": "tally:alder-ridge:8159",
    "date": "2025-08-21",
    "home": "alder-ridge",
-   "away": "westmarch-state",
+   "away": "westbrook-state",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
@@ -108,16 +108,16 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:cedar-hollow:4881",
+   "id": "pressbox:cedar-grove:4881",
    "date": "2025-08-21",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "pine-barrens",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "match_type": "exhibition",
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
@@ -152,18 +152,18 @@
    "away_score": 0
   },
   {
-   "id": "pressbox:st-oswin:8730",
+   "id": "pressbox:st-lambert:8730",
    "date": "2025-08-25",
-   "home": "st-oswin",
-   "away": "westmarch-state",
+   "home": "st-lambert",
+   "away": "westbrook-state",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 4,
    "away_score": 2
   },
@@ -184,18 +184,18 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4882",
+   "id": "pressbox:cedar-grove:4882",
    "date": "2025-08-27",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "north-quarry",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
@@ -203,7 +203,7 @@
    "id": "tally:hartwell-tech:7544",
    "date": "2025-08-27",
    "home": "hartwell-tech",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
@@ -248,12 +248,12 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:st-oswin:8731",
+   "id": "pressbox:st-lambert:8731",
    "date": "2025-08-29",
    "home": "pine-barrens",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
@@ -267,7 +267,7 @@
    "id": "tally:brightwater-state:8993",
    "date": "2025-08-30",
    "home": "brightwater-state",
-   "away": "st-brannoc",
+   "away": "st-brendan",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
@@ -280,34 +280,34 @@
    "away_score": 0
   },
   {
-   "id": "tally:fallow-point:3547",
+   "id": "tally:harbor-point:3547",
    "date": "2025-08-31",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "lakeshore-am",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 3,
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4883",
+   "id": "pressbox:cedar-grove:4883",
    "date": "2025-08-31",
-   "home": "oswin-state",
-   "away": "cedar-hollow",
+   "home": "lambert-state",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Oswin State Soccer Field",
+   "venue": "Lambert State Soccer Field",
    "home_score": 1,
    "away_score": 1
   },
@@ -315,7 +315,7 @@
    "id": "tally:alder-ridge:8162",
    "date": "2025-09-02",
    "home": "alder-ridge",
-   "away": "oswin-state",
+   "away": "lambert-state",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
@@ -328,18 +328,18 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:st-oswin:8732",
+   "id": "pressbox:st-lambert:8732",
    "date": "2025-09-02",
-   "home": "st-oswin",
-   "away": "st-brannoc",
+   "home": "st-lambert",
+   "away": "st-brendan",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
@@ -360,28 +360,28 @@
    "away_score": 0
   },
   {
-   "id": "pressbox:cedar-hollow:4884",
+   "id": "pressbox:cedar-grove:4884",
    "date": "2025-09-04",
-   "home": "cedar-hollow",
-   "away": "westmarch-state",
+   "home": "cedar-grove",
+   "away": "westbrook-state",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
   {
-   "id": "tally:fallow-point:3548",
+   "id": "tally:harbor-point:3548",
    "date": "2025-09-04",
    "home": "north-quarry",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "regular"
@@ -392,57 +392,57 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:cedar-hollow:4885",
+   "id": "pressbox:cedar-grove:4885",
    "date": "2025-09-08",
-   "home": "cedar-hollow",
-   "away": "fallow-point",
+   "home": "cedar-grove",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 0,
    "away_score": 3
   },
   {
-   "id": "pressbox:st-oswin:8733",
+   "id": "pressbox:st-lambert:8733",
    "date": "2025-09-08",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 3,
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4886",
+   "id": "pressbox:cedar-grove:4886",
    "date": "2025-09-13",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 1,
    "away_score": 0
   },
   {
    "id": "tally:brightwater-state:8994",
    "date": "2025-09-13",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "brightwater-state",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
@@ -451,23 +451,23 @@
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 0,
    "away_score": 1
   },
   {
-   "id": "pressbox:st-oswin:8734",
+   "id": "pressbox:st-lambert:8734",
    "date": "2025-09-13",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 1,
    "away_score": 3
   },
@@ -475,7 +475,7 @@
    "id": "tally:alder-ridge:8163",
    "date": "2025-09-16",
    "home": "alder-ridge",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -488,57 +488,57 @@
    "away_score": 3
   },
   {
-   "id": "pressbox:cedar-hollow:4887",
+   "id": "pressbox:cedar-grove:4887",
    "date": "2025-09-16",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 1,
    "away_score": 4
   },
   {
-   "id": "pressbox:st-oswin:8735",
+   "id": "pressbox:st-lambert:8735",
    "date": "2025-09-16",
-   "home": "eastmarch-state",
-   "away": "st-oswin",
+   "home": "eastbrook-state",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 0,
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4888",
+   "id": "pressbox:cedar-grove:4888",
    "date": "2025-09-21",
-   "home": "cedar-hollow",
-   "away": "st-oswin",
+   "home": "cedar-grove",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 4
   },
   {
    "id": "tally:alder-ridge:8164",
    "date": "2025-09-21",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "alder-ridge",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
@@ -547,23 +547,23 @@
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 3,
    "away_score": 0
   },
   {
-   "id": "tally:fallow-point:3549",
+   "id": "tally:harbor-point:3549",
    "date": "2025-09-21",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 4,
    "away_score": 1
   },
@@ -584,50 +584,50 @@
    "away_score": 5
   },
   {
-   "id": "pressbox:cedar-hollow:4889",
+   "id": "pressbox:cedar-grove:4889",
    "date": "2025-09-24",
-   "home": "cedar-hollow",
-   "away": "eastmarch-state",
+   "home": "cedar-grove",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 1,
    "away_score": 2
   },
   {
-   "id": "tally:fallow-point:3550",
+   "id": "tally:harbor-point:3550",
    "date": "2025-09-24",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4890",
+   "id": "pressbox:cedar-grove:4890",
    "date": "2025-09-29",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
@@ -648,18 +648,18 @@
    "away_score": 3
   },
   {
-   "id": "tally:fallow-point:3551",
+   "id": "tally:harbor-point:3551",
    "date": "2025-09-29",
-   "home": "fallow-point",
-   "away": "st-oswin",
+   "home": "harbor-point",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 2,
    "away_score": 2
   },
@@ -680,12 +680,12 @@
    "away_score": 0
   },
   {
-   "id": "pressbox:st-oswin:8736",
+   "id": "pressbox:st-lambert:8736",
    "date": "2025-10-02",
    "home": "dunmore",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
@@ -696,18 +696,18 @@
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3552",
+   "id": "tally:harbor-point:3552",
    "date": "2025-10-02",
-   "home": "fallow-point",
-   "away": "eastmarch-state",
+   "home": "harbor-point",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
@@ -715,7 +715,7 @@
    "id": "tally:brightwater-state:8996",
    "date": "2025-10-07",
    "home": "brightwater-state",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -728,18 +728,18 @@
    "away_score": 0
   },
   {
-   "id": "tally:fallow-point:3553",
+   "id": "tally:harbor-point:3553",
    "date": "2025-10-07",
-   "home": "fallow-point",
-   "away": "cedar-hollow",
+   "home": "harbor-point",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 5,
    "away_score": 2
   },
@@ -747,7 +747,7 @@
    "id": "tally:alder-ridge:8167",
    "date": "2025-10-10",
    "home": "alder-ridge",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -763,7 +763,7 @@
    "id": "tally:brightwater-state:8997",
    "date": "2025-10-10",
    "home": "brightwater-state",
-   "away": "eastmarch-state",
+   "away": "eastbrook-state",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -776,12 +776,12 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4891",
+   "id": "pressbox:cedar-grove:4891",
    "date": "2025-10-10",
    "home": "dunmore",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
@@ -795,7 +795,7 @@
    "id": "tally:brightwater-state:8998",
    "date": "2025-10-15",
    "home": "brightwater-state",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -808,34 +808,34 @@
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3554",
+   "id": "tally:harbor-point:3554",
    "date": "2025-10-15",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 2,
    "away_score": 2
   },
   {
-   "id": "pressbox:st-oswin:8737",
+   "id": "pressbox:st-lambert:8737",
    "date": "2025-10-15",
-   "home": "st-oswin",
-   "away": "eastmarch-state",
+   "home": "st-lambert",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 1,
    "away_score": 1
   },
@@ -843,7 +843,7 @@
    "id": "tally:alder-ridge:8168",
    "date": "2025-10-18",
    "home": "alder-ridge",
-   "away": "eastmarch-state",
+   "away": "eastbrook-state",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -856,12 +856,12 @@
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3555",
+   "id": "tally:harbor-point:3555",
    "date": "2025-10-18",
    "home": "dunmore",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
@@ -872,18 +872,18 @@
    "away_score": 0
   },
   {
-   "id": "pressbox:st-oswin:8738",
+   "id": "pressbox:st-lambert:8738",
    "date": "2025-10-18",
-   "home": "st-oswin",
-   "away": "cedar-hollow",
+   "home": "st-lambert",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 1,
    "away_score": 0
   },
@@ -891,7 +891,7 @@
    "id": "tally:brightwater-state:8999",
    "date": "2025-10-23",
    "home": "brightwater-state",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -920,18 +920,18 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:cedar-hollow:4892",
+   "id": "pressbox:cedar-grove:4892",
    "date": "2025-10-23",
-   "home": "eastmarch-state",
-   "away": "cedar-hollow",
+   "home": "eastbrook-state",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 1,
    "away_score": 0
   },
@@ -939,7 +939,7 @@
    "id": "tally:alder-ridge:8170",
    "date": "2025-10-26",
    "home": "alder-ridge",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
@@ -968,18 +968,18 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:st-oswin:8739",
+   "id": "pressbox:st-lambert:8739",
    "date": "2025-10-26",
-   "home": "st-oswin",
-   "away": "fallow-point",
+   "home": "st-lambert",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 2,
    "away_score": 0
   },
@@ -1000,34 +1000,34 @@
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3556",
+   "id": "tally:harbor-point:3556",
    "date": "2025-10-31",
-   "home": "eastmarch-state",
-   "away": "fallow-point",
+   "home": "eastbrook-state",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 0,
    "away_score": 3
   },
   {
-   "id": "pressbox:st-oswin:8740",
+   "id": "pressbox:st-lambert:8740",
    "date": "2025-10-31",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
@@ -1051,12 +1051,12 @@
    "away_score": 2
   },
   {
-   "id": "tally:fallow-point:3557",
+   "id": "tally:harbor-point:3557",
    "date": "2025-11-15",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "postseason",
@@ -1065,17 +1065,17 @@
     "round_published": "Semifinals"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3558",
+   "id": "tally:harbor-point:3558",
    "date": "2025-11-22",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "conference_game": false,
    "stage": {
     "phase": "postseason",

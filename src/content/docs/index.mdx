@@ -18,7 +18,9 @@ import PipelineDiagram from "../../components/PipelineDiagram.astro";
 
 Touchline is a working data platform for college soccer. It collects what about
 a thousand school athletics websites publish, turns it into one consistent
-dataset, and serves that dataset as a public website and a desktop analysis app.
+dataset, and publishes it as a public website and a verified analytical
+database. A separate app, Touchline Desk, uses that database for AI-enhanced
+analysis.
 
 This site uses it as a case study for teaching data engineering to data science
 students. Every technique here is in production, and each one exists because
@@ -39,7 +41,7 @@ something went wrong without it.
 ## The ten modules
 
 <CardGrid>
-  <LinkCard title="1. Sources and collection" href="./modules/01-collection/" description="A registry, units of work, incremental fetching, and what to do when a site says no." />
+  <LinkCard title="1. Sources and collection" href="./modules/01-collection/" description="A registry, units of work, incremental fetching, and a record of what could not be collected." />
   <LinkCard title="2. The raw archive" href="./modules/02-archive/" description="Save the source untouched. Fix bugs by replaying it." />
   <LinkCard title="3. Proof before parse" href="./modules/03-provenance/" description="A page must prove what it is before anyone reads what it says." />
   <LinkCard title="4. Parsing" href="./modules/04-parsing/" description="Reading pages that were never meant to be data." />

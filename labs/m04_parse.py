@@ -6,7 +6,7 @@ Twelve archived box scores are parsed three ways:
   by position  the first table is the score, the second the team statistics
   by id        rows are found by the template's id attribute
   by caption   tables are found by what they say they are, rows by their
-               visible label, and card colour by the cell's styling
+               visible label, and card color by the cell's styling
 
 A third of the pages use a second template with the tables in another order,
 and the template marks its Fouls row with the id "offsides". Each parse is
@@ -49,8 +49,8 @@ def by_caption(page: Page) -> dict:
     cards = []
     for r in page.table("Cautions and Ejections")["rows"][1:]:
         css = r["cells"][3]["class"].split()
-        colour = "yellow" if "card-y" in css else "red" if "card-r" in css else "unknown"
-        cards.append({"time": r["cells"][0]["text"], "player": r["cells"][3]["text"], "type": colour})
+        color = "yellow" if "card-y" in css else "red" if "card-r" in css else "unknown"
+        cards.append({"time": r["cells"][0]["text"], "player": r["cells"][3]["text"], "type": color})
     return {
         # the page lists the away side first; the season file lists home first
         "names": [home["cells"][0]["text"], away["cells"][0]["text"]],
@@ -106,8 +106,8 @@ def main() -> int:
         refused = True
         print("refused:", why)
 
-    colours = {c["type"] for p in pages for c in by_caption(Page(p.read_text(encoding="utf-8")))["cards"]}
-    print("\ncard types read from styling:", sorted(colours))
+    colors = {c["type"] for p in pages for c in by_caption(Page(p.read_text(encoding="utf-8")))["cards"]}
+    print("\ncard types read from styling:", sorted(colors))
     ok = tally["caption"] == len(pages) and tally["position"] < len(pages) and tally["id"] == 0 and refused
     print("RESULT:", "only the caption parser matches the clean file on every page" if ok else "unexpected result")
     return 0 if ok else 1

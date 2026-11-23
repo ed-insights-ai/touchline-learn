@@ -23,24 +23,24 @@ what a gate does when it cannot run.
   against a store that no longer existed reported a pass.
 - **Severity only rises.** Verdicts go from ok to warn to alarm. No later line
   of a check is allowed to lower a verdict an earlier line raised.
-- **Parity, or shadow running.** Touchline is moving its daily collection from
-  one machine to a cloud workflow. During the move, the new pipeline writes to
-  a separate "shadow" copy of the dataset and the old one stays official. A
+- **Parity, or shadow running.** Before a new pipeline takes over daily
+  collection, it writes to a separate "shadow" copy of the dataset while the
+  old one stays official. A
   parity tool compares the two copies record by record and sorts each record
   into match, timing or disagreement. Timing means the two sides scraped a
   recent game hours apart and the later one has moved forward. The new pipeline
   takes over only after a clean comparison.
-- **Agreement between consumers.** The website and the desktop app compute team
-  records with different code. A daily check compares wins, draws, losses and
-  goals from both. A difference holds back the release.
+- **Agreement between implementations.** Team records are computed twice, by
+  independent code. A daily check compares wins, draws, losses and goals from
+  both. A difference holds back the release.
 - **Release is the last step.** The pointer that tells users "this is the
   latest dataset" moves only after every gate has passed and the published site
   has been checked. If anything fails, yesterday's version stays in place.
 
 ## Example
 
-The first cloud run on one conference was compared with the official copy. The
-result was 224 records matching, 7 timing differences and 0 disagreements. All
+The first production shadow run on one conference was compared with the
+official copy. The result was 224 records matching, 7 timing differences and 0 disagreements. All
 7 timing differences were one school's weekend tournament games, which the
 later run had seen as final. Without the timing category, those 7 would have
 been false alarms, and people learn to ignore a check that raises false alarms.
@@ -62,20 +62,21 @@ shadow deployment or parallel run, reconciliation, atomic release, rollback.
 ## Lab: a parity gate
 
 ```bash
-python labs/m07_parity.py; echo "exit code $?"
+python labs/m07_parity.py
 ```
 
 `sample/data` is the official copy, collected on 20 November. `sample/shadow`
 is what a second pipeline wrote three days later.
 
 ```
-timing        pressbox:eastmarch-state:7318   official: 2026-11-21 scheduled ---  shadow: 2026-11-21 final 1-1
-timing        pressbox:st-oswin:8779          official: 2026-11-21 scheduled ---  shadow: 2026-11-21 final 1-0
-disagreement  tally:alder-ridge:8203          official: 2026-09-08 final 1-0  shadow: 2026-09-08 final 1-1
-timing        tally:alder-ridge:8211          official: 2026-11-22 scheduled ---  shadow: 2026-11-22 final 1-6
+timing        pressbox:eastbrook-state:7318      official: 2026-11-21 scheduled ---  shadow: 2026-11-21 final 1-1
+timing        pressbox:st-lambert:8779           official: 2026-11-21 scheduled ---  shadow: 2026-11-21 final 1-0
+disagreement  tally:alder-ridge:8203             official: 2026-09-08 final 1-0  shadow: 2026-09-08 final 1-1
+timing        tally:alder-ridge:8211             official: 2026-11-22 scheduled ---  shadow: 2026-11-22 final 1-6
 
 91 match, 3 timing, 1 disagreement
 GATE: failed. The new pipeline does not take over.
+RESULT: parity failed, the official copy stays in place
 exit code 1
 ```
 
@@ -87,12 +88,13 @@ November, so it is a disagreement, and one is enough to fail the gate.
 Now run the gate where it cannot do its job:
 
 ```bash
-python labs/m07_parity.py --shadow does-not-exist; echo "exit code $?"
+python labs/m07_parity.py --shadow does-not-exist
 ```
 
 ```
 PARITY DID NOT RUN: FileNotFoundError: ...
 This is not a pass. Nothing was compared.
+RESULT: parity did not run
 exit code 2
 ```
 

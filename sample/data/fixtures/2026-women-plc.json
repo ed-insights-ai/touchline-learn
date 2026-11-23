@@ -20,10 +20,10 @@
    "abbr": "BSU"
   },
   {
-   "slug": "cedar-hollow",
-   "name": "Cedar Hollow",
+   "slug": "cedar-grove",
+   "name": "Cedar Grove",
    "conference": "PLC",
-   "abbr": "CHU"
+   "abbr": "CGU"
   },
   {
    "slug": "dunmore",
@@ -32,16 +32,16 @@
    "abbr": "DUN"
   },
   {
-   "slug": "eastmarch-state",
-   "name": "Eastmarch State",
+   "slug": "eastbrook-state",
+   "name": "Eastbrook State",
    "conference": "PLC",
-   "abbr": "EMSU"
+   "abbr": "EBSU"
   },
   {
-   "slug": "fallow-point",
-   "name": "Fallow Point",
+   "slug": "harbor-point",
+   "name": "Harbor Point",
    "conference": "PLC",
-   "abbr": "FPU"
+   "abbr": "HPC"
   },
   {
    "slug": "hartwell-tech",
@@ -56,16 +56,16 @@
    "abbr": "LAM"
   },
   {
+   "slug": "lambert-state",
+   "name": "Lambert State",
+   "conference": "non_member",
+   "abbr": "LSC"
+  },
+  {
    "slug": "north-quarry",
    "name": "North Quarry",
    "conference": "non_member",
    "abbr": "NQC"
-  },
-  {
-   "slug": "oswin-state",
-   "name": "Oswin State",
-   "conference": "non_member",
-   "abbr": "OSU"
   },
   {
    "slug": "pine-barrens",
@@ -74,22 +74,22 @@
    "abbr": "PBU"
   },
   {
-   "slug": "st-brannoc",
-   "name": "St. Brannoc",
+   "slug": "st-brendan",
+   "name": "St. Brendan",
    "conference": "non_member",
    "abbr": "SBC"
   },
   {
-   "slug": "st-oswin",
-   "name": "St. Oswin",
+   "slug": "st-lambert",
+   "name": "St. Lambert",
    "conference": "PLC",
-   "abbr": "SOU"
+   "abbr": "SLC"
   },
   {
-   "slug": "westmarch-state",
-   "name": "Westmarch State",
+   "slug": "westbrook-state",
+   "name": "Westbrook State",
    "conference": "non_member",
-   "abbr": "WMSU"
+   "abbr": "WBSU"
   }
  ],
  "fixtures": [
@@ -97,7 +97,7 @@
    "id": "tally:alder-ridge:3126",
    "date": "2026-08-21",
    "home": "alder-ridge",
-   "away": "westmarch-state",
+   "away": "westbrook-state",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
@@ -108,16 +108,16 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4807",
+   "id": "pressbox:cedar-grove:4807",
    "date": "2026-08-21",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "pine-barrens",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "match_type": "exhibition",
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 1,
    "away_score": 3
   },
@@ -153,7 +153,7 @@
    "id": "tally:alder-ridge:3127",
    "date": "2026-08-25",
    "home": "alder-ridge",
-   "away": "westmarch-state",
+   "away": "westbrook-state",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
@@ -182,34 +182,34 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:st-oswin:7644",
+   "id": "pressbox:st-lambert:7644",
    "date": "2026-08-25",
-   "home": "st-oswin",
-   "away": "westmarch-state",
+   "home": "st-lambert",
+   "away": "westbrook-state",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 5,
    "away_score": 0
   },
   {
-   "id": "pressbox:eastmarch-state:5974",
+   "id": "pressbox:eastbrook-state:5974",
    "date": "2026-08-26",
-   "home": "eastmarch-state",
-   "away": "st-brannoc",
+   "home": "eastbrook-state",
+   "away": "st-brendan",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 2,
    "away_score": 0
   },
@@ -246,34 +246,34 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:cedar-hollow:4808",
+   "id": "pressbox:cedar-grove:4808",
    "date": "2026-08-27",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "pine-barrens",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 4,
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3520",
+   "id": "tally:harbor-point:3520",
    "date": "2026-08-27",
-   "home": "oswin-state",
-   "away": "fallow-point",
+   "home": "lambert-state",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Oswin State Soccer Field",
+   "venue": "Lambert State Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
@@ -281,7 +281,7 @@
    "id": "tally:dunmore:4016",
    "date": "2026-08-29",
    "home": "dunmore",
-   "away": "oswin-state",
+   "away": "lambert-state",
    "status": "final",
    "source_url": "https://athletics.dunmore.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
@@ -310,12 +310,12 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:st-oswin:7645",
+   "id": "pressbox:st-lambert:7645",
    "date": "2026-08-29",
    "home": "pine-barrens",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
@@ -358,50 +358,50 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:eastmarch-state:5975",
+   "id": "pressbox:eastbrook-state:5975",
    "date": "2026-08-30",
-   "home": "westmarch-state",
-   "away": "eastmarch-state",
+   "home": "westbrook-state",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Westmarch State Soccer Field",
+   "venue": "Westbrook State Soccer Field",
    "home_score": 0,
    "away_score": 3
   },
   {
-   "id": "tally:fallow-point:3521",
+   "id": "tally:harbor-point:3521",
    "date": "2026-08-31",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "lakeshore-am",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
   {
-   "id": "pressbox:cedar-hollow:4809",
+   "id": "pressbox:cedar-grove:4809",
    "date": "2026-08-31",
-   "home": "st-brannoc",
-   "away": "cedar-hollow",
+   "home": "st-brendan",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Brannoc Soccer Field",
+   "venue": "St. Brendan Soccer Field",
    "home_score": 0,
    "away_score": 0
   },
@@ -409,7 +409,7 @@
    "id": "tally:alder-ridge:3129",
    "date": "2026-09-02",
    "home": "alder-ridge",
-   "away": "st-brannoc",
+   "away": "st-brendan",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
@@ -438,41 +438,41 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:st-oswin:7646",
+   "id": "pressbox:st-lambert:7646",
    "date": "2026-09-02",
-   "home": "st-oswin",
-   "away": "st-brannoc",
+   "home": "st-lambert",
+   "away": "st-brendan",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 1,
    "away_score": 2
   },
   {
-   "id": "pressbox:eastmarch-state:5976",
+   "id": "pressbox:eastbrook-state:5976",
    "date": "2026-09-03",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "pine-barrens",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 0,
    "away_score": 1
   },
   {
    "id": "tally:brightwater-state:5008",
    "date": "2026-09-03",
-   "home": "oswin-state",
+   "home": "lambert-state",
    "away": "brightwater-state",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/schedule/2026",
@@ -481,14 +481,14 @@
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Oswin State Soccer Field",
+   "venue": "Lambert State Soccer Field",
    "home_score": 5,
    "away_score": 3
   },
   {
    "id": "tally:hartwell-tech:8810",
    "date": "2026-09-03",
-   "home": "oswin-state",
+   "home": "lambert-state",
    "away": "hartwell-tech",
    "status": "final",
    "source_url": "https://athletics.hartwell-tech.example/sports/womens-soccer/schedule/2026",
@@ -497,33 +497,33 @@
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Oswin State Soccer Field",
+   "venue": "Lambert State Soccer Field",
    "home_score": 0,
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4810",
+   "id": "pressbox:cedar-grove:4810",
    "date": "2026-09-04",
-   "home": "cedar-hollow",
-   "away": "westmarch-state",
+   "home": "cedar-grove",
+   "away": "westbrook-state",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 2
   },
   {
-   "id": "tally:fallow-point:3522",
+   "id": "tally:harbor-point:3522",
    "date": "2026-09-04",
    "home": "north-quarry",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "regular"
@@ -550,82 +550,82 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4811",
+   "id": "pressbox:cedar-grove:4811",
    "date": "2026-09-08",
-   "home": "cedar-hollow",
-   "away": "fallow-point",
+   "home": "cedar-grove",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 3,
    "away_score": 1
   },
   {
-   "id": "pressbox:eastmarch-state:5977",
+   "id": "pressbox:eastbrook-state:5977",
    "date": "2026-09-08",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 2,
    "away_score": 4
   },
   {
-   "id": "pressbox:st-oswin:7647",
+   "id": "pressbox:st-lambert:7647",
    "date": "2026-09-08",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4812",
+   "id": "pressbox:cedar-grove:4812",
    "date": "2026-09-13",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 3,
    "away_score": 4
   },
   {
-   "id": "pressbox:eastmarch-state:5978",
+   "id": "pressbox:eastbrook-state:5978",
    "date": "2026-09-13",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 4,
    "away_score": 1
   },
@@ -633,7 +633,7 @@
    "id": "tally:hartwell-tech:8811",
    "date": "2026-09-13",
    "home": "hartwell-tech",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.hartwell-tech.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -646,18 +646,18 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:st-oswin:7648",
+   "id": "pressbox:st-lambert:7648",
    "date": "2026-09-13",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 0,
    "away_score": 2
   },
@@ -665,7 +665,7 @@
    "id": "tally:alder-ridge:3131",
    "date": "2026-09-16",
    "home": "alder-ridge",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -678,34 +678,34 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:cedar-hollow:4813",
+   "id": "pressbox:cedar-grove:4813",
    "date": "2026-09-16",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 0
   },
   {
-   "id": "pressbox:eastmarch-state:5979",
+   "id": "pressbox:eastbrook-state:5979",
    "date": "2026-09-16",
-   "home": "eastmarch-state",
-   "away": "st-oswin",
+   "home": "eastbrook-state",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 4,
    "away_score": 0
   },
@@ -726,50 +726,50 @@
    "away_score": 2
   },
   {
-   "id": "pressbox:cedar-hollow:4814",
+   "id": "pressbox:cedar-grove:4814",
    "date": "2026-09-21",
-   "home": "cedar-hollow",
-   "away": "st-oswin",
+   "home": "cedar-grove",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 3
   },
   {
-   "id": "pressbox:eastmarch-state:5980",
+   "id": "pressbox:eastbrook-state:5980",
    "date": "2026-09-21",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 4,
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3523",
+   "id": "tally:harbor-point:3523",
    "date": "2026-09-21",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 2,
    "away_score": 2
   },
@@ -806,34 +806,34 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4815",
+   "id": "pressbox:cedar-grove:4815",
    "date": "2026-09-24",
-   "home": "cedar-hollow",
-   "away": "eastmarch-state",
+   "home": "cedar-grove",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3524",
+   "id": "tally:harbor-point:3524",
    "date": "2026-09-24",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "brightwater-state",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 3,
    "away_score": 2
   },
@@ -841,7 +841,7 @@
    "id": "tally:hartwell-tech:8814",
    "date": "2026-09-24",
    "home": "hartwell-tech",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
    "source_url": "https://athletics.hartwell-tech.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -854,18 +854,18 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:cedar-hollow:4816",
+   "id": "pressbox:cedar-grove:4816",
    "date": "2026-09-29",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 3,
    "away_score": 3
   },
@@ -886,18 +886,18 @@
    "away_score": 2
   },
   {
-   "id": "tally:fallow-point:3525",
+   "id": "tally:harbor-point:3525",
    "date": "2026-09-29",
-   "home": "fallow-point",
-   "away": "st-oswin",
+   "home": "harbor-point",
+   "away": "st-lambert",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 5,
    "away_score": 1
   },
@@ -905,7 +905,7 @@
    "id": "tally:hartwell-tech:8815",
    "date": "2026-09-29",
    "home": "hartwell-tech",
-   "away": "eastmarch-state",
+   "away": "eastbrook-state",
    "status": "final",
    "source_url": "https://athletics.hartwell-tech.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -937,7 +937,7 @@
    "id": "tally:dunmore:4019",
    "date": "2026-10-02",
    "home": "dunmore",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
    "source_url": "https://athletics.dunmore.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -950,18 +950,18 @@
    "away_score": 2
   },
   {
-   "id": "tally:fallow-point:3526",
+   "id": "tally:harbor-point:3526",
    "date": "2026-10-02",
-   "home": "fallow-point",
-   "away": "eastmarch-state",
+   "home": "harbor-point",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 3,
    "away_score": 4
   },
@@ -969,7 +969,7 @@
    "id": "tally:hartwell-tech:8816",
    "date": "2026-10-02",
    "home": "hartwell-tech",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
    "source_url": "https://athletics.hartwell-tech.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -985,7 +985,7 @@
    "id": "tally:brightwater-state:5009",
    "date": "2026-10-07",
    "home": "brightwater-state",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1001,7 +1001,7 @@
    "id": "tally:dunmore:4020",
    "date": "2026-10-07",
    "home": "dunmore",
-   "away": "eastmarch-state",
+   "away": "eastbrook-state",
    "status": "final",
    "source_url": "https://athletics.dunmore.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1014,18 +1014,18 @@
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3527",
+   "id": "tally:harbor-point:3527",
    "date": "2026-10-07",
-   "home": "fallow-point",
-   "away": "cedar-hollow",
+   "home": "harbor-point",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 1,
    "away_score": 2
   },
@@ -1049,7 +1049,7 @@
    "id": "tally:alder-ridge:3134",
    "date": "2026-10-10",
    "home": "alder-ridge",
-   "away": "st-oswin",
+   "away": "st-lambert",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1065,7 +1065,7 @@
    "id": "tally:brightwater-state:5010",
    "date": "2026-10-10",
    "home": "brightwater-state",
-   "away": "eastmarch-state",
+   "away": "eastbrook-state",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1081,7 +1081,7 @@
    "id": "tally:dunmore:4021",
    "date": "2026-10-10",
    "home": "dunmore",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
    "source_url": "https://athletics.dunmore.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1094,18 +1094,18 @@
    "away_score": 0
   },
   {
-   "id": "tally:fallow-point:3528",
+   "id": "tally:harbor-point:3528",
    "date": "2026-10-10",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "hartwell-tech",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 1,
    "away_score": 3
   },
@@ -1113,7 +1113,7 @@
    "id": "tally:brightwater-state:5011",
    "date": "2026-10-15",
    "home": "brightwater-state",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1142,34 +1142,34 @@
    "away_score": 1
   },
   {
-   "id": "tally:fallow-point:3529",
+   "id": "tally:harbor-point:3529",
    "date": "2026-10-15",
-   "home": "fallow-point",
+   "home": "harbor-point",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Fallow Point Soccer Field",
+   "venue": "Harbor Point Soccer Field",
    "home_score": 0,
    "away_score": 1
   },
   {
-   "id": "pressbox:st-oswin:7649",
+   "id": "pressbox:st-lambert:7649",
    "date": "2026-10-15",
-   "home": "st-oswin",
-   "away": "eastmarch-state",
+   "home": "st-lambert",
+   "away": "eastbrook-state",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 0,
    "away_score": 3
   },
@@ -1177,7 +1177,7 @@
    "id": "tally:alder-ridge:3135",
    "date": "2026-10-18",
    "home": "alder-ridge",
-   "away": "eastmarch-state",
+   "away": "eastbrook-state",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1209,7 +1209,7 @@
    "id": "tally:dunmore:4023",
    "date": "2026-10-18",
    "home": "dunmore",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.dunmore.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1222,18 +1222,18 @@
    "away_score": 3
   },
   {
-   "id": "pressbox:st-oswin:7650",
+   "id": "pressbox:st-lambert:7650",
    "date": "2026-10-18",
-   "home": "st-oswin",
-   "away": "cedar-hollow",
+   "home": "st-lambert",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 2,
    "away_score": 2
   },
@@ -1241,7 +1241,7 @@
    "id": "tally:brightwater-state:5013",
    "date": "2026-10-23",
    "home": "brightwater-state",
-   "away": "fallow-point",
+   "away": "harbor-point",
    "status": "final",
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1270,34 +1270,34 @@
    "away_score": 5
   },
   {
-   "id": "pressbox:eastmarch-state:5981",
+   "id": "pressbox:eastbrook-state:5981",
    "date": "2026-10-23",
-   "home": "eastmarch-state",
-   "away": "cedar-hollow",
+   "home": "eastbrook-state",
+   "away": "cedar-grove",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 1,
    "away_score": 3
   },
   {
-   "id": "pressbox:st-oswin:7651",
+   "id": "pressbox:st-lambert:7651",
    "date": "2026-10-23",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "hartwell-tech",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 0,
    "away_score": 1
   },
@@ -1305,7 +1305,7 @@
    "id": "tally:alder-ridge:3136",
    "date": "2026-10-26",
    "home": "alder-ridge",
-   "away": "cedar-hollow",
+   "away": "cedar-grove",
    "status": "final",
    "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
@@ -1334,34 +1334,34 @@
    "away_score": 1
   },
   {
-   "id": "pressbox:eastmarch-state:5982",
+   "id": "pressbox:eastbrook-state:5982",
    "date": "2026-10-26",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "hartwell-tech",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 3,
    "away_score": 0
   },
   {
-   "id": "pressbox:st-oswin:7652",
+   "id": "pressbox:st-lambert:7652",
    "date": "2026-10-26",
-   "home": "st-oswin",
-   "away": "fallow-point",
+   "home": "st-lambert",
+   "away": "harbor-point",
    "status": "final",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field",
+   "venue": "St. Lambert Soccer Field",
    "home_score": 1,
    "away_score": 1
   },
@@ -1382,56 +1382,56 @@
    "away_score": 0
   },
   {
-   "id": "pressbox:cedar-hollow:4817",
+   "id": "pressbox:cedar-grove:4817",
    "date": "2026-10-31",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "hartwell-tech",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "19:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 1,
    "away_score": 0
   },
   {
-   "id": "pressbox:eastmarch-state:5983",
+   "id": "pressbox:eastbrook-state:5983",
    "date": "2026-11-21",
-   "home": "eastmarch-state",
-   "away": "fallow-point",
+   "home": "eastbrook-state",
+   "away": "harbor-point",
    "status": "scheduled",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "Eastmarch State Soccer Field"
+   "venue": "Eastbrook State Soccer Field"
   },
   {
-   "id": "pressbox:st-oswin:7653",
+   "id": "pressbox:st-lambert:7653",
    "date": "2026-11-21",
-   "home": "st-oswin",
+   "home": "st-lambert",
    "away": "dunmore",
    "status": "scheduled",
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "conference_game": true,
    "stage": {
     "phase": "regular"
    },
    "time": "13:00",
-   "venue": "St. Oswin Soccer Field"
+   "venue": "St. Lambert Soccer Field"
   },
   {
-   "id": "pressbox:cedar-hollow:4818",
+   "id": "pressbox:cedar-grove:4818",
    "date": "2026-11-15",
-   "home": "cedar-hollow",
+   "home": "cedar-grove",
    "away": "alder-ridge",
    "status": "final",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "postseason",
@@ -1440,17 +1440,17 @@
     "round_published": "Semifinals"
    },
    "time": "13:00",
-   "venue": "Cedar Hollow Soccer Field",
+   "venue": "Cedar Grove Soccer Field",
    "home_score": 2,
    "away_score": 1
   },
   {
-   "id": "pressbox:eastmarch-state:5984",
+   "id": "pressbox:eastbrook-state:5984",
    "date": "2026-11-15",
-   "home": "eastmarch-state",
+   "home": "eastbrook-state",
    "away": "dunmore",
    "status": "final",
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "postseason",
@@ -1459,17 +1459,17 @@
     "round_published": "Semifinals"
    },
    "time": "13:00",
-   "venue": "Eastmarch State Soccer Field",
+   "venue": "Eastbrook State Soccer Field",
    "home_score": 1,
    "away_score": 0
   },
   {
-   "id": "pressbox:cedar-hollow:4819",
+   "id": "pressbox:cedar-grove:4819",
    "date": "2026-11-22",
-   "home": "cedar-hollow",
-   "away": "eastmarch-state",
+   "home": "cedar-grove",
+   "away": "eastbrook-state",
    "status": "scheduled",
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "conference_game": false,
    "stage": {
     "phase": "postseason",

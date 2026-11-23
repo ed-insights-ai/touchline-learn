@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import shutil
+import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -15,6 +17,14 @@ SHADOW = SAMPLE / "shadow"
 WORK = ROOT / "labs" / "_work"
 
 UNITS = [(2025, "men"), (2025, "women"), (2026, "men"), (2026, "women")]
+
+
+def require(*modules: str) -> None:
+    missing = [m for m in modules if importlib.util.find_spec(m) is None]
+    if missing:
+        print(f"RESULT: could not run, missing {', '.join(missing)}. "
+              "Run: python -m pip install -r labs/requirements.txt")
+        sys.exit(2)
 
 
 def load(path: Path | str):

@@ -19,16 +19,16 @@ from common import RAW, heading, load, workdir
 
 
 class FakeWeb:
-    """Serves pages by URL and honours If-None-Match, as a real server would."""
+    """Serves pages by URL and honors If-None-Match, as a real server would."""
 
     def __init__(self):
         self.pages: dict[str, str] = {}
-        self.blocked: set[str] = set()
+        self.unavailable: set[str] = set()
         self.bytes_sent = 0
 
     def get(self, url: str, etag: str | None = None):
-        if any(url.startswith(host) for host in self.blocked):
-            return 403, None, None
+        if any(url.startswith(host) for host in self.unavailable):
+            return 503, None, None
         body = self.pages[url]
         current = '"' + hashlib.sha256(body.encode()).hexdigest()[:16] + '"'
         if etag == current:
@@ -49,11 +49,11 @@ def registry() -> list[dict]:
 
 def collect(web: FakeWeb, entries: list[dict], archive, validators: dict) -> dict:
     """One run. Returns the run record: what happened to every page."""
-    record = {"downloaded": [], "unchanged": [], "blocked": []}
+    record = {"downloaded": [], "unchanged": [], "unavailable": []}
     for e in entries:
         status, body, etag = web.get(e["url"], validators.get(e["url"]))
-        if status == 403:
-            record["blocked"].append(e["url"])  # recorded, never worked around
+        if status == 503:
+            record["unavailable"].append(e["url"])
         elif status == 304:
             record["unchanged"].append(e["url"])
         else:
@@ -78,7 +78,7 @@ def main() -> int:
         print(f"registry entries : {len(entries)}")
         print(f"downloaded       : {len(rec['downloaded'])}")
         print(f"unchanged (304)  : {len(rec['unchanged'])}")
-        print(f"blocked          : {len(rec['blocked'])}")
+        print(f"unavailable      : {len(rec['unavailable'])}")
         print(f"bytes sent so far: {web.bytes_sent:,}")
 
     day1 = collect(web, entries, work / "archive", validators)
@@ -87,19 +87,19 @@ def main() -> int:
     day2 = collect(web, entries, work / "archive", validators)
     report("Day 2: nothing changed overnight", day2)
 
-    # Day 3: one school posts a result, and one site starts refusing us.
+    # Day 3: one school posts a result, and one site is unavailable.
     changed = next(e["url"] for e in entries if e["file"] == "2026-men-schedule.html"
-                   and e["programme"] == "st-oswin")
+                   and e["programme"] == "st-lambert")
     web.pages[changed] = web.pages[changed].replace("<td></td><td></td></tr>", "<td>W 2-1</td><td></td></tr>", 1)
-    web.blocked.add("https://athletics.dunmore.example")
+    web.unavailable.add("https://athletics.dunmore.example")
     day3 = collect(web, entries, work / "archive", validators)
-    report("Day 3: one page changed, one site blocks us", day3)
+    report("Day 3: one page changed, one site unavailable", day3)
     print("changed :", day3["downloaded"])
-    print("blocked :", day3["blocked"])
+    print("unavailable :", day3["unavailable"])
 
     (work / "run-record.json").write_text(json.dumps(day3, indent=1))
     ok = (len(day1["downloaded"]) == len(entries) and not day2["downloaded"]
-          and day3["downloaded"] == [changed] and len(day3["blocked"]) == 1)
+          and day3["downloaded"] == [changed] and len(day3["unavailable"]) == 1)
     print("\nRESULT:", "incremental collection behaves as expected" if ok else "unexpected counts")
     return 0 if ok else 1
 

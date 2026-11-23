@@ -9,15 +9,34 @@ is made, and a sidecar fingerprint tells us which pages need re-reading.
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import inspect
 import json
 import re
+import shutil
+import socket
 import sys
+from contextlib import contextmanager
+from pathlib import Path
 
 from common import RAW, Page, heading, workdir
 
-NETWORK_REQUESTS = 0  # this lab never raises it; that is the point
+
+@contextmanager
+def count_network():
+    """Counts every attempt to resolve a name or open a connection, and stops it."""
+    attempts: list[str] = []
+
+    def stop(*args, **kwargs):
+        attempts.append(str(args[-1] if args else kwargs))
+        raise OSError("this lab does not use the network")
+    real = socket.getaddrinfo, socket.socket.connect
+    socket.getaddrinfo, socket.socket.connect = stop, stop
+    try:
+        yield attempts
+    finally:
+        socket.getaddrinfo, socket.socket.connect = real
 
 
 def expand_v1(name: str) -> str:
@@ -40,11 +59,11 @@ def parse_opponents(source: str, expand) -> list[str]:
     return [expand(row["cells"][2]["text"]) for row in table["rows"][1:]]
 
 
-def run(parsed_dir, expand) -> tuple[int, int]:
+def run(parsed_dir, expand, archive: Path = RAW) -> tuple[int, int]:
     """Parse every archived schedule whose sidecar does not carry this parser's
     fingerprint. Returns (re-parsed, skipped)."""
     fp, done, skipped = fingerprint(expand), 0, 0
-    for page in sorted(RAW.glob("*/2026-men-schedule.html")):
+    for page in sorted(archive.glob("*/2026-men-schedule.html")):
         out = parsed_dir / f"{page.parent.name}.json"
         side = parsed_dir / f"{page.parent.name}.parser"
         if side.exists() and side.read_text() == fp:
@@ -61,26 +80,55 @@ def names(parsed_dir) -> set[str]:
 
 
 def main() -> int:
-    parsed = workdir("m02") / "parsed"
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--missing", metavar="SCHOOL", help="run on a scratch copy without this school's page")
+    args = ap.parse_args()
+
+    work = workdir("m02")
+    parsed = work / "parsed"
     parsed.mkdir()
+    archive = RAW
+    if args.missing:
+        pages = sorted(RAW.glob("*/2026-men-schedule.html"))
+        if args.missing not in {p.parent.name for p in pages}:
+            print(f"RESULT: could not run, no archived page for {args.missing!r}")
+            return 2
+        archive = work / "archive"
+        for page in pages:
+            if page.parent.name != args.missing:
+                (archive / page.parent.name).mkdir(parents=True)
+                shutil.copy(page, archive / page.parent.name / page.name)
 
-    heading("Run 1: parser v1")
-    print("re-parsed, skipped:", run(parsed, expand_v1))
-    wrong = sorted(n for n in names(parsed) if n.startswith("State "))
-    print("names that cannot be right:", wrong)
+    with count_network() as attempts:
+        try:
+            socket.create_connection(("archive.invalid", 80), timeout=1)
+        except OSError:
+            pass
+        counter_works = len(attempts) == 1
+        attempts.clear()
 
-    heading("Run 2: same parser, nothing to do")
-    print("re-parsed, skipped:", run(parsed, expand_v1))
+        heading("Run 1: parser v1")
+        print("re-parsed, skipped:", run(parsed, expand_v1, archive))
+        wrong = sorted(n for n in names(parsed) if n.startswith("State "))
+        print("names that cannot be right:", wrong)
 
-    heading("Run 3: parser v2, replayed from the archive")
-    done, skipped = run(parsed, expand_v2)
-    print("re-parsed, skipped:", (done, skipped))
-    after = names(parsed)
-    print("Saint schools now  :", sorted(n for n in after if n.startswith("Saint ")))
-    print("network requests   :", NETWORK_REQUESTS)
+        heading("Run 2: same parser, nothing to do")
+        print("re-parsed, skipped:", run(parsed, expand_v1, archive))
+
+        heading("Run 3: parser v2, replayed from the archive")
+        done, skipped = run(parsed, expand_v2, archive)
+        print("re-parsed, skipped:", (done, skipped))
+        after = names(parsed)
+        print("Saint schools now  :", sorted(n for n in after if n.startswith("Saint ")))
+        print("network requests   :", len(attempts))
+    print("network counter    :", "caught a test request" if counter_works else "FAILED its test request")
+
+    if args.missing:
+        print(f"\nRESULT: {args.missing} has no archived page, and this run did not report it")
+        return 1
 
     ok = bool(wrong) and done == 8 and not any(n.startswith("State ") for n in after) \
-        and "Saint Oswin" in after and NETWORK_REQUESTS == 0
+        and "Saint Lambert" in after and not attempts and counter_works
     print("\nRESULT:", "bug fixed by replay, with no fetch" if ok else "unexpected result")
     return 0 if ok else 1
 

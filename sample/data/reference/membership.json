@@ -52,7 +52,7 @@
     }
    ]
   },
-  "cedar-hollow": {
+  "cedar-grove": {
    "men": [
     {
      "conference": "PLC",
@@ -84,7 +84,7 @@
     }
    ]
   },
-  "eastmarch-state": {
+  "eastbrook-state": {
    "men": [
     {
      "conference": "PLC",
@@ -100,7 +100,7 @@
     }
    ]
   },
-  "fallow-point": {
+  "harbor-point": {
    "men": [
     {
      "conference": "PLC",
@@ -116,7 +116,7 @@
     }
    ]
   },
-  "st-oswin": {
+  "st-lambert": {
    "men": [
     {
      "conference": "PLC",

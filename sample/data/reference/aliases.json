@@ -7,33 +7,33 @@
   "BSU",
   "Brightwater State"
  ],
- "cedar-hollow": [
-  "CHU",
-  "Cedar Hollow"
+ "cedar-grove": [
+  "CGU",
+  "Cedar Grove"
  ],
  "dunmore": [
   "DUN",
   "Dunmore"
  ],
- "eastmarch-state": [
-  "EMSU",
-  "Eastmarch State"
+ "eastbrook-state": [
+  "EBSU",
+  "Eastbrook State"
  ],
- "fallow-point": [
-  "FPU",
-  "Fallow Point"
+ "harbor-point": [
+  "HPC",
+  "Harbor Point"
  ],
- "st-oswin": [
-  "SOU",
-  "St. Oswin"
+ "st-lambert": [
+  "SLC",
+  "St. Lambert"
  ],
  "hartwell-tech": [
   "HTU",
   "Hartwell Tech"
  ],
- "westmarch-state": [
-  "WMSU",
-  "Westmarch State"
+ "westbrook-state": [
+  "WBSU",
+  "Westbrook State"
  ],
  "lakeshore-am": [
   "LAM",
@@ -47,12 +47,12 @@
   "NQC",
   "North Quarry"
  ],
- "st-brannoc": [
+ "st-brendan": [
   "SBC",
-  "St. Brannoc"
+  "St. Brendan"
  ],
- "oswin-state": [
-  "OSU",
-  "Oswin State"
+ "lambert-state": [
+  "LSC",
+  "Lambert State"
  ]
 }
