@@ -54,26 +54,28 @@ def moved_games(fixtures: list[dict], boxes: dict, names: dict) -> list[dict]:
     return games
 
 
-def cutoff_policy(names: dict) -> list[dict]:
+def cutoff_policy(names: dict, slugs: list[str]) -> list[dict]:
     aliases = load(DATA / "reference" / "aliases.json")
     for slug, spellings in load(ROOT / "labs" / "data" / "aliases_solution.json").items():
         aliases.setdefault(slug, []).extend(spellings)
     truth = build_index(aliases)
-    members = {slug: names[slug]["name"] for slug in load(DATA / "reference" / "membership.json")["memberships"]}
+    pool = {slug: names[slug]["name"] for slug in slugs}
     spellings = sorted({strip_rank(n) for n in published_names()})
     rows = []
     for cutoff in CUTOFFS:
-        right = wrong = review = exact = 0
+        right = review = exact = 0
+        wrong = []
         for spelling in spellings:
-            guess = difflib.get_close_matches(spelling, list(members.values()), n=1, cutoff=cutoff)
+            guess = difflib.get_close_matches(spelling, list(pool.values()), n=1, cutoff=cutoff)
             if not guess:
                 review += 1
-            elif next(s for s, v in members.items() if v == guess[0]) == truth[spelling]:
+            elif next(s for s, v in pool.items() if v == guess[0]) == truth[spelling]:
                 right += 1
                 exact += spelling == guess[0]
             else:
-                wrong += 1
-        rows.append({"cutoff": cutoff, "right": right, "wrong": wrong, "review": review, "exact": exact})
+                wrong.append({"name": spelling, "into": guess[0]})
+        rows.append({"cutoff": cutoff, "right": right, "wrong": len(wrong), "review": review, "exact": exact,
+                     "wrongNames": wrong})
     return rows
 
 
@@ -114,6 +116,10 @@ def build() -> dict:
     boxes = load(season_file("matches", 2026, "women"))["matches"]
     published = published_names()
     joined = [merged(f) for f in fixtures]
+    members = list(load(DATA / "reference" / "membership.json")["memberships"])
+    every_school = cutoff_policy(names, list(names))
+    if any(row["wrong"] for row in every_school):
+        raise SystemExit("the lesson says a full candidate list removes every wrong merge")
     return {
         "spellings": len(published),
         "afterCleanup": len({strip_rank(n) for n in published}),
@@ -125,7 +131,8 @@ def build() -> dict:
         "matcher": matcher_scope(names),
         "routes": route_examples(),
         "movedGames": moved_games(fixtures, boxes, names),
-        "cutoffs": cutoff_policy(names),
+        "cutoffs": cutoff_policy(names, members),
+        "allCutoffs": every_school,
         "lambert": lambert_evidence(boxes, names),
     }
 

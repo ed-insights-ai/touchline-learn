@@ -236,70 +236,246 @@
    "right": 17,
    "wrong": 4,
    "review": 9,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Lambert St.",
+     "into": "St. Lambert"
+    },
+    {
+     "name": "Lambert State",
+     "into": "Brightwater State"
+    },
+    {
+     "name": "Westbrook St.",
+     "into": "Eastbrook State"
+    },
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.55,
    "right": 17,
    "wrong": 4,
    "review": 9,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Lambert St.",
+     "into": "St. Lambert"
+    },
+    {
+     "name": "Lambert State",
+     "into": "Brightwater State"
+    },
+    {
+     "name": "Westbrook St.",
+     "into": "Eastbrook State"
+    },
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.6,
    "right": 17,
    "wrong": 4,
    "review": 9,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Lambert St.",
+     "into": "St. Lambert"
+    },
+    {
+     "name": "Lambert State",
+     "into": "Brightwater State"
+    },
+    {
+     "name": "Westbrook St.",
+     "into": "Eastbrook State"
+    },
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.65,
    "right": 16,
    "wrong": 2,
    "review": 12,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Westbrook St.",
+     "into": "Eastbrook State"
+    },
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.7,
    "right": 16,
    "wrong": 2,
    "review": 12,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Westbrook St.",
+     "into": "Eastbrook State"
+    },
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.75,
    "right": 16,
    "wrong": 1,
    "review": 13,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.8,
    "right": 13,
    "wrong": 1,
    "review": 16,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.85,
    "right": 10,
    "wrong": 1,
    "review": 19,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": [
+    {
+     "name": "Westbrook State",
+     "into": "Eastbrook State"
+    }
+   ]
   },
   {
    "cutoff": 0.9,
    "right": 8,
    "wrong": 0,
    "review": 22,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": []
   },
   {
    "cutoff": 0.95,
    "right": 8,
    "wrong": 0,
    "review": 22,
-   "exact": 8
+   "exact": 8,
+   "wrongNames": []
+  }
+ ],
+ "allCutoffs": [
+  {
+   "cutoff": 0.5,
+   "right": 28,
+   "wrong": 0,
+   "review": 2,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.55,
+   "right": 28,
+   "wrong": 0,
+   "review": 2,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.6,
+   "right": 28,
+   "wrong": 0,
+   "review": 2,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.65,
+   "right": 27,
+   "wrong": 0,
+   "review": 3,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.7,
+   "right": 27,
+   "wrong": 0,
+   "review": 3,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.75,
+   "right": 27,
+   "wrong": 0,
+   "review": 3,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.8,
+   "right": 22,
+   "wrong": 0,
+   "review": 8,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.85,
+   "right": 17,
+   "wrong": 0,
+   "review": 13,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.9,
+   "right": 14,
+   "wrong": 0,
+   "review": 16,
+   "exact": 14,
+   "wrongNames": []
+  },
+  {
+   "cutoff": 0.95,
+   "right": 14,
+   "wrong": 0,
+   "review": 16,
+   "exact": 14,
+   "wrongNames": []
   }
  ],
  "lambert": {
