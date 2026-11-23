@@ -1,0 +1,396 @@
+---
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+type Fixture = {
+  id: string; date: string; home: string; away: string; status: string; source_url: string;
+  conference_game: boolean; home_score?: number; away_score?: number;
+};
+type Row = { slug: string; name: string; p: number; gf: number; ga: number; pts: number };
+
+const DOWN = "dunmore";
+const sample = (...parts: string[]) => join(process.cwd(), "sample", ...parts);
+const json = (...parts: string[]) => JSON.parse(readFileSync(sample(...parts), "utf-8"));
+const fixtures: Fixture[] = json("data", "fixtures", "2026-men-plc.json").fixtures;
+const programmes = json("data", "reference", "programmes.json").programmes;
+const nameOf = (slug: string): string => programmes[slug].name;
+
+const played = fixtures.filter((f) => f.conference_game && f.status === "final" && f.home_score !== undefined);
+const heldByDown = (f: Fixture) => new URL(f.source_url).hostname.includes(DOWN);
+
+function table(rows: Fixture[]): Row[] {
+  const out = new Map<string, Row>();
+  const add = (slug: string, gf: number, ga: number) => {
+    const r = out.get(slug) ?? { slug, name: nameOf(slug), p: 0, gf: 0, ga: 0, pts: 0 };
+    r.p += 1; r.gf += gf; r.ga += ga; r.pts += gf > ga ? 3 : gf === ga ? 1 : 0;
+    out.set(slug, r);
+  };
+  rows.forEach((f) => { add(f.home, f.home_score!, f.away_score!); add(f.away, f.away_score!, f.home_score!); });
+  return [...out.values()].sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga) || a.slug.localeCompare(b.slug));
+}
+
+const truth = table(played);
+const broken = table(played.filter((f) => !heldByDown(f)));
+const place = (rows: Row[], slug: string) => rows.findIndex((r) => r.slug === slug) + 1;
+const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : `th`}`;
+
+const onlyDown = fixtures.filter(heldByDown);
+const vouched = onlyDown.filter((f) => f.conference_game).sort((a, b) => a.date.localeCompare(b.date));
+const unseen = onlyDown.filter((f) => !f.conference_game);
+const opponent = (f: Fixture) => (f.home === DOWN ? f.away : f.home);
+
+const neighbours = vouched.map((f) => {
+  const page = readFileSync(sample("raw_html", f.away, "2026-men-schedule.html"), "utf-8");
+  const hit = page.match(new RegExp(`<td>${f.date}</td><td>at</td><td>Dunmore</td><td>[WLT] (\\d+)-(\\d+)</td>`));
+  if (!hit || Number(hit[1]) !== f.away_score || Number(hit[2]) !== f.home_score) {
+    throw new Error(`${f.away}'s schedule no longer matches the Dunmore fixture on ${f.date}`);
+  }
+  return { slug: f.away, name: nameOf(f.away), date: f.date, gf: f.home_score!, ga: f.away_score!, line: `at Dunmore, ${f.away_score}-${f.home_score}` };
+});
+
+const pages = readdirSync(sample("raw_html"))
+  .filter((d) => d !== "traps")
+  .flatMap((d) => readdirSync(sample("raw_html", d)).filter((f) => /^2026-men-.*\.html$/.test(f)).map((f) => ({ school: d, file: f })));
+const sizeOf = (p: { school: string; file: string }) => statSync(sample("raw_html", p.school, p.file)).size;
+const totalBytes = pages.reduce((n, p) => n + sizeOf(p), 0);
+const downPage = pages.find((p) => p.school === DOWN && p.file === "2026-men-schedule.html")!;
+const downBytes = sizeOf(downPage);
+const schedules = pages.filter((p) => p.file === "2026-men-schedule.html").sort((a, b) => a.school.localeCompare(b.school));
+const boxes = pages.filter((p) => p.file !== "2026-men-schedule.html");
+const grid = [...schedules, ...boxes];
+
+const others = broken.filter((r) => r.slug !== DOWN).map((r) => r.p);
+const downRow = broken.find((r) => r.slug === DOWN)!;
+const hartwellThen = place(broken, "hartwell-tech");
+const hartwellNow = place(truth, "hartwell-tech");
+
+if (pages.length !== 20 || schedules.length !== 8 || vouched.length !== 7 || unseen.length !== 4 || hartwellThen !== 4 || hartwellNow !== 2) {
+  throw new Error("the Module 1 story no longer matches the sample");
+}
+
+const firstAsk = [
+  { label: "Dunmore had a shorter season", why: "It could be. Nothing in this table can show that, though." },
+  { label: "Dunmore's matches are missing", why: "A good suspicion, but it is still a guess. This table has no way to confirm it." },
+  { label: "I cannot tell from this table", why: "Right. A table shows what it holds. It cannot show what never arrived. For that, you need the run's own record.", correct: true },
+];
+const policyAsk = [
+  { label: "Stop the whole run", why: "That throws away 19 good pages because one site had a bad morning." },
+  { label: "Keep going and say nothing", why: "This is what the run did. It kept the good pages, then let a hole pass as a finished season." },
+  { label: "Keep going and record the gap", why: "Yes. One failed site should not block seven others, and it should not disappear either.", correct: true },
+];
+const reports = [
+  { label: "Report A", text: "status: success\npages saved: 19", why: "True, and useless. A reader has no idea a school is missing." },
+  { label: "Report B", text: "status: failed\npublished: nothing", why: "Honest, but it discards 19 good pages and leaves readers with no table at all." },
+  { label: "Report C", text: "status: partial\nsaved: 19 of 20\nmissing: Dunmore schedule (no answer)\naffects: Dunmore and its opponents\nretry: next run", why: "Yes. It keeps the work, names the hole, says who is affected, and tells the next run what to do.", correct: true },
+];
+const code = `for page in registry:
+    answer = ask(page, last_seen.get(page))
+    if answer.unchanged:
+        record(page, "unchanged")
+    elif answer.ok:
+        archive(page, answer.body)
+        last_seen[page] = answer.tag
+        record(page, "saved")
+    else:
+        record(page, "missing")`;
+const payload = { broken, truth, neighbours, down: grid.indexOf(downPage) };
+---
+
+<script is:inline>document.documentElement.classList.add("il-js");</script>
+
+<div class="cl not-content" data-collection>
+  <script is:inline type="application/json" data-payload set:html={JSON.stringify(payload)}></script>
+
+  <section class="cl-step is-open" data-step="1">
+    <h2 tabindex="-1">The run that said it worked</h2>
+    <div class="cl-agent">
+      <b>Your AI agent</b>
+      <p>I collected the 2026 men's season from all eight school sites. The run finished with no errors. Here is the conference table.</p>
+    </div>
+    <div class="cl-board" data-board>
+      <table>
+        <caption>Prairie Lakes men, 2026</caption>
+        <thead><tr><th scope="col">#</th><th scope="col">Team</th><th scope="col">Played</th><th scope="col">Goal diff</th><th scope="col">Points</th></tr></thead>
+        <tbody data-rows>
+          {broken.map((r, i) => (
+            <tr data-team={r.slug} class:list={{ "is-watch": r.slug === "hartwell-tech" }}>
+              <td data-rank>{i + 1}</td><th scope="row">{r.name}</th><td data-p>{r.p}</td><td data-gd>{r.gf - r.ga > 0 ? `+${r.gf - r.ga}` : r.gf - r.ga}</td><td data-pts>{r.pts}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="cl-ask" data-choice data-then="2">
+      <p class="cl-q">Dunmore has played {downRow.p} conference matches. Everyone else has played {Math.min(...others)} or more. What does that tell you?</p>
+      {firstAsk.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+      <p class="cl-feedback" role="status"></p>
+    </div>
+  </section>
+
+  <section class="cl-step" data-step="2">
+    <h2 tabindex="-1">Ask the run what happened</h2>
+    <p>This collection asks for {grid.length} pages: {schedules.length} school schedules and {boxes.length} box scores. Each page comes back with one of three answers.</p>
+    <div class="cl-grid" data-grid role="img" aria-label={`${grid.length - 1} pages saved. Dunmore's schedule did not answer.`}>
+      {grid.map((p, i) => <span class:list={{ "is-saved": i !== grid.indexOf(downPage), "is-missing": i === grid.indexOf(downPage) }}>{i === grid.indexOf(downPage) ? "?" : ""}</span>)}
+    </div>
+    <ul class="cl-key">
+      <li><i class="is-saved"></i> Saved: <b data-count-saved>{grid.length - 1}</b></li>
+      <li><i class="is-same"></i> Unchanged: <b data-count-same>0</b></li>
+      <li><i class="is-missing"></i> No answer: <b data-count-missing>1</b></li>
+    </ul>
+    <p>The missing square is Dunmore's schedule. The code handled the failure and moved on, so the run ended with no errors. Nothing in its report mentioned the page.</p>
+    <div class="cl-ask" data-choice data-then="3">
+      <p class="cl-q">What should a run do when one site does not answer?</p>
+      {policyAsk.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+      <p class="cl-feedback" role="status"></p>
+    </div>
+  </section>
+
+  <section class="cl-step" data-step="3">
+    <h2 tabindex="-1">Find the hole from the outside</h2>
+    <p>Dunmore's page is gone, but seven schools played at Dunmore, and their schedules arrived. Open each one and watch the table change.</p>
+    <div class="cl-slot" data-board-slot></div>
+    <div class="cl-neighbours" role="group" aria-label="Schedules from Dunmore's opponents">
+      {neighbours.map((n, i) => (
+        <button type="button" data-neighbour={i}>
+          <span>{n.name}</span>
+          <small data-line>Open schedule</small>
+        </button>
+      ))}
+    </div>
+    <p class="cl-live" role="status" data-board-note></p>
+    <div class="cl-after" data-after="neighbours">
+      <p><strong>Hartwell Tech was {ordinal(hartwellNow)} all along.</strong> A single quiet failure had dropped them to {ordinal(hartwellThen)}. Their {neighbours.find((n) => n.slug === "hartwell-tech")!.line.replace("at Dunmore, ", "")} win at Dunmore was simply not in the data.</p>
+      <p>Now the catch. Dunmore's page held {onlyDown.length} matches, and you only recovered {vouched.length}.</p>
+      <ul class="cl-unseen">
+        {unseen.map((f) => <li><span>?</span> {new Date(`${f.date}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} against {nameOf(opponent(f))}</li>)}
+      </ul>
+      <p>Those {unseen.length} matches are against schools we do not collect, so no other page can vouch for them. Cross-checks find some holes. <strong>Only a record of what you asked for finds all of them.</strong></p>
+      <button type="button" class="cl-next" data-go="4">Write that record</button>
+    </div>
+  </section>
+
+  <section class="cl-step" data-step="4">
+    <h2 tabindex="-1">Choose the report you would publish</h2>
+    <p>All three describe the same run. Which one lets a reader decide whether to trust the table?</p>
+    <div class="cl-ask cl-reports" data-choice data-then="5">
+      {reports.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}><b>{o.label}</b><code>{o.text}</code></button>)}
+      <p class="cl-feedback" role="status"></p>
+    </div>
+  </section>
+
+  <section class="cl-step" data-step="5">
+    <h2 tabindex="-1">Run it again, and only do the new work</h2>
+    <p>Dunmore is back the next morning. The collector could download all {grid.length} pages again. Instead it asks each site one small question: <em>has this changed since I last saw it?</em></p>
+    <button type="button" class="cl-next" data-rerun>Run the collection again</button>
+    <div class="cl-after" data-after="rerun">
+      <p class="cl-bytes"><b>{downBytes.toLocaleString("en-US")}</b> bytes downloaded instead of {totalBytes.toLocaleString("en-US")}. {grid.length - 1} pages answered "unchanged," and the one gap was filled.</p>
+      <pre tabindex="0"><code>{code}</code></pre>
+      <p>The record from the last run told this one exactly what was still owed. The same few lines save the page before anything reads it, and they never let a missing page pass as a finished one.</p>
+      <button type="button" class="cl-next" data-go="close">See what you can now ask</button>
+    </div>
+  </section>
+
+  <section class="cl-close il-close" data-step="close">
+    <h2 tabindex="-1">Before you trust "no errors," ask for three things</h2>
+    <ol>
+      <li><strong>The list of what was requested.</strong> You cannot see a gap without knowing what should be there.</li>
+      <li><strong>What happened to each item.</strong> Saved, unchanged, or missing, with the reason.</li>
+      <li><strong>Who is affected by each gap.</strong> One missing school changed the place of a team that was never down.</li>
+    </ol>
+    <p>Want the full detail? <a href="../01-collection-lab/">Read the deep dive or run the optional lab</a></p>
+  </section>
+</div>
+
+<style is:global>
+  .cl { --cl-pitch: #0f4a33; --cl-chalk: #f4faf5; --cl-yellow: #f4c62f; --cl-red: #f06553; --cl-same: #6f8f7d; color: var(--tl-ink); }
+  :root[data-theme="light"] .cl { --cl-red: #c5301c; --cl-same: #8aa897; }
+  .cl-step, .cl-close { scroll-margin-top: 5rem; margin: 0 0 2rem; }
+  .il-js .cl-step:not(.is-open), .il-js .cl-close:not(.is-open), .il-js .cl-after:not(.is-open) { display: none; }
+  .cl h2 { margin: 0 0 0.6rem; color: var(--sl-color-white); font-size: 1.45rem; line-height: 1.2; }
+  .cl h2:focus { outline: none; }
+  .cl p { margin: 0 0 0.75rem; }
+  .cl-agent { margin: 0 0 1rem; padding: 0.85rem 1rem; color: var(--cl-chalk); background: var(--cl-pitch); border-radius: 3px; }
+  .cl-agent b { display: block; color: var(--cl-yellow); font-size: 0.85rem; }
+  .cl-agent p { margin: 0; }
+  .cl-board { margin: 0 0 1rem; overflow-x: auto; }
+  .cl-board table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .cl-board caption { padding-bottom: 0.35rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; }
+  .cl-board th, .cl-board td { padding: 0.42rem 0.5rem; border: 0; border-bottom: 1px solid var(--tl-line); text-align: right; white-space: nowrap; }
+  .cl-board thead th { color: var(--tl-muted); font-size: 0.78rem; font-weight: 600; }
+  .cl-board tbody th, .cl-board thead th:nth-child(2) { width: 100%; text-align: left; font-weight: 600; }
+  .cl-board td:first-child, .cl-board thead th:first-child { text-align: left; }
+  .cl-board tr.is-watch { background: color-mix(in srgb, var(--cl-yellow) 18%, transparent); }
+  .cl-board tr.is-new td[data-pts] { color: var(--sl-color-accent); font-weight: 700; }
+  .cl-ask { display: grid; gap: 0.45rem; }
+  .cl-q { color: var(--sl-color-white); font-weight: 700; }
+  .cl button { min-height: 44px; padding: 0.55rem 0.85rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); font: inherit; text-align: left; cursor: pointer; }
+  .cl button:hover:not(:disabled) { border-color: var(--sl-color-accent); }
+  .cl button:focus-visible, .cl a:focus-visible, .cl pre:focus-visible { outline: 3px solid var(--sl-color-accent); outline-offset: 2px; }
+  .cl button.is-wrong { border-color: var(--cl-red); }
+  .cl button.is-right { border-color: var(--sl-color-accent); background: color-mix(in srgb, var(--sl-color-accent) 16%, var(--tl-card)); }
+  .cl button:disabled { cursor: default; color: var(--tl-ink); }
+  .cl-ask.is-answered button:not(.is-right) { opacity: 0.55; }
+  .cl-feedback { margin: 0.3rem 0 0; }
+  .cl-feedback:empty { display: none; }
+  .cl-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 26rem; margin: 0 0 0.6rem; }
+  .cl-grid span { display: grid; place-items: center; aspect-ratio: 1; color: #fff; font-weight: 700; transition: background-color 0.35s; }
+  .cl-grid .is-saved, .cl-key .is-saved { background: var(--sl-color-accent); }
+  .cl-grid .is-same, .cl-key .is-same { background: var(--cl-same); }
+  .cl-grid .is-missing, .cl-key .is-missing { background: var(--cl-red); }
+  .cl-key { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin: 0 0 0.9rem; padding: 0; list-style: none; font-size: 0.9rem; }
+  .cl-key li { display: flex; align-items: center; gap: 0.35rem; margin: 0; }
+  .cl-key i { width: 0.8rem; height: 0.8rem; }
+  .cl-neighbours { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.4rem; margin: 0 0 0.6rem; }
+  .cl-neighbours button { display: grid; }
+  .cl-neighbours span { font-weight: 650; }
+  .cl-neighbours small { color: var(--tl-muted); font-size: 0.8rem; }
+  .cl-neighbours button.is-open { border-color: var(--sl-color-accent); }
+  .cl-live:empty { display: none; }
+  .cl-after { margin-top: 1rem; }
+  .cl-unseen { display: grid; gap: 0.25rem; margin: 0 0 0.75rem; padding: 0; list-style: none; }
+  .cl-unseen li { display: flex; align-items: center; gap: 0.5rem; margin: 0; }
+  .cl-unseen span { display: inline-grid; place-items: center; flex: none; width: 1.4rem; height: 1.4rem; background: var(--cl-red); color: #fff; font-weight: 700; }
+  .cl .cl-next { background: var(--sl-color-accent); border-color: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; }
+  :root[data-theme="light"] .cl .cl-next { color: #fff; }
+  .cl .cl-next[hidden] { display: none; }
+  .cl-reports button { display: grid; gap: 0.3rem; }
+  .cl-reports code { display: block; padding: 0; background: none; font-size: 0.85rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .cl-bytes b { color: var(--sl-color-accent); font-size: 1.5rem; }
+  .cl pre { margin: 0 0 0.85rem; padding: 0.8rem; overflow-x: auto; background: var(--tl-card); border: 1px solid var(--tl-line); font-size: 0.82rem; }
+  .cl pre code { padding: 0; background: none; }
+  .cl-close { padding: 1.1rem; color: var(--cl-chalk); background: var(--cl-pitch); }
+  .cl-close h2 { color: var(--cl-chalk); font-size: 1.25rem; }
+  .cl-close ol { margin: 0.5rem 0 0.8rem; padding-left: 1.25rem; }
+  .cl-close li { margin-bottom: 0.45rem; }
+  .cl-close a { display: inline-flex; align-items: center; min-height: 44px; color: var(--cl-yellow); }
+  .cl-close a:focus-visible { outline-color: var(--cl-yellow); }
+  @media (prefers-reduced-motion: reduce) { .cl-grid span { transition: none; } }
+</style>
+
+<script>
+  type Row = { slug: string; name: string; p: number; gf: number; ga: number; pts: number };
+  type Neighbour = { slug: string; name: string; gf: number; ga: number; line: string };
+
+  document.querySelectorAll<HTMLElement>("[data-collection]").forEach((root) => {
+    const data = JSON.parse(root.querySelector("[data-payload]")!.textContent!) as {
+      broken: Row[]; truth: Row[]; neighbours: Neighbour[]; down: number;
+    };
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: ScrollBehavior = calm ? "auto" : "smooth";
+    const rows = root.querySelector<HTMLElement>("[data-rows]")!;
+    const board = root.querySelector<HTMLElement>("[data-board]")!;
+    const note = root.querySelector<HTMLElement>("[data-board-note]")!;
+    const state = new Map(data.broken.map((r) => [r.slug, { ...r }]));
+
+    const open = (key: string) => {
+      const section = root.querySelector<HTMLElement>(`[data-step="${key}"]`)!;
+      section.classList.add("is-open");
+      if (key === "3") {
+        const reported = board.cloneNode(true) as HTMLElement;
+        reported.removeAttribute("data-board");
+        reported.querySelector("[data-rows]")!.removeAttribute("data-rows");
+        reported.querySelectorAll("[data-team]").forEach((tr) => tr.removeAttribute("data-team"));
+        reported.querySelector("caption")!.textContent = "The table as the agent reported it";
+        board.before(reported);
+        root.querySelector("[data-board-slot]")!.append(board);
+      }
+      const heading = section.querySelector("h2")!;
+      heading.focus({ preventScroll: true });
+      section.scrollIntoView({ behavior, block: "start" });
+    };
+
+    root.querySelectorAll<HTMLElement>("[data-choice]").forEach((group) => {
+      const feedback = group.querySelector<HTMLElement>(".cl-feedback")!;
+      const buttons = [...group.querySelectorAll<HTMLButtonElement>("button")];
+      buttons.forEach((button) => button.addEventListener("click", () => {
+        feedback.textContent = button.dataset.why!;
+        if (button.dataset.correct === undefined) {
+          button.classList.add("is-wrong");
+          return;
+        }
+        button.classList.add("is-right");
+        group.classList.add("is-answered");
+        buttons.forEach((b) => { b.disabled = true; });
+        const proceed = document.createElement("button");
+        proceed.type = "button";
+        proceed.className = "cl-next";
+        proceed.textContent = "Continue";
+        proceed.addEventListener("click", () => { proceed.hidden = true; open(group.dataset.then!); });
+        group.append(proceed);
+        proceed.focus({ preventScroll: true });
+        proceed.scrollIntoView({ behavior, block: "nearest" });
+      }));
+    });
+
+    const render = (changed: string[]) => {
+      const sorted = [...state.values()].sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga) || a.slug.localeCompare(b.slug));
+      const before = new Map([...rows.children].map((el) => [el as HTMLElement, el.getBoundingClientRect().top]));
+      sorted.forEach((r, i) => {
+        const tr = rows.querySelector<HTMLElement>(`[data-team="${r.slug}"]`)!;
+        tr.querySelector("[data-rank]")!.textContent = String(i + 1);
+        tr.querySelector("[data-p]")!.textContent = String(r.p);
+        const gd = r.gf - r.ga;
+        tr.querySelector("[data-gd]")!.textContent = gd > 0 ? `+${gd}` : String(gd);
+        tr.querySelector("[data-pts]")!.textContent = String(r.pts);
+        tr.classList.toggle("is-new", changed.includes(r.slug));
+        rows.append(tr);
+      });
+      if (calm) return;
+      before.forEach((top, el) => {
+        const delta = top - el.getBoundingClientRect().top;
+        if (delta) el.animate([{ transform: `translateY(${delta}px)` }, { transform: "none" }], { duration: 380, easing: "ease-out" });
+      });
+    };
+
+    const apply = (slug: string, gf: number, ga: number) => {
+      const r = state.get(slug)!;
+      r.p += 1; r.gf += gf; r.ga += ga; r.pts += gf > ga ? 3 : gf === ga ? 1 : 0;
+    };
+    const ordinal = (n: number) => `${n}${["th", "st", "nd", "rd"][n] ?? "th"}`;
+    const rank = (slug: string) => [...rows.children].findIndex((el) => (el as HTMLElement).dataset.team === slug) + 1;
+    const opened = new Set<number>();
+    root.querySelectorAll<HTMLButtonElement>("[data-neighbour]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const i = Number(button.dataset.neighbour);
+        if (opened.has(i)) return;
+        opened.add(i);
+        const n = data.neighbours[i];
+        apply("dunmore", n.gf, n.ga);
+        apply(n.slug, n.ga, n.gf);
+        render(["dunmore", n.slug]);
+        button.classList.add("is-open");
+        button.setAttribute("aria-disabled", "true");
+        button.querySelector("[data-line]")!.textContent = n.line;
+        note.textContent = `${n.name} played ${n.line}. ${n.name} is now ${ordinal(rank(n.slug))} in the table. ${opened.size} of ${data.neighbours.length} found.`;
+        if (opened.size === data.neighbours.length) {
+          root.querySelector('[data-after="neighbours"]')!.classList.add("is-open");
+          root.querySelector<HTMLElement>('[data-after="neighbours"] [data-go]')!.scrollIntoView({ behavior, block: "nearest" });
+        }
+      });
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-go]").forEach((button) => {
+      button.addEventListener("click", () => { button.hidden = true; open(button.dataset.go!); });
+    });
+
+    root.querySelector<HTMLButtonElement>("[data-rerun]")!.addEventListener("click", (event) => {
+      const button = event.currentTarget as HTMLButtonElement;
+      button.hidden = true;
+      const grid = root.querySelector<HTMLElement>("[data-grid]")!.cloneNode(true) as HTMLElement;
+      grid.removeAttribute("data-grid");
+      [...grid.children].forEach((cell, i) => {
+        cell.className = i === data.down ? "is-saved" : "is-same";
+        cell.textContent = "";
+      });
+      grid.setAttribute("aria-label", "One page saved. Nineteen pages unchanged. No pages missing.");
+      root.querySelector('[data-step="5"]')!.insertBefore(grid, root.querySelector('[data-after="rerun"]'));
+      const after = root.querySelector<HTMLElement>('[data-after="rerun"]')!;
+      after.classList.add("is-open");
+      const go = after.querySelector<HTMLElement>("[data-go]")!;
+      after.querySelector<HTMLElement>(".cl-bytes")!.setAttribute("tabindex", "-1");
+      after.querySelector<HTMLElement>(".cl-bytes")!.focus({ preventScroll: true });
+      go.scrollIntoView({ behavior, block: "nearest" });
+    });
+  });
+</script>

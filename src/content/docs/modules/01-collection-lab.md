@@ -1,7 +1,13 @@
 ---
-title: "1. Sources and collection"
-description: A registry that drives everything, units of work, incremental fetching, and honesty about what could not be collected.
+title: "Module 1 deep dive and lab"
+description: The full reference for sources and collection, with the optional hands-on Python lab.
+sidebar:
+  hidden: true
+prev: false
+next: false
 ---
+
+This page is optional. [The Module 1 lesson](../01-collection/) teaches the idea on screen. Come here for the detail or to run the lab yourself.
 
 ## The idea
 
