@@ -1,0 +1,42 @@
+---
+import type { TableRow } from "../lib/first-run";
+
+interface Props { rows: TableRow[]; caption: string }
+const { rows, caption } = Astro.props;
+const signed = (n: number) => (n > 0 ? `+${n}` : String(n));
+---
+
+<div class="fr-table">
+  <table>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col"><abbr title="Place">#</abbr></th>
+        <th scope="col">Team</th>
+        <th scope="col"><abbr title="Played">P</abbr></th>
+        <th scope="col"><abbr title="Goal difference">GD</abbr></th>
+        <th scope="col"><abbr title="Points">Pts</abbr></th>
+      </tr>
+    </thead>
+    <tbody data-rows>
+      {rows.map((r, i) => (
+        <tr data-team={r.slug}>
+          <td data-rank>{i + 1}</td><th scope="row">{r.name}</th><td data-p>{r.p}</td><td data-gd>{signed(r.gf - r.ga)}</td><td data-pts>{r.pts}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style is:global>
+  .fr-table { margin: 0 0 1rem; }
+  .fr-table table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .fr-table caption { padding-bottom: 0.35rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; }
+  .fr-table th, .fr-table td { padding: 0.42rem 0.45rem; border: 0; border-bottom: 1px solid var(--tl-line); background: none; text-align: right; }
+  .fr-table thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 600; }
+  .fr-table abbr { text-decoration: none; }
+  .fr-table tbody th, .fr-table thead th:nth-child(2) { width: 100%; text-align: left; font-weight: 600; }
+  .fr-table td:first-child, .fr-table thead th:first-child { text-align: left; }
+  .fr-table tr.is-watch { background: color-mix(in srgb, #f4c62f 18%, transparent); }
+  .fr-table tr.is-new td[data-pts] { color: var(--sl-color-accent); font-weight: 700; }
+</style>

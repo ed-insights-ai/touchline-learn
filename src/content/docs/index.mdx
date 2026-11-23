@@ -1,31 +1,24 @@
 ---
 title: Touchline Learn
-description: Learn how a trustworthy data platform fits together, so you can judge what AI builds. Ten modules in the order data flows.
+description: You asked AI to build a data pipeline and it says it worked. Learn how a trustworthy one fits together, so you can tell whether to believe it.
 template: splash
 hero:
-  tagline: AI can build a data pipeline in an afternoon. Learn how a trustworthy one fits together, so you can tell whether to believe the result.
-  actions:
-    - text: See how it fits together
-      link: ./start/platform/
-      icon: right-arrow
-    - text: Try a full lesson
-      link: ./modules/05-identity/
-      variant: minimal
+  tagline: You asked AI to build it. It says it worked. Learn how to tell whether to believe it.
 ---
 
 import CourseJourney from "../../components/CourseJourney.astro";
+import OpeningScene from "../../components/OpeningScene.astro";
 import PipelineDiagram from "../../components/PipelineDiagram.astro";
 
-Touchline is a working data platform for college soccer. It collects what about
-a thousand school athletics websites publish, turns it into one consistent
-dataset, and publishes it as a public website and a verified analytical
-database.
+<OpeningScene />
 
-This course uses it as a case study. You will not need to write much code. You
-will learn what each part of a data platform is for, how the parts depend on
-each other, and which questions expose a result that only looks right. Every
-technique here is in production, and each one exists because something went
-wrong without it.
+## What is inside that table
+
+To reach your table, each result has to pass through the same steps. This course
+opens them one at a time, using Touchline, a working data platform that does
+this job for about a thousand college soccer websites. You will not need to
+write much code. You will learn what each part is for, how the parts depend on
+each other, and which questions expose a result that only looks right.
 
 <PipelineDiagram />
 
@@ -40,9 +33,9 @@ wrong without it.
 
 ## The journey
 
-The course follows one question: an AI tool hands you a clean result, so how do
-you know it is right? Each module answers one part of that question and raises
-the next.
+Each module opens one part of what the agent did, answers one question about
+your table, and raises the next. At the end you go back to the agent and decide
+whether to publish.
 
 <CourseJourney />
 

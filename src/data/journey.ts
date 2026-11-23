@@ -16,7 +16,7 @@ export const journey: JourneyPart[] = [
     title: "Get evidence you can stand on",
     aim: "Before you can trust a number, you need the source it came from.",
     modules: [
-      { n: 1, slug: "01-collection", name: "Sources and collection", question: "What did we collect, and what did we miss?", gained: "You can say what was collected and name what was not.", step: "Fetch", bridge: "Collecting a page once is no help if your code later misreads it and the site has changed.", ask: "What could you not collect, and why?" },
+      { n: 1, slug: "01-collection", name: "Sources and collection", question: "What did we collect, and what did we miss?", gained: "You can say what was collected and name what was not.", step: "Fetch", bridge: "Suppose your code misread Hartwell Tech's 7-0 and the school has since changed its page. Only a saved copy could put it right.", ask: "What could you not collect, and why?" },
       { n: 2, slug: "02-archive", name: "The raw archive", question: "How do you recover when your own code is wrong?", gained: "You can fix a bug by replaying saved evidence.", step: "Archive", bridge: "The archive faithfully keeps whatever arrived, including the wrong page.", ask: "Did you keep the original pages, so we can replay them?" },
       { n: 3, slug: "03-provenance", name: "Proof before parse", question: "Is this page really the one you asked for?", gained: "You can refuse a page that cannot prove what it is.", step: "Prove", bridge: "A proven page is still a page, written for fans rather than programs.", ask: "How do you know each page is the one you asked for?" },
     ],

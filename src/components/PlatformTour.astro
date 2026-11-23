@@ -49,35 +49,47 @@ const hook = [
 
 const cases = [
   {
-    failure: "You asked for a 2019 schedule. The site answered with a success code and its 2026 page.",
+    failure: "The wrong season, delivered successfully",
+    evidence: "asked for:  /sports/mens-soccer/schedule/2019\nstatus:     200 OK\npage title: 2026 Men's Soccer Schedule",
+    ask: "Which is the earliest step that could notice?",
     options: [
-      { label: "Fetch", why: "Fetch did its job. The server said success, so the problem is invisible at this step." },
-      { label: "Prove", why: "Right. The page has to show it is the season you asked for. No proof, no data, and the gap gets recorded.", correct: true },
-      { label: "Build", why: "By Build, the wrong season is already in the clean files and looks normal." },
+      { label: "Fetch", sees: "The address and the status code", why: "Fetch sees 200 OK at the address it requested. Both look perfect, because the mismatch is inside the page." },
+      { label: "Archive", sees: "Bytes to store, unread", why: "Archive should save this page exactly as it came. It does not read it, and that is deliberate." },
+      { label: "Prove", sees: "The page's content against what you asked for", why: "Right. The title says 2026 and you asked for 2019. No proof, no data, and the gap gets recorded.", correct: true },
+      { label: "Check", sees: "Finished records against written rules", why: "Too late to rely on. By now these are well-formed matches filed under 2019, and every rule about their shape passes." },
     ],
   },
   {
-    failure: "A parser bug misread a full season of scores. Some of those web pages have since changed.",
+    failure: "Your own parser swapped a season of scores",
+    evidence: "your record:  Alder Ridge 0, Hartwell Tech 1\nactual match: Alder Ridge 1, Hartwell Tech 0\nthe school's page has since been redesigned",
+    ask: "You have fixed the parser. What lets you get the right scores back?",
     options: [
-      { label: "Check", why: "A gate might notice the problem, but it cannot bring back the original pages." },
-      { label: "Build", why: "Rebuilding products from wrong clean files only republishes the error." },
-      { label: "Archive", why: "Right. The saved pages are still exact, so you fix the parser and replay them.", correct: true },
+      { label: "Fetch again", sees: "Whatever the site serves today", why: "The site has changed. You might get a different layout, or no page at all for an old match." },
+      { label: "Archive", sees: "The exact page from the day you collected it", why: "Right. The saved page still shows 1-0, so the fixed parser can replay it.", correct: true },
+      { label: "Check", sees: "Finished records against written rules", why: "A check might tell you something is wrong. It has no original to restore from." },
+      { label: "Build", sees: "Only the clean files", why: "Build would faithfully republish the swapped scores." },
     ],
   },
   {
-    failure: "Two different schools with nearly identical names quietly end up as one team in the table.",
+    failure: "Two schools become one",
+    evidence: "name on page:  Lambert St.  (Lambert State)\nname in list:  St. Lambert\nname matcher:  87% similar, merged",
+    ask: "Which step made this mistake, and should have refused?",
     options: [
-      { label: "Resolve", why: "Right. Names become identities here, and a near match is not a match. Module 5 is built around this failure.", correct: true },
-      { label: "Parse", why: "The parser read both names correctly. Deciding who they are is a separate job." },
-      { label: "Fetch", why: "Both pages were fetched correctly. The risk starts when names are joined." },
+      { label: "Parse", sees: "The text on the page", why: "Parse read “Lambert St.” correctly. Deciding who that is comes later." },
+      { label: "Resolve", sees: "Names and the list of known schools", why: "Right. This is where a name becomes an identity, and looking similar is not evidence. Module 5 is built around this failure.", correct: true },
+      { label: "Check", sees: "Finished records against written rules", why: "A check may catch a symptom later, such as a team playing itself. The decision that caused it was made one step earlier." },
+      { label: "Build", sees: "Only the clean files", why: "By Build the two schools are already one id, so the totals simply look like one busy team." },
     ],
   },
   {
-    failure: "A second pipeline computes the same season and disagrees on one final score.",
+    failure: "Two calculations disagree",
+    evidence: "same match, two independent pipelines\npipeline A:  Harbor Point 2, Dunmore 1\npipeline B:  Harbor Point 2, Dunmore 2",
+    ask: "Which step should stop this from reaching readers?",
     options: [
-      { label: "Parse", why: "Parsing may be the cause, but something has to notice the disagreement first." },
-      { label: "Check", why: "Right. A parity gate compares two independent results and stops the release until someone explains the difference.", correct: true },
-      { label: "Build", why: "Publishing first means readers find the disagreement before you do." },
+      { label: "Parse", sees: "One page at a time", why: "One of the parsers may be the cause, but neither can see the other's answer." },
+      { label: "Resolve", sees: "Names and the list of known schools", why: "Both pipelines agree on who played. The disagreement is about the score." },
+      { label: "Check", sees: "Finished records, including both answers", why: "Right. A parity gate compares the two results and holds the release until someone explains the difference.", correct: true },
+      { label: "Build", sees: "Only the clean files", why: "If Build runs first, your readers find the disagreement before you do." },
     ],
   },
 ];
@@ -102,12 +114,13 @@ const ideas = [
   <noscript><p class="pt-note">This tour is interactive. Turn on JavaScript to make each decision and see its feedback.</p></noscript>
 
   <header class="pt-hero">
-    <h2>An AI agent says the whole platform is done. What do you check first?</h2>
+    <h2>Before you publish, look inside</h2>
+    <p>You asked an agent to build your conference table. This is what it sent back.</p>
     <div class="pt-ai">
       <p class="pt-who">AI agent <span>scripted example</span></p>
-      <p>I collected about 1,000 college soccer websites and loaded every score into one table. No errors.</p>
+      <p>Done. I collected the season from all eight school sites with no errors. Your table is ready to publish.</p>
     </div>
-    <p>There is no official feed for this data. Each school publishes its own pages, written for fans rather than programs.</p>
+    <p>You did not watch it work. Every number in that table began on a page a school wrote for fans rather than programs, and it had to get through seven steps to reach you.</p>
     <div class="pt-group" data-choice data-neutral data-unlocks="tour">
       <p class="pt-q">What worries you most?</p>
       {hook.map((o) => <button type="button" data-why={o.why} data-correct>{o.label}</button>)}
@@ -117,7 +130,7 @@ const ideas = [
 
   <section class="pt-part" data-unlock="tour">
     <h2 tabindex="-1">Follow one match through the platform</h2>
-    <p>{away.name} at {home.name}, September 8. This is an invented game from the course's sample data. Step through what happens to it.</p>
+    <p>{away.name} at {home.name}, September 8, is one of the results in your table. Like everything in this course's sample, the game is invented. Step through what has to happen to it.</p>
     <ol class="pt-rail" aria-label="Seven pipeline steps">
       {stops.map((s, i) => <li><button type="button" class={`pt-stop ${s.zone}`} data-stop={i} aria-current={i === 0 ? "step" : undefined}><b>{i + 1}</b>{s.name}</button></li>)}
     </ol>
@@ -140,12 +153,14 @@ const ideas = [
 
   <section class="pt-part" data-unlock="cases">
     <h2 tabindex="-1">Where would you catch it?</h2>
-    <p>Choose the step that should catch each failure, or recover from it.</p>
+    <p>Four things go wrong while building your table. Read the evidence, then ask of each step: <em>could it actually see this?</em></p>
     {cases.map((c, i) => (
       <div class="pt-case pt-group" role="group" aria-labelledby={`pt-case-${i}`} data-choice data-case={i} data-unlock={i > 0 ? `case-${i}` : undefined} data-unlocks={i < cases.length - 1 ? `case-${i + 1}` : "zones"}>
-        <p class="pt-q" id={`pt-case-${i}`}>{c.failure}</p>
-        <div class="pt-options">
-          {c.options.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+        <h3 id={`pt-case-${i}`}>{c.failure}</h3>
+        <pre class="pt-evidence" tabindex="0"><code>{c.evidence}</code></pre>
+        <p class="pt-q">{c.ask}</p>
+        <div class="pt-options pt-sees">
+          {c.options.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
         </div>
         <p class="pt-feedback" role="status"></p>
       </div>
@@ -182,8 +197,8 @@ const ideas = [
     <dl>
       {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
     </dl>
-    <p>Before Module 1, picture a list of 1,000 website URLs and one month. Most first plans skip Archive, Prove and Check. Notice which ones yours would have skipped.</p>
-    <p><strong>The journey starts at the source: what did we collect, and what did we miss?</strong></p>
+    <p>The real Touchline runs these steps across about a thousand school sites. Your eight-school table needs them just as much, and you do not yet know which ones the agent skipped.</p>
+    <p><strong>Start at the source. Did the agent collect everything it said it did?</strong></p>
     <a class="pt-link" href="../../modules/01-collection/">Start Module 1</a>
   </section>
 </div>
@@ -241,6 +256,12 @@ const ideas = [
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
   .pt-next[hidden], .pt-summary[hidden] { display: none; }
   .pt-back[hidden] { display: none; }
+  .pt-evidence { margin: 0 0 0.7rem; padding: 0.7rem 0.85rem; overflow-x: auto; border: 1px solid var(--tl-line); background: var(--tl-card); font-size: 0.82rem; }
+  .pt-evidence code { padding: 0; background: none; }
+  .pt .pt-sees { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.4rem; }
+  .pt .pt-sees button { display: grid; gap: 0.1rem; text-align: left; }
+  .pt-sees strong { font-weight: 700; }
+  .pt-sees span { color: var(--tl-muted); font-size: 0.85rem; font-weight: 400; line-height: 1.3; }
   .pt-skip { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1.25rem; color: var(--tl-muted); font-size: 0.9rem; }
   .pt-skip[hidden] { display: none; }
   .pt-del { color: var(--tl-muted); font-size: 0.8rem; font-style: normal; text-decoration: underline; }
