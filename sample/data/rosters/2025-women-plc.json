@@ -1,0 +1,1124 @@
+{
+ "schema": "touchline.rosters/1",
+ "season": 2025,
+ "gender": "women",
+ "collected_at": "2025-12-16T12:30:00+00:00",
+ "rosters": {
+  "alder-ridge": {
+   "programme": "alder-ridge",
+   "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Ada Ashetquist",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'10\"",
+     "hometown": "Wren Hollow, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/ada-ashetquist/5717"
+    },
+    {
+     "name": "Una Vararren",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'5\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/una-vararren/6920"
+    },
+    {
+     "name": "Brisa Pelaquist",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'6\"",
+     "hometown": "Stonebridge, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/brisa-pelaquist/8838"
+    },
+    {
+     "name": "Corin Pelinmark",
+     "number": "4",
+     "position": "Defender",
+     "height": "5'2\"",
+     "hometown": "Redfern, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/corin-pelinmark/1715"
+    },
+    {
+     "name": "Annika Uletquist",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'2\"",
+     "hometown": "Wren Hollow, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/annika-uletquist/8539"
+    },
+    {
+     "name": "Una Rosiholt",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'10\"",
+     "hometown": "Marrow Creek, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/una-rosiholt/3934"
+    },
+    {
+     "name": "Dessa Norelbell",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'5\"",
+     "hometown": "Iron Fork, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/dessa-norelbell/8984"
+    },
+    {
+     "name": "Annika Vararvik",
+     "number": "8",
+     "position": "Defender",
+     "height": "6'3\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/annika-vararvik/3829"
+    },
+    {
+     "name": "Juno Ashovik",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'11\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/juno-ashovik/1864"
+    },
+    {
+     "name": "Linnea Osemark",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'9\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/linnea-osemark/8349"
+    },
+    {
+     "name": "Kaia Varowick",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'11\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/kaia-varowick/1728"
+    },
+    {
+     "name": "Quinn Brenuford",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "6'6\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/quinn-brenuford/7733"
+    },
+    {
+     "name": "Tamsin Merasen",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "6'8\"",
+     "hometown": "Mill Prairie, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/tamsin-merasen/1843"
+    },
+    {
+     "name": "Zadie Meroren",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'8\"",
+     "hometown": "Coldwater Bend, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/zadie-meroren/6510"
+    },
+    {
+     "name": "Yael Wesostad",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'1\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/yael-wesostad/7582"
+    },
+    {
+     "name": "Dessa Varetdane",
+     "number": "16",
+     "position": "Forward",
+     "height": "6'7\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/dessa-varetdane/5227"
+    },
+    {
+     "name": "Romy Bareholt",
+     "number": "17",
+     "position": "Forward",
+     "height": "6'9\"",
+     "hometown": "Larkspur, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/romy-bareholt/5501"
+    },
+    {
+     "name": "Elin Ashaquist",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'6\"",
+     "hometown": "Redfern, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/elin-ashaquist/3760"
+    },
+    {
+     "name": "Greer Quenandane",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'4\"",
+     "hometown": "Marrow Creek, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/greer-quenandane/5053"
+    },
+    {
+     "name": "Greer Gararholt",
+     "number": "20",
+     "position": "Forward",
+     "height": "5'3\"",
+     "hometown": "Quarry Hill, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.alder-ridge.example/sports/womens-soccer/roster/greer-gararholt/1672"
+    }
+   ]
+  },
+  "brightwater-state": {
+   "programme": "brightwater-state",
+   "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Ada Ashenlund",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "5'8\"",
+     "hometown": "Wren Hollow, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/ada-ashenlund/2901"
+    },
+    {
+     "name": "Thea Halenmore",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'1\"",
+     "hometown": "Marrow Creek, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/thea-halenmore/8536"
+    },
+    {
+     "name": "Annika Bareholt",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'4\"",
+     "hometown": "Stonebridge, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/annika-bareholt/7606"
+    },
+    {
+     "name": "Hollis Zelorbell",
+     "number": "4",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Hazel Run, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/hollis-zelorbell/5923"
+    },
+    {
+     "name": "Ines Zelomore",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'1\"",
+     "hometown": "Tallgrass, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/ines-zelomore/1715"
+    },
+    {
+     "name": "Vesna Calavik",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'2\"",
+     "hometown": "Iron Fork, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/vesna-calavik/9958"
+    },
+    {
+     "name": "Wren Merodane",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Stonebridge, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/wren-merodane/6176"
+    },
+    {
+     "name": "Nell Yararster",
+     "number": "8",
+     "position": "Defender",
+     "height": "5'6\"",
+     "hometown": "Stonebridge, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/nell-yararster/5149"
+    },
+    {
+     "name": "Ada Kesarbell",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'11\"",
+     "hometown": "Hazel Run, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/ada-kesarbell/7176"
+    },
+    {
+     "name": "Brisa Tororster",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "6'4\"",
+     "hometown": "Iron Fork, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/brisa-tororster/1749"
+    },
+    {
+     "name": "Nell Lamorwick",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'9\"",
+     "hometown": "Marrow Creek, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/nell-lamorwick/2720"
+    },
+    {
+     "name": "Kaia Asharholt",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "6'6\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/kaia-asharholt/6045"
+    },
+    {
+     "name": "Tamsin Merinwick",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "6'3\"",
+     "hometown": "Larkspur, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/tamsin-merinwick/5115"
+    },
+    {
+     "name": "Delphine Thalumark",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "6'7\"",
+     "hometown": "Stonebridge, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/delphine-thalumark/9110"
+    },
+    {
+     "name": "Brisa Garenmore",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'6\"",
+     "hometown": "Iron Fork, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/brisa-garenmore/5806"
+    },
+    {
+     "name": "Yael Varunell",
+     "number": "16",
+     "position": "Forward",
+     "height": "6'7\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/yael-varunell/9699"
+    },
+    {
+     "name": "Una Kesudane",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'0\"",
+     "hometown": "Marrow Creek, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/una-kesudane/5525"
+    },
+    {
+     "name": "Ines Rososter",
+     "number": "18",
+     "position": "Forward",
+     "height": "6'5\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/ines-rososter/8864"
+    },
+    {
+     "name": "Hollis Meranholt",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'4\"",
+     "hometown": "Stonebridge, Neb.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/hollis-meranholt/6341"
+    },
+    {
+     "name": "Tamsin Norinvik",
+     "number": "20",
+     "position": "Forward",
+     "height": "5'1\"",
+     "hometown": "Marrow Creek, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/roster/tamsin-norinvik/2592"
+    }
+   ]
+  },
+  "cedar-hollow": {
+   "programme": "cedar-hollow",
+   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Oona Quenastad",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "5'4\"",
+     "hometown": "Mill Prairie, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/oona-quenastad/5623"
+    },
+    {
+     "name": "Brisa Joradane",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "5'8\"",
+     "hometown": "Hazel Run, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/brisa-joradane/8914"
+    },
+    {
+     "name": "Dessa Jorarren",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'6\"",
+     "hometown": "Quarry Hill, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/dessa-jorarren/8580"
+    },
+    {
+     "name": "Annika Brenorley",
+     "number": "4",
+     "position": "Defender",
+     "height": "5'4\"",
+     "hometown": "Larkspur, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/annika-brenorley/2409"
+    },
+    {
+     "name": "Hollis Doranren",
+     "number": "5",
+     "position": "Defender",
+     "height": "6'11\"",
+     "hometown": "Marrow Creek, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/hollis-doranren/3833"
+    },
+    {
+     "name": "Vesna Selerick",
+     "number": "6",
+     "position": "Defender",
+     "height": "5'11\"",
+     "hometown": "Larkspur, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/vesna-selerick/7356"
+    },
+    {
+     "name": "Linnea Thalanlund",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'10\"",
+     "hometown": "Stonebridge, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/linnea-thalanlund/7034"
+    },
+    {
+     "name": "Juno Selinmark",
+     "number": "8",
+     "position": "Defender",
+     "height": "6'10\"",
+     "hometown": "Iron Fork, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/juno-selinmark/3047"
+    },
+    {
+     "name": "Romy Ulaley",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "6'9\"",
+     "hometown": "Marrow Creek, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/romy-ulaley/6322"
+    },
+    {
+     "name": "Calla Lamuwick",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'5\"",
+     "hometown": "Sable Lake, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/calla-lamuwick/9271"
+    },
+    {
+     "name": "Ines Torawick",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "6'1\"",
+     "hometown": "Mill Prairie, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/ines-torawick/9779"
+    },
+    {
+     "name": "Thea Thaleby",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'6\"",
+     "hometown": "Stonebridge, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/thea-thaleby/4182"
+    },
+    {
+     "name": "Vesna Kesenholt",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'9\"",
+     "hometown": "Tallgrass, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/vesna-kesenholt/4072"
+    },
+    {
+     "name": "Nell Doranquist",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "6'7\"",
+     "hometown": "Tallgrass, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/nell-doranquist/7797"
+    },
+    {
+     "name": "Zadie Varelbell",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'9\"",
+     "hometown": "Wren Hollow, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/zadie-varelbell/2685"
+    },
+    {
+     "name": "Fia Fenelbell",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'3\"",
+     "hometown": "Tallgrass, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/fia-fenelbell/9072"
+    },
+    {
+     "name": "Yael Quenenwick",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'0\"",
+     "hometown": "Iron Fork, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/yael-quenenwick/2086"
+    },
+    {
+     "name": "Una Norurick",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'9\"",
+     "hometown": "Quarry Hill, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/una-norurick/1019"
+    },
+    {
+     "name": "Greer Osornell",
+     "number": "19",
+     "position": "Forward",
+     "height": "6'5\"",
+     "hometown": "Redfern, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/greer-osornell/9462"
+    },
+    {
+     "name": "Ada Varustad",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'0\"",
+     "hometown": "Stonebridge, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/ada-varustad/3219"
+    }
+   ]
+  },
+  "eastmarch-state": {
+   "programme": "eastmarch-state",
+   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Juno Breneldane",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'8\"",
+     "hometown": "Quarry Hill, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/juno-breneldane/4491"
+    },
+    {
+     "name": "Petra Rosabell",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "5'1\"",
+     "hometown": "Iron Fork, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/petra-rosabell/2782"
+    },
+    {
+     "name": "Vesna Corelquist",
+     "number": "3",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Sable Lake, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/vesna-corelquist/8560"
+    },
+    {
+     "name": "Ada Varetvik",
+     "number": "4",
+     "position": "Defender",
+     "height": "6'2\"",
+     "hometown": "Mill Prairie, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/ada-varetvik/2253"
+    },
+    {
+     "name": "Juno Torivik",
+     "number": "5",
+     "position": "Defender",
+     "height": "5'9\"",
+     "hometown": "Quarry Hill, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/juno-torivik/2717"
+    },
+    {
+     "name": "Ines Selorick",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'7\"",
+     "hometown": "Tallgrass, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/ines-selorick/6816"
+    },
+    {
+     "name": "Romy Corudane",
+     "number": "7",
+     "position": "Defender",
+     "height": "5'11\"",
+     "hometown": "Redfern, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/romy-corudane/9462"
+    },
+    {
+     "name": "Una Meranvik",
+     "number": "8",
+     "position": "Defender",
+     "height": "6'7\"",
+     "hometown": "Stonebridge, Minn.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/una-meranvik/1187"
+    },
+    {
+     "name": "Oona Meroley",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'2\"",
+     "hometown": "Redfern, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/oona-meroley/3366"
+    },
+    {
+     "name": "Mara Meroren",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'1\"",
+     "hometown": "Quarry Hill, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/mara-meroren/1451"
+    },
+    {
+     "name": "Oona Lamenster",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Quarry Hill, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/oona-lamenster/2496"
+    },
+    {
+     "name": "Romy Selarnell",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'11\"",
+     "hometown": "Sable Lake, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/romy-selarnell/4701"
+    },
+    {
+     "name": "Mara Wesester",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/mara-wesester/6659"
+    },
+    {
+     "name": "Calla Fenelmark",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'10\"",
+     "hometown": "Iron Fork, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/calla-fenelmark/4118"
+    },
+    {
+     "name": "Elin Varetmark",
+     "number": "15",
+     "position": "Forward",
+     "height": "5'1\"",
+     "hometown": "Marrow Creek, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/elin-varetmark/5462"
+    },
+    {
+     "name": "Mara Pelastad",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'0\"",
+     "hometown": "Redfern, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/mara-pelastad/9827"
+    },
+    {
+     "name": "Una Norelmark",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'11\"",
+     "hometown": "Tallgrass, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/una-norelmark/4517"
+    },
+    {
+     "name": "Thea Ulellund",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'1\"",
+     "hometown": "Larkspur, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/thea-ulellund/2912"
+    },
+    {
+     "name": "Yael Oselquist",
+     "number": "19",
+     "position": "Forward",
+     "height": "6'5\"",
+     "hometown": "Sable Lake, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/yael-oselquist/2733"
+    },
+    {
+     "name": "Nell Fenelbell",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'11\"",
+     "hometown": "Tallgrass, Wis.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/nell-fenelbell/2040"
+    }
+   ]
+  },
+  "fallow-point": {
+   "programme": "fallow-point",
+   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Nell Uletbell",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'0\"",
+     "hometown": "Mill Prairie, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/nell-uletbell/9482"
+    },
+    {
+     "name": "Tamsin Rosordane",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'10\"",
+     "hometown": "Hazel Run, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/tamsin-rosordane/3071"
+    },
+    {
+     "name": "Petra Rosenrick",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'9\"",
+     "hometown": "Quarry Hill, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/petra-rosenrick/3529"
+    },
+    {
+     "name": "Thea Halidane",
+     "number": "4",
+     "position": "Defender",
+     "height": "6'4\"",
+     "hometown": "Coldwater Bend, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/thea-halidane/5444"
+    },
+    {
+     "name": "Vesna Queninvik",
+     "number": "5",
+     "position": "Defender",
+     "height": "6'5\"",
+     "hometown": "Wren Hollow, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/vesna-queninvik/4228"
+    },
+    {
+     "name": "Kaia Caliren",
+     "number": "6",
+     "position": "Defender",
+     "height": "6'1\"",
+     "hometown": "Stonebridge, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/kaia-caliren/4913"
+    },
+    {
+     "name": "Calla Lametrick",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'4\"",
+     "hometown": "Sable Lake, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/calla-lametrick/3383"
+    },
+    {
+     "name": "Ada Lamelley",
+     "number": "8",
+     "position": "Defender",
+     "height": "6'9\"",
+     "hometown": "Wren Hollow, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/ada-lamelley/4618"
+    },
+    {
+     "name": "Ada Selinlund",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "6'9\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/ada-selinlund/4959"
+    },
+    {
+     "name": "Wren Halenvik",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "5'9\"",
+     "hometown": "Stonebridge, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/wren-halenvik/3682"
+    },
+    {
+     "name": "Kaia Caluford",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Sable Lake, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/kaia-caluford/1202"
+    },
+    {
+     "name": "Dessa Rosorwick",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "6'1\"",
+     "hometown": "Iron Fork, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/dessa-rosorwick/7279"
+    },
+    {
+     "name": "Linnea Varenmark",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'0\"",
+     "hometown": "Coldwater Bend, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/linnea-varenmark/9249"
+    },
+    {
+     "name": "Greer Seletster",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'0\"",
+     "hometown": "Quarry Hill, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/greer-seletster/4684"
+    },
+    {
+     "name": "Corin Dororbell",
+     "number": "15",
+     "position": "Forward",
+     "height": "6'9\"",
+     "hometown": "Quarry Hill, Minn.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/corin-dororbell/2972"
+    },
+    {
+     "name": "Ines Torarster",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'9\"",
+     "hometown": "Quarry Hill, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/ines-torarster/5273"
+    },
+    {
+     "name": "Wren Rosardane",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'7\"",
+     "hometown": "Wren Hollow, Neb.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/wren-rosardane/2263"
+    },
+    {
+     "name": "Annika Pelusen",
+     "number": "18",
+     "position": "Forward",
+     "height": "5'7\"",
+     "hometown": "Coldwater Bend, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/annika-pelusen/4874"
+    },
+    {
+     "name": "Hollis Selelsen",
+     "number": "19",
+     "position": "Forward",
+     "height": "6'0\"",
+     "hometown": "Larkspur, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/hollis-selelsen/9975"
+    },
+    {
+     "name": "Thea Coretbell",
+     "number": "20",
+     "position": "Forward",
+     "height": "6'8\"",
+     "hometown": "Wren Hollow, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/thea-coretbell/8562"
+    }
+   ]
+  },
+  "st-oswin": {
+   "programme": "st-oswin",
+   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/2025",
+   "players": [
+    {
+     "name": "Mara Caloley",
+     "number": "1",
+     "position": "Goalkeeper",
+     "height": "6'9\"",
+     "hometown": "Redfern, Minn.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/mara-caloley/4083"
+    },
+    {
+     "name": "Juno Rosuvik",
+     "number": "30",
+     "position": "Goalkeeper",
+     "height": "6'3\"",
+     "hometown": "Marrow Creek, Neb.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/juno-rosuvik/9518"
+    },
+    {
+     "name": "Brisa Wesuby",
+     "number": "3",
+     "position": "Defender",
+     "height": "5'3\"",
+     "hometown": "Stonebridge, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/brisa-wesuby/9688"
+    },
+    {
+     "name": "Linnea Thalustad",
+     "number": "4",
+     "position": "Defender",
+     "height": "5'8\"",
+     "hometown": "Wren Hollow, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/linnea-thalustad/9365"
+    },
+    {
+     "name": "Dessa Halurick",
+     "number": "5",
+     "position": "Defender",
+     "height": "6'0\"",
+     "hometown": "Mill Prairie, S.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/dessa-halurick/2277"
+    },
+    {
+     "name": "Annika Lamarster",
+     "number": "6",
+     "position": "Defender",
+     "height": "5'9\"",
+     "hometown": "Redfern, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/annika-lamarster/3296"
+    },
+    {
+     "name": "Kaia Quenelby",
+     "number": "7",
+     "position": "Defender",
+     "height": "6'6\"",
+     "hometown": "Stonebridge, Iowa",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/kaia-quenelby/8126"
+    },
+    {
+     "name": "Kaia Kesetlund",
+     "number": "8",
+     "position": "Defender",
+     "height": "5'8\"",
+     "hometown": "Tallgrass, S.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/kaia-kesetlund/5339"
+    },
+    {
+     "name": "Tamsin Jorormore",
+     "number": "9",
+     "position": "Midfielder",
+     "height": "5'4\"",
+     "hometown": "Hazel Run, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/tamsin-jorormore/4726"
+    },
+    {
+     "name": "Esme Kesuren",
+     "number": "10",
+     "position": "Midfielder",
+     "height": "6'1\"",
+     "hometown": "Sable Lake, N.D.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/esme-kesuren/8427"
+    },
+    {
+     "name": "Brisa Asheholt",
+     "number": "11",
+     "position": "Midfielder",
+     "height": "5'0\"",
+     "hometown": "Coldwater Bend, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/brisa-asheholt/1528"
+    },
+    {
+     "name": "Brisa Corelrick",
+     "number": "12",
+     "position": "Midfielder",
+     "height": "5'0\"",
+     "hometown": "Marrow Creek, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/brisa-corelrick/6397"
+    },
+    {
+     "name": "Una Osinbell",
+     "number": "13",
+     "position": "Midfielder",
+     "height": "5'6\"",
+     "hometown": "Redfern, Wis.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/una-osinbell/9019"
+    },
+    {
+     "name": "Thea Selustad",
+     "number": "14",
+     "position": "Midfielder",
+     "height": "5'3\"",
+     "hometown": "Sable Lake, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/thea-selustad/5790"
+    },
+    {
+     "name": "Annika Fenemark",
+     "number": "15",
+     "position": "Forward",
+     "height": "6'1\"",
+     "hometown": "Sable Lake, S.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/annika-fenemark/4206"
+    },
+    {
+     "name": "Hollis Jorarlund",
+     "number": "16",
+     "position": "Forward",
+     "height": "5'9\"",
+     "hometown": "Hazel Run, N.D.",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/hollis-jorarlund/3555"
+    },
+    {
+     "name": "Wren Coruford",
+     "number": "17",
+     "position": "Forward",
+     "height": "5'6\"",
+     "hometown": "Stonebridge, N.D.",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/wren-coruford/2933"
+    },
+    {
+     "name": "Quinn Quenoster",
+     "number": "18",
+     "position": "Forward",
+     "height": "6'8\"",
+     "hometown": "Hazel Run, Iowa",
+     "class_year": "Sophomore",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/quinn-quenoster/5136"
+    },
+    {
+     "name": "Zadie Rosaley",
+     "number": "19",
+     "position": "Forward",
+     "height": "5'3\"",
+     "hometown": "Mill Prairie, Wis.",
+     "class_year": "Junior",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/zadie-rosaley/8861"
+    },
+    {
+     "name": "Delphine Osannell",
+     "number": "20",
+     "position": "Forward",
+     "height": "5'4\"",
+     "hometown": "Wren Hollow, Iowa",
+     "class_year": "Freshman",
+     "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/delphine-osannell/5864"
+    }
+   ]
+  }
+ }
+}

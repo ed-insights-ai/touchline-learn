@@ -1,0 +1,164 @@
+{
+ "version": 1,
+ "description": "Season-aware conference membership per programme. Invented for the sample.",
+ "seasons": {
+  "from": 2025,
+  "to": 2026
+ },
+ "conferences": [
+  "PLC",
+  "independent",
+  "non_member"
+ ],
+ "conference_profiles": {
+  "PLC": {
+   "level": "d2",
+   "names": [
+    "Prairie Lakes Conference",
+    "Prairie Lakes"
+   ]
+  }
+ },
+ "memberships": {
+  "alder-ridge": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "brightwater-state": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "cedar-hollow": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "dunmore": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "eastmarch-state": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "fallow-point": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "st-oswin": {
+   "men": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "PLC",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  },
+  "hartwell-tech": {
+   "men": [
+    {
+     "conference": "independent",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)",
+     "to_season": 2025
+    },
+    {
+     "conference": "PLC",
+     "from_season": 2026,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ],
+   "women": [
+    {
+     "conference": "independent",
+     "from_season": 2025,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)",
+     "to_season": 2025
+    },
+    {
+     "conference": "PLC",
+     "from_season": 2026,
+     "source": "Prairie Lakes Conference standings pages (invented for this sample)"
+    }
+   ]
+  }
+ }
+}

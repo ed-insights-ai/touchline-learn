@@ -1,0 +1,1093 @@
+{
+ "schema": "touchline.fixtures/2",
+ "season": 2025,
+ "gender": "men",
+ "conference": "PLC",
+ "collected_at": "2025-12-16T12:30:00+00:00",
+ "membership_extrapolated": false,
+ "conference_game_source": "published:schedule-page",
+ "programmes": [
+  {
+   "slug": "alder-ridge",
+   "name": "Alder Ridge",
+   "conference": "PLC",
+   "abbr": "ARU"
+  },
+  {
+   "slug": "brightwater-state",
+   "name": "Brightwater State",
+   "conference": "PLC",
+   "abbr": "BSU"
+  },
+  {
+   "slug": "cedar-hollow",
+   "name": "Cedar Hollow",
+   "conference": "PLC",
+   "abbr": "CHU"
+  },
+  {
+   "slug": "dunmore",
+   "name": "Dunmore",
+   "conference": "PLC",
+   "abbr": "DUN"
+  },
+  {
+   "slug": "eastmarch-state",
+   "name": "Eastmarch State",
+   "conference": "PLC",
+   "abbr": "EMSU"
+  },
+  {
+   "slug": "fallow-point",
+   "name": "Fallow Point",
+   "conference": "PLC",
+   "abbr": "FPU"
+  },
+  {
+   "slug": "hartwell-tech",
+   "name": "Hartwell Tech",
+   "conference": "independent",
+   "abbr": "HTU"
+  },
+  {
+   "slug": "lakeshore-am",
+   "name": "Lakeshore A&M",
+   "conference": "non_member",
+   "abbr": "LAM"
+  },
+  {
+   "slug": "north-quarry",
+   "name": "North Quarry",
+   "conference": "non_member",
+   "abbr": "NQC"
+  },
+  {
+   "slug": "oswin-state",
+   "name": "Oswin State",
+   "conference": "non_member",
+   "abbr": "OSU"
+  },
+  {
+   "slug": "pine-barrens",
+   "name": "Pine Barrens",
+   "conference": "non_member",
+   "abbr": "PBU"
+  },
+  {
+   "slug": "st-brannoc",
+   "name": "St. Brannoc",
+   "conference": "non_member",
+   "abbr": "SBC"
+  },
+  {
+   "slug": "st-oswin",
+   "name": "St. Oswin",
+   "conference": "PLC",
+   "abbr": "SOU"
+  },
+  {
+   "slug": "westmarch-state",
+   "name": "Westmarch State",
+   "conference": "non_member",
+   "abbr": "WMSU"
+  }
+ ],
+ "fixtures": [
+  {
+   "id": "tally:alder-ridge:8159",
+   "date": "2025-08-21",
+   "home": "alder-ridge",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 5,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:cedar-hollow:4881",
+   "date": "2025-08-21",
+   "home": "cedar-hollow",
+   "away": "pine-barrens",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8991",
+   "date": "2025-08-22",
+   "home": "brightwater-state",
+   "away": "lakeshore-am",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "match_type": "exhibition",
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:alder-ridge:8160",
+   "date": "2025-08-25",
+   "home": "alder-ridge",
+   "away": "lakeshore-am",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:st-oswin:8730",
+   "date": "2025-08-25",
+   "home": "st-oswin",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 4,
+   "away_score": 2
+  },
+  {
+   "id": "tally:brightwater-state:8992",
+   "date": "2025-08-26",
+   "home": "pine-barrens",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Pine Barrens Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4882",
+   "date": "2025-08-27",
+   "home": "cedar-hollow",
+   "away": "north-quarry",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "tally:hartwell-tech:7544",
+   "date": "2025-08-27",
+   "home": "hartwell-tech",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:hartwell-tech:7545",
+   "date": "2025-08-29",
+   "home": "dunmore",
+   "away": "hartwell-tech",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8161",
+   "date": "2025-08-29",
+   "home": "north-quarry",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "North Quarry Soccer Field",
+   "home_score": 3,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8731",
+   "date": "2025-08-29",
+   "home": "pine-barrens",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Pine Barrens Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:brightwater-state:8993",
+   "date": "2025-08-30",
+   "home": "brightwater-state",
+   "away": "st-brannoc",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 5,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3547",
+   "date": "2025-08-31",
+   "home": "fallow-point",
+   "away": "lakeshore-am",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 3,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4883",
+   "date": "2025-08-31",
+   "home": "oswin-state",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Oswin State Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8162",
+   "date": "2025-09-02",
+   "home": "alder-ridge",
+   "away": "oswin-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8732",
+   "date": "2025-09-02",
+   "home": "st-oswin",
+   "away": "st-brannoc",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:hartwell-tech:7546",
+   "date": "2025-09-03",
+   "home": "hartwell-tech",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Hartwell Tech Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:cedar-hollow:4884",
+   "date": "2025-09-04",
+   "home": "cedar-hollow",
+   "away": "westmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3548",
+   "date": "2025-09-04",
+   "home": "north-quarry",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "North Quarry Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:cedar-hollow:4885",
+   "date": "2025-09-08",
+   "home": "cedar-hollow",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 0,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:st-oswin:8733",
+   "date": "2025-09-08",
+   "home": "st-oswin",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 3,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4886",
+   "date": "2025-09-13",
+   "home": "cedar-hollow",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8994",
+   "date": "2025-09-13",
+   "home": "eastmarch-state",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:st-oswin:8734",
+   "date": "2025-09-13",
+   "home": "st-oswin",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 3
+  },
+  {
+   "id": "tally:alder-ridge:8163",
+   "date": "2025-09-16",
+   "home": "alder-ridge",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 3,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:cedar-hollow:4887",
+   "date": "2025-09-16",
+   "home": "cedar-hollow",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 1,
+   "away_score": 4
+  },
+  {
+   "id": "pressbox:st-oswin:8735",
+   "date": "2025-09-16",
+   "home": "eastmarch-state",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 0,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4888",
+   "date": "2025-09-21",
+   "home": "cedar-hollow",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 2,
+   "away_score": 4
+  },
+  {
+   "id": "tally:alder-ridge:8164",
+   "date": "2025-09-21",
+   "home": "eastmarch-state",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 3,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3549",
+   "date": "2025-09-21",
+   "home": "fallow-point",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 4,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8165",
+   "date": "2025-09-24",
+   "home": "alder-ridge",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 4,
+   "away_score": 5
+  },
+  {
+   "id": "pressbox:cedar-hollow:4889",
+   "date": "2025-09-24",
+   "home": "cedar-hollow",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:fallow-point:3550",
+   "date": "2025-09-24",
+   "home": "fallow-point",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4890",
+   "date": "2025-09-29",
+   "home": "cedar-hollow",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Cedar Hollow Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8995",
+   "date": "2025-09-29",
+   "home": "dunmore",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 2,
+   "away_score": 3
+  },
+  {
+   "id": "tally:fallow-point:3551",
+   "date": "2025-09-29",
+   "home": "fallow-point",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "tally:alder-ridge:8166",
+   "date": "2025-10-02",
+   "home": "alder-ridge",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:st-oswin:8736",
+   "date": "2025-10-02",
+   "home": "dunmore",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 3,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3552",
+   "date": "2025-10-02",
+   "home": "fallow-point",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8996",
+   "date": "2025-10-07",
+   "home": "brightwater-state",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:fallow-point:3553",
+   "date": "2025-10-07",
+   "home": "fallow-point",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 5,
+   "away_score": 2
+  },
+  {
+   "id": "tally:alder-ridge:8167",
+   "date": "2025-10-10",
+   "home": "alder-ridge",
+   "away": "st-oswin",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8997",
+   "date": "2025-10-10",
+   "home": "brightwater-state",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 4,
+   "away_score": 1
+  },
+  {
+   "id": "pressbox:cedar-hollow:4891",
+   "date": "2025-10-10",
+   "home": "dunmore",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8998",
+   "date": "2025-10-15",
+   "home": "brightwater-state",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3554",
+   "date": "2025-10-15",
+   "home": "fallow-point",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:st-oswin:8737",
+   "date": "2025-10-15",
+   "home": "st-oswin",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 1
+  },
+  {
+   "id": "tally:alder-ridge:8168",
+   "date": "2025-10-18",
+   "home": "alder-ridge",
+   "away": "eastmarch-state",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3555",
+   "date": "2025-10-18",
+   "home": "dunmore",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 3,
+   "away_score": 0
+  },
+  {
+   "id": "pressbox:st-oswin:8738",
+   "date": "2025-10-18",
+   "home": "st-oswin",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:8999",
+   "date": "2025-10-23",
+   "home": "brightwater-state",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 1,
+   "away_score": 5
+  },
+  {
+   "id": "tally:alder-ridge:8169",
+   "date": "2025-10-23",
+   "home": "dunmore",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 2,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:cedar-hollow:4892",
+   "date": "2025-10-23",
+   "home": "eastmarch-state",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 1,
+   "away_score": 0
+  },
+  {
+   "id": "tally:alder-ridge:8170",
+   "date": "2025-10-26",
+   "home": "alder-ridge",
+   "away": "cedar-hollow",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Alder Ridge Soccer Field",
+   "home_score": 3,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:9000",
+   "date": "2025-10-26",
+   "home": "brightwater-state",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 0,
+   "away_score": 2
+  },
+  {
+   "id": "pressbox:st-oswin:8739",
+   "date": "2025-10-26",
+   "home": "st-oswin",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "13:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 2,
+   "away_score": 0
+  },
+  {
+   "id": "tally:brightwater-state:9001",
+   "date": "2025-10-31",
+   "home": "brightwater-state",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Brightwater State Soccer Field",
+   "home_score": 5,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3556",
+   "date": "2025-10-31",
+   "home": "eastmarch-state",
+   "away": "fallow-point",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "Eastmarch State Soccer Field",
+   "home_score": 0,
+   "away_score": 3
+  },
+  {
+   "id": "pressbox:st-oswin:8740",
+   "date": "2025-10-31",
+   "home": "st-oswin",
+   "away": "dunmore",
+   "status": "final",
+   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "conference_game": true,
+   "stage": {
+    "phase": "regular"
+   },
+   "time": "19:00",
+   "venue": "St. Oswin Soccer Field",
+   "home_score": 0,
+   "away_score": 0
+  },
+  {
+   "id": "tally:alder-ridge:8171",
+   "date": "2025-11-15",
+   "home": "dunmore",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "postseason",
+    "competition": "conference",
+    "source": "2025 PLC Men's Soccer Tournament",
+    "round_published": "Semifinals"
+   },
+   "time": "13:00",
+   "venue": "Dunmore Soccer Field",
+   "home_score": 1,
+   "away_score": 2
+  },
+  {
+   "id": "tally:fallow-point:3557",
+   "date": "2025-11-15",
+   "home": "fallow-point",
+   "away": "brightwater-state",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "postseason",
+    "competition": "conference",
+    "source": "2025 PLC Men's Soccer Tournament",
+    "round_published": "Semifinals"
+   },
+   "time": "13:00",
+   "venue": "Fallow Point Soccer Field",
+   "home_score": 2,
+   "away_score": 1
+  },
+  {
+   "id": "tally:fallow-point:3558",
+   "date": "2025-11-22",
+   "home": "fallow-point",
+   "away": "alder-ridge",
+   "status": "final",
+   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "conference_game": false,
+   "stage": {
+    "phase": "postseason",
+    "competition": "conference",
+    "source": "2025 PLC Men's Soccer Tournament",
+    "round_published": "Championship"
+   },
+   "neutral": true,
+   "time": "19:00",
+   "venue": "Lakefront Stadium",
+   "home_score": 1,
+   "away_score": 0
+  }
+ ]
+}

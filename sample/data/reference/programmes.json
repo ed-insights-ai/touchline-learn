@@ -1,0 +1,78 @@
+{
+ "schema": "learn.programmes/1",
+ "description": "Display facts for every programme the sample fixtures name. All invented.",
+ "programmes": {
+  "alder-ridge": {
+   "name": "Alder Ridge",
+   "nickname": "Herons",
+   "abbreviation": "ARU",
+   "city": "Alder Ridge, Minn."
+  },
+  "brightwater-state": {
+   "name": "Brightwater State",
+   "nickname": "Pike",
+   "abbreviation": "BSU",
+   "city": "Brightwater, S.D."
+  },
+  "cedar-hollow": {
+   "name": "Cedar Hollow",
+   "nickname": "Foxes",
+   "abbreviation": "CHU",
+   "city": "Cedar Hollow, Iowa"
+  },
+  "dunmore": {
+   "name": "Dunmore",
+   "nickname": "Drovers",
+   "abbreviation": "DUN",
+   "city": "Dunmore, Neb."
+  },
+  "eastmarch-state": {
+   "name": "Eastmarch State",
+   "nickname": "Marshals",
+   "abbreviation": "EMSU",
+   "city": "Eastmarch, N.D."
+  },
+  "fallow-point": {
+   "name": "Fallow Point",
+   "nickname": "Kestrels",
+   "abbreviation": "FPU",
+   "city": "Fallow Point, Minn."
+  },
+  "hartwell-tech": {
+   "name": "Hartwell Tech",
+   "nickname": "Gears",
+   "abbreviation": "HTU",
+   "city": "Hartwell, Iowa"
+  },
+  "st-oswin": {
+   "name": "St. Oswin",
+   "nickname": "Monks",
+   "abbreviation": "SOU",
+   "city": "Oswin Falls, Wis."
+  },
+  "lakeshore-am": {
+   "name": "Lakeshore A&M",
+   "abbreviation": "LAM"
+  },
+  "north-quarry": {
+   "name": "North Quarry",
+   "abbreviation": "NQC"
+  },
+  "oswin-state": {
+   "name": "Oswin State",
+   "abbreviation": "OSU"
+  },
+  "pine-barrens": {
+   "name": "Pine Barrens",
+   "abbreviation": "PBU"
+  },
+  "st-brannoc": {
+   "name": "St. Brannoc",
+   "abbreviation": "SBC"
+  },
+  "westmarch-state": {
+   "name": "Westmarch State",
+   "abbreviation": "WMSU"
+  }
+ }
+}

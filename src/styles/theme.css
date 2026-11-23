@@ -1,0 +1,78 @@
+/*
+  Touchline Learn theme for Starlight: a pitch-green accent, and the palette
+  the diagrams draw from. Dark is Starlight's default; light overrides follow.
+*/
+:root {
+  --sl-color-accent-low: #12301f;
+  --sl-color-accent: #3f9d62;
+  --sl-color-accent-high: #bfe6cd;
+
+  --tl-ink: #e5ece7;
+  --tl-muted: #9aa8a0;
+  --tl-line: #2d3a32;
+  --tl-card: #18211b;
+  --tl-bg: #101612;
+  --tl-raw: #2a2415;
+  --tl-raw-edge: #c9a455;
+  --tl-clean: #15271b;
+  --tl-clean-edge: #4fae6b;
+  --tl-derived: #152231;
+  --tl-derived-edge: #6aa0d6;
+  --tl-private: #1f1d2b;
+  --tl-private-edge: #8a80c0;
+  --tl-accent: #5cc184;
+}
+
+:root[data-theme="light"] {
+  --sl-color-accent-low: #d5eedd;
+  --sl-color-accent: #1f7a45;
+  --sl-color-accent-high: #134a2a;
+
+  --tl-ink: #17211b;
+  --tl-muted: #5b675f;
+  --tl-line: #c9d3cc;
+  --tl-card: #ffffff;
+  --tl-bg: #f6f8f5;
+  --tl-raw: #f3ead9;
+  --tl-raw-edge: #b08a3e;
+  --tl-clean: #e3f1e6;
+  --tl-clean-edge: #4f9a63;
+  --tl-derived: #e2ecf6;
+  --tl-derived-edge: #4d7fb3;
+  --tl-private: #eceaf3;
+  --tl-private-edge: #8c84b0;
+  --tl-accent: #1f7a45;
+}
+
+/* Diagrams scroll sideways on a phone instead of shrinking to nothing. */
+.tl-diagram {
+  overflow-x: auto;
+  border: 1px solid var(--tl-line);
+  border-radius: 10px;
+  background: var(--tl-card);
+}
+.tl-diagram svg { display: block; min-width: 780px; width: 100%; height: auto; }
+.tl-diagram text { fill: var(--tl-ink); font-family: var(--sl-font); font-size: 12.5px; }
+.tl-diagram .t { font-weight: 600; font-size: 14px; }
+.tl-diagram .m { font-family: var(--sl-font-mono); font-size: 13px; }
+.tl-diagram .s { fill: var(--tl-muted); font-size: 11.5px; }
+.tl-diagram .z { font-weight: 700; font-size: 12px; letter-spacing: 0.1em; }
+.tl-diagram .lab { fill: var(--tl-accent); font-weight: 600; font-size: 11.5px; }
+.tl-diagram .lab2 { fill: var(--tl-muted); font-weight: 600; font-size: 11.5px; }
+.tl-diagram .box { fill: var(--tl-card); stroke: var(--tl-line); }
+.tl-diagram .bp { fill: var(--tl-private); stroke: var(--tl-private-edge); }
+.tl-diagram .bu { fill: var(--tl-clean); stroke: var(--tl-clean-edge); }
+.tl-diagram .ext { fill: var(--tl-bg); stroke: var(--tl-muted); stroke-dasharray: 3 3; }
+.tl-diagram .zr { fill: var(--tl-raw); stroke: var(--tl-raw-edge); stroke-dasharray: 5 4; }
+.tl-diagram .zc { fill: var(--tl-clean); stroke: var(--tl-clean-edge); stroke-dasharray: 5 4; }
+.tl-diagram .zd { fill: var(--tl-derived); stroke: var(--tl-derived-edge); stroke-dasharray: 5 4; }
+.tl-diagram .num { fill: var(--tl-accent); }
+.tl-diagram .numt { fill: var(--tl-card); font-weight: 700; font-size: 11px; }
+.tl-diagram .ar { stroke: var(--tl-accent); stroke-width: 1.8; fill: none; }
+.tl-diagram .ar2 { stroke: var(--tl-muted); stroke-width: 1.4; fill: none; stroke-dasharray: 4 3; }
+.tl-diagram .ah { fill: var(--tl-accent); }
+.tl-diagram .ah2 { fill: var(--tl-muted); }
+.tl-caption { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); margin-top: 0.5rem; }
+
+/* The "lab" call-out at the end of each module. */
+.sl-markdown-content code { overflow-wrap: anywhere; }
