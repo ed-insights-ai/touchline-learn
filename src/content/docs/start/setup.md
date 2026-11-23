@@ -73,6 +73,20 @@ python labs/m03_proof.py
 Labs write their scratch output to `labs/_work/`, which git ignores. Delete it
 whenever you like. Like everything derived, it can be rebuilt.
 
+## How to read a lab's output
+
+Every lab prints a line that starts `RESULT:` and sets an exit code, because a
+check is more useful when a machine can act on it:
+
+| Exit code | Meaning |
+|---|---|
+| `0` | The check ran and passed |
+| `1` | The check ran and found a problem |
+| `2` | The check could not run. This is never reported as a pass. |
+
+Some labs are meant to end with `1`. The parity lab ships with a planted
+disagreement so you can watch the gate stop the line.
+
 ## Explore the data yourself
 
 `labs/explore.sql` holds a first query. Run it, then edit it and run it again:

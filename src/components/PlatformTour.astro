@@ -28,17 +28,17 @@ away: ${away.name}, ${away.score} (periods ${away.periods.join(", ")})
 date: ${fixture.date}`;
 
 const stops = [
-  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector follows a link that a proven schedule page published. It never builds a URL by guessing.", artifact: box.source_url, risk: "Without it: guessed URLs quietly return the wrong page." },
+  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector follows a link that the school's schedule page published. It never builds a URL by guessing.", artifact: box.source_url, risk: "Without it: guessed URLs quietly return the wrong page." },
   { name: "Archive", zone: "raw", title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
-  { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The title must name this fixture's date, and the score table must show exactly two teams.", artifact: `title names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
+  { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The title must name this match's date, and the score table must show exactly two teams.", artifact: `title names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
   { name: "Parse", zone: "clean", title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
   { name: "Resolve", zone: "clean", title: "Give each team one identity", body: "Published names become stable ids, so every later join means the same school.", artifact: `${home.name} → ${fixture.home}\n${away.name} → ${fixture.away}`, risk: "Without it: one school splits into several, or two schools become one." },
-  { name: "Check", zone: "clean", title: "Let a gate stop the line", body: "Automatic checks compare the record against its contract and against itself.", artifact: `${home.name}: ${home.periods.join(" + ")} = ${home.score}\n${away.name}: ${away.periods.join(" + ")} = ${away.score}\nschedule and box score agree: yes`, risk: "Without it: a bad record reaches everything built on it." },
-  { name: "Build", zone: "derived", title: "Publish from the clean files", body: "The website, the analytical database and the written journals all read the same record.", artifact: `${home.name} ${home.score}, ${away.name} ${away.score}\nwebsite · database · journal`, risk: "Without it: each product tells its own version of the result." },
+  { name: "Check", zone: "clean", title: "Let a gate stop the line", body: "Automatic checks compare the record against its contract, the written rules for its shape, and against itself.", artifact: `${home.name}: ${home.periods.join(" + ")} = ${home.score}\n${away.name}: ${away.periods.join(" + ")} = ${away.score}\nschedule and match page agree: yes`, risk: "Without it: a bad record reaches everything built on it." },
+  { name: "Build", zone: "derived", title: "Publish from the clean files", body: "The website, the analytical database and the written season summaries, called journals, all read the same record.", artifact: `${home.name} ${home.score}, ${away.name} ${away.score}\nwebsite · database · journal`, risk: "Without it: each product tells its own version of the result." },
 ];
 
 const hook = [
-  { label: "Whether it downloaded everything", why: "Downloading is the easy part. A page can arrive perfectly and still be the wrong page." },
+  { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
   { label: "Whether the numbers are right", why: "That is the hard part. Nothing in “no errors” tells you the scores belong to the right teams and seasons." },
   { label: "Whether it will run fast enough", why: "Speed is fixable later. A fast pipeline can publish wrong numbers just as confidently." },
 ];
@@ -61,9 +61,9 @@ const cases = [
     ],
   },
   {
-    failure: "“Eastbrook St.” and “Westbrook St.” appear in the same box scores.",
+    failure: "Two different schools with nearly identical names quietly end up as one team in the table.",
     options: [
-      { label: "Resolve", why: "Right. Names become identities here, and a near match is not a match.", correct: true },
+      { label: "Resolve", why: "Right. Names become identities here, and a near match is not a match. Module 5 is built around this failure.", correct: true },
       { label: "Parse", why: "The parser read both names correctly. Deciding who they are is a separate job." },
       { label: "Fetch", why: "Both pages were fetched correctly. The risk starts when names are joined." },
     ],
@@ -72,23 +72,23 @@ const cases = [
     failure: "A second pipeline computes the same season and disagrees on one final score.",
     options: [
       { label: "Parse", why: "Parsing may be the cause, but something has to notice the disagreement first." },
-      { label: "Check", why: "Right. A parity gate compares the two and stops the release until someone explains the difference.", correct: true },
+      { label: "Check", why: "Right. A parity gate compares two independent results and stops the release until someone explains the difference.", correct: true },
       { label: "Build", why: "Publishing first means readers find the disagreement before you do." },
     ],
   },
 ];
 
 const zones = [
-  { key: "raw", name: "Raw", holds: "Every page, byte for byte", also: "Also called bronze", lost: "Gone. Nothing upstream can recreate these pages." },
+  { key: "raw", name: "Raw", holds: "Every page, byte for byte", also: "Also called bronze", lost: "Gone. Nothing can recreate these pages." },
   { key: "clean", name: "Clean", holds: "Season files in a fixed shape", also: "Also called silver", lost: "Rebuilt from raw." },
   { key: "derived", name: "Derived", holds: "Website, database, journals", also: "Also called gold", lost: "Rebuilt from clean." },
 ];
 
 const ideas = [
-  ["Archive first, parse later", "The saved pages are the truth. The clean files are a calculation from them."],
+  ["Archive first, parse later", "The saved pages are the evidence of what each site served. The clean files are a calculation from them."],
   ["Prove before you read", "A page has to show it is what was asked for. No proof means no data, and a named gap."],
   ["Absence is data", "The pipeline records what it did not find and why. Unknown never becomes zero."],
-  ["Code computes, the model writes", "AI writes journal prose. It never produces a number, and its text is checked against the data."],
+  ["Code computes, the model writes", "Code computes every number. AI may only repeat one that can be traced, and anything else is dropped."],
 ];
 ---
 
@@ -146,11 +146,12 @@ const ideas = [
         <p class="pt-feedback" role="status"></p>
       </div>
     ))}
+    <button type="button" class="pt-next" data-to-zones hidden>Continue</button>
   </section>
 
   <section class="pt-part" data-unlock="zones">
     <h2 tabindex="-1">What can you afford to lose?</h2>
-    <p>Each zone is computed only from the one before it. Pick a zone to delete and see what happens.</p>
+    <p>Each zone is computed from the one before it, using versioned code and reference lists. Delete each zone and see what you can get back.</p>
     <div class="pt-zones">
       {zones.map((z) => (
         <button type="button" class={`pt-zone-card ${z.key}`} data-zone={z.key} data-lost={z.lost}>
@@ -162,10 +163,12 @@ const ideas = [
       ))}
     </div>
     <p class="pt-feedback" role="status" data-zone-feedback></p>
+    <p class="pt-summary" data-zone-summary hidden>As long as raw survives, everything after it can be rebuilt with versioned code and reference lists. That is what makes a bug recoverable.</p>
+    <button type="button" class="pt-next" data-to-close hidden>See the four ideas</button>
   </section>
 
   <section class="pt-part pt-close" data-unlock="close">
-    <h2 tabindex="-1">Four ideas carry the whole course</h2>
+    <h2 tabindex="-1">Four ideas you will build across the course</h2>
     <dl>
       {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
     </dl>
@@ -192,7 +195,7 @@ const ideas = [
   .pt-q { margin: 0.25rem 0 0.1rem !important; font-weight: 700; }
   .pt button { font: inherit; }
   .pt-group button, .pt-zone-card { min-height: 44px; padding: 0.55rem 0.85rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); text-align: left; cursor: pointer; }
-  .pt-group button:hover:not(:disabled), .pt-zone-card:hover:not(:disabled) { border-color: var(--sl-color-accent); }
+  .pt-group button:hover:not(:disabled):not(.is-wrong), .pt-zone-card:hover:not(:disabled) { border-color: var(--sl-color-accent); }
   .pt-group button.is-right { border-color: var(--sl-color-accent); box-shadow: inset 4px 0 0 var(--sl-color-accent); font-weight: 650; }
   .pt-group button.is-wrong { border-color: var(--pt-red); box-shadow: inset 4px 0 0 var(--pt-red); }
   .pt-group button.is-chosen { border-color: var(--pt-yellow); box-shadow: inset 4px 0 0 var(--pt-yellow); font-weight: 650; }
@@ -226,6 +229,8 @@ const ideas = [
   .pt-next, .pt-back, .pt-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.05rem; border-radius: 3px; font-weight: 700; cursor: pointer; text-decoration: none; }
   .pt-next, .pt-link { border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
+  .pt-next[hidden], .pt-summary[hidden] { display: none; }
+  .pt-summary { margin-top: 0.75rem !important; font-weight: 650; }
   .pt-back { border: 1px solid var(--tl-muted); background: none; color: var(--tl-ink); }
   .pt-back:disabled { opacity: 0.45; cursor: default; }
 
@@ -234,6 +239,7 @@ const ideas = [
   .pt-options button { padding: 0.45rem 0.25rem; background: var(--tl-bg); text-align: center; }
 
   .pt-zones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin: 0.75rem 0; }
+  .pt-zone-card:disabled { cursor: default; color: var(--tl-ink); }
   .pt-zone-card { display: grid; align-content: start; gap: 0.2rem; }
   .pt-zone-card.raw { background: var(--tl-raw); }
   .pt-zone-card.clean { background: var(--tl-clean); }
@@ -255,6 +261,7 @@ const ideas = [
 
   @media (max-width: 30rem) {
     .pt-rail { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .pt-panel { margin-top: 3px; border-top: 1px solid var(--tl-line); }
     .pt-zones { grid-template-columns: 1fr; }
   }
 </style>
@@ -293,6 +300,13 @@ const ideas = [
         buttons.forEach((b) => (b.disabled = true));
         const fromKeyboard = event.detail === 0;
         const key = group.dataset.unlocks!;
+        if (key === "zones") {
+          const proceed = root.querySelector<HTMLButtonElement>("[data-to-zones]")!;
+          proceed.hidden = false;
+          feedback.scrollIntoView({ behavior, block: "nearest" });
+          proceed.focus({ preventScroll: !fromKeyboard });
+          return;
+        }
         const target = open(key);
         if (key.startsWith("case-")) {
           target.querySelector("button")!.focus({ preventScroll: !fromKeyboard });
@@ -334,40 +348,53 @@ const ideas = [
     });
     show(0);
 
+    root.querySelector<HTMLButtonElement>("[data-to-zones]")!.addEventListener("click", (event) => {
+      (event.currentTarget as HTMLButtonElement).hidden = true;
+      present(open("zones"), event.detail === 0);
+    });
+
     const cards = [...root.querySelectorAll<HTMLButtonElement>("[data-zone]")];
     const zoneFeedback = root.querySelector<HTMLElement>("[data-zone-feedback]")!;
+    const summary = root.querySelector<HTMLElement>("[data-zone-summary]")!;
+    const toClose = root.querySelector<HTMLButtonElement>("[data-to-close]")!;
+    const lost = new Set<string>();
     const tried = new Set<string>();
+    const outcome = (zone: string) => {
+      if (zone === "raw") return { gone: true, text: "Gone. Nothing can recreate these pages." };
+      if (zone === "clean") return lost.has("raw")
+        ? { gone: true, text: "Gone. Raw is gone, so there is nothing to rebuild from." }
+        : { gone: false, text: "Rebuilt from raw." };
+      return lost.has("clean")
+        ? { gone: true, text: "Gone. Clean is gone, so there is nothing to rebuild from." }
+        : { gone: false, text: "Rebuilt from clean." };
+    };
     cards.forEach((card) => card.addEventListener("click", (event) => {
-      const isRaw = card.dataset.zone === "raw";
-      tried.add(card.dataset.zone!);
-      card.querySelector("[data-zone-result]")!.textContent = card.dataset.lost!;
-      card.classList.toggle("is-lost", isRaw);
-      card.classList.toggle("is-rebuilt", !isRaw);
-      zoneFeedback.classList.toggle("good", !isRaw);
-      zoneFeedback.textContent = isRaw
-        ? "Raw is the only zone you cannot get back, which is why nothing is allowed to change it."
-        : `${card.querySelector("strong")!.textContent} is safe to delete. Now try the others.`;
+      const zone = card.dataset.zone!;
+      const name = card.querySelector("strong")!.textContent;
+      const result = outcome(zone);
+      if (result.gone) lost.add(zone);
+      tried.add(zone);
+      card.disabled = true;
+      card.querySelector("[data-zone-result]")!.textContent = result.text;
+      card.classList.toggle("is-lost", result.gone);
+      card.classList.toggle("is-rebuilt", !result.gone);
+      const more = tried.size < cards.length ? " Now delete another." : "";
+      zoneFeedback.classList.toggle("good", !result.gone);
+      zoneFeedback.textContent = zone === "raw"
+        ? `Raw is the one zone you cannot get back, which is why nothing is allowed to change it.${more}`
+        : result.gone
+          ? `${name} depended on a zone you already lost.${more}`
+          : `${name} is safe to delete while the zone before it survives.${more}`;
       if (tried.size === cards.length) {
-        zoneFeedback.classList.add("good");
-        zoneFeedback.textContent = "Everything downstream of raw can be thrown away and rebuilt. That is what makes a bug recoverable.";
-        const close = open("close");
-        const next = document.createElement("button");
-        if (!root.querySelector("[data-to-close]")) {
-          next.type = "button";
-          next.className = "pt-next";
-          next.dataset.toClose = "";
-          next.textContent = "See the four ideas";
-          zoneFeedback.after(next);
-          close.classList.remove("is-open");
-          next.addEventListener("click", (e) => {
-            close.classList.add("is-open");
-            next.hidden = true;
-            present(close, e.detail === 0);
-          });
-          next.focus({ preventScroll: event.detail !== 0 });
-        }
+        summary.hidden = false;
+        toClose.hidden = false;
+        toClose.focus({ preventScroll: event.detail !== 0 });
       }
-      zoneFeedback.scrollIntoView({ behavior, block: "nearest" });
+      (tried.size === cards.length ? toClose : zoneFeedback).scrollIntoView({ behavior, block: "nearest" });
     }));
+    toClose.addEventListener("click", (event) => {
+      toClose.hidden = true;
+      present(open("close"), event.detail === 0);
+    });
   }
 </script>

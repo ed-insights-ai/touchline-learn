@@ -70,6 +70,9 @@ A tidy sample would teach nothing about the problems the platform exists to
 solve. These were put in on purpose, and each one mirrors something the real
 pipeline has met.
 
+<details>
+<summary>Show the planted problems (spoils Modules 3 to 8)</summary>
+
 | Planted | Where | Module |
 |---|---|---|
 | A redirect to a URL with no year that still proves its season | `raw_html/brightwater-state/` | [3](../../modules/03-provenance/) |
@@ -89,6 +92,8 @@ pipeline has met.
 | A final whose score was never published | 2026 men | [6](../../modules/06-contracts/), [8](../../modules/08-products/) |
 | Exhibition games with scores | every season | [8](../../modules/08-products/) |
 | Three games played since the official copy; one old score that disagrees | `shadow/` | [7](../../modules/07-gates/) |
+
+</details>
 
 ## It is deterministic
 

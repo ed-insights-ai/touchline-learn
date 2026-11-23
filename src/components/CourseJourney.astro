@@ -12,7 +12,7 @@ import { journey } from "../data/journey";
           <li>
             <a href={`./modules/${m.slug}/`}>
               <b>{m.n}</b>
-              <span><strong>{m.name}</strong>{m.question}</span>
+              <span><strong>{m.name}</strong>{m.question}<small>{m.step === "All steps" ? "Across every pipeline step" : `Pipeline step: ${m.step}`}</small></span>
             </a>
           </li>
         ))}
@@ -34,5 +34,6 @@ import { journey } from "../data/journey";
   .cj-part a:focus-visible { outline: 3px solid var(--sl-color-accent); outline-offset: 2px; }
   .cj-part b { flex: none; width: 1.6rem; color: var(--sl-color-accent); font-size: 1.05rem; text-align: center; font-variant-numeric: tabular-nums; }
   .cj-part a span { display: grid; font-size: 0.92rem; color: var(--tl-muted); }
+  .cj-part a small { margin-top: 0.1rem; font-size: 0.78rem; }
   .cj-part a strong { color: var(--tl-ink); font-size: 1rem; font-weight: 650; }
 </style>

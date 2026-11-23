@@ -10,11 +10,11 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
 
 {current && (
   <div class="jc-top not-content">
-    <p class="jc-part">Part {current.partNumber} of 4: {current.part.title}</p>
+    <p class="jc-part">Part {current.partNumber} of 4: {current.part.title}. {current.step === "All steps" ? "Across every pipeline step" : `Pipeline step: ${current.step}`}</p>
     <p class="jc-question">{current.question}</p>
-    <ol class="jc-progress" aria-label={`Module ${current.n} of ${journeyModules.length}`}>
-      {journeyModules.map((m) => <li class:list={{ done: m.n < current.n, now: m.n === current.n, gap: m.n > 1 && m.partNumber !== journeyModules[m.n - 2].partNumber }}></li>)}
-    </ol>
+    <div class="jc-progress" role="img" aria-label={`Module ${current.n} of ${journeyModules.length}`}>
+      {journeyModules.map((m) => <span class:list={{ now: m.n === current.n, gap: m.n > 1 && m.partNumber !== journeyModules[m.n - 2].partNumber }}></span>)}
+    </div>
   </div>
 )}
 
@@ -23,16 +23,14 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
 {current && (
   <aside class="jc-next not-content" aria-label="Where this leads">
     <p class="jc-gained">{current.gained}</p>
+    <p>{current.bridge}</p>
     {next ? (
       <>
         <p class="jc-ask">Next question: {next.question}</p>
         <a href={`../${next.slug}/`}>Continue to Module {next.n}: {next.name}</a>
       </>
     ) : (
-      <>
-        <p class="jc-ask">Now put it together on a problem of your own.</p>
-        <a href="../../teaching/capstones/">See the capstone projects</a>
-      </>
+      <a href="../../finish/back-to-the-agent/">Answer the agent</a>
     )}
   </aside>
 )}
@@ -41,11 +39,12 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
   .jc-top { margin: 0 0 1.5rem; }
   .jc-part { margin: 0; color: var(--tl-muted); font-size: 0.88rem; font-weight: 600; }
   .jc-question { margin: 0.1rem 0 0.55rem; color: var(--sl-color-white); font-size: 1.15rem; font-weight: 700; line-height: 1.3; }
-  .jc-progress { display: flex; gap: 3px; margin: 0; padding: 0; list-style: none; }
-  .jc-progress li { flex: 1; height: 5px; margin: 0; background: var(--tl-line); }
-  .jc-progress li.done { background: var(--tl-muted); }
-  .jc-progress li.now { background: var(--sl-color-accent); }
-  .jc-progress li.gap { margin-left: 6px; }
+  .jc-progress { display: flex; gap: 3px; }
+  .jc-progress span { flex: 1; height: 5px; background: var(--tl-line); }
+  .jc-progress span.now { background: var(--sl-color-accent); }
+  .jc-progress span.gap { margin-left: 6px; }
+  .il-js .sl-markdown-content:has(.il-close:not(.is-open)) + .jc-next { display: none; }
+  body:has(.jc-next) .pagination-links a[rel="next"] { display: none; }
   .jc-next { margin-top: 2.5rem; padding: 1rem 1.1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
   .jc-next p { margin: 0 0 0.3rem; }
   .jc-gained { color: var(--tl-ink); }

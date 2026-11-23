@@ -34,4 +34,20 @@ const arrows = ["M150 137 H159", "M284 137 H317", "M442 137 H451", "M576 137 H58
     ))}
     {arrows.map((d) => <path class="ar" d={d} marker-end="url(#tl-ah)"></path>)}
   </svg>
+  <ol class="tl-steps">
+    {steps.map((s) => <li class={s.n <= 2 ? "raw" : s.n <= 6 ? "clean" : "derived"}><b>{s.n}</b><span><strong>{s.title}</strong> {s.lines.join(" ")}</span></li>)}
+  </ol>
 </div>
+
+<style>
+  .tl-steps { display: none; margin: 0; padding: 0; list-style: none; }
+  .tl-steps li { display: flex; gap: 0.6rem; margin: 0; padding: 0.45rem 0.6rem; border-left: 4px solid; font-size: 0.88rem; line-height: 1.35; }
+  .tl-steps li + li { margin-top: 3px; }
+  .tl-steps .raw { background: var(--tl-raw); border-color: var(--tl-raw-edge); }
+  .tl-steps .clean { background: var(--tl-clean); border-color: var(--tl-clean-edge); }
+  .tl-steps .derived { background: var(--tl-derived); border-color: var(--tl-derived-edge); }
+  @media (max-width: 40rem) {
+    .tl-diagram svg { display: none; }
+    .tl-steps { display: block; }
+  }
+</style>
