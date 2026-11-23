@@ -29,57 +29,46 @@ site and no server code. It is files on a content delivery network.
 The site's code is open: [touchline-ui](https://github.com/ed-insights-ai/touchline-ui).
 The published site is at [ed-insights-ai.github.io/touchline-ui](https://ed-insights-ai.github.io/touchline-ui/).
 
-## Product 2: an analytical database for the desk app
+## Product 2: a verified analytical database
 
-The desktop app answers arbitrary questions, including ones written by an AI
-assistant as SQL, across every season. For that it needs a real query engine,
-so the pipeline packs the season files into one DuckDB file, which is a
-columnar, single-file analytical database.
-
-The design was chosen by measuring alternatives:
-
-| Option | Download | Then, on the user's machine | Problem |
-|---|---|---|---|
-| Ship the raw JSON | 94 MB | 22 to 40 s build | every machine builds its own copy, and results cannot be checked |
-| Ship Parquet files | about 150 MB | 13 s build, 2 GB of memory | same |
-| Query remote files in place | none | 0.1 to 0.7 s a query, up to 124 MB for one page | no offline use |
-| Ship the finished database plus daily deltas | 168 MB once, then about 1 MB a day | opens immediately | larger first download |
+Analysts need to ask questions nobody planned for, across every season. For
+that they need a real query engine, so the pipeline packs the season files into
+one DuckDB file, a columnar, single-file analytical database. Touchline Desk, a
+separate app for AI-enhanced analysis, receives that file. This course stops at
+the handoff.
 
 - **Snapshots and deltas.** A full snapshot is published when needed. Each day
-  after that, a small delta holds only the changed rows. A manifest lists every
-  table with its row count and a hash, so after applying a delta the app can
-  confirm it holds exactly the publisher's rows.
-- **Scopes.** The snapshot is also cut per division and gender, so access can
-  later be granted by scope.
-- **Signing.** The manifest is signed with a private key held in a cloud key
-  service. The key never leaves that service. The app carries the public key
-  and rejects anything that does not verify. A signature proves where the data
-  came from. It does not control who may download it. That is a separate
-  mechanism, short-lived download links.
-- **Atomic swap.** The app downloads to a temporary file, verifies it, then
-  swaps it in and keeps the previous file for rollback.
+  after that, a small delta holds only the changed rows.
+- **A manifest.** It lists every table with its row count and a hash, so a
+  receiver can confirm it holds exactly the publisher's rows.
+- **A signature.** The manifest is signed with a private key held in a cloud key
+  service, and the key never leaves that service. A signature proves where the
+  data came from. It does not control who may download it, which is a separate
+  mechanism.
+- **A release pointer.** A build becomes current only when the "latest" pointer
+  moves, and that happens after every gate has passed.
 
 ## Example
 
-On its first day the pipeline built a snapshot of 53,707 games, verified it
-through the app's own download code, both from the full base and by delta, and
-only then moved the "latest" pointer. An earlier build that day was never
-released, because a gate had not yet passed.
+On its first day in production, the pipeline built a snapshot of 53,707 games,
+verified it from the full base and by delta, and only then moved the "latest"
+pointer. An earlier build that day was never released, because a gate had not
+yet passed.
 
 ## Terms
 
 Data product, materialized view, static site generation, OLAP versus OLTP,
 columnar storage, snapshot and delta (or change data capture), checksum,
-digital signature, content-addressed storage, atomic swap.
+digital signature, content-addressed storage.
 
 ## Questions
 
-1. The site and the app are computed from the same files by different code.
-   What are the costs and the benefits of not sharing one implementation?
+1. Two implementations compute the same figures from the same files. What are
+   the costs and the benefits of not sharing one implementation?
 2. Why hash each table in the manifest when the whole file already has a
    checksum?
-3. "A signature proves origin, not permission." Give an example of a system
-   that confused the two.
+3. A signature proves where a file came from, and not who may have it. Give an
+   example of a system that confused the two.
 
 ## Lab: standings, twice, and a database you can verify
 
@@ -95,7 +84,7 @@ team                 listed counted   W   D   L  GF  GA  Pts
 alder-ridge              14      14   9   2   3  24  11   29
 hartwell-tech            14      14   5   6   3  29  17   21
 brightwater-state        14      14   5   5   4  25  20   20
-eastmarch-state          14      13   5   4   4  20  19   19  <- not every listed game could be counted
+eastbrook-state          14      13   5   4   4  20  19   19  <- not every listed game could be counted
 ...
 ```
 
@@ -103,8 +92,7 @@ Five teams have a listed game that is not counted: two games were still to be
 played, and one final never had its score published.
 
 **An agreement check.** The same table is then recounted in plain Python by
-code written separately on purpose, and the two are compared. This is the
-platform's site-versus-desk check in miniature:
+code written separately on purpose, and the two are compared:
 
 ```
 teams compared: 8 | disagreements: 0
@@ -130,9 +118,10 @@ where it stops being modest.
 1. Break the agreement on purpose: make the Python recount include
    exhibitions. Which teams disagree? Now imagine both implementations had the
    same bug. What would catch it?
-2. Change one score in `labs/_work/m08/plc.duckdb` with an `UPDATE` and rerun
-   only the receiver's verification. Which table's hash moves? Why is that more
-   useful than a single checksum for the file?
+2. Run `python labs/m08_products.py --tamper`, which changes one score in the
+   built database, then `python labs/m08_products.py --verify-only`. Which
+   table's hash moves? Why is that more useful than a single checksum for the
+   file? Run the lab again to rebuild.
 3. Write a delta: given yesterday's and today's fixtures tables, produce the
    rows to insert, update and delete, apply them to yesterday's, and confirm
    the result matches today's manifest. `sample/data` and `sample/shadow` are

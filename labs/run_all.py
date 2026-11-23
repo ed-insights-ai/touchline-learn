@@ -24,14 +24,23 @@ RUNS = [
     (["labs/m04_parse.py"], 0, "RESULT: only the caption parser matches"),
     (["labs/m05_identity.py"], 0, "14 spellings still need"),
     (["labs/m05_identity.py", "--solution"], 0, "RESULT: every name resolved exactly"),
+    (["labs/m05_identity.py", "--name", "#9 Dunmore"], 0, "-> 'Dunmore'"),
     (["labs/m06_contracts.py"], 0, "RESULT: contracts hold"),
     (["labs/m06_contracts.py", "--rosters", "labs/contracts/rosters-1.starter.schema.json"], 1, "6 problems"),
     (["labs/m07_parity.py"], 1, "91 match, 3 timing, 1 disagreement"),
     (["labs/m07_parity.py", "--shadow", "sample/data"], 0, "GATE: passed"),
     (["labs/m07_parity.py", "--shadow", "does-not-exist"], 2, "PARITY DID NOT RUN"),
     (["labs/m08_products.py"], 0, "RESULT: two implementations agree"),
+    (["labs/m08_products.py", "--verify-only"], 0, "RESULT: every table matches"),
+    (["labs/m08_products.py", "--tamper"], 0, "RESULT: changed the away score"),
+    (["labs/m08_products.py", "--verify-only"], 1, "changed since publishing: fixtures"),
+    (["labs/m08_products.py"], 0, "RESULT: two implementations agree"),
     (["labs/m09_claims.py"], 0, "4 kept, 4 dropped"),
+    (["labs/m09_claims.py", "--draft", "labs/data/journal_draft.json"], 0, "4 kept, 4 dropped"),
+    (["labs/m09_claims.py", "--draft", "does-not-exist.json"], 2, "could not run"),
     (["labs/m10_jobgraph.py"], 0, "RESULT: gates stop the release"),
+    (["labs/m10_jobgraph.py", "--fail", "snapshot"], 0, "RESULT: replayed the day"),
+    (["labs/query.py", "labs/explore.sql"], 0, "RESULT: 10 rows"),
 ]
 
 

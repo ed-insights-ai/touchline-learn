@@ -15,12 +15,12 @@ assumption as a hypothesis, and prefers evidence a human reader would also see.
   tables. The parser picks each one by its caption text, such as "Scoring
   Summary" or "Team Statistics", never by its position on the page. Templates
   reorder tables between versions. Captions stay.
-- **Read the label the reader sees.** One vendor's template marks the Fouls
+- **Read the label the reader sees.** One template marks the Fouls
   group with the internal id `offsides`. A parser keyed on ids would file every
   foul as an offside. Touchline keys on the visible header text.
 - **Sometimes the fact is only in the markup.** Whether a card is yellow or red
   is carried by a styling class on the cell and not by its text. So the rule is
-  to choose the extraction method per fact, not per page. When neither colour
+  to choose the extraction method per fact, not per page. When neither color
   is present, the value is stored as `unknown`.
 - **Type free text conservatively.** Play-by-play lines are typed by each home
   team's statistics crew. The raw line is always kept. A type such as goal or
@@ -62,7 +62,7 @@ with the clean season file.
 |---|---|---|
 | By position | "the first table is the score" | 8 of 12 |
 | By id | the template's `id` attributes | 0 of 12 |
-| By caption | captions, visible labels, and styling for card colour | 12 of 12 |
+| By caption | captions, visible labels, and styling for card color | 12 of 12 |
 
 The position parser works on the first template and fails on every page that
 uses the second, where the tables come in another order. The id parser looks
@@ -88,9 +88,10 @@ refused: the score table does not show exactly two teams
 
 1. Open `sample/raw_html/alder-ridge/` and find a page in each template. Write
    down what differs. Would a parser keyed on the `<h1>` survive?
-2. `by_caption` reads card colour from a class. Extend it to type the
-   play-by-play lines, keeping the raw text. Which line in the sample should
-   stay untyped, and what would a careless pattern type it as?
+2. `by_caption` reads card color from a class. Extend it to type the
+   play-by-play lines, keeping the raw text. Find a line containing the word
+   "Goal" that is not a goal. What would a careless pattern do to the score
+   sheet?
 3. The team names on the page carry rankings ("#9 Alder Ridge"). The lab
    compares them as published. Why should the parser leave them alone? Module 5
    picks this up.

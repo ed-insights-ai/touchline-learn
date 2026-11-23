@@ -55,6 +55,7 @@ def main() -> int:
     except (OSError, ValueError) as why:
         print(f"PARITY DID NOT RUN: {type(why).__name__}: {why}")
         print("This is not a pass. Nothing was compared.")
+        print("RESULT: parity did not run")
         return 2
 
     seen = date.fromisoformat(official_f["collected_at"][:10])
@@ -84,10 +85,14 @@ def main() -> int:
     print(f"\n{tally['match']} match, {tally['timing']} timing, {tally['disagreement']} disagreement")
     if tally["disagreement"]:
         print("GATE: failed. The new pipeline does not take over.")
+        print("RESULT: parity failed, the official copy stays in place")
         return 1
     print("GATE: passed.")
+    print("RESULT: parity passed")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    code = main()
+    print(f"exit code {code}")
+    sys.exit(code)

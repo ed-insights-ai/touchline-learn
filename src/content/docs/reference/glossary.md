@@ -26,10 +26,10 @@ sidebar:
 | Monitor | A check that always finishes and reports, without stopping anything. |
 | Parity | Agreement between two pipelines' outputs for the same period. |
 | Pinning | Fixing a dependency to one exact version. |
-| Programme | One school's team: its men's or women's soccer side. |
+| Program | One school's team: its men's or women's soccer side. The data files call this a `programme`. |
 | Schema | A written rule for a file's shape: which fields exist and what type each one is. |
 | Shadow run | Running a new pipeline beside the old one without making its output official. |
-| Sidecar | A small file stored beside another to describe it, such as the address a page was fetched from. |
+| Sidecar | A small file stored beside another to describe it, such as the URL a page was fetched from. |
 | Slug | A short, stable, lowercase identifier such as `alder-ridge`. |
 | Snapshot | A complete copy of the dataset at one moment. |
 | System of record | The copy everyone agrees is authoritative. |

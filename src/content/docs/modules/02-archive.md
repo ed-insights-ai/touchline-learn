@@ -48,8 +48,8 @@ schema-on-read, lineage.
 
 1. The archive is much larger than the clean data. What would you weigh in
    deciding how long to keep it?
-2. "Re-fetching is not rebuilding." Explain the difference, and say which one
-   is reproducible.
+2. What is the difference between fetching a page again and rebuilding from
+   the archive? Which one is reproducible?
 3. What should happen if the archive and the live site disagree about a past
    match?
 
@@ -65,32 +65,36 @@ fixes it.
 ```
 Run 1: parser v1
 re-parsed, skipped: (8, 0)
-names that cannot be right: ['State Brannoc', 'State Oswin']
+names that cannot be right: ['State Brendan', 'State Lambert']
 
 Run 2: same parser, nothing to do
 re-parsed, skipped: (0, 8)
 
 Run 3: parser v2, replayed from the archive
 re-parsed, skipped: (8, 0)
-Saint schools now  : ['Saint Brannoc', 'Saint Oswin']
+Saint schools now  : ['Saint Brendan', 'Saint Lambert']
 network requests   : 0
+network counter    : caught a test request
 ```
 
 Run 2 does nothing because each parsed file has a sidecar holding the
 fingerprint of the parser that wrote it. Run 3 re-parses everything because the
 fingerprint changed with the code. Nobody had to remember which files were
-stale.
+stale. The network count is measured: the lab intercepts every connection
+attempt, and first sends a test request to prove the counter works.
 
 **Your turn.**
 
 1. `fingerprint()` hashes the source of one function. Change a comment inside
-   `expand_v2` and run again. Everything is re-parsed although the behaviour
+   `expand_v2` and run again. Everything is re-parsed although the behavior
    did not change. Is that a bug or a feature? What would a finer fingerprint
    cost you?
-2. Delete one archived page and run the lab. Decide what should happen: a
-   crash, a silent skip, or something else. Then make the lab do it.
+2. Run `python labs/m02_archive.py --missing dunmore`, which works on a scratch
+   copy without that school's page. The lab reparses seven pages and says
+   nothing about the eighth. Decide what should happen: a crash, a silent skip,
+   or something else. Then make the lab do it.
 3. The sidecars in `sample/raw_html/` record `requested_url` and `final_url`.
-   Why is the final address worth keeping? Module 3 depends on the answer.
+   Why is the final URL worth keeping? Module 3 depends on the answer.
 
 ## Exercise
 

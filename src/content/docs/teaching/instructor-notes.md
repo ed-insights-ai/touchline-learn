@@ -21,7 +21,7 @@ parse, and kinds of missing data.
 
 ## Opening and closing discussion
 
-Before Module 1, ask: "You have a list of 1,000 website addresses and a month.
+Before Module 1, ask: "You have a list of 1,000 website URLs and a month.
 How would you build this dataset?" Write the class's plan on the board and keep
 it. Most plans skip archiving, proof and gates. At the end of the unit, put the
 plan back up and ask what they would add, and what each addition would have
@@ -47,8 +47,8 @@ answers.
 
 **Module 1.** An aggregator adds a second party's errors and removes the
 citation to the publisher. Incremental fetching also gives a cheap signal of
-what changed, and keeps you a tolerable guest. Working around a block converts
-a technical limit into an ethical and legal problem.
+what changed, and keeps you a tolerable guest. A source that cannot be
+collected belongs in the coverage record as a named gap.
 
 **Module 2.** Rebuilding from the archive is reproducible. Re-fetching samples
 a source that has moved. When the archive and the live site disagree, keep both
@@ -74,9 +74,10 @@ recorded ruling decides.
 **Module 6.** `no-collector` and `unavailable` depend on the site and platform,
 not on the match, so missingness is related to school and era and is unlikely
 to be completely random. `empty` after proof means the source is silent.
-Without proof it could be a failed fetch. In the lab, the missing box scores
-belong to the highest-scoring home side, so the box-score estimate of goals per
-game is biased low.
+Without proof it could be a failed fetch. In the lab, all 12 missing box scores
+come from one school's site, so the mechanism is known. The 12 games average
+more goals (3.42 against 2.79), but a permutation test gives p = 0.33, so the
+gap alone does not establish that the box-score estimate is biased.
 
 **Module 7.** A crash gets investigated, and a false pass gets trusted. Rosters
 do not change between two same-day scrapes, so any difference is a real
@@ -100,10 +101,13 @@ and report only pass or fail.
 
 ## Notes on selected lab tasks
 
-- **Lab 3, task 3** (trust the address). `run_all.py` fails because the Cedar
-  Hollow 2019 page is now accepted: the count becomes 9 proven, 1 refused. The
+- **Lab 3, task 3** (trust the URL). `run_all.py` fails because the Cedar
+  Grove 2019 page is now accepted: the count becomes 9 proven, 1 refused. The
   point is that the repository's own gate caught a plausible-looking change.
-- **Lab 5, task 1.** "Oswin St." is Oswin State, a non-member. The evidence a
+- **Lab 4, task 2.** Lines such as "Goal disallowed, ARU flagged offside."
+  should stay untyped. A pattern that looks only for the word "goal" would
+  record a goal that never counted.
+- **Lab 5, task 1.** "Lambert St." is Lambert State, a non-member. The evidence a
   student should ask for is the box score it came from: who the opponent was,
   and where the game was played.
 - **Lab 6, task 1.** Numbers such as "00" and "0" are different shirts, and a

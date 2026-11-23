@@ -14,11 +14,11 @@
    "abbreviation": "BSU",
    "city": "Brightwater, S.D."
   },
-  "cedar-hollow": {
-   "name": "Cedar Hollow",
+  "cedar-grove": {
+   "name": "Cedar Grove",
    "nickname": "Foxes",
-   "abbreviation": "CHU",
-   "city": "Cedar Hollow, Iowa"
+   "abbreviation": "CGU",
+   "city": "Cedar Grove, Iowa"
   },
   "dunmore": {
    "name": "Dunmore",
@@ -26,17 +26,17 @@
    "abbreviation": "DUN",
    "city": "Dunmore, Neb."
   },
-  "eastmarch-state": {
-   "name": "Eastmarch State",
+  "eastbrook-state": {
+   "name": "Eastbrook State",
    "nickname": "Marshals",
-   "abbreviation": "EMSU",
-   "city": "Eastmarch, N.D."
+   "abbreviation": "EBSU",
+   "city": "Eastbrook, N.D."
   },
-  "fallow-point": {
-   "name": "Fallow Point",
+  "harbor-point": {
+   "name": "Harbor Point",
    "nickname": "Kestrels",
-   "abbreviation": "FPU",
-   "city": "Fallow Point, Minn."
+   "abbreviation": "HPC",
+   "city": "Harbor Point, Minn."
   },
   "hartwell-tech": {
    "name": "Hartwell Tech",
@@ -44,35 +44,35 @@
    "abbreviation": "HTU",
    "city": "Hartwell, Iowa"
   },
-  "st-oswin": {
-   "name": "St. Oswin",
+  "st-lambert": {
+   "name": "St. Lambert",
    "nickname": "Monks",
-   "abbreviation": "SOU",
-   "city": "Oswin Falls, Wis."
+   "abbreviation": "SLC",
+   "city": "Lambert Falls, Wis."
   },
   "lakeshore-am": {
    "name": "Lakeshore A&M",
    "abbreviation": "LAM"
   },
+  "lambert-state": {
+   "name": "Lambert State",
+   "abbreviation": "LSC"
+  },
   "north-quarry": {
    "name": "North Quarry",
    "abbreviation": "NQC"
-  },
-  "oswin-state": {
-   "name": "Oswin State",
-   "abbreviation": "OSU"
   },
   "pine-barrens": {
    "name": "Pine Barrens",
    "abbreviation": "PBU"
   },
-  "st-brannoc": {
-   "name": "St. Brannoc",
+  "st-brendan": {
+   "name": "St. Brendan",
    "abbreviation": "SBC"
   },
-  "westmarch-state": {
-   "name": "Westmarch State",
-   "abbreviation": "WMSU"
+  "westbrook-state": {
+   "name": "Westbrook State",
+   "abbreviation": "WBSU"
   }
  }
 }

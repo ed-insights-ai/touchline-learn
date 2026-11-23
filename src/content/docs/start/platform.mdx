@@ -11,13 +11,13 @@ import PipelineDiagram from "../../../components/PipelineDiagram.astro";
 
 There is no feed. Professional leagues sell clean data. College soccer does not
 have that. Each school publishes its own schedule, roster, season statistics
-and box scores as web pages, through one of four website vendors. A game
+and box scores as web pages, on a small number of website platforms. A game
 between two schools appears on both schools' sites, sometimes with different
 details. Pages are written for fans, not for programs.
 
 The goal is one dataset in which every number can be traced to a page a school
-published, covering men's and women's programmes in NCAA Divisions I and II
-from 2016 to today, with Division III planned.
+published, covering men's and women's programs in NCAA Divisions I and II
+from 2016 to today.
 
 The hard part is not downloading pages. It is being able to trust what comes
 out.
@@ -31,7 +31,7 @@ the one before it, so anything downstream can be thrown away and rebuilt.
 |---|---|---|---|
 | Raw | Every fetched page, byte for byte | Bronze layer, raw zone | No. This is the evidence. |
 | Clean | Season files in a fixed, versioned shape | Silver layer | Yes, from raw |
-| Derived | The website, the desk app's database, AI-written journals | Gold layer, data products | Yes, from clean |
+| Derived | The website, an analytical database, AI-written journals | Gold layer, data products | Yes, from clean |
 
 ## Seven steps
 
@@ -48,33 +48,31 @@ the one before it, so anything downstream can be thrown away and rebuilt.
 [Module 10](../../modules/10-operations/) covers the engineering around those
 steps: the repositories, automation, security and cost.
 
-## The ideas worth remembering
+## Four ideas worth remembering
 
 | Idea | In one sentence |
 |---|---|
 | Archive first, parse later | The saved pages are the truth. The clean files are a calculation from them, and can always be recalculated. |
 | Prove before you read | A page has to show it is what was asked for. No proof means no data, and a named gap. |
 | Absence is data | The pipeline records what it did not find and why. Unknown is never turned into zero. |
-| Never guess an identity | Names match exactly or go to a person. Guessed matches would quietly merge two schools. |
-| Same input, same output | Collection and building use no AI and no randomness. Run them twice and the files are identical, which is what makes them testable. |
 | Code computes, the model writes | AI is used in one place, to write journal prose. It never produces a number, and its text is checked against the data before it ships. |
 
 ## One box score, start to finish
 
 1. A school's proven 2026 schedule page links to a box score. The collector
-   only follows links a proven page published. It never builds a web address by
+   only follows links a proven page published. It never builds a URL by
    guessing.
 2. The page is saved under a predictable name such as
    `raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8203.html`.
 3. The page's title must name the fixture's own date and its score table must
    show exactly two teams, or it is refused.
 4. The reader pulls the score by period, team statistics, scorers and cards.
-   The card colour sits in the page's styling, not its text, so the reader
+   The card color sits in the page's styling, not its text, so the reader
    looks there.
 5. Both team names are resolved to their one identity, and the match is written
    into that conference's men's 2026 matches file.
 6. That file is checked against its contract. The next build includes the match
-   in the site, in the desk database and in the journal for that conference.
+   in the site, the analytical database and the journal for that conference.
 
 The file name in step 2 comes from this site's [sample data](../sample-data/),
 so you can open that exact page and follow it through the labs.
@@ -86,7 +84,6 @@ its operators will make mistakes. Most of what follows is a way to stop one of
 those from quietly becoming a wrong number on the site.
 
 :::tip[Before Module 1]
-Ask yourself, or your class: "You have a list of 1,000 website addresses and a
-month. How would you build this dataset?" Write the plan down and keep it. Most
+Ask yourself: "You have a list of 1,000 website URLs and a month. How would you build this dataset?" Write the plan down and keep it. Most
 plans skip steps 2, 3 and 6. Come back to it at the end.
 :::

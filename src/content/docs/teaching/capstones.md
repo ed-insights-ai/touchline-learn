@@ -62,6 +62,6 @@ query.
 | | Developing | Proficient | Strong |
 |---|---|---|---|
 | Correctness | Runs on the happy path | Handles the planted problems | Finds a problem that was not planted |
-| Failure behaviour | Crashes or passes silently | Fails loudly with a reason | Distinguishes "failed" from "did not run" |
+| Failure behavior | Crashes or passes silently | Fails loudly with a reason | Distinguishes "failed" from "did not run" |
 | Reproducibility | Works on the author's machine | Runs from a fresh clone | Byte-identical output on a second run |
 | Writing | Describes what the code does | Explains why each rule exists | States what the work cannot show |

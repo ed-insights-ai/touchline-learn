@@ -88,47 +88,47 @@
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/stats/2025",
    "state": "complete"
   },
-  "2025/men/cedar-hollow/matches": {
+  "2025/men/cedar-grove/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 12,
    "gender": "men",
    "layer": "matches",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
    "state": "complete"
   },
-  "2025/men/cedar-hollow/roster": {
+  "2025/men/cedar-grove/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/men/cedar-hollow/schedule": {
+  "2025/men/cedar-grove/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 12,
    "gender": "men",
    "layer": "schedule",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/men/cedar-hollow/stats": {
+  "2025/men/cedar-grove/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/stats/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/stats/2025",
    "state": "complete"
   },
   "2025/men/dunmore/matches": {
@@ -171,132 +171,132 @@
    "season": 2025,
    "state": "no-collector"
   },
-  "2025/men/eastmarch-state/matches": {
+  "2025/men/eastbrook-state/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "gender": "men",
    "layer": "matches",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "reason": "[2025] no proven schedule to take box-score links from",
    "season": 2025,
    "state": "unavailable"
   },
-  "2025/men/eastmarch-state/roster": {
+  "2025/men/eastbrook-state/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2025,
-   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/2025",
+   "source_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/men/eastmarch-state/schedule": {
+  "2025/men/eastbrook-state/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "gender": "men",
    "layer": "schedule",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "reason": "[2025] cannot prove which season was served",
    "season": 2025,
    "state": "unavailable"
   },
-  "2025/men/eastmarch-state/stats": {
+  "2025/men/eastbrook-state/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2025,
-   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/stats/2025",
+   "source_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/stats/2025",
    "state": "complete"
   },
-  "2025/men/fallow-point/matches": {
+  "2025/men/harbor-point/matches": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "gender": "men",
    "layer": "matches",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "reason": "[2025] box score pages are no longer served",
    "season": 2025,
    "state": "unavailable"
   },
-  "2025/men/fallow-point/roster": {
+  "2025/men/harbor-point/roster": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/men/fallow-point/schedule": {
+  "2025/men/harbor-point/schedule": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 12,
    "gender": "men",
    "layer": "schedule",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/men/fallow-point/stats": {
+  "2025/men/harbor-point/stats": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/stats/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/stats/2025",
    "state": "complete"
   },
-  "2025/men/st-oswin/matches": {
+  "2025/men/st-lambert/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 11,
    "gender": "men",
    "layer": "matches",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
    "state": "complete"
   },
-  "2025/men/st-oswin/roster": {
+  "2025/men/st-lambert/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/men/st-oswin/schedule": {
+  "2025/men/st-lambert/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 11,
    "gender": "men",
    "layer": "schedule",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/men/st-oswin/stats": {
+  "2025/men/st-lambert/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/stats/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/stats/2025",
    "state": "complete"
   },
   "2025/women/alder-ridge/matches": {
@@ -385,47 +385,47 @@
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/stats/2025",
    "state": "complete"
   },
-  "2025/women/cedar-hollow/matches": {
+  "2025/women/cedar-grove/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 11,
    "gender": "women",
    "layer": "matches",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
    "state": "complete"
   },
-  "2025/women/cedar-hollow/roster": {
+  "2025/women/cedar-grove/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/women/cedar-hollow/schedule": {
+  "2025/women/cedar-grove/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 11,
    "gender": "women",
    "layer": "schedule",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/women/cedar-hollow/stats": {
+  "2025/women/cedar-grove/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2025,
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/stats/2025",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/stats/2025",
    "state": "complete"
   },
   "2025/women/dunmore/matches": {
@@ -468,134 +468,134 @@
    "season": 2025,
    "state": "no-collector"
   },
-  "2025/women/eastmarch-state/matches": {
+  "2025/women/eastbrook-state/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "matches",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2025,
    "state": "complete"
   },
-  "2025/women/eastmarch-state/roster": {
+  "2025/women/eastbrook-state/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2025,
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/2025",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/women/eastmarch-state/schedule": {
+  "2025/women/eastbrook-state/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "schedule",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2025,
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2025",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/women/eastmarch-state/stats": {
+  "2025/women/eastbrook-state/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2025,
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/stats/2025",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/stats/2025",
    "state": "complete"
   },
-  "2025/women/fallow-point/matches": {
+  "2025/women/harbor-point/matches": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "matches",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
    "state": "complete"
   },
-  "2025/women/fallow-point/roster": {
+  "2025/women/harbor-point/roster": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/women/fallow-point/schedule": {
+  "2025/women/harbor-point/schedule": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "schedule",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/women/fallow-point/stats": {
+  "2025/women/harbor-point/stats": {
    "collector": "tally-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2025,
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/stats/2025",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/stats/2025",
    "state": "complete"
   },
-  "2025/women/st-oswin/matches": {
+  "2025/women/st-lambert/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "matches",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
    "state": "complete"
   },
-  "2025/women/st-oswin/roster": {
+  "2025/women/st-lambert/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/roster/2025",
    "state": "complete"
   },
-  "2025/women/st-oswin/schedule": {
+  "2025/women/st-lambert/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "schedule",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2025,
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2025",
    "state": "complete"
   },
-  "2025/women/st-oswin/stats": {
+  "2025/women/st-lambert/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2025-12-16T12:30:00+00:00",
    "count": 0,
    "gender": "women",
    "layer": "stats",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "reason": "[2025] the 2025 statistics page proved its season but listed no players",
    "season": 2025,
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/stats/2025",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/stats/2025",
    "state": "empty"
   },
   "2026/men/alder-ridge/matches": {
@@ -684,47 +684,47 @@
    "source_url": "https://athletics.brightwater-state.example/sports/mens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/men/cedar-hollow/matches": {
+  "2026/men/cedar-grove/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "men",
    "layer": "matches",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
    "state": "complete"
   },
-  "2026/men/cedar-hollow/roster": {
+  "2026/men/cedar-grove/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/roster/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/men/cedar-hollow/schedule": {
+  "2026/men/cedar-grove/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 11,
    "gender": "men",
    "layer": "schedule",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/men/cedar-hollow/stats": {
+  "2026/men/cedar-grove/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
-   "source_url": "https://athletics.cedar-hollow.example/sports/mens-soccer/stats/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/mens-soccer/stats/2026",
    "state": "complete"
   },
   "2026/men/dunmore/matches": {
@@ -770,133 +770,133 @@
    "source_url": "https://athletics.dunmore.example/sports/mens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/men/eastmarch-state/matches": {
+  "2026/men/eastbrook-state/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 9,
    "gender": "men",
    "layer": "matches",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
    "state": "complete"
   },
-  "2026/men/eastmarch-state/roster": {
+  "2026/men/eastbrook-state/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
-   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/roster/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/men/eastmarch-state/schedule": {
+  "2026/men/eastbrook-state/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "men",
    "layer": "schedule",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
-   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/men/eastmarch-state/stats": {
+  "2026/men/eastbrook-state/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
-   "source_url": "https://athletics.eastmarch-state.example/sports/mens-soccer/stats/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/men/fallow-point/matches": {
+  "2026/men/harbor-point/matches": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "men",
    "layer": "matches",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
    "state": "complete"
   },
-  "2026/men/fallow-point/roster": {
+  "2026/men/harbor-point/roster": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/roster/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/men/fallow-point/schedule": {
+  "2026/men/harbor-point/schedule": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "men",
    "layer": "schedule",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/men/fallow-point/stats": {
+  "2026/men/harbor-point/stats": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
-   "source_url": "https://athletics.fallow-point.example/sports/mens-soccer/stats/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/mens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/men/st-oswin/matches": {
+  "2026/men/st-lambert/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 9,
    "gender": "men",
    "layer": "matches",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
    "state": "complete"
   },
-  "2026/men/st-oswin/roster": {
+  "2026/men/st-lambert/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "men",
    "layer": "roster",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/roster/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/men/st-oswin/schedule": {
+  "2026/men/st-lambert/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "men",
    "layer": "schedule",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/men/st-oswin/stats": {
+  "2026/men/st-lambert/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "men",
    "layer": "stats",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
-   "source_url": "https://athletics.st-oswin.example/sports/mens-soccer/stats/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/mens-soccer/stats/2026",
    "state": "complete"
   },
   "2026/men/hartwell-tech/matches": {
@@ -1028,47 +1028,47 @@
    "source_url": "https://athletics.brightwater-state.example/sports/womens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/women/cedar-hollow/matches": {
+  "2026/women/cedar-grove/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 12,
    "gender": "women",
    "layer": "matches",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
    "state": "complete"
   },
-  "2026/women/cedar-hollow/roster": {
+  "2026/women/cedar-grove/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/roster/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/women/cedar-hollow/schedule": {
+  "2026/women/cedar-grove/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 13,
    "gender": "women",
    "layer": "schedule",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/women/cedar-hollow/stats": {
+  "2026/women/cedar-grove/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "cedar-hollow",
+   "programme": "cedar-grove",
    "season": 2026,
-   "source_url": "https://athletics.cedar-hollow.example/sports/womens-soccer/stats/2026",
+   "source_url": "https://athletics.cedar-grove.example/sports/womens-soccer/stats/2026",
    "state": "complete"
   },
   "2026/women/dunmore/matches": {
@@ -1114,133 +1114,133 @@
    "source_url": "https://athletics.dunmore.example/sports/womens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/women/eastmarch-state/matches": {
+  "2026/women/eastbrook-state/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "matches",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
    "state": "complete"
   },
-  "2026/women/eastmarch-state/roster": {
+  "2026/women/eastbrook-state/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/roster/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/women/eastmarch-state/schedule": {
+  "2026/women/eastbrook-state/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 11,
    "gender": "women",
    "layer": "schedule",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/women/eastmarch-state/stats": {
+  "2026/women/eastbrook-state/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "eastmarch-state",
+   "programme": "eastbrook-state",
    "season": 2026,
-   "source_url": "https://athletics.eastmarch-state.example/sports/womens-soccer/stats/2026",
+   "source_url": "https://athletics.eastbrook-state.example/sports/womens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/women/fallow-point/matches": {
+  "2026/women/harbor-point/matches": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "matches",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
    "state": "complete"
   },
-  "2026/women/fallow-point/roster": {
+  "2026/women/harbor-point/roster": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/roster/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/women/fallow-point/schedule": {
+  "2026/women/harbor-point/schedule": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "schedule",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/women/fallow-point/stats": {
+  "2026/women/harbor-point/stats": {
    "collector": "tally-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "fallow-point",
+   "programme": "harbor-point",
    "season": 2026,
-   "source_url": "https://athletics.fallow-point.example/sports/womens-soccer/stats/2026",
+   "source_url": "https://athletics.harbor-point.example/sports/womens-soccer/stats/2026",
    "state": "complete"
   },
-  "2026/women/st-oswin/matches": {
+  "2026/women/st-lambert/matches": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 9,
    "gender": "women",
    "layer": "matches",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
    "state": "complete"
   },
-  "2026/women/st-oswin/roster": {
+  "2026/women/st-lambert/roster": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 20,
    "gender": "women",
    "layer": "roster",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/roster/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/roster/2026",
    "state": "complete"
   },
-  "2026/women/st-oswin/schedule": {
+  "2026/women/st-lambert/schedule": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 10,
    "gender": "women",
    "layer": "schedule",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/schedule/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/schedule/2026",
    "state": "complete"
   },
-  "2026/women/st-oswin/stats": {
+  "2026/women/st-lambert/stats": {
    "collector": "pressbox-live",
    "confirmed_at": "2026-11-20T12:30:00+00:00",
    "count": 18,
    "gender": "women",
    "layer": "stats",
-   "programme": "st-oswin",
+   "programme": "st-lambert",
    "season": 2026,
-   "source_url": "https://athletics.st-oswin.example/sports/womens-soccer/stats/2026",
+   "source_url": "https://athletics.st-lambert.example/sports/womens-soccer/stats/2026",
    "state": "complete"
   },
   "2026/women/hartwell-tech/matches": {

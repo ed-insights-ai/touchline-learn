@@ -52,7 +52,7 @@ A breaking change gets a new number, and readers can refuse a version they do
 not understand.
 
 On the platform, the contracts and a matching sample live in their own
-repository, so the website and the desktop app can be built and tested without
+repository, so the code that consumes the data can be built and tested without
 the private dataset. A writer may not emit a shape its contract does not carry:
 a change to a writer lands with its contract change and a changelog line in the
 same commit.
@@ -84,7 +84,7 @@ asked yet. A coverage record from the sample:
   "confirmed_at": "2025-12-16T12:30:00+00:00",
   "gender": "men",
   "layer": "schedule",
-  "programme": "eastmarch-state",
+  "programme": "eastbrook-state",
   "reason": "[2025] cannot prove which season was served",
   "season": 2025,
   "state": "unavailable"
@@ -164,15 +164,28 @@ as one that accepts bad data. One possible answer is
 **Part 3** reads the coverage record and asks whether the gaps matter:
 
 ```
-2025 | men | fallow-point | matches | unavailable | [2025] box score pages are no longer served
+2025 | men | harbor-point | matches | unavailable | [2025] box score pages are no longer served
 ...
-2025 men, goals per game from every final : 2.90 over 62 games
-2025 men, goals per game from box scores  : 2.78 over 50 games
+2025 men, counted games (3 exhibitions excluded)
+  every counted game  : 2.92 goals per game over 59
+  with a box score    : 2.79 over 47
+  without a box score : 3.42 over 12
+All 12 missing box scores come from harbor-point's site (9 home, 3 away).
+Permutation test on the gap: p = 0.33.
+The coverage record names the mechanism. With 12 games, the gap alone does not establish bias.
+
+2026 men, baseline rankings on the box-score subset (79 of 79 counted games)
+  conference table order       : holds
+  goal difference per game order: holds
 ```
 
-The two estimates differ because the missing box scores are not a random
-sample of games. They are the home games of the conference's highest-scoring
-side.
+The missing games are not a random sample: they share one cause, a site whose
+box scores could not be collected. The coverage record names that mechanism,
+and it is a reason for caution. The size of the effect is a separate question.
+The 12 missing games average more goals, but a gap that size appears in about a
+third of random splits of the same games. Twelve games cannot establish that
+the box-score estimate is biased. In 2026, every counted game has a box score,
+so neither ranking depends on this gap.
 
 **Your turn.**
 
@@ -184,7 +197,7 @@ side.
 3. Write the SQL that counts box scores per school for 2025 men and joins it to
    the coverage record. Which school's gap would you not have noticed from the
    counts alone?
-4. St. Oswin's 2025 women's stats cell is `empty`, not `unavailable`. Write one
+4. St. Lambert's 2025 women's stats cell is `empty`, not `unavailable`. Write one
    sentence an analyst could put in a report for each of the two states.
 
 ## Exercise

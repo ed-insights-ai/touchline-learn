@@ -10,19 +10,25 @@ Builds three things from the clean season files, all of them disposable:
      content hash per table, so a receiver can confirm what it holds
 
 Then it times the standings query over JSON and over Parquet.
+
+    python labs/m08_products.py --tamper       # change one score in the built database
+    python labs/m08_products.py --verify-only  # check the built database, rebuild nothing
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import sys
 import time
 from pathlib import Path
 
-import duckdb
+from common import UNITS, WORK, heading, load, require, season_file, workdir
 
-from common import DATA, UNITS, heading, load, season_file, workdir
+require("duckdb")
+
+import duckdb  # noqa: E402
 
 SQL = (Path(__file__).parent / "m08_standings.sql").read_text()
 
@@ -60,7 +66,45 @@ def table_hash(db, table: str) -> tuple[int, str]:
     return len(rows), hashlib.sha256(json.dumps(rows, default=str).encode()).hexdigest()
 
 
+def verify_only() -> int:
+    out, manifest_path = WORK / "m08" / "plc.duckdb", WORK / "m08" / "manifest.json"
+    if not out.exists() or not manifest_path.exists():
+        print("RESULT: could not run, build the database first with python labs/m08_products.py")
+        return 2
+    manifest = load(manifest_path)
+    check = duckdb.connect(str(out), read_only=True)
+    moved = []
+    for table, want in manifest["tables"].items():
+        same = table_hash(check, table) == (want["rows"], want["sha256"])
+        moved += [] if same else [table]
+        print(f"{table:13} {'matches the manifest' if same else 'DOES NOT MATCH'}")
+    check.close()
+    print("\nRESULT:", f"changed since publishing: {', '.join(moved)}" if moved else "every table matches the manifest")
+    return 1 if moved else 0
+
+
+def tamper() -> int:
+    out = WORK / "m08" / "plc.duckdb"
+    if not out.exists():
+        print("RESULT: could not run, build the database first with python labs/m08_products.py")
+        return 2
+    db = duckdb.connect(str(out))
+    db.execute("UPDATE fixtures SET away_score = away_score + 1 WHERE id = 'tally:alder-ridge:8203'")
+    db.close()
+    print("RESULT: changed the away score of tally:alder-ridge:8203 in the built database")
+    return 0
+
+
 def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--verify-only", action="store_true", help="check the built database against its manifest")
+    ap.add_argument("--tamper", action="store_true", help="change one score in the built database")
+    args = ap.parse_args()
+    if args.verify_only:
+        return verify_only()
+    if args.tamper:
+        return tamper()
+
     work = workdir("m08")
     db = duckdb.connect()
     path = str(season_file("fixtures", 2026, "men"))

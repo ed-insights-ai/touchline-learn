@@ -20,6 +20,7 @@ data home in `sample/`.
 ```bash
 python sample/generate.py --check   # the sample is exactly what the generator writes
 python labs/run_all.py              # every lab ends as expected (needs labs/requirements.txt)
+python scripts/check_lab_output.py  # output quoted in the pages is real lab output
 npm run check && npm run build && python3 scripts/check_links.py
 ```
 

@@ -10,12 +10,24 @@ runs, and no account or key is needed.
 
 ## Install
 
+On macOS or Linux:
+
 ```bash
 git clone https://github.com/ed-insights-ai/touchline-learn.git
 cd touchline-learn
 python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r labs/requirements.txt
+source .venv/bin/activate
+python -m pip install -r labs/requirements.txt
+```
+
+On Windows, in PowerShell:
+
+```powershell
+git clone https://github.com/ed-insights-ai/touchline-learn.git
+cd touchline-learn
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r labs/requirements.txt
 ```
 
 That installs [DuckDB](https://duckdb.org/) and
@@ -28,9 +40,9 @@ use only the Python standard library.
 python labs/run_all.py
 ```
 
-You should see fifteen lines that start with `ok`, and
-`15 of 15 runs behaved as expected`. This is the same command the repository's
-own continuous integration runs on every change.
+Every line should start with `ok`, and the last line should say that all runs
+behaved as expected. This is the same command the repository's own continuous
+integration runs on every change.
 
 ## Run one lab
 
@@ -58,9 +70,11 @@ whenever you like. Like everything derived, it can be rebuilt.
 
 ## Explore the data yourself
 
-With the packages installed you have the DuckDB Python module. To get a SQL
-prompt as well, install the [DuckDB command line](https://duckdb.org/docs/installation/)
-and try:
+`labs/explore.sql` holds a first query. Run it, then edit it and run it again:
+
+```bash
+python labs/query.py labs/explore.sql
+```
 
 ```sql
 SELECT f.date, f.home, f.away, f.home_score, f.away_score

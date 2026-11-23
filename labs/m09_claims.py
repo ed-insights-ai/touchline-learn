@@ -9,17 +9,23 @@ the validator cannot compute, is dropped too. A dropped claim is the system
 working.
 
 No language model is called. The draft is a fixed file, so the lab is
-reproducible; swap in a draft from any model to try it for real.
+reproducible. To try a draft from any model:
+
+    python labs/m09_claims.py --draft my_draft.json
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import sys
 from pathlib import Path
 
-import duckdb
+from common import heading, load, require, season_file
 
-from common import heading, load, season_file
+require("duckdb")
+
+import duckdb  # noqa: E402
 
 HERE = Path(__file__).parent
 STANDINGS_SQL = (HERE / "m08_standings.sql").read_text()
@@ -48,7 +54,7 @@ def check(claim: dict, figures: dict) -> tuple[bool, str]:
         return False, "no basis: nothing to recompute"
     metric, team = basis["metric"], basis.get("team")
     if metric == "player_goals":
-        actual = figures["player_goals"].get((team, basis["player"]))
+        actual = figures["player_goals"].get((team, basis.get("player")))
     elif metric in next(iter(figures["teams"].values())):
         actual = figures["teams"].get(team, {}).get(metric)
     else:
@@ -61,11 +67,20 @@ def check(claim: dict, figures: dict) -> tuple[bool, str]:
 
 
 def main() -> int:
-    draft = load(HERE / "data" / "journal_draft.json")
-    figures = digest(draft["season"], draft["gender"])
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--draft", type=Path, help="a draft in the same JSON shape as labs/data/journal_draft.json")
+    args = ap.parse_args()
+    try:
+        draft = load(args.draft or HERE / "data" / "journal_draft.json")
+        figures = digest(draft["season"], draft["gender"])
+        claims = draft["claims"]
+        headline = draft.get("headline", "your draft")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError, duckdb.Error) as why:
+        print(f"RESULT: could not run, the draft cannot be read ({why})")
+        return 2
     kept, dropped = [], []
-    heading(f"Validating: {draft['headline']}")
-    for claim in draft["claims"]:
+    heading(f"Validating: {headline}")
+    for claim in claims:
         ok, why = check(claim, figures)
         (kept if ok else dropped).append(claim)
         print(f"{'keep' if ok else 'DROP'}  {claim['text']}\n      {why}")
@@ -74,6 +89,9 @@ def main() -> int:
     for claim in kept:
         print(" ", claim["text"])
     print(f"\n{len(kept)} kept, {len(dropped)} dropped")
+    if args.draft:
+        print("\nRESULT: every published number was recomputed from the data")
+        return 0
     tied = sorted(k for k, v in figures["player_goals"].items() if v == max(figures["player_goals"].values()))
     print(f"\nA claim that passed and is still misleading: 'leads the league' is shared by {len(tied)} players:")
     print(" ", tied)

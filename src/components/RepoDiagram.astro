@@ -1,10 +1,10 @@
 ---
 // How the repositories hand work to each other. Purple is private, green is
-// open or planned to open. Colours come from src/styles/theme.css.
+// open or planned to open. Colors come from src/styles/theme.css.
 ---
 
 <div class="tl-diagram not-content">
-  <svg viewBox="0 0 1000 560" role="img" aria-label="Repository interactions. The private collector sits at the centre: it reads school websites, writes season files to the private data homes, publishes formats and a sample to the contracts repository, uses fixed versions of the website code and the database builder, and uploads to cloud storage, which serves fans and desk users.">
+  <svg viewBox="0 0 1000 560" role="img" aria-label="Repository interactions. The private collector sits at the center: it reads school websites, writes season files to the private data homes, publishes formats and a sample to the contracts repository, uses a fixed version of the website code, and uploads to cloud storage. Cloud storage serves the public site to fans and hands a verified database to Touchline Desk, a separate app for AI-enhanced analysis.">
     <defs>
       <marker id="tl-ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"></path></marker>
       <marker id="tl-ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah2" d="M0,0 L10,5 L0,10 z"></path></marker>
@@ -12,15 +12,14 @@
 
     <rect class="ext" x="30" y="40" width="220" height="80" rx="8"></rect>
     <text class="t" x="46" y="70">School websites</text>
-    <text class="s" x="46" y="90">about a thousand programmes,</text>
-    <text class="s" x="46" y="106">four platforms</text>
+    <text class="s" x="46" y="90">about a thousand programs</text>
+    <text class="s" x="46" y="106">in production</text>
 
     <rect class="bp" x="30" y="220" width="220" height="120" rx="8"></rect>
     <text class="m" x="46" y="248">d1-soccer · d2-soccer</text>
     <text class="t" x="46" y="270">The data homes</text>
     <text class="s" x="46" y="290">season files, every season,</text>
     <text class="s" x="46" y="306">with full history of changes</text>
-    <text class="s" x="46" y="322">(a third division to come)</text>
 
     <rect class="bp" x="380" y="210" width="240" height="140" rx="8"></rect>
     <text class="m" x="396" y="238">keelson-rib-touchline</text>
@@ -41,11 +40,10 @@
     <text class="t" x="766" y="110">The website's code</text>
     <text class="s" x="766" y="130">turns season files into pages</text>
 
-    <rect class="bu" x="750" y="350" width="220" height="110" rx="8"></rect>
-    <text class="m" x="766" y="378">touchline-desk</text>
-    <text class="t" x="766" y="400">The desktop app</text>
-    <text class="s" x="766" y="420">and the code that builds</text>
-    <text class="s" x="766" y="436">its database</text>
+    <rect class="ext" x="750" y="430" width="220" height="110" rx="8"></rect>
+    <text class="t" x="766" y="460">Touchline Desk</text>
+    <text class="s" x="766" y="482">a separate app for</text>
+    <text class="s" x="766" y="498">AI-enhanced analysis</text>
 
     <rect class="box" x="380" y="440" width="240" height="100" rx="8"></rect>
     <text class="t" x="396" y="466">Cloud storage</text>
@@ -54,9 +52,8 @@
     <text class="s" x="396" y="524">not a repository; only the site is public</text>
 
     <rect class="ext" x="30" y="450" width="220" height="80" rx="8"></rect>
-    <text class="t" x="46" y="480">Fans and desk users</text>
-    <text class="s" x="46" y="500">read the site, or download</text>
-    <text class="s" x="46" y="516">the database by signed link</text>
+    <text class="t" x="46" y="480">Fans</text>
+    <text class="s" x="46" y="500">read the public site</text>
 
     <path class="ar" marker-end="url(#tl-ahb)" d="M250 110 L378 226"></path>
     <text class="lab" x="252" y="178">pages</text>
@@ -65,16 +62,14 @@
     <path class="ar" marker-end="url(#tl-ahb)" d="M250 304 H376"></path>
     <text class="lab" x="286" y="322">reads them</text>
     <path class="ar" marker-end="url(#tl-ahb)" d="M470 210 V130"></path>
-    <text class="lab" x="330" y="174">publishes formats + sample</text>
+    <text class="lab" x="478" y="174">formats + sample</text>
     <path class="ar2" marker-end="url(#tl-ah2)" d="M620 62 L746 92"></path>
     <text class="lab2" x="640" y="54">tests run on sample</text>
-    <path class="ar2" marker-end="url(#tl-ah2)" d="M620 110 C 690 180, 700 300, 748 366"></path>
     <path class="ar2" marker-end="url(#tl-ah2)" d="M750 150 L624 236"></path>
-    <text class="lab2" x="648" y="182">site code,</text>
-    <text class="lab2" x="648" y="197">fixed version</text>
-    <path class="ar2" marker-end="url(#tl-ah2)" d="M750 380 L624 320"></path>
-    <text class="lab2" x="632" y="374">database builder,</text>
-    <text class="lab2" x="632" y="389">fixed version</text>
+    <text class="lab2" x="716" y="214">site code,</text>
+    <text class="lab2" x="716" y="229">fixed version</text>
+    <path class="ar" marker-end="url(#tl-ahb)" d="M620 490 H746"></path>
+    <text class="lab" x="632" y="482">verified database</text>
     <path class="ar" marker-end="url(#tl-ahb)" d="M500 350 V436"></path>
     <text class="lab" x="508" y="398">uploads</text>
     <path class="ar" marker-end="url(#tl-ahb)" d="M380 490 H254"></path>

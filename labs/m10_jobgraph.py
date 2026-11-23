@@ -6,7 +6,7 @@ orders the jobs, checks that no job holds a permission it does not use, and
 then replays the day with one job failing to show what still publishes.
 
     python labs/m10_jobgraph.py
-    python labs/m10_jobgraph.py --fail collect-home     # a soft dependency
+    python labs/m10_jobgraph.py --fail collect-second   # a soft dependency
     python labs/m10_jobgraph.py --fail contract-check   # a gate
 """
 
@@ -22,11 +22,11 @@ from common import heading
 # soft:  the job waits for these but runs either way, and reports them stale.
 # uses:  what the job's steps actually touch.  may: what its credentials allow.
 JOBS = {
-    "collect-cloud":  {"needs": [], "uses": {"archive:write", "shadow:write"},
+    "collect-first":  {"needs": [], "uses": {"archive:write", "shadow:write"},
                        "may": {"archive:write", "shadow:write"}},
-    "collect-home":   {"needs": [], "uses": {"archive:write", "shadow:write"},
+    "collect-second": {"needs": [], "uses": {"archive:write", "shadow:write"},
                        "may": {"archive:write", "shadow:write"}},
-    "contract-check": {"needs": ["collect-cloud"], "soft": ["collect-home"],
+    "contract-check": {"needs": ["collect-first"], "soft": ["collect-second"],
                        "uses": {"data:read"}, "may": {"data:read"}},
     "bundle":         {"needs": ["contract-check"], "uses": {"data:read"}, "may": {"data:read"}},
     "snapshot":       {"needs": ["bundle"], "uses": {"dataset:write", "signing-key:use"},
@@ -75,7 +75,7 @@ def main() -> int:
     print("jobs that can read the dataset:", readers)
     print("can the site deploy job read the dataset?", "data:read" in JOBS["site"]["may"])
 
-    scenarios = [set(args.fail)] if args.fail else [set(), {"collect-home"}, {"contract-check"}, {"site"}]
+    scenarios = [set(args.fail)] if args.fail else [set(), {"collect-second"}, {"contract-check"}, {"site"}]
     results = []
     for failing in scenarios:
         heading(f"Today, with {sorted(failing) or 'nothing'} failing")
@@ -87,12 +87,13 @@ def main() -> int:
         print("released today" if released else "nothing new published; yesterday's release stays in place")
 
     if args.fail:
+        print(f"\nRESULT: replayed the day with {sorted(args.fail)} failing")
         return 0
     ok = (not extra and results[0]["release"] == "ok" and results[1]["release"] == "ok"
           and results[1]["contract-check"].startswith("ok (stale")
           and results[2]["release"] == "skipped" and results[3]["release"] == "skipped"
           and results[3]["snapshot"] == "ok")
-    print("\nRESULT:", "gates stop the release; a stale runner does not" if ok else "unexpected result")
+    print("\nRESULT:", "gates stop the release; a stale source does not" if ok else "unexpected result")
     return 0 if ok else 1
 
 

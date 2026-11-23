@@ -36,6 +36,8 @@ jobs:
         run: python sample/generate.py --check
       - name: Every lab ends as expected
         run: python labs/run_all.py
+      - name: Quoted output is real lab output
+        run: python scripts/check_lab_output.py
 
   build:
     name: Build site
