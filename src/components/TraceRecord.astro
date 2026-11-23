@@ -1,0 +1,16 @@
+---
+import { cleanRecord } from "../lib/trace";
+
+interface Props {
+  id: string;
+  view: "fouls" | "cards" | "identity";
+}
+
+const { id, view } = Astro.props;
+const record = JSON.stringify(cleanRecord(id, view), null, 2);
+---
+
+<div class="tl-record not-content">
+  <h4>What the clean record stores</h4>
+  <pre tabindex="0"><code>{record}</code></pre>
+</div>

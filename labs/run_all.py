@@ -25,6 +25,7 @@ RUNS = [
     (["labs/m05_identity.py"], 0, "14 spellings still need"),
     (["labs/m05_identity.py", "--solution"], 0, "RESULT: every name resolved exactly"),
     (["labs/m05_identity.py", "--name", "#9 Dunmore"], 0, "-> 'Dunmore'"),
+    (["scripts/build_identity_pilot.py", "--check"], 0, "identity pilot data matches"),
     (["labs/m06_contracts.py"], 0, "RESULT: contracts hold"),
     (["labs/m06_contracts.py", "--rosters", "labs/contracts/rosters-1.starter.schema.json"], 1, "6 problems"),
     (["labs/m07_parity.py"], 1, "91 match, 3 timing, 1 disagreement"),

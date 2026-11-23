@@ -1,0 +1,746 @@
+---
+import data from "../data/identity-pilot.json";
+
+type Option = { label: string; why: string; correct?: boolean };
+
+const eastbrook = (rows: typeof data.clean) => rows.find((r) => r.slug === "eastbrook-state")!;
+const before = eastbrook(data.merged);
+const after = eastbrook(data.clean);
+const cedar = data.clean.find((r) => r.slug === "cedar-grove")!;
+const gamesSeen = data.clean.map((r) => r.games);
+const low = Math.min(...gamesSeen);
+const high = Math.max(...gamesSeen);
+const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+const rankOf = (rows: typeof data.clean, slug: string) => ordinal(rows.findIndex((r) => r.slug === slug) + 1);
+const signed = (n: number) => (n > 0 ? `+${n.toFixed(2)}` : n.toFixed(2).replace("-", "−"));
+const policy = (cutoff: number) => data.cutoffs.find((c) => c.cutoff === cutoff)!;
+const at70 = policy(0.7);
+const at90 = policy(0.9);
+const total = at70.right + at70.wrong + at70.review;
+const startIndex = data.cutoffs.findIndex((c) => c.cutoff === 0.7);
+const share = (n: number) => `width:${(n / total) * 100}%`;
+const eastCount = before.games - data.movedGames.length;
+
+const PILL_W = 58;
+const PILL_H = 26;
+const pillX = (col: number) => 12 + col * (PILL_W + 6);
+const westRowY = 240;
+const selfIndex = data.movedGames.findIndex((g) => g.playsItself);
+const westOrder = [
+  data.movedGames[selfIndex],
+  ...data.movedGames.filter((_, i) => i !== selfIndex),
+];
+const pills = Array.from({ length: before.games }, (_, i) => {
+  const col = i % 5;
+  const row = Math.floor(i / 5);
+  const west = i >= eastCount;
+  const westIndex = i - eastCount;
+  const x = pillX(col);
+  const y = 34 + row * 32;
+  return {
+    x,
+    y,
+    west,
+    self: i === eastCount - 1 || i === eastCount,
+    dx: west ? pillX(westIndex) - x : 0,
+    dy: west ? westRowY - y : 0,
+  };
+});
+const selfEast = pills[eastCount - 1];
+const selfWest = pills[eastCount];
+
+const hypotheses: Option[] = [
+  { label: "The same games were loaded twice", why: "Your test: a double load repeats whole games under the same abbreviation.", correct: true },
+  { label: "Eastbrook really played extra games", why: "Your test: extra games would be new matches, all published as EBSU.", correct: true },
+  { label: "Two schools became one", why: "Your test: one record would carry two different abbreviations.", correct: true },
+];
+const explanation: Option[] = [
+  { label: "A double load", why: "A double load would repeat EBSU rows. These four carry a different abbreviation." },
+  { label: "Two schools became one", why: "Right. WBSU and EBSU are different schools sharing one row.", correct: true },
+  { label: "Real extra games", why: "Extra Eastbrook games would still read EBSU. These four do not." },
+];
+const repair: Option[] = [
+  { label: "Leave them. The names are close enough", why: `Then one match stays Eastbrook against itself, and Eastbrook stays at ${before.perGame.toFixed(2)}.` },
+  { label: "Delete the four appearances", why: "Those results are real, and one is the other side of an Eastbrook win. Deleting them trades one error for another." },
+  { label: "Give them back to Westbrook", why: "Right. Every result stays, and each side returns to the school that played it.", correct: true },
+];
+const ship: Option[] = [
+  { label: "Auto-merge at 0.70", why: `At 0.70, ${at70.wrong} spellings merge into the wrong school with no warning.` },
+  { label: "AI suggests, a person approves each new name", why: "Right. You keep the speed of a suggestion, and every identity decision stays visible and reversible.", correct: true },
+  { label: "Auto-merge at 0.90", why: `At 0.90 it accepts only the ${at90.exact} conference names spelled exactly, so it adds nothing to a lookup. Westbrook State scores ${data.similarity} against Eastbrook State, so one small cutoff change would merge them.` },
+];
+const firstRuling: Option[] = [
+  { label: "St. Lambert", why: "The words overlap, but nothing yet connects this name to that school." },
+  { label: "Hold until there is evidence", why: "Right for now. A held name is visible, and nothing downstream is corrupted.", correct: true },
+  { label: "Lambert State", why: "It may be right, but so far that is a guess. Guesses are what caused the bad table." },
+];
+const secondRuling: Option[] = [
+  { label: "Lambert State", why: "Right. The abbreviation and the ground agree. Both come from one box score, so record that source with your ruling.", correct: true },
+  { label: "St. Lambert", why: `St. Lambert publishes as ${data.lambert.stLambertAbbr}. This page says ${data.lambert.abbr}.` },
+  { label: "Keep holding", why: "Holding was right when evidence was thin. The evidence is here now, so make the call." },
+];
+const customers = [
+  { name: "Priya Shah", orders: 63, first: "Jan 2021", opened: "Jan 2021", why: "Being the top customer is not evidence of a problem. These dates are consistent." },
+  { name: "Tom Reed", orders: 41, first: "May 2022", opened: "Apr 2022", why: "The account opened a month before the first order. That is normal." },
+  { name: "Jo Park", orders: 52, first: "Mar 2021", opened: "Jun 2024", why: "Right. Nobody can order three years before their account exists.", correct: true },
+  { name: "Ana Ruiz", orders: 38, first: "Feb 2023", opened: "Feb 2023", why: "Same month for both dates is ordinary." },
+];
+const causes: Option[] = [
+  { label: "Two customers were merged", why: "Your test: the record would contain two different customers' activity.", correct: true },
+  { label: "A date was imported wrongly", why: "Your test: one source record would hold every order, with one bad date.", correct: true },
+  { label: "An old account was reopened", why: "Your test: the orders would come from one customer, with a gap between them.", correct: true },
+];
+const settle: Option[] = [
+  { label: "Confirm order totals still reconcile", why: "A false merge keeps every order, so the totals still match. This check passes either way." },
+  { label: "Compare who placed the orders behind this record", why: "Right. Source ids, ship-to addresses and order dates can separate one customer from two.", correct: true },
+  { label: "Ask the assistant if it is confident", why: "Confidence is not evidence. The assistant already reported success." },
+];
+---
+
+<script is:inline>document.documentElement.classList.add("il-js");</script>
+
+<div class="il not-content" data-lesson>
+  <script is:inline type="application/json" id="il-data" set:html={JSON.stringify({ clean: data.clean, cutoffs: data.cutoffs, low, high, schools: data.schools })}></script>
+  <noscript><p class="il-note">This lesson is interactive. Turn on JavaScript to make each decision and see its feedback.</p></noscript>
+
+  <header class="il-hero">
+    <h2>Your AI assistant finished the job. Would you publish this?</h2>
+    <div class="il-ai">
+      <p class="il-ai-who">AI assistant <span>scripted example</span></p>
+      <p>I resolved all {data.spellings} team spellings in the 2025 and 2026 box scores. No errors. <strong>Cedar Grove is the best women's team of 2026</strong> on both conference points and goal difference.</p>
+    </div>
+  </header>
+
+  <figure class="il-board" data-board>
+    <figcaption>
+      <span>Women's standings, 2026</span>
+      <span class="il-status" data-status role="status">Pipeline passed, 0 errors</span>
+      <span class="il-board-prompt" data-board-prompt tabindex="-1">One row cannot be right. Tap the team you would question first.</span>
+      <span class="il-feedback il-board-feedback" data-pick-feedback role="status"></span>
+    </figcaption>
+    <table>
+      <thead>
+        <tr><th scope="col">Rank</th><th scope="col">Team</th><th scope="col">Games</th><th scope="col">Goal diff. per game</th><th scope="col">Conf. points</th></tr>
+      </thead>
+      <tbody>
+        {data.merged.map((row, i) => (
+          <tr data-row={row.slug}>
+            <td data-rank>{i + 1}</td>
+            <th scope="row"><button type="button" data-pick={row.slug} disabled>{row.name}</button></th>
+            <td data-games>{row.games}</td>
+            <td data-gd>{signed(row.perGame)}</td>
+            <td>{row.points}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p class="il-board-key">Games and goal difference count every result except exhibitions. Points count conference games.</p>
+  </figure>
+
+  <section class="il-step is-open" data-step="1" aria-label="Decide whether to publish">
+    <div class="il-group" data-group>
+      <button type="button" data-why="Published. Cedar Grove is now the headline, and nothing warned you. Take it back and check the table.">Publish it</button>
+      <button type="button" data-correct data-why="Good. A clean run proves the code finished. It does not prove the answer is right.">Check it first</button>
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div class="il-after"><button type="button" class="il-next" data-next="2">Inspect the table</button></div>
+  </section>
+
+  <section class="il-step" data-step="2" aria-label="Find the row that cannot be right">
+    <div class="il-after"><button type="button" class="il-next" data-next="3">Work out why</button></div>
+  </section>
+
+  <section class="il-step" data-step="3">
+    <h3 tabindex="-1">What could produce {before.games} games?</h3>
+    <p>Before you look at any evidence, pick your best explanation.</p>
+    <div class="il-group" data-group data-action="predict">
+      {hypotheses.map((o) => <button type="button" data-why={o.why} data-correct>{o.label}</button>)}
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div class="il-after"><button type="button" class="il-next" data-next="4">Test it against the evidence</button></div>
+  </section>
+
+  <section class="il-step" data-step="4">
+    <h3 tabindex="-1" data-ledger-heading>{before.games} appearances for one school</h3>
+    <p class="il-prediction" data-prediction></p>
+    <p>This is every appearance credited to Eastbrook. Read the abbreviation each page published.</p>
+    <figure class="il-ledger" data-ledger>
+      <svg viewBox="0 0 344 286" role="img" data-ledger-svg aria-label={`${before.games} appearances credited to Eastbrook State: ${eastCount} published as EBSU and ${data.movedGames.length} published as WBSU.`}>
+        <rect class="il-bin" x="5" y="5" width="334" height="196" rx="4"></rect>
+        <text class="il-bin-label" x="14" y="24">Eastbrook State</text>
+        <g class="il-diag">
+          <rect class="il-bin il-bin-west" x="5" y="210" width="334" height="70" rx="4"></rect>
+          <text class="il-bin-label il-bin-west-label" x="14" y="229">Westbrook State</text>
+          <line class="il-self-link" x1={selfEast.x + PILL_W} y1={selfEast.y + PILL_H / 2} x2={selfWest.x} y2={selfWest.y + PILL_H / 2}></line>
+        </g>
+        {pills.map((p) => (
+          <g class:list={["il-pill", { west: p.west, self: p.self }]} style={`--dx:${p.dx}px;--dy:${p.dy}px`}>
+            <rect x={p.x} y={p.y} width={PILL_W} height={PILL_H} rx="13"></rect>
+            <text x={p.x + PILL_W / 2} y={p.y + 17.5} text-anchor="middle">{p.west ? "WBSU" : "EBSU"}</text>
+          </g>
+        ))}
+      </svg>
+      <p class="il-count" role="status">Schools in the data: <strong data-schools>{data.schools.merged}</strong> <span data-schools-note>of {data.schools.clean} real schools</span></p>
+    </figure>
+    <div data-questions>
+      <div class="il-group" data-group data-action="diagnose" data-unlocks="repair">
+        <p class="il-question">Which explanation does the sheet support?</p>
+        {explanation.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+        <p class="il-feedback" role="status"></p>
+      </div>
+      <div data-unlock="repair">
+        <p class="il-matches">{data.distinctMatches} real matches produced these {before.games} appearances, because one match was credited to Eastbrook on both sides.</p>
+        <ul class="il-moved">
+          {westOrder.map((g) => (
+            <li class:list={{ self: g.playsItself }}>
+              <span>{g.published}</span>
+              <span>{g.scored}-{g.conceded} vs {g.opponent}</span>
+              {g.playsItself && <strong>Same match, both sides credited to Eastbrook</strong>}
+            </li>
+          ))}
+        </ul>
+        <div class="il-group" data-group data-action="split">
+          <p class="il-question">What should happen to these {data.movedGames.length} appearances?</p>
+          {repair.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+          <p class="il-feedback" role="status"></p>
+        </div>
+      </div>
+    </div>
+    <div class="il-show" data-show-standings><button type="button" class="il-next">See the new standings</button></div>
+    <div data-board-slot></div>
+    <div class="il-after">
+      <p class="il-turn">Eastbrook climbs from {rankOf(data.merged, "eastbrook-state")} at {before.perGame.toFixed(2)} to {rankOf(data.clean, "eastbrook-state")} at {after.perGame.toFixed(2)}. Cedar Grove still leads on points, {cedar.points} to {after.points}. <strong>The error did not just move a team. It removed the doubt that should have been there.</strong></p>
+      <button type="button" class="il-next" data-next="5">Stop this happening again</button>
+    </div>
+  </section>
+
+  <section class="il-step" data-step="5">
+    <h3 tabindex="-1">Make identity errors loud</h3>
+    <p>Every name takes the same path. Rankings come off, then the name must match a reviewed spelling exactly.</p>
+    <div class="il-reviewed">
+      <p>Part of the reviewed list</p>
+      <ul>
+        {data.routes.reviewed.map((entry) => <li><span>{entry.spellings.join(", ")}</span><code>{entry.slug}</code></li>)}
+      </ul>
+    </div>
+    <figure class="il-pipe">
+      <svg viewBox="0 0 344 118" role="img" aria-label="A name passes through remove ranking, then exact lookup. It ends at a school id or in the review queue.">
+        <path class="il-pipe-line" d="M8 59 H206 M206 59 C228 59 226 26 250 26 H262 M206 59 C228 59 226 92 250 92 H262"></path>
+        <rect class="il-station" x="24" y="38" width="78" height="42" rx="3"></rect>
+        <text x="63" y="56" text-anchor="middle">Remove</text><text x="63" y="71" text-anchor="middle">ranking</text>
+        <rect class="il-station" x="122" y="38" width="78" height="42" rx="3"></rect>
+        <text x="161" y="56" text-anchor="middle">Exact</text><text x="161" y="71" text-anchor="middle">lookup</text>
+        <rect class="il-end" x="262" y="8" width="76" height="36" rx="3"></rect>
+        <text x="300" y="31" text-anchor="middle">School id</text>
+        <rect class="il-end il-end-review" x="262" y="74" width="76" height="36" rx="3"></rect>
+        <text x="300" y="97" text-anchor="middle">Review</text>
+        <circle class="il-token" data-token cx="0" cy="0" r="7" transform="translate(8 59)"></circle>
+      </svg>
+      {data.routes.names.map((route, i) => {
+        const reaches = route.slug !== null;
+        const last = i === data.routes.names.length - 1;
+        const result = reaches
+          ? `Right. The ranking comes off, and every later join uses the stable id ${route.slug}.`
+          : route.cleaned === "Eastbrook St."
+            ? "Right. Even the correct school waits until a person approves this spelling. That is the price of never guessing."
+            : `Right. “${route.cleaned}” is not on the list. Looking close is not a match.`;
+        const wrong = reaches
+          ? `“${route.cleaned}” is on the list once the ranking comes off, so it does not need a person.`
+          : `“${route.cleaned}” is not spelled exactly like anything on the list, so lookup cannot resolve it.`;
+        return (
+          <div class="il-route il-group" data-group data-route={reaches ? "school" : "review"} data-unlock={i > 0 ? `route-${i}` : undefined}>
+            <p class="il-name">{route.published}</p>
+            <div class="il-route-buttons">
+              <button type="button" data-end="school" data-why={reaches ? result : wrong} data-correct={reaches ? "" : undefined}>Reaches a school</button>
+              <button type="button" data-end="review" data-why={reaches ? wrong : result} data-correct={reaches ? undefined : ""}>Stops for review</button>
+            </div>
+            <ol class="il-trace" aria-label={`${route.published} becomes ${route.cleaned}, then ${reaches ? route.slug : "the review queue"}`}>
+              <li style="--d:0ms">{route.published}</li>
+              <li style="--d:300ms">{route.cleaned}</li>
+              <li style="--d:700ms"><strong>{reaches ? route.slug : "review queue"}</strong></li>
+            </ol>
+            <p class="il-feedback" role="status"></p>
+            {!last && <button type="button" class="il-next il-route-next" data-route-next={`route-${i + 1}`}>Next name</button>}
+          </div>
+        );
+      })}
+    </figure>
+    <div class="il-after">
+      <p>The whole design fits in four lines:</p>
+      <pre><code>{`name = remove_ranking(published)
+school = reviewed_names.get(name)
+if school is missing:
+    send_to_person(name)`}</code></pre>
+      <p>A wrong guess hides. A missing name shows up in a queue.</p>
+      <button type="button" class="il-next" data-next="6">Set the policy</button>
+    </div>
+  </section>
+
+  <section class="il-step" data-step="6">
+    <h3 tabindex="-1">How much should AI decide alone?</h3>
+    <p>A similarity score can auto-merge names above a cutoff. With rankings removed, the sample has {total} distinct spellings. This matcher can only choose among the {data.matcher.members} conference members, and Westbrook is not one. Drag the cutoff and watch what it costs.</p>
+    <div class="il-policy">
+      <label for="il-cutoff">Cutoff <output data-cutoff>0.70</output></label>
+      <input id="il-cutoff" type="range" min="0" max={data.cutoffs.length - 1} step="1" value={startIndex} data-slider />
+      <div class="il-bar" aria-hidden="true"><i class="right" data-bar="right" style={share(at70.right)}></i><i class="wrong" data-bar="wrong" style={share(at70.wrong)}></i><i class="review" data-bar="review" style={share(at70.review)}></i></div>
+      <dl aria-live="polite">
+        <div><dt>Merged correctly</dt><dd data-count="right">{at70.right}</dd></div>
+        <div class="wrong"><dt>Merged wrongly, silently</dt><dd data-count="wrong">{at70.wrong}</dd></div>
+        <div><dt>No match, left for a person</dt><dd data-count="review">{at70.review}</dd></div>
+      </dl>
+    </div>
+    <div class="il-group" data-group data-unlock="policy-question">
+      <p class="il-question">Which policy would you ship?</p>
+      {ship.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div class="il-after"><button type="button" class="il-next" data-next="7">Make a real ruling</button></div>
+  </section>
+
+  <section class="il-step" data-step="7">
+    <h3 tabindex="-1">Rule on “{data.lambert.published}”</h3>
+    <p>A new box score uses this name. The conference has a St. Lambert, and there is also a Lambert State. This is all you know.</p>
+    <div class="il-group" data-group data-unlocks="lambert-evidence">
+      {firstRuling.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div data-unlock="lambert-evidence">
+      <dl class="il-evidence">
+        <div><dt>Abbreviation on the page</dt><dd>{data.lambert.abbr}</dd></div>
+        <div><dt>Lambert State publishes as</dt><dd>{data.lambert.lambertStateAbbr}</dd></div>
+        <div><dt>St. Lambert publishes as</dt><dd>{data.lambert.stLambertAbbr}</dd></div>
+        <div><dt>Home ground</dt><dd>{data.lambert.stadium}</dd></div>
+      </dl>
+      <div class="il-group" data-group>
+        <p class="il-question">New evidence arrived. Rule again.</p>
+        {secondRuling.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+        <p class="il-feedback" role="status"></p>
+      </div>
+    </div>
+    <div class="il-after"><button type="button" class="il-next" data-next="8">Try it on different data</button></div>
+  </section>
+
+  <section class="il-step" data-step="8">
+    <h3 tabindex="-1">Same job, different data</h3>
+    <div class="il-ai">
+      <p class="il-ai-who">AI assistant <span>scripted example</span></p>
+      <p>I merged 4,812 customer records into 4,106. No errors. Priya Shah is our top customer.</p>
+    </div>
+    <div class="il-group il-customers" data-group data-unlocks="customer-cause">
+      <p class="il-question">Which record would you question first?</p>
+      {customers.map((c) => (
+        <button type="button" data-why={c.why} data-correct={c.correct ? "" : undefined}>
+          <strong>{c.name}</strong><span>{c.orders} orders</span><span>First order {c.first}, account opened {c.opened}</span>
+        </button>
+      ))}
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div class="il-group" data-group data-unlock="customer-cause" data-unlocks="customer-evidence">
+      <p class="il-question">What could produce this?</p>
+      {causes.map((o) => <button type="button" data-why={o.why} data-correct>{o.label}</button>)}
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div class="il-group" data-group data-unlock="customer-evidence" data-unlocks="customer-sources">
+      <p class="il-question">Which check would settle it?</p>
+      {settle.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+      <p class="il-feedback" role="status"></p>
+    </div>
+    <div data-unlock="customer-sources">
+      <table class="il-sources">
+        <caption>Source records behind Jo Park</caption>
+        <thead><tr><th scope="col">Source id</th><th scope="col">Name</th><th scope="col">Ships to</th><th scope="col">Orders</th></tr></thead>
+        <tbody>
+          <tr><td>C-1184</td><td>Jo Park</td><td>Duluth, Minn.</td><td>31</td></tr>
+          <tr><td>C-3907</td><td>Joanna Park</td><td>Tucson, Ariz.</td><td>21</td></tr>
+        </tbody>
+      </table>
+      <p>Two source records prove a merge happened. Nine same-day orders shipping to different states make one customer very unlikely. The total still adds up to 52, which is why nothing failed. Split them, and record why.</p>
+    </div>
+    <div class="il-after il-close">
+      <h3 tabindex="-1">Before you trust any AI-built join, ask for three things</h3>
+      <ol>
+        <li><strong>Entity counts before and after.</strong> Then have every change explained. {data.schools.clean} schools became {data.schools.merged} here, and nobody asked why.</li>
+        <li><strong>Anything that cannot be true.</strong> A team playing itself. An order placed before the account existed.</li>
+        <li><strong>Every merge it made.</strong> If you cannot review them, you cannot defend the number.</li>
+      </ol>
+      <p>Want the full detail? <a href="../05-identity-lab/">Read the deep dive or run the optional lab</a>.</p>
+      <button type="button" class="il-restart" data-restart>Start over</button>
+    </div>
+  </section>
+</div>
+
+<style is:global>
+  .il {
+    --il-pitch: #0f4a33;
+    --il-pitch-2: #125239;
+    --il-chalk: #f4faf5;
+    --il-chalk-dim: #c5dccd;
+    --il-yellow: #f4c62f;
+    --il-red: #f06553;
+    --il-focus: #f4c62f;
+    color: var(--tl-ink);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  :root[data-theme="light"] .il { --il-red: #c5301c; --il-focus: #0f4a33; }
+  .il p { margin: 0 0 0.75rem; max-width: 42rem; }
+  .il h2 { margin: 0 0 1rem; color: var(--sl-color-white); font-size: clamp(1.65rem, 5vw, 2.35rem); line-height: 1.12; font-weight: 750; letter-spacing: -0.02em; text-wrap: balance; }
+  .il h3 { margin: 0 0 0.5rem; color: var(--sl-color-white); font-size: 1.35rem; line-height: 1.2; font-weight: 700; scroll-margin-top: 5rem; outline: none; }
+  .il-note { padding: 0.75rem 1rem; border-left: 3px solid var(--il-yellow); }
+  .il-ai { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
+  .il-ai p:last-child { margin-bottom: 0; }
+  .il-ai-who { margin-bottom: 0.2rem !important; font-size: 0.85rem; font-weight: 700; }
+  .il-ai-who span { margin-left: 0.4rem; color: var(--tl-muted); font-weight: 400; }
+
+  .il-board { margin: 0 0 1.25rem; padding: 0.35rem 0 0.5rem; overflow: hidden; border-radius: 4px; color: var(--il-chalk); background: repeating-linear-gradient(90deg, var(--il-pitch) 0 72px, var(--il-pitch-2) 72px 144px); box-shadow: inset 0 0 0 2px rgba(244, 250, 245, 0.8); scroll-margin-top: 5rem; }
+  .il-board figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1rem; padding: 0.55rem 0.85rem; font-weight: 700; }
+  .il-status { color: #9ff0bf; font-size: 0.85rem; }
+  .il-status.fixed { color: var(--il-yellow); }
+  .il-board-prompt { flex-basis: 100%; margin-top: 0.3rem; padding: 0.4rem 0.6rem; background: var(--il-yellow); color: #1b1a0c; font-weight: 650; outline: none; }
+  .il-js .il-board-prompt:not(.is-open) { display: none; }
+  .il-board table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; table-layout: auto; }
+  .il-board th, .il-board td { padding: 0 0.35rem; border: 0; border-top: 1px solid rgba(244, 250, 245, 0.22); background: none; color: inherit; text-align: right; vertical-align: middle; }
+  .il-board thead th { padding: 0.35rem; color: var(--il-chalk-dim); font-size: 0.72rem; font-weight: 600; line-height: 1.15; }
+  .il-board th:nth-child(2), .il-board td:first-child { text-align: left; }
+  .il-board td:first-child, .il-board thead th:first-child { width: 2.6rem; padding-left: 0.85rem; }
+  .il-board td:last-child, .il-board thead th:last-child { padding-right: 0.85rem; }
+  .il-board tbody th { font-weight: 600; }
+  .il-board tbody button { width: 100%; min-height: 44px; padding: 0.15rem 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; }
+  .il-board.is-picking tbody button { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(244, 250, 245, 0.5); text-underline-offset: 3px; }
+  .il-board tr.is-rejected { background: rgba(0, 0, 0, 0.18); }
+  .il-board tr.is-flagged { background: var(--il-yellow); color: #1b1a0c; }
+  .il-board tr.is-flagged td, .il-board tr.is-flagged th { border-top-color: transparent; }
+  .il-board tr.is-fixed { background: rgba(244, 250, 245, 0.16); }
+  .il-board-feedback[hidden] { display: none; }
+  .il-board-feedback { flex-basis: 100%; font-weight: 500; border-left-color: var(--il-yellow) !important; }
+  .il-board-feedback.good { border-left-color: #9ff0bf !important; }
+  .il-board-key { margin: 0.45rem 0 0 !important; padding: 0 0.85rem; color: var(--il-chalk-dim); font-size: 0.75rem; line-height: 1.35; }
+  .il [data-board-slot] .il-board { margin-top: 1rem; }
+
+  .il-step { margin: 0 0 1.5rem; }
+  .il-js .il-step:not(.is-open), .il-js .il-step.is-done, .il-js .il-after:not(.is-open), .il-js [data-unlock]:not(.is-open) { display: none; }
+  [data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"], [data-step="8"] { padding-top: 1.5rem; border-top: 1px solid var(--tl-line); }
+  .il-group { display: grid; gap: 0.5rem; margin: 0.75rem 0; }
+  .il-question { margin: 0.25rem 0 0.1rem !important; font-weight: 700; }
+  .il button { font: inherit; }
+  .il-group > button, .il-route-buttons button { min-height: 44px; padding: 0.55rem 0.85rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); text-align: left; cursor: pointer; }
+  .il-group > button:hover:not(:disabled), .il-route-buttons button:hover:not(:disabled) { border-color: var(--sl-color-accent); }
+  .il-group button.is-wrong { border-color: var(--il-red); box-shadow: inset 4px 0 0 var(--il-red); }
+  .il-group button.is-right { border-color: var(--sl-color-accent); box-shadow: inset 4px 0 0 var(--sl-color-accent); font-weight: 650; }
+  .il-group button:disabled:not(.is-right) { opacity: 0.6; cursor: default; }
+  .il button:focus-visible, .il input:focus-visible, .il a:focus-visible { outline: 3px solid var(--il-focus); outline-offset: 2px; }
+  .il-board button:focus-visible, .il-close button:focus-visible, .il-close a:focus-visible { outline-color: #f4c62f; }
+  .il-feedback { margin: 0.2rem 0 0 !important; padding-left: 0.75rem; border-left: 3px solid var(--il-red); }
+  .il-feedback:empty { margin: 0 !important; padding: 0; border: 0; }
+  .il-feedback.good { border-left-color: var(--sl-color-accent); }
+  .il-next, .il-restart { min-height: 44px; margin-top: 0.25rem; padding: 0.55rem 1.05rem; border: 0; border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; cursor: pointer; }
+  :root[data-theme="light"] .il-next, :root[data-theme="light"] .il-restart { color: #fff; }
+  .il-restart { background: none; color: var(--tl-ink) !important; border: 1px solid var(--tl-muted); font-weight: 500; }
+
+  .il-ledger { margin: 0.75rem 0; padding: 0.4rem; border-radius: 4px; background: var(--il-pitch); color: var(--il-chalk); }
+  .il-ledger svg { display: block; width: 100%; max-width: 30rem; height: auto; margin: 0 auto; }
+  .il-bin { fill: rgba(244, 250, 245, 0.05); stroke: rgba(244, 250, 245, 0.55); stroke-width: 1; }
+  .il-bin-west { stroke-dasharray: 4 4; }
+  .il-bin-label { fill: var(--il-chalk); font: 700 12.5px var(--sl-font, system-ui); }
+  .il-bin-west-label { fill: var(--il-chalk-dim); }
+  .il-pill { transition: transform 680ms cubic-bezier(0.2, 0.75, 0.2, 1); }
+  .il-ledger.is-repaired .il-pill.west { transform: translate(var(--dx), var(--dy)); }
+  .il-pill rect { fill: rgba(244, 250, 245, 0.14); stroke: var(--il-chalk); stroke-width: 1; }
+  .il-pill text { fill: var(--il-chalk); font: 700 12px var(--sl-font, system-ui); }
+  .il-pill.west rect { fill: var(--il-yellow); stroke: var(--il-yellow); }
+  .il-pill.west text { fill: #1b1a0c; }
+  .is-diagnosed .il-pill.self rect { stroke: #ff8a78; stroke-width: 2.5; }
+  .il-js .il-ledger:not(.is-diagnosed) .il-diag { visibility: hidden; }
+  .il-js .il-ledger:not(.is-diagnosed) .il-count { display: none; }
+  .il-js [data-questions].is-done, .il-js .il-show:not(.is-open) { display: none; }
+  .il-show { margin: 0.75rem 0; }
+  .il-prediction:empty { display: none; }
+  .il-prediction { padding: 0.45rem 0.7rem; border-left: 3px solid var(--il-yellow); background: var(--tl-card); font-weight: 600; }
+  .il-matches { font-weight: 600; }
+  .il-self-link { stroke: #ff8a78; stroke-width: 3; transition: opacity 200ms; }
+  .il-ledger.is-repaired .il-self-link { opacity: 0; }
+  .il-ledger.is-repaired .il-bin-west { stroke-dasharray: none; stroke: var(--il-yellow); }
+  .il-count { margin: 0.35rem 0.4rem 0.2rem !important; font-size: 0.92rem; }
+  .il-count strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  .il-moved { display: grid; gap: 0.3rem; margin: 0.75rem 0; padding: 0; list-style: none; }
+  .il-moved li { display: grid; gap: 0 0.75rem; padding: 0.45rem 0.7rem; border-left: 3px solid var(--il-yellow); background: var(--tl-card); font-size: 0.92rem; }
+  .il-moved li span:first-child { font-weight: 650; }
+  .il-moved li.self { border-left-color: var(--il-red); }
+  .il-moved li strong { color: var(--il-red); }
+  .il-turn { padding: 0.8rem 0; font-size: 1.08rem; }
+
+  .il-pipe { margin: 0.75rem 0; padding: 0.5rem; background: var(--tl-card); border: 1px solid var(--tl-line); }
+  .il-pipe svg { display: block; width: 100%; max-width: 30rem; height: auto; margin: 0 auto; }
+  .il-pipe text { fill: var(--tl-ink); font: 650 12.5px var(--sl-font, system-ui); }
+  .il-pipe-line { fill: none; stroke: var(--tl-muted); stroke-width: 2; }
+  .il-station { fill: var(--tl-bg); stroke: var(--tl-muted); }
+  .il-end { fill: var(--tl-clean); stroke: var(--tl-clean-edge); }
+  .il-end-review { fill: var(--tl-raw); stroke: var(--tl-raw-edge); }
+  .il-token { fill: var(--il-yellow); stroke: #1b1a0c; stroke-width: 1.5; }
+  .il-reviewed { margin: 0.75rem 0; font-size: 0.9rem; }
+  .il-reviewed p { margin-bottom: 0.25rem; font-weight: 700; }
+  .il-reviewed ul { display: grid; gap: 0.15rem; margin: 0; padding: 0; list-style: none; }
+  .il-reviewed li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 0.75rem; padding: 0.2rem 0; border-bottom: 1px solid var(--tl-line); }
+  .il-reviewed code { background: none; padding: 0; font-size: 0.82rem; }
+  .il-route { margin: 0.75rem 0; padding: 0.75rem; background: var(--tl-card); border: 1px solid var(--tl-line); }
+  .il-pipe .il-route { margin: 0.5rem 0 0; }
+  .il-js .il-route.is-past, .il-js .il-route:not([data-solved]) .il-route-next, .il-js .il-route:not([data-solved]) .il-trace { display: none; }
+  .il-trace { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.35rem; margin: 0.15rem 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .il-trace li { opacity: 1; animation: il-trace-in 280ms var(--d) both; }
+  .il-trace li + li::before { content: "\2192"; margin-right: 0.35rem; color: var(--tl-muted); }
+  @keyframes il-trace-in { from { opacity: 0; } to { opacity: 1; } }
+  .il-name { margin: 0 !important; font-size: 1.05rem; font-weight: 700; }
+  .il-route-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
+  .il-route-buttons button { padding: 0.4rem; font-size: 0.9rem; line-height: 1.15; text-align: center; background: var(--tl-bg); }
+  .il pre { margin: 0.5rem 0 0.75rem; padding: 0.8rem 1rem; overflow-x: auto; background: var(--tl-bg); border: 1px solid var(--tl-line); font-size: 0.85rem; line-height: 1.6; }
+  .il pre code { padding: 0; background: none; font-size: inherit; overflow-wrap: normal; }
+
+  .il-policy { margin: 0.75rem 0; padding: 0.85rem; background: var(--tl-card); border: 1px solid var(--tl-line); }
+  .il-policy label { display: flex; justify-content: space-between; font-weight: 700; }
+  .il-policy output { font-variant-numeric: tabular-nums; }
+  .il-policy input { width: 100%; height: 44px; margin: 0; accent-color: var(--sl-color-accent); cursor: pointer; }
+  .il-bar { display: flex; height: 18px; overflow: hidden; background: var(--tl-bg); }
+  .il-bar i { display: block; transition: width 180ms ease; }
+  .il-bar .right { background: var(--sl-color-accent); }
+  .il-bar .wrong { background: var(--il-red); }
+  .il-bar .review { background: var(--tl-muted); }
+  .il-policy dl, .il-evidence { display: grid; gap: 0.25rem; margin: 0.65rem 0 0; }
+  .il-policy dl div, .il-evidence div { display: flex; justify-content: space-between; gap: 1rem; }
+  .il-policy dt, .il-evidence dt { font-weight: 400; color: var(--tl-muted); }
+  .il-policy dd, .il-evidence dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .il-policy .wrong dt, .il-policy .wrong dd { color: var(--il-red); }
+  .il-evidence { padding: 0.75rem; background: var(--tl-card); border-left: 3px solid var(--il-yellow); }
+
+  .il-customers button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 0.75rem; }
+  .il-customers button span:last-child { grid-column: 1 / -1; color: var(--tl-muted); font-size: 0.9rem; }
+  .il-sources { display: table; width: 100%; margin: 0.5rem 0 0.75rem; border-collapse: collapse; font-size: 0.82rem; }
+  .il-sources caption { padding-bottom: 0.3rem; font-weight: 700; text-align: left; }
+  .il-sources th, .il-sources td { padding: 0.35rem 0.3rem; border: 0; border-bottom: 1px solid var(--tl-line); background: none; text-align: left; overflow-wrap: anywhere; }
+  .il-close { margin-top: 1.5rem; padding: 1.1rem; color: var(--il-chalk); background: var(--il-pitch); border-radius: 4px; }
+  .il-close h3 { color: var(--il-chalk); }
+  .il-close ol { margin: 0.5rem 0 1rem; padding-left: 1.25rem; }
+  .il-close li { margin-bottom: 0.45rem; }
+  .il-close a { display: inline-flex; align-items: center; min-height: 44px; color: var(--il-yellow); }
+  .il-close .il-restart { color: var(--il-chalk) !important; border-color: var(--il-chalk-dim); }
+
+  @media (max-width: 30rem) {
+    .il-board table { font-size: 0.8rem; }
+    .il-board td:first-child, .il-board thead th:first-child { width: 2.1rem; padding-left: 0.6rem; }
+    .il-board td:last-child, .il-board thead th:last-child { padding-right: 0.6rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .il-pill, .il-self-link, .il-bar i { transition: none; }
+    .il-trace li { animation: none; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-lesson]");
+
+  if (root) {
+    type Row = { slug: string; games: number; perGame: number };
+    type Cutoff = { cutoff: number; right: number; wrong: number; review: number };
+    const data = JSON.parse(root.querySelector("#il-data")!.textContent!) as {
+      clean: Row[]; cutoffs: Cutoff[]; low: number; high: number; schools: { clean: number; merged: number };
+    };
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const board = root.querySelector<HTMLElement>("[data-board]")!;
+    const body = board.querySelector("tbody")!;
+    const status = root.querySelector<HTMLElement>("[data-status]")!;
+    const ledger = root.querySelector<HTMLElement>("[data-ledger]")!;
+    const token = root.querySelector<SVGCircleElement>("[data-token]")!;
+    const behavior: ScrollBehavior = calm ? "auto" : "smooth";
+    const wait = (ms: number) => new Promise((done) => setTimeout(done, calm ? 0 : ms));
+    const signed = (n: number) => (n > 0 ? `+${n.toFixed(2)}` : n.toFixed(2).replace("-", "−"));
+    const moveFocus = (target: HTMLElement | null | undefined, fromKeyboard: boolean) => {
+      target?.focus({ preventScroll: !fromKeyboard });
+    };
+
+    const openStep = (n: string) => {
+      const step = root.querySelector<HTMLElement>(`[data-step="${n}"]`)!;
+      step.classList.add("is-open");
+      if (n === "2") {
+        root.querySelector('[data-step="1"]')!.classList.add("is-done");
+        const prompt = root.querySelector<HTMLElement>("[data-board-prompt]")!;
+        prompt.classList.add("is-open");
+        board.classList.add("is-picking");
+        board.querySelectorAll<HTMLButtonElement>("[data-pick]").forEach((b) => (b.disabled = false));
+        prompt.focus({ preventScroll: true });
+        board.scrollIntoView({ behavior, block: "start" });
+        return;
+      }
+      if (n === "3") {
+        root.querySelector("[data-board-prompt]")!.classList.remove("is-open");
+        root.querySelector('[data-step="2"]')!.classList.add("is-done");
+      }
+      const heading = step.querySelector<HTMLElement>("h3");
+      heading?.focus({ preventScroll: true });
+      heading?.scrollIntoView({ behavior, block: "start" });
+    };
+
+    const renderBoard = (rows: Row[]) => {
+      const nodes = new Map([...body.querySelectorAll<HTMLElement>("tr")].map((tr) => [tr.dataset.row!, tr]));
+      const tops = new Map([...nodes].map(([slug, tr]) => [slug, tr.getBoundingClientRect().top]));
+      rows.forEach((row, i) => {
+        const tr = nodes.get(row.slug)!;
+        tr.querySelector("[data-rank]")!.textContent = String(i + 1);
+        tr.querySelector("[data-games]")!.textContent = String(row.games);
+        tr.querySelector("[data-gd]")!.textContent = signed(row.perGame);
+        body.append(tr);
+      });
+      if (calm) return;
+      nodes.forEach((tr, slug) => {
+        const shift = tops.get(slug)! - tr.getBoundingClientRect().top;
+        if (shift) tr.animate([{ transform: `translateY(${shift}px)` }, { transform: "none" }], { duration: 750, easing: "cubic-bezier(0.2, 0.75, 0.2, 1)" });
+      });
+    };
+
+    const stepDone = (step: HTMLElement) => {
+      if ([...step.querySelectorAll<HTMLElement>("[data-group]")].every((g) => g.dataset.solved)) {
+        const after = step.querySelector<HTMLElement>(":scope > .il-after");
+        after?.classList.add("is-open");
+        after?.scrollIntoView({ behavior, block: "nearest" });
+      }
+    };
+
+    const nextTarget = (step: HTMLElement) => {
+      const nextGroup = [...step.querySelectorAll<HTMLElement>("[data-group]")].find((g) => !g.dataset.solved);
+      if (nextGroup) return nextGroup.querySelector<HTMLElement>("button:not(:disabled)");
+      const after = step.querySelector<HTMLElement>(":scope > .il-after");
+      return after?.querySelector<HTMLElement>(".il-next") ?? after?.querySelector<HTMLElement>("h3");
+    };
+
+    const repairLedger = async () => {
+      root.querySelector("[data-questions]")!.classList.add("is-done");
+      ledger.scrollIntoView({ behavior, block: "center" });
+      await wait(550);
+      ledger.classList.add("is-repaired");
+      root.querySelector("[data-schools]")!.textContent = String(data.schools.clean);
+      root.querySelector("[data-schools-note]")!.textContent = "real schools. Every result stays, on the side that played it.";
+      root.querySelector("[data-ledger-heading]")!.textContent = "Two schools, each with its own results";
+      root.querySelector("[data-ledger-svg]")!.setAttribute("aria-label", "The WBSU appearances have moved out of Eastbrook State and into Westbrook State.");
+      await wait(900);
+      const show = root.querySelector<HTMLElement>("[data-show-standings]")!;
+      show.classList.add("is-open");
+      show.scrollIntoView({ behavior, block: "nearest" });
+      show.querySelector("button")!.focus({ preventScroll: true });
+    };
+
+    root.querySelector("[data-show-standings] button")!.addEventListener("click", async (event) => {
+      const step = root.querySelector<HTMLElement>('[data-step="4"]')!;
+      const fromKeyboard = (event as MouseEvent).detail === 0;
+      root.querySelector("[data-show-standings]")!.classList.remove("is-open");
+      root.querySelector("[data-board-slot]")!.append(board);
+      board.querySelector("[data-board-prompt]")!.classList.remove("is-open");
+      board.querySelector<HTMLElement>("[data-pick-feedback]")!.hidden = true;
+      board.scrollIntoView({ behavior, block: "start" });
+      await wait(550);
+      renderBoard(data.clean);
+      const row = board.querySelector('[data-row="eastbrook-state"]')!;
+      row.classList.remove("is-flagged");
+      row.classList.add("is-fixed");
+      status.textContent = "Identity repaired, leaders disagree";
+      status.classList.add("fixed");
+      await wait(calm ? 0 : 950);
+      stepDone(step);
+      moveFocus(nextTarget(step), fromKeyboard);
+    });
+
+    const sendToken = (end: string) => {
+      const stops = [[8, 59], [63, 59], [161, 59], [228, 59], end === "school" ? [262, 26] : [262, 92]];
+      const last = stops[stops.length - 1];
+      token.setAttribute("transform", `translate(${last[0]} ${last[1]})`);
+      if (calm) return;
+      token.animate(stops.map(([x, y]) => ({ transform: `translate(${x}px, ${y}px)` })), { duration: 850, easing: "ease-in-out" });
+    };
+
+    root.querySelectorAll<HTMLElement>("[data-group]").forEach((group) => {
+      const feedback = group.querySelector<HTMLElement>(".il-feedback")!;
+      const buttons = [...group.querySelectorAll<HTMLButtonElement>("button[data-why]")];
+      buttons.forEach((button) => button.addEventListener("click", (event) => {
+        feedback.textContent = button.dataset.why!;
+        const right = "correct" in button.dataset;
+        feedback.classList.toggle("good", right);
+        button.classList.add(right ? "is-right" : "is-wrong");
+        if (!right) return;
+        buttons.forEach((b) => (b.disabled = true));
+        group.dataset.solved = "true";
+        if (button.dataset.end) sendToken(button.dataset.end);
+        if (group.dataset.unlocks) root.querySelector(`[data-unlock="${group.dataset.unlocks}"]`)!.classList.add("is-open");
+        const step = group.closest<HTMLElement>("[data-step]")!;
+        const fromKeyboard = event.detail === 0;
+        if (group.dataset.action === "predict") {
+          root.querySelector("[data-prediction]")!.textContent = `Your prediction: ${button.textContent!.trim()}.`;
+        }
+        if (group.dataset.action === "diagnose") ledger.classList.add("is-diagnosed");
+        if (group.dataset.action === "split") {
+          void repairLedger();
+          return;
+        }
+        const routeNext = group.querySelector<HTMLElement>("[data-route-next]");
+        if (routeNext) {
+          moveFocus(routeNext, fromKeyboard);
+          return;
+        }
+        stepDone(step);
+        moveFocus(nextTarget(step), fromKeyboard);
+      }));
+    });
+
+    root.querySelectorAll<HTMLButtonElement>("[data-route-next]").forEach((button) => button.addEventListener("click", () => {
+      button.closest("[data-group]")!.classList.add("is-past");
+      const next = root.querySelector<HTMLElement>(`[data-unlock="${button.dataset.routeNext}"]`)!;
+      next.classList.add("is-open");
+      token.setAttribute("transform", "translate(8 59)");
+      next.querySelector<HTMLElement>("button")!.focus({ preventScroll: true });
+      next.closest("figure")!.scrollIntoView({ behavior, block: "nearest" });
+    }));
+
+    root.querySelectorAll<HTMLButtonElement>("[data-next]").forEach((b) => b.addEventListener("click", () => openStep(b.dataset.next!)));
+
+    const pickFeedback = root.querySelector<HTMLElement>("[data-pick-feedback]")!;
+    const pickStep = root.querySelector<HTMLElement>('[data-step="2"]')!;
+    board.querySelectorAll<HTMLButtonElement>("[data-pick]").forEach((button) => button.addEventListener("click", (event) => {
+      const tr = button.closest("tr")!;
+      const games = Number(tr.querySelector("[data-games]")!.textContent);
+      if (games > data.high) {
+        pickFeedback.textContent = `${games} games. Every other team played ${data.low} to ${data.high}. How did Eastbrook get extra games?`;
+        pickFeedback.classList.add("good");
+        tr.classList.add("is-flagged");
+        board.querySelectorAll<HTMLButtonElement>("[data-pick]").forEach((b) => (b.disabled = true));
+        board.classList.remove("is-picking");
+        const after = pickStep.querySelector<HTMLElement>(".il-after")!;
+        after.classList.add("is-open");
+        after.scrollIntoView({ behavior, block: "nearest" });
+        moveFocus(after.querySelector<HTMLElement>(".il-next"), event.detail === 0);
+      } else {
+        pickFeedback.textContent = `${button.textContent} played ${games} games, inside the normal range of ${data.low} to ${data.high}. Compare the Games column.`;
+        pickFeedback.classList.remove("good");
+        tr.classList.add("is-rejected");
+        pickFeedback.scrollIntoView({ behavior, block: "nearest" });
+      }
+    }));
+
+    const slider = root.querySelector<HTMLInputElement>("[data-slider]")!;
+    const showCutoff = () => {
+      const c = data.cutoffs[Number(slider.value)];
+      const total = c.right + c.wrong + c.review;
+      root.querySelector("[data-cutoff]")!.textContent = c.cutoff.toFixed(2);
+      (["right", "wrong", "review"] as const).forEach((key) => {
+        root.querySelector(`[data-count="${key}"]`)!.textContent = String(c[key]);
+        root.querySelector<HTMLElement>(`[data-bar="${key}"]`)!.style.width = `${(c[key] / total) * 100}%`;
+      });
+      slider.setAttribute("aria-valuetext", `Cutoff ${c.cutoff.toFixed(2)}: ${c.right} correct, ${c.wrong} wrong, ${c.review} for a person`);
+    };
+    slider.addEventListener("input", () => {
+      showCutoff();
+      root.querySelector('[data-unlock="policy-question"]')!.classList.add("is-open");
+    });
+    showCutoff();
+
+    root.querySelector("[data-restart]")!.addEventListener("click", () => {
+      history.scrollRestoration = "manual";
+      location.reload();
+    });
+  }
+</script>

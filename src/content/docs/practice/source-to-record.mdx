@@ -1,0 +1,166 @@
+---
+title: Source to record
+description: Four short cases on real sample pages. Predict what the pipeline should do, then check the page, its archived HTML and the clean record.
+tableOfContents: false
+---
+
+import Predict from "../../../components/Predict.astro";
+import SourcePage from "../../../components/SourcePage.astro";
+import TraceRecord from "../../../components/TraceRecord.astro";
+
+<div class="tl-practice">
+
+A school publishes a page for fans. The pipeline has to decide what that page
+proves. In each case below, read the page and its archived HTML, commit to an
+answer, and only then see what the pipeline does.
+
+Every page here is an invented page from `sample/raw_html/`. The school banner
+and colors are added for display. The HTML on the right is the archived file,
+unchanged.
+
+## Start with one match
+
+Alder Ridge beat Hartwell Tech 1-0 on September 8, 2026. This is where that
+match first appears, as one row in a schedule. The rest of this page keeps
+asking the same question: what does the evidence actually prove?
+
+<SourcePage file="alder-ridge/2026-men-schedule.html" highlight={['data-game="8203"']} showHighlight />
+
+<div class="tl-case-wrap" id="season">
+
+## Case 1: the wrong season, with a success code
+
+The collector asked Cedar Grove for its **2019** schedule. The site answered
+with HTTP 200.
+
+<SourcePage file="cedar-grove/2019-men-schedule.html" highlight={["<title>2026"]} />
+
+<Predict
+  name="case-season"
+  question="what should the pipeline do with this page?"
+  options={[
+    { label: "File it as the 2019 season, because the URL says 2019", why: "The URL only records what was asked for. The page itself says 2026." },
+    { label: "Refuse it and record a gap for 2019", why: "Two witnesses disagree, so the season is not proven.", correct: true },
+    { label: "Keep the rows and correct the year to 2019", why: "That would invent a season from games played in 2026." },
+  ]}
+>
+
+The URL says 2019. The title says 2026. A success code proves that a server
+answered, not that it answered the question you asked.
+
+```
+REFUSED  cedar-grove        2019  asked for 2019, but title says 2026
+```
+
+The dataset ends up with a named hole for 2019 instead of a full season of
+duplicated games. Refusing lowers coverage and keeps every remaining row
+trustworthy.
+
+</Predict>
+
+</div>
+
+<div class="tl-case-wrap">
+
+## Case 2: a page with no season at all
+
+The collector asked Dunmore for **2019**. This time the site redirected to an
+address with no year.
+
+<SourcePage file="dunmore/2019-men-schedule.html" highlight={["<title>Men"]} />
+
+<Predict
+  name="case-silent"
+  question="how should this response be filed?"
+  options={[
+    { label: "Under 2019, because that is what was requested", why: "The redirect dropped the year, and nothing on the page names 2019." },
+    { label: "Under 2026, because the game dates are in 2026", why: "The dates are good evidence about the page, but this request was for 2019. It cannot fill that season." },
+    { label: "Refuse it and record a gap for 2019", why: "No witness proves the page is the season requested.", correct: true },
+  ]}
+>
+
+Nothing on this page is wrong. It simply cannot prove it answers the request.
+
+```
+REFUSED  dunmore            2019  no witness names any season
+```
+
+Missing evidence gets the same result as contradictory evidence. Module 3's
+first exercise asks you to add the game dates as a third witness.
+
+</Predict>
+
+</div>
+
+<div class="tl-case-wrap" id="fouls">
+
+## Case 3: a label that lies to the parser
+
+Look at the Team Statistics table for the Alder Ridge and Hartwell Tech match,
+then find the same row in the HTML.
+
+<SourcePage file="alder-ridge/2026-men-box-tally-alder-ridge-8203.html" highlight={['id="offsides"']} />
+
+<Predict
+  name="case-fouls"
+  question="a parser finds rows by their id attribute. Where does it file the 10 and the 5?"
+  options={[
+    { label: "Under fouls", why: "That is what a reader sees, but this parser never reads the visible label." },
+    { label: "Under offsides", why: "The row's id says offsides, so the fouls are filed there.", correct: true },
+    { label: "Nowhere, because the parser raises an error", why: "Every row it needs is present and numeric, so nothing looks wrong to it." },
+  ]}
+>
+
+The reader sees **Fouls**. The template's internal id says `offsides`. An
+id-based parser produces a plausible record with the wrong meaning and no
+error. Touchline keys on the visible header instead.
+
+<TraceRecord id="tally:alder-ridge:8203" view="fouls" />
+
+Ask where this failure gets stopped. Not at parse time, since nothing raised.
+It is caught by comparing against a known-good record, which is the job of the
+gates in [Module 7](../../modules/07-gates/).
+
+</Predict>
+
+</div>
+
+<div class="tl-case-wrap" id="cards">
+
+## Case 4: a fact that lives only in styling
+
+Dunmore's third card, at 58:42, is the interesting one. Compare how it looks
+with the two cards above it, then compare their HTML.
+
+<SourcePage file="alder-ridge/2026-men-box-tally-alder-ridge-8205.html" highlight={['class="card">Felipe Mitchell']} />
+
+<Predict
+  name="case-cards"
+  question="what should the record store for that third card?"
+  options={[
+    { label: "yellow, because most cards are yellow", why: "It is the likeliest guess, and storing it would turn a guess into a fact." },
+    { label: "red, because it has no yellow class", why: "A missing class is missing evidence. It does not point to the other color." },
+    { label: "unknown", why: "Neither color is present, so the record says so.", correct: true },
+  ]}
+>
+
+Card color appears only as a class on the cell, so the parser reads the class
+for this one fact. When neither `card-y` nor `card-r` is there, the honest value
+is `unknown`. An analyst can filter it out. Nobody can detect a guess later.
+
+<TraceRecord id="tally:alder-ridge:8205" view="cards" />
+
+</Predict>
+
+</div>
+
+## Before you leave
+
+Without scrolling back up, answer these out loud or on paper:
+
+1. Why is HTTP 200 not proof that you received the page you asked for?
+2. What should a pipeline do when evidence is missing, as opposed to wrong?
+3. Why can a parser be wrong without raising an error, and what catches it?
+4. Why is `unknown` sometimes the most accurate value?
+
+</div>

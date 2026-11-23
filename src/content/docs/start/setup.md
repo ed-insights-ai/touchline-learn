@@ -58,7 +58,7 @@ python labs/m03_proof.py
 | `labs/m02_archive.py` | [2](../../modules/02-archive/) | Fixes a parser bug by replaying the archive |
 | `labs/m03_proof.py` | [3](../../modules/03-provenance/) | Refuses pages that cannot prove their season |
 | `labs/m04_parse.py` | [4](../../modules/04-parsing/) | Three parsers, one of which survives a template change |
-| `labs/m05_identity.py` | [5](../../modules/05-identity/) | A grammar, an alias list, and a fuzzy matcher's false merges |
+| `labs/m05_identity.py` | [5](../../modules/05-identity-lab/) | A grammar, an alias list, and a fuzzy matcher's false merges |
 | `labs/m06_contracts.py` | [6](../../modules/06-contracts/) | Validates contracts; you write one; reads the coverage record |
 | `labs/m07_parity.py` | [7](../../modules/07-gates/) | A parity gate with match, timing and disagreement |
 | `labs/m08_products.py` | [8](../../modules/08-products/) | Standings in SQL, an agreement check, a database with a manifest |

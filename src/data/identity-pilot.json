@@ -1,0 +1,312 @@
+{
+ "spellings": 110,
+ "afterCleanup": 30,
+ "clean": [
+  {
+   "slug": "eastbrook-state",
+   "name": "Eastbrook State",
+   "games": 17,
+   "gd": 16,
+   "perGame": 0.94,
+   "points": 23
+  },
+  {
+   "slug": "cedar-grove",
+   "name": "Cedar Grove",
+   "games": 18,
+   "gd": 12,
+   "perGame": 0.67,
+   "points": 29
+  },
+  {
+   "slug": "dunmore",
+   "name": "Dunmore",
+   "games": 17,
+   "gd": 10,
+   "perGame": 0.59,
+   "points": 22
+  },
+  {
+   "slug": "alder-ridge",
+   "name": "Alder Ridge",
+   "games": 18,
+   "gd": 4,
+   "perGame": 0.22,
+   "points": 21
+  },
+  {
+   "slug": "brightwater-state",
+   "name": "Brightwater State",
+   "games": 17,
+   "gd": -1,
+   "perGame": -0.06,
+   "points": 14
+  },
+  {
+   "slug": "harbor-point",
+   "name": "Harbor Point",
+   "games": 16,
+   "gd": -2,
+   "perGame": -0.12,
+   "points": 15
+  },
+  {
+   "slug": "st-lambert",
+   "name": "St. Lambert",
+   "games": 16,
+   "gd": -9,
+   "perGame": -0.56,
+   "points": 17
+  },
+  {
+   "slug": "hartwell-tech",
+   "name": "Hartwell Tech",
+   "games": 17,
+   "gd": -10,
+   "perGame": -0.59,
+   "points": 11
+  }
+ ],
+ "merged": [
+  {
+   "slug": "cedar-grove",
+   "name": "Cedar Grove",
+   "games": 18,
+   "gd": 12,
+   "perGame": 0.67,
+   "points": 29
+  },
+  {
+   "slug": "dunmore",
+   "name": "Dunmore",
+   "games": 17,
+   "gd": 10,
+   "perGame": 0.59,
+   "points": 22
+  },
+  {
+   "slug": "eastbrook-state",
+   "name": "Eastbrook State",
+   "games": 21,
+   "gd": 7,
+   "perGame": 0.33,
+   "points": 23
+  },
+  {
+   "slug": "alder-ridge",
+   "name": "Alder Ridge",
+   "games": 18,
+   "gd": 4,
+   "perGame": 0.22,
+   "points": 21
+  },
+  {
+   "slug": "brightwater-state",
+   "name": "Brightwater State",
+   "games": 17,
+   "gd": -1,
+   "perGame": -0.06,
+   "points": 14
+  },
+  {
+   "slug": "harbor-point",
+   "name": "Harbor Point",
+   "games": 16,
+   "gd": -2,
+   "perGame": -0.12,
+   "points": 15
+  },
+  {
+   "slug": "st-lambert",
+   "name": "St. Lambert",
+   "games": 16,
+   "gd": -9,
+   "perGame": -0.56,
+   "points": 17
+  },
+  {
+   "slug": "hartwell-tech",
+   "name": "Hartwell Tech",
+   "games": 17,
+   "gd": -10,
+   "perGame": -0.59,
+   "points": 11
+  }
+ ],
+ "schools": {
+  "clean": 14,
+  "merged": 13
+ },
+ "distinctMatches": 20,
+ "similarity": 0.87,
+ "matcher": {
+  "members": 8,
+  "westbrookIsMember": false
+ },
+ "routes": {
+  "reviewed": [
+   {
+    "slug": "harbor-point",
+    "spellings": [
+     "HPC",
+     "Harbor Point"
+    ]
+   },
+   {
+    "slug": "dunmore",
+    "spellings": [
+     "DUN",
+     "Dunmore"
+    ]
+   },
+   {
+    "slug": "eastbrook-state",
+    "spellings": [
+     "EBSU",
+     "Eastbrook State"
+    ]
+   },
+   {
+    "slug": "westbrook-state",
+    "spellings": [
+     "WBSU",
+     "Westbrook State"
+    ]
+   }
+  ],
+  "names": [
+   {
+    "published": "No. 14 Harbor Point",
+    "cleaned": "Harbor Point",
+    "slug": "harbor-point"
+   },
+   {
+    "published": "Westbrook St.",
+    "cleaned": "Westbrook St.",
+    "slug": null
+   },
+   {
+    "published": "Eastbrook St.",
+    "cleaned": "Eastbrook St.",
+    "slug": null
+   }
+  ]
+ },
+ "movedGames": [
+  {
+   "date": "2026-08-25",
+   "published": "No. 14 Westbrook State",
+   "abbr": "WBSU",
+   "opponent": "Alder Ridge",
+   "scored": 1,
+   "conceded": 2,
+   "playsItself": false
+  },
+  {
+   "date": "2026-08-25",
+   "published": "Westbrook State",
+   "abbr": "WBSU",
+   "opponent": "St. Lambert",
+   "scored": 0,
+   "conceded": 5,
+   "playsItself": false
+  },
+  {
+   "date": "2026-08-30",
+   "published": "RV Westbrook St.",
+   "abbr": "WBSU",
+   "opponent": "Eastbrook State",
+   "scored": 0,
+   "conceded": 3,
+   "playsItself": true
+  },
+  {
+   "date": "2026-09-04",
+   "published": "Westbrook St.",
+   "abbr": "WBSU",
+   "opponent": "Cedar Grove",
+   "scored": 2,
+   "conceded": 2,
+   "playsItself": false
+  }
+ ],
+ "cutoffs": [
+  {
+   "cutoff": 0.5,
+   "right": 17,
+   "wrong": 4,
+   "review": 9,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.55,
+   "right": 17,
+   "wrong": 4,
+   "review": 9,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.6,
+   "right": 17,
+   "wrong": 4,
+   "review": 9,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.65,
+   "right": 16,
+   "wrong": 2,
+   "review": 12,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.7,
+   "right": 16,
+   "wrong": 2,
+   "review": 12,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.75,
+   "right": 16,
+   "wrong": 1,
+   "review": 13,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.8,
+   "right": 13,
+   "wrong": 1,
+   "review": 16,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.85,
+   "right": 10,
+   "wrong": 1,
+   "review": 19,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.9,
+   "right": 8,
+   "wrong": 0,
+   "review": 22,
+   "exact": 8
+  },
+  {
+   "cutoff": 0.95,
+   "right": 8,
+   "wrong": 0,
+   "review": 22,
+   "exact": 8
+  }
+ ],
+ "lambert": {
+  "published": "Lambert St.",
+  "abbr": "LSC",
+  "stadium": "Lambert State Soccer Field",
+  "lambertStateAbbr": "LSC",
+  "stLambertAbbr": "SLC"
+ }
+}

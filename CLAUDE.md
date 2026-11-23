@@ -33,6 +33,8 @@ npm run check && npm run build && python3 scripts/check_links.py
   and a line of output for each; update it when a lab's output changes.
 - Output quoted in a module page is real lab output. If the sample or a lab
   changes, rerun the lab and update the page.
+- The Module 5 lesson reads `src/data/identity-pilot.json`. Regenerate it with
+  `python scripts/build_identity_pilot.py` when the sample changes.
 - Internal links in the docs are relative (`../02-archive/`), because the site
   is served under `/touchline-learn/`.
 - Labs use the standard library, DuckDB and jsonschema, and never the network.

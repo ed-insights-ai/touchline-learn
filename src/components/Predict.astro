@@ -1,0 +1,43 @@
+---
+interface Option {
+  label: string;
+  why: string;
+  correct?: boolean;
+}
+
+interface Props {
+  name: string;
+  question: string;
+  options: Option[];
+}
+
+const { name, question, options } = Astro.props;
+---
+
+<div class="tl-case-answer">
+  <fieldset class="tl-predict not-content">
+    <legend>Predict first: {question}</legend>
+    {options.map((option) => (
+      <label>
+        <input type="radio" name={name} />
+        <span>{option.label}</span>
+        <small class="tl-why"><strong>{option.correct ? "Yes." : "Not this one."}</strong> {option.why}</small>
+      </label>
+    ))}
+  </fieldset>
+  <div class="tl-reveal" aria-live="polite">
+    <slot />
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLInputElement>(".tl-predict input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const scope = input.closest(".tl-case-wrap") ?? document;
+      scope.querySelectorAll<HTMLElement>(".tl-source pre").forEach((pane) => {
+        const hit = pane.querySelector<HTMLElement>(".hit");
+        if (hit) pane.scrollTop = hit.offsetTop - pane.clientHeight / 2;
+      });
+    });
+  });
+</script>

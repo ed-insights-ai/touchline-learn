@@ -26,6 +26,7 @@ export default defineConfig({
         { label: "Overview", link: "/" },
         { label: "Start here", items: [{ autogenerate: { directory: "start" } }] },
         { label: "Modules", items: [{ autogenerate: { directory: "modules" } }] },
+        { label: "Practice", items: [{ autogenerate: { directory: "practice" } }] },
         { label: "Teaching", items: [{ autogenerate: { directory: "teaching" } }] },
         { label: "Reference", items: [{ autogenerate: { directory: "reference" } }] },
       ],

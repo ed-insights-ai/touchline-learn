@@ -84,6 +84,8 @@ teams, and it refuses:
 refused: the score table does not show exactly two teams
 ```
 
+**See it on a page.** Try [the misleading row](../../practice/source-to-record/#fouls) and [the card color](../../practice/source-to-record/#cards) cases before you continue.
+
 **Your turn.**
 
 1. Open `sample/raw_html/alder-ridge/` and find a page in each template. Write

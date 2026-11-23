@@ -1,0 +1,67 @@
+---
+import { archivedPage, programme } from "../lib/trace";
+
+interface Props {
+  file: string;
+  highlight?: string[];
+  showHighlight?: boolean;
+}
+
+const { file, highlight = [], showHighlight = false } = Astro.props;
+const page = archivedPage(file);
+const slug = file.split("/")[0];
+const school = programme(slug);
+const colors: Record<string, string> = {
+  "alder-ridge": "#1f5d4c",
+  "cedar-grove": "#8a3b23",
+  dunmore: "#2f4b7c",
+};
+
+for (const needle of highlight) {
+  if (!page.source.includes(needle)) throw new Error(`${file} does not contain: ${needle}`);
+}
+const lines = page.source.replace(/\n$/, "").split("\n");
+const isHit = (line: string) => highlight.some((needle) => line.includes(needle));
+
+// Presentation lives outside the archived bytes, so the source pane stays exact.
+const banner = `${school.name}${school.nickname ? ` ${school.nickname}` : ""} Athletics`;
+const css = `
+html{background:#fff;color:#1b2420}
+body{margin:0;padding:0 14px 18px;font:14px/1.45 system-ui,sans-serif}
+body::before{content:"${banner}";display:block;margin:0 -14px 12px;padding:11px 14px;background:${colors[slug] ?? "#34423a"};color:#fff;font-weight:700}
+body::after{content:"Fictional school. Teaching example.";display:block;margin-top:14px;color:#68736c;font-size:11px}
+h1{font-size:18px;line-height:1.25;margin:0 0 12px}
+table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:12px}
+caption{text-align:left;font-weight:700;padding:4px 0}
+th,td{border-bottom:1px solid #dfe5e1;padding:4px 5px;text-align:left}
+tr:first-child th{background:#eef2ef}
+a{color:#1f5d4c;pointer-events:none}
+.card-y::before,.card-r::before{content:"";display:inline-block;width:8px;height:11px;margin-right:5px;border-radius:1px}
+.card-y::before{background:#e6b800}.card-r::before{background:#c9302c}
+`;
+const rendered = page.source.replace("</head>", `<style>${css}</style></head>`);
+const redirected = page.requestedUrl && page.requestedUrl !== page.finalUrl;
+---
+
+<figure class="tl-source not-content">
+  <figcaption>
+    <span class="tl-tab">{page.title}</span>
+    <dl>
+      {redirected && <div><dt>Requested</dt><dd>{page.requestedUrl}</dd></div>}
+      {page.finalUrl && <div><dt>{redirected ? "Served from" : "Address"}</dt><dd>{page.finalUrl}</dd></div>}
+      {page.status && <div><dt>Status</dt><dd>HTTP {page.status}</dd></div>}
+    </dl>
+  </figcaption>
+  <div class="tl-panes">
+    <section>
+      <h4>What a reader sees</h4>
+      <iframe srcdoc={rendered} sandbox="" loading="lazy" title={`Rendered archived page: ${page.title}`}></iframe>
+    </section>
+    <section>
+      <h4>What was archived</h4>
+      <pre tabindex="0" aria-label={`Archived HTML for ${page.title}`}><code>{lines.map((line, i) => (
+        <span class:list={["tl-line", { hit: isHit(line), shown: showHighlight && isHit(line) }]}><span class="n">{i + 1}</span>{line}{"\n"}</span>
+      ))}</code></pre>
+    </section>
+  </div>
+</figure>

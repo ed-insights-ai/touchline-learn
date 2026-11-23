@@ -1,7 +1,13 @@
 ---
-title: "5. Identity and entity resolution"
-description: Map every published name to one stable identifier, exactly, so that errors are visible and fixable instead of invisible and permanent.
+title: "Module 5 deep dive and lab"
+description: The full reference for identity and entity resolution, with the optional hands-on Python lab.
+sidebar:
+  hidden: true
+prev: false
+next: false
 ---
+
+This page is optional. [The Module 5 lesson](../05-identity/) teaches the idea on screen. Come here for the detail or to run the lab yourself.
 
 ## The idea
 
@@ -12,15 +18,15 @@ errors look: either visible and fixable, or invisible and permanent.
 ## How Touchline does it
 
 Every school gets one identifier, called a slug, such as
-`southwestern-oklahoma-state`. Getting from a published string to a slug takes
+`brightwater-state`. Getting from a published string to a slug takes
 three steps, and none of them involves similarity scoring.
 
 1. **A grammar strips presentation noise.** Rankings and seeds are not part of
-   a name. "#9 SWOSU", "No. 23 SWOSU", "RV SWOSU" and "(3) SWOSU" all reduce to
-   "SWOSU". The grammar has limits so it cannot eat real names: a rank is at
+   a name. "#9 BSU", "No. 23 BSU", "RV BSU" and "(3) BSU" all reduce to
+   "BSU". The grammar has limits so it cannot eat real names: a rank is at
    most two digits and must be followed by a space.
 2. **An exact lookup in an alias list.** Each slug has a hand-maintained set of
-   spellings. "SWOSU", "Southwestern Okla." and "SW Oklahoma State" all point
+   spellings. "BSU", "Brightwater St." and "Brightwater State" all point
    to one slug. The list is checked when the program starts. If one spelling is
    claimed by two schools, the build fails.
 3. **A ledger of human rulings.** Strings that match nothing are not guessed.
@@ -38,12 +44,12 @@ an unmatched string. It is loud, and it costs one line in the alias list.
 ## Examples
 
 **The rank problem was found in the data.** One school appeared as two
-identities, `no-4-csu-pueblo` and `no-15-csu-pueblo`, because its ranking
+identities, `no-4-harbor-point` and `no-15-harbor-point`, because its ranking
 changed during the season. The rank-stripping grammar was the fix.
 
 **Context changes the rule.** "St." at the end of a name abbreviates State
-("Northeastern St."). Before another word it abbreviates Saint ("St.
-Edward's").
+("Westbrook St."). Before another word it abbreviates Saint ("St.
+Lambert").
 
 **Players.** A box score refers to players by name. Each player record keeps a
 reference that says how it was resolved: from an id on the page, from the
@@ -128,7 +134,7 @@ matcher gave its results to Eastbrook State and reported success.
 
 ## Exercise
 
-Given the strings "UT Tyler", "Texas-Tyler", "#12 UT Tyler", "Texas
-A&M-Commerce" and "East Texas A&M", write the alias entries you would create.
+Given the strings "BSU", "Brightwater St.", "#12 BSU", "Lambert
+St." and "St. Lambert", write the alias entries you would create.
 One pair needs outside knowledge to decide. Identify it, and say who should
 make that ruling.

@@ -55,6 +55,7 @@ def quoted(line: str, output: set[str]) -> bool:
 def main() -> int:
     pages = {p: f"m{p.name[:2]}_" for p in sorted((DOCS / "modules").glob("*.md*"))}
     pages[DOCS / "start" / "sample-data.md"] = "generate.py"
+    pages[DOCS / "practice" / "source-to-record.mdx"] = "labs/m0"
     checked = 0
     missing = []
     for page, key in pages.items():

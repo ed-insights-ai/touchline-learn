@@ -96,6 +96,8 @@ shared ids   : 20 with the proven 2026 page
 REFUSED      : the embedded schedule belongs to another season
 ```
 
+**See it on a page.** Try [the season cases](../../practice/source-to-record/#season) and predict each outcome before you check it.
+
 **Your turn.**
 
 1. Add a third witness: the dates in the schedule table itself. Decide how many
