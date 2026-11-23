@@ -10,7 +10,7 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
 
 {current && (
   <div class="jc-top not-content">
-    <p class="jc-part">Part {current.partNumber} of 4: {current.part.title}. {current.step === "All steps" ? "Across every pipeline step" : `Pipeline step: ${current.step}`}</p>
+    <p class="jc-part">Module {current.n} of {journeyModules.length}. Part {current.partNumber} of 4: {current.part.title}. {current.step === "All steps" ? "Across every pipeline step" : `Pipeline step: ${current.step}`}</p>
     <p class="jc-question">{current.question}</p>
     <div class="jc-progress" role="img" aria-label={`Module ${current.n} of ${journeyModules.length}`}>
       {journeyModules.map((m) => <span class:list={{ now: m.n === current.n, gap: m.n > 1 && m.partNumber !== journeyModules[m.n - 2].partNumber }}></span>)}
@@ -23,6 +23,7 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
 {current && (
   <aside class="jc-next not-content" aria-label="Where this leads">
     <p class="jc-gained">{current.gained}</p>
+    <p class="jc-agent"><span>Now you can ask the agent:</span> “{current.ask}”</p>
     <p>{current.bridge}</p>
     {next ? (
       <>
@@ -35,6 +36,8 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
   </aside>
 )}
 
+{next && <a class="jc-skip not-content" href={`../${next.slug}/`}>Skip to Module {next.n}</a>}
+
 <style is:global>
   .jc-top { margin: 0 0 1.5rem; }
   .jc-part { margin: 0; color: var(--tl-muted); font-size: 0.88rem; font-weight: 600; }
@@ -43,10 +46,14 @@ const next = index >= 0 ? journeyModules[index + 1] : undefined;
   .jc-progress span { flex: 1; height: 5px; background: var(--tl-line); }
   .jc-progress span.now { background: var(--sl-color-accent); }
   .jc-progress span.gap { margin-left: 6px; }
-  .il-js .sl-markdown-content:has(.il-close:not(.is-open)) + .jc-next { display: none; }
+  .il-js .sl-markdown-content:has(.il-close:not(.is-open)) ~ .jc-next { display: none; }
+  .jc-skip { display: none; }
+  .il-js .sl-markdown-content:has(.il-close:not(.is-open)) ~ .jc-skip { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1rem; color: var(--tl-muted); font-size: 0.9rem; }
+  .jc-agent { padding: 0.45rem 0.65rem; background: var(--tl-bg); font-weight: 600; }
+  .jc-agent span { display: block; color: var(--tl-muted); font-size: 0.82rem; font-weight: 500; }
   body:has(.jc-next) .pagination-links a[rel="next"] { display: none; }
   .jc-next { margin-top: 2.5rem; padding: 1rem 1.1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
-  .jc-next p { margin: 0 0 0.3rem; }
+  .jc-next p { margin: 0 0 0.45rem; }
   .jc-gained { color: var(--tl-ink); }
   .jc-ask { color: var(--sl-color-white); font-weight: 700; }
   .jc-next a { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0.25rem; padding: 0.5rem 1rem; border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; text-decoration: none; }

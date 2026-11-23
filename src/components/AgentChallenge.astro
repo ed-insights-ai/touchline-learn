@@ -1,9 +1,9 @@
 ---
 const checks = [
-  ["Evidence", "What could you not collect, and did each page prove it was the one you asked for?"],
-  ["Meaning", "How many teams were there before and after, and which merges did you make?"],
-  ["Release", "Which gates ran, and did anything disagree?"],
-  ["AI and operations", "Can every number in the text be traced, and who can change this pipeline?"],
+  { key: "evidence", label: "I asked what was missed and for the source pages", part: "Part 1", href: "../../modules/01-collection/" },
+  { key: "meaning", label: "I asked about merged names and unknown values", part: "Part 2", href: "../../modules/04-parsing/" },
+  { key: "release", label: "I asked which checks ran on this table", part: "Part 3", href: "../../modules/07-gates/" },
+  { key: "operations", label: "I asked what AI touched and who can reproduce it", part: "Part 4", href: "../../modules/09-ai/" },
 ];
 ---
 
@@ -18,17 +18,23 @@ const checks = [
   <button type="button" class="ac-go" data-compare>Compare with a model reply</button>
   <p class="ac-note" role="status" data-note></p>
   <div class="ac-model" data-model>
-    <h3 tabindex="-1">A strong challenge covers all four parts</h3>
-    <dl>
-      {checks.map(([part, ask]) => <div><dt>{part}</dt><dd>{ask}</dd></div>)}
-    </dl>
-    <p>Compare it with yours. Add anything you missed. A clean run tells you the code finished. These questions tell you whether to believe it.</p>
-    <p class="ac-links"><a href="../../teaching/capstones/">Take it further with a capstone</a> <a href="../../practice/source-to-record/">Practice tracing a source</a></p>
+    <h3 tabindex="-1">A strong reply</h3>
+    <blockquote>Before I publish this, show me what you could not collect and the saved pages for a sample of matches. How did each page prove it was the right one? Which team names did you merge, and which scores are unknown rather than zero? Which checks ran on this table, and did any disagree? Did a model produce any number, and who can reproduce this release?</blockquote>
+    <p class="ac-q">Check yours. You can still edit it above.</p>
+    {checks.map((c) => <label class="ac-check"><input type="checkbox" data-self={c.key} data-part={c.part} data-href={c.href} /> {c.label}</label>)}
+    <p class="ac-feedback" role="status" data-self-note></p>
+    <button type="button" class="ac-go ac-finish" data-finish>Check my reply</button>
+    <div class="ac-done" data-done>
+      <p>You kept the evidence, proved it, recorded what was missing, and let code compute the numbers. Those are the four ideas this course started with. A clean run tells you the code finished. These questions tell you whether to believe it.</p>
+      <p class="ac-links"><a href="../../teaching/capstones/">Take it further with a capstone</a> <a href="../../practice/source-to-record/">Practice tracing a source</a></p>
+    </div>
   </div>
 </div>
 
 <style is:global>
-  .ac { color: var(--tl-ink); font-size: 1rem; line-height: 1.55; }
+  .ac { --ac-focus: #f4c62f; color: var(--tl-ink); font-size: 1rem; line-height: 1.55; }
+  :root[data-theme="light"] .ac { --ac-focus: #0f4a33; }
+  .ac-model { --ac-focus: #f4c62f !important; }
   .ac p { margin: 0 0 0.75rem; max-width: 42rem; }
   .ac h2 { margin: 0 0 1rem; color: var(--sl-color-white); font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.15; font-weight: 750; letter-spacing: -0.015em; text-wrap: balance; }
   .ac h3 { margin: 0 0 0.5rem; color: #f4faf5; font-size: 1.25rem; line-height: 1.25; outline: none; scroll-margin-top: 5rem; }
@@ -42,7 +48,18 @@ const checks = [
   .ac-go { background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .ac-go { color: #fff; }
   .ac-go[hidden] { display: none; }
-  .ac textarea:focus-visible, .ac button:focus-visible, .ac a:focus-visible { outline: 3px solid #f4c62f; outline-offset: 2px; }
+  .ac textarea:focus-visible, .ac button:focus-visible, .ac a:focus-visible { outline: 3px solid var(--ac-focus); outline-offset: 2px; }
+  .ac-model blockquote { margin: 0 0 0.9rem; padding: 0.6rem 0.8rem; border-left: 3px solid #f4c62f; background: rgba(0, 0, 0, 0.18); color: #f4faf5; }
+  .ac-q { font-weight: 700; }
+  .ac label.ac-check { display: flex; align-items: center; gap: 0.6rem; min-height: 44px; margin: 0; font-weight: 600; cursor: pointer; }
+  .ac-check input { width: 1.25rem; height: 1.25rem; flex: none; }
+  .ac-feedback { margin: 0.4rem 0 !important; }
+  .ac-feedback:empty { display: none; }
+  .ac-feedback a { color: #f4c62f; }
+  .ac-finish { margin-top: 0.5rem; background: #f4c62f; color: #1b1a0c !important; }
+  .ac-finish[hidden] { display: none; }
+  .ac-done { margin-top: 0.9rem; }
+  .ac-js .ac-done:not(.is-open) { display: none; }
   .ac-note { margin-top: 0.5rem !important; }
   .ac-note:empty { display: none; }
   .ac-model { margin-top: 1rem; padding: 1.1rem; border-radius: 4px; color: #f4faf5; background: #0f4a33; scroll-margin-top: 5rem; }
@@ -72,7 +89,25 @@ const checks = [
       (event.currentTarget as HTMLButtonElement).hidden = true;
       model.classList.add("is-open");
       model.querySelector("h3")!.focus({ preventScroll: true });
-      model.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      model.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "nearest" });
+    });
+    root.querySelector<HTMLButtonElement>("[data-finish]")!.addEventListener("click", (event) => {
+      const selfNote = root.querySelector<HTMLElement>("[data-self-note]")!;
+      const missing = [...root.querySelectorAll<HTMLInputElement>("[data-self]")].find((box) => !box.checked);
+      if (missing) {
+        selfNote.textContent = "";
+        const link = document.createElement("a");
+        link.href = missing.dataset.href!;
+        link.textContent = `Revisit ${missing.dataset.part}`;
+        selfNote.append(`Add this to your reply, then tick the box. `, link);
+        return;
+      }
+      selfNote.textContent = "";
+      (event.currentTarget as HTMLButtonElement).hidden = true;
+      const done = root.querySelector<HTMLElement>("[data-done]")!;
+      done.classList.add("is-open");
+      done.querySelector("a")!.focus({ preventScroll: true });
+      done.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "nearest" });
     });
   }
 </script>

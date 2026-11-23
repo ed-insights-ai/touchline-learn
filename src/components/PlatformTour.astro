@@ -1,5 +1,5 @@
 ---
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const FIXTURE = "tally:alder-ridge:8203";
@@ -17,6 +17,10 @@ const tableEnd = lines.findIndex((l, i) => i > tableStart && l.includes("</table
 const scoreRows = lines.slice(tableStart + 1, tableEnd).map((l) => l.trim());
 const rawSnippet = [titleLine, ...scoreRows].join("\n");
 const teamRows = scoreRows.length - 1;
+const scheduleLinks = readdirSync(sample("raw_html", "alder-ridge"))
+  .filter((f) => f.startsWith("2026-men-") && f.endsWith(".html") && !f.includes("-box-"))
+  .some((f) => readFileSync(sample("raw_html", "alder-ridge", f), "utf-8").includes("boxscore/8203"));
+if (!scheduleLinks) throw new Error("the tour's schedule no longer links to this match");
 const [home, away] = box.teams as { name: string; abbr: string; score: number; periods: number[] }[];
 const total = (periods: number[]) => periods.reduce((a, b) => a + b, 0);
 if (teamRows !== 2 || !titleLine.includes("9/8/2026")) throw new Error("the tour's proof example no longer holds");
@@ -30,7 +34,7 @@ date: ${fixture.date}`;
 const stops = [
   { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector follows a link that the school's schedule page published. It never builds a URL by guessing.", artifact: box.source_url, risk: "Without it: guessed URLs quietly return the wrong page." },
   { name: "Archive", zone: "raw", title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
-  { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The title must name this match's date, and the score table must show exactly two teams.", artifact: `title names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
+  { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The school's own schedule must list this match and link to this page. Then the page itself must name the match date and show exactly two teams.", artifact: `schedule lists this match and links here: yes\ntitle names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
   { name: "Parse", zone: "clean", title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
   { name: "Resolve", zone: "clean", title: "Give each team one identity", body: "Published names become stable ids, so every later join means the same school.", artifact: `${home.name} → ${fixture.home}\n${away.name} → ${fixture.away}`, risk: "Without it: one school splits into several, or two schools become one." },
   { name: "Check", zone: "clean", title: "Let a gate stop the line", body: "Automatic checks compare the record against its contract, the written rules for its shape, and against itself.", artifact: `${home.name}: ${home.periods.join(" + ")} = ${home.score}\n${away.name}: ${away.periods.join(" + ")} = ${away.score}\nschedule and match page agree: yes`, risk: "Without it: a bad record reaches everything built on it." },
@@ -136,10 +140,10 @@ const ideas = [
 
   <section class="pt-part" data-unlock="cases">
     <h2 tabindex="-1">Where would you catch it?</h2>
-    <p>Each failure below looks fine to the step before it. Choose the step that should catch it or recover from it.</p>
+    <p>Choose the step that should catch each failure, or recover from it.</p>
     {cases.map((c, i) => (
-      <div class="pt-case pt-group" data-choice data-case={i} data-unlock={i > 0 ? `case-${i}` : undefined} data-unlocks={i < cases.length - 1 ? `case-${i + 1}` : "zones"}>
-        <p class="pt-q">{c.failure}</p>
+      <div class="pt-case pt-group" role="group" aria-labelledby={`pt-case-${i}`} data-choice data-case={i} data-unlock={i > 0 ? `case-${i}` : undefined} data-unlocks={i < cases.length - 1 ? `case-${i + 1}` : "zones"}>
+        <p class="pt-q" id={`pt-case-${i}`}>{c.failure}</p>
         <div class="pt-options">
           {c.options.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
         </div>
@@ -151,21 +155,27 @@ const ideas = [
 
   <section class="pt-part" data-unlock="zones">
     <h2 tabindex="-1">What can you afford to lose?</h2>
-    <p>Each zone is computed from the one before it, using versioned code and reference lists. Delete each zone and see what you can get back.</p>
+    <p>Each zone is computed from the one before it, using versioned code and reference lists. Delete a zone and any rebuild happens right away. Try different orders.</p>
     <div class="pt-zones">
       {zones.map((z) => (
         <button type="button" class={`pt-zone-card ${z.key}`} data-zone={z.key} data-lost={z.lost}>
           <strong>{z.name}</strong>
           <span>{z.holds}</span>
           <small>{z.also}</small>
+          <i class="pt-del">Delete</i>
           <em data-zone-result></em>
         </button>
       ))}
     </div>
     <p class="pt-feedback" role="status" data-zone-feedback></p>
     <p class="pt-summary" data-zone-summary hidden>As long as raw survives, everything after it can be rebuilt with versioned code and reference lists. That is what makes a bug recoverable.</p>
-    <button type="button" class="pt-next" data-to-close hidden>See the four ideas</button>
+    <div class="pt-nav">
+      <button type="button" class="pt-back" data-zone-reset hidden>Restore and try another order</button>
+      <button type="button" class="pt-next" data-to-close hidden>See the four ideas</button>
+    </div>
   </section>
+
+  <a class="pt-skip" data-skip href="../../modules/01-collection/">Skip the tour and start Module 1</a>
 
   <section class="pt-part pt-close" data-unlock="close">
     <h2 tabindex="-1">Four ideas you will build across the course</h2>
@@ -230,6 +240,11 @@ const ideas = [
   .pt-next, .pt-link { border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
   .pt-next[hidden], .pt-summary[hidden] { display: none; }
+  .pt-back[hidden] { display: none; }
+  .pt-skip { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1.25rem; color: var(--tl-muted); font-size: 0.9rem; }
+  .pt-skip[hidden] { display: none; }
+  .pt-del { color: var(--tl-muted); font-size: 0.8rem; font-style: normal; text-decoration: underline; }
+  .pt-zone-card:disabled .pt-del { display: none; }
   .pt-summary { margin-top: 0.75rem !important; font-weight: 650; }
   .pt-back { border: 1px solid var(--tl-muted); background: none; color: var(--tl-ink); }
   .pt-back:disabled { opacity: 0.45; cursor: default; }
@@ -303,7 +318,7 @@ const ideas = [
         if (key === "zones") {
           const proceed = root.querySelector<HTMLButtonElement>("[data-to-zones]")!;
           proceed.hidden = false;
-          feedback.scrollIntoView({ behavior, block: "nearest" });
+          proceed.scrollIntoView({ behavior, block: "nearest" });
           proceed.focus({ preventScroll: !fromKeyboard });
           return;
         }
@@ -313,7 +328,7 @@ const ideas = [
           target.scrollIntoView({ behavior, block: "nearest" });
         } else if (key === "tour") {
           feedback.scrollIntoView({ behavior, block: "start" });
-          target.querySelector<HTMLElement>("[data-forward]")!.focus({ preventScroll: true });
+          target.querySelector<HTMLElement>("h2")!.focus({ preventScroll: true });
         } else {
           present(target, fromKeyboard);
         }
@@ -330,7 +345,7 @@ const ideas = [
       stops.forEach((stop, i) => {
         stop.toggleAttribute("aria-current", false);
         if (i === index) stop.setAttribute("aria-current", "step");
-        if (i <= index) stop.classList.add("is-seen");
+        if (i === index) stop.classList.add("is-seen");
       });
       panels.forEach((panel, i) => (panel.hidden = i !== index));
       back.disabled = index === 0;
@@ -357,6 +372,7 @@ const ideas = [
     const zoneFeedback = root.querySelector<HTMLElement>("[data-zone-feedback]")!;
     const summary = root.querySelector<HTMLElement>("[data-zone-summary]")!;
     const toClose = root.querySelector<HTMLButtonElement>("[data-to-close]")!;
+    const reset = root.querySelector<HTMLButtonElement>("[data-zone-reset]")!;
     const lost = new Set<string>();
     const tried = new Set<string>();
     const outcome = (zone: string) => {
@@ -374,6 +390,7 @@ const ideas = [
       const result = outcome(zone);
       if (result.gone) lost.add(zone);
       tried.add(zone);
+      if (result.gone) reset.hidden = false;
       card.disabled = true;
       card.querySelector("[data-zone-result]")!.textContent = result.text;
       card.classList.toggle("is-lost", result.gone);
@@ -392,8 +409,23 @@ const ideas = [
       }
       (tried.size === cards.length ? toClose : zoneFeedback).scrollIntoView({ behavior, block: "nearest" });
     }));
+    reset.addEventListener("click", () => {
+      lost.clear();
+      tried.clear();
+      cards.forEach((card) => {
+        card.disabled = false;
+        card.classList.remove("is-lost", "is-rebuilt");
+        card.querySelector("[data-zone-result]")!.textContent = "";
+      });
+      reset.hidden = true;
+      zoneFeedback.textContent = "All three zones are back. Try deleting Derived or Clean first.";
+      zoneFeedback.classList.remove("good");
+      cards[cards.length - 1].focus({ preventScroll: true });
+    });
     toClose.addEventListener("click", (event) => {
       toClose.hidden = true;
+      reset.hidden = true;
+      root.querySelector<HTMLElement>("[data-skip]")!.hidden = true;
       present(open("close"), event.detail === 0);
     });
   }

@@ -25,10 +25,10 @@ export default defineConfig({
       ],
       sidebar: [
         { label: "Overview", link: "/" },
-        { label: "Start here", items: ["start/how-to-use", "start/platform"] },
+        { label: "Start here", items: ["start/platform"] },
         { label: "Modules", items: [{ autogenerate: { directory: "modules" } }] },
         { label: "Finish", items: ["finish/back-to-the-agent"] },
-        { label: "Labs and data", items: ["start/setup", "start/sample-data"] },
+        { label: "Guide, labs and data", items: ["start/how-to-use", "start/setup", "start/sample-data"] },
         { label: "Practice", items: [{ autogenerate: { directory: "practice" } }] },
         { label: "Teaching", items: [{ autogenerate: { directory: "teaching" } }] },
         { label: "Reference", items: [{ autogenerate: { directory: "reference" } }] },

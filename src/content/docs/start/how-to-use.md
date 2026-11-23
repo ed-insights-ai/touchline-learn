@@ -1,6 +1,7 @@
 ---
 title: How to use this guide
 description: How the modules are organized, how to pace yourself, and what the examples are drawn from.
+prev: false
 sidebar:
   order: 1
 ---
