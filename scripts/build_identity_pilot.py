@@ -23,7 +23,7 @@ OUT = ROOT / "src" / "data" / "identity-pilot.json"
 TRUE_TEAM, WRONG_TEAM = "eastbrook-state", "westbrook-state"
 CUTOFFS = [round(0.5 + i * 0.05, 2) for i in range(10)]
 ROUTES = ("No. 14 Harbor Point", "Westbrook St.", "Eastbrook St.")
-LISTED = ("harbor-point", "dunmore", "eastbrook-state", "westbrook-state")
+LISTED = ("harbor-point", "dunmore", "eastbrook-state", "alder-ridge")
 
 
 def board(fixtures: list[dict], names: dict) -> list[dict]:
