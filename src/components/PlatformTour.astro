@@ -1,6 +1,7 @@
 ---
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { journeyModules } from "../data/journey";
 
 const FIXTURE = "tally:alder-ridge:8203";
 const sample = (...parts: string[]) => join(process.cwd(), "sample", ...parts);
@@ -41,6 +42,9 @@ const stops = [
   { name: "Build", zone: "derived", title: "Publish from the clean files", body: "The website, the analytical database and the written season summaries, called journals, all read the same record.", artifact: `${home.name} ${home.score}, ${away.name} ${away.score}\nwebsite · database · journal`, risk: "Without it: each product tells its own version of the result." },
 ];
 
+const marks = ["Collecting sites", "Collecting sites", "Reading pages", "Reading pages", "Matching teams", "Checking the table", ""];
+const moduleFor = [1, 2, 3, 4, 5, 7, 8].map((n) => journeyModules.find((m) => m.n === n)!);
+
 const hook = [
   { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
   { label: "Whether the numbers are right", why: "That is the hard part. Nothing in “no errors” tells you the scores belong to the right teams and seasons." },
@@ -61,7 +65,7 @@ const cases = [
   },
   {
     failure: "Your own parser swapped a season of scores",
-    evidence: "your record:  Alder Ridge 0, Hartwell Tech 1\nactual match: Alder Ridge 1, Hartwell Tech 0\nthe school's page has since been redesigned",
+    evidence: "your record:  Alder Ridge 0, Eastbrook State 1\nactual match: Alder Ridge 1, Eastbrook State 0\nthe school's page has since been redesigned",
     ask: "You have fixed the parser. What lets you get the right scores back?",
     options: [
       { label: "Fetch again", sees: "Whatever the site serves today", why: "The site has changed. You might get a different layout, or no page at all for an old match." },
@@ -83,7 +87,7 @@ const cases = [
   },
   {
     failure: "Two calculations disagree",
-    evidence: "same match, two independent pipelines\npipeline A:  Harbor Point 2, Dunmore 1\npipeline B:  Harbor Point 2, Dunmore 2",
+    evidence: "same match, two independent pipelines\npipeline A:  Harbor Point 2, Eastbrook State 1\npipeline B:  Harbor Point 2, Eastbrook State 2",
     ask: "Which step should stop this from reaching readers?",
     options: [
       { label: "Parse", sees: "One page at a time", why: "One of the parsers may be the cause, but neither can see the other's answer." },
@@ -125,24 +129,25 @@ const ideas = [
       <p data-first-text></p>
     </div>
     <p>You did not watch it work. Every number in that table began on a page a school wrote for fans rather than programs. A trustworthy platform takes each one through seven steps, and you do not know how many of them Kick took.</p>
-    <div class="pt-group" data-choice data-neutral data-unlocks="tour">
+    <div class="pt-group" data-hook data-choice data-neutral data-unlocks="tour">
       <p class="pt-q">What worries you most?</p>
       {hook.map((o) => <button type="button" data-why={o.why} data-correct>{o.label}</button>)}
       <p class="pt-feedback" role="status"></p>
     </div>
+    <button type="button" class="pt-next" data-start-tour hidden>Follow one match</button>
   </header>
 
   <section class="pt-part" data-unlock="tour">
     <h2 tabindex="-1">Follow one match through the platform</h2>
-    <p>{away.name} at {home.name}, September 8, is one of the results in your table. Like everything in this course's sample, the game is invented. Step through what has to happen to it.</p>
+    <p>{away.name} at {home.name}, September 8, is one of the results in your table. Like everything in this course's sample, the game is invented. This is what a trustworthy pipeline would do with it. You cannot yet tell whether Kick did any of it.</p>
     <ol class="pt-rail" aria-label="Seven pipeline steps">
       {stops.map((s, i) => <li><button type="button" class={`pt-stop ${s.zone}`} data-stop={i} aria-current={i === 0 ? "step" : undefined}><b>{i + 1}</b>{s.name}</button></li>)}
     </ol>
     <div class="pt-panels" aria-live="polite">
       {stops.map((s, i) => (
         <article class={`pt-panel ${s.zone}`} data-panel={i} hidden={i !== 0}>
-          <p class="pt-zone">{s.zone === "derived" ? "Derived zone" : s.zone === "raw" ? "Raw zone" : "Clean zone"}</p>
-          <h3>{s.title}</h3>
+          <p class="pt-zone">{s.zone === "derived" ? "Derived zone" : s.zone === "raw" ? "Raw zone" : "Clean zone"}. {marks[i] ? `Kick's check mark: ${marks[i]}` : "Kick showed no check mark for this"}</p>
+          <h3 tabindex="-1">{s.title}</h3>
           <p>{s.body}</p>
           <pre><code>{s.artifact}</code></pre>
           <p class="pt-risk">{s.risk}</p>
@@ -157,7 +162,7 @@ const ideas = [
 
   <section class="pt-part" data-unlock="cases">
     <h2 tabindex="-1">Where would you catch it?</h2>
-    <p>Here are four ways that path can fail. They are practice cases, separate from Riley's table. Read the evidence, then ask of each step: <em>could it actually see this?</em></p>
+    <p>Here are four ways that path can fail. They are practice cases, and none of them is what went wrong in Riley's table. Read the evidence, then ask of each step: <em>could it actually see this?</em></p>
     {cases.map((c, i) => (
       <div class="pt-case pt-group" role="group" aria-labelledby={`pt-case-${i}`} data-choice data-case={i} data-unlock={i > 0 ? `case-${i}` : undefined} data-unlocks={i < cases.length - 1 ? `case-${i + 1}` : "zones"}>
         <h3 id={`pt-case-${i}`} tabindex="-1">{c.failure}</h3>
@@ -203,8 +208,12 @@ const ideas = [
       {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
     </dl>
     <p>The real Touchline runs these steps across about a thousand school sites. Your eight-school table needs them just as much, and you do not yet know which ones Kick skipped.</p>
-    <p class="pt-return" data-first-return hidden>Go back to your question: <q data-first-return-text></q> Which of the seven steps could answer it?</p>
-    <p><strong>Dunmore says thirteen. Your table says six. Start at the source: did Kick collect everything it said it did?</strong></p>
+    <div class="pt-return" data-first-return hidden>
+      <p>Go back to your question: <q data-first-return-text></q> Which step could answer it?</p>
+      <div class="pt-return-steps">{stops.map((s, i) => <button type="button" data-return={`Module ${moduleFor[i].n}, ${moduleFor[i].name}, covers that. Carry your question there.`}>{s.name}</button>)}</div>
+      <p role="status" data-return-note></p>
+    </div>
+    <p><strong>Dunmore says thirteen. Your table says six. Everyone starts at the source: did Kick collect everything it said it did?</strong></p>
     <a class="pt-link" href="../../modules/01-collection/">Start Module 1</a>
   </section>
 </div>
@@ -262,15 +271,20 @@ const ideas = [
   .pt-next, .pt-back, .pt-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.05rem; border-radius: 3px; font-weight: 700; cursor: pointer; text-decoration: none; }
   .pt-next, .pt-link { border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
-  .pt-next[hidden], .pt-summary[hidden] { display: none; }
+  .pt-next[hidden], .pt-summary[hidden], .pt-group[hidden], .pt-return[hidden] { display: none; }
+  .pt-panel h3 { outline: none; scroll-margin-top: 5rem; }
+  .pt-return-steps { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
+  .pt-return-steps button { min-height: 44px; padding: 0.4rem 0.75rem; border: 1px solid #c5dccd; border-radius: 3px; background: none; color: #f4faf5; cursor: pointer; }
+  .pt-return-steps button[aria-pressed="true"] { border-color: #f4c62f; box-shadow: inset 0 -3px 0 #f4c62f; }
+  [data-return-note]:empty { display: none; }
   .pt .pt-group button.pt-next { justify-self: start; border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; }
   :root[data-theme="light"] .pt .pt-group button.pt-next { color: #fff; }
   .pt-case h3 { outline: none; scroll-margin-top: 5rem; }
   .pt-back[hidden] { display: none; }
   .pt-evidence { margin: 0 0 0.7rem; padding: 0.7rem 0.85rem; overflow-x: auto; border: 1px solid var(--tl-line); background: var(--tl-card); font-size: 0.82rem; }
   .pt-evidence code { padding: 0; background: none; }
-  .pt .pt-sees { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.4rem; }
-  .pt .pt-sees button { display: grid; gap: 0.1rem; text-align: left; }
+  .pt .pt-sees { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 0.4rem; }
+  .pt .pt-sees button { display: grid; gap: 0.1rem; padding: 0.6rem 0.85rem; text-align: left; }
   .pt-sees strong { font-weight: 700; }
   .pt-sees span { color: var(--tl-muted); font-size: 0.85rem; font-weight: 400; line-height: 1.3; }
   .pt-skip { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1.25rem; color: var(--tl-muted); font-size: 0.9rem; }
@@ -319,6 +333,7 @@ const ideas = [
   if (root) {
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const behavior: ScrollBehavior = calm ? "auto" : "smooth";
+    const startTour = root.querySelector<HTMLButtonElement>("[data-start-tour]")!;
     try {
       const first = localStorage.getItem("touchline-first-ask");
       if (first) {
@@ -326,8 +341,16 @@ const ideas = [
         root.querySelector<HTMLElement>("[data-first]")!.hidden = false;
         root.querySelector<HTMLElement>("[data-first-return-text]")!.textContent = first;
         root.querySelector<HTMLElement>("[data-first-return]")!.hidden = false;
+        root.querySelector<HTMLElement>("[data-hook]")!.hidden = true;
+        startTour.hidden = false;
       }
     } catch {}
+    const returnNote = root.querySelector<HTMLElement>("[data-return-note]")!;
+    const returnSteps = [...root.querySelectorAll<HTMLButtonElement>("[data-return]")];
+    returnSteps.forEach((step) => step.addEventListener("click", () => {
+      returnSteps.forEach((b) => b.setAttribute("aria-pressed", String(b === step)));
+      returnNote.textContent = step.dataset.return!;
+    }));
     const open = (key: string) => {
       const target = root.querySelector<HTMLElement>(`[data-unlock="${key}"]`)!;
       target.classList.add("is-open");
@@ -376,14 +399,19 @@ const ideas = [
           }, { once: true });
           return;
         }
-        const target = open(key);
         if (key === "tour") {
-          feedback.scrollIntoView({ behavior, block: "start" });
-          target.querySelector<HTMLElement>("h2")!.focus({ preventScroll: true });
-        } else {
-          present(target, fromKeyboard);
+          startTour.hidden = false;
+          startTour.scrollIntoView({ behavior, block: "nearest" });
+          startTour.focus({ preventScroll: true });
+          return;
         }
+        present(open(key), fromKeyboard);
       }));
+    });
+
+    startTour.addEventListener("click", (event) => {
+      startTour.hidden = true;
+      present(open("tour"), event.detail === 0);
     });
 
     const stops = [...root.querySelectorAll<HTMLButtonElement>("[data-stop]")];
@@ -403,11 +431,20 @@ const ideas = [
       forward.textContent = index === stops.length - 1 ? "Now break it" : "Next step";
     };
     stops.forEach((stop, i) => stop.addEventListener("click", () => show(i)));
-    back.addEventListener("click", () => show(current - 1));
+    const enterPanel = () => {
+      const heading = panels[current].querySelector<HTMLElement>("h3")!;
+      heading.focus({ preventScroll: true });
+      heading.scrollIntoView({ behavior, block: "start" });
+    };
+    back.addEventListener("click", (event) => {
+      show(current - 1);
+      if (event.detail === 0) enterPanel();
+    });
     forward.addEventListener("click", (event) => {
       if (current < stops.length - 1) {
         show(current + 1);
-        root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: "nearest" });
+        if (event.detail === 0) enterPanel();
+        else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: "nearest" });
         return;
       }
       present(open("cases"), event.detail === 0);
@@ -454,9 +491,11 @@ const ideas = [
           ? `${name} depended on a zone you already lost.${more}`
           : `${name} is safe to delete while the zone before it survives.${more}`;
       if (tried.size === cards.length) {
-        summary.hidden = false;
+        const nothingRebuilt = lost.size === cards.length;
+        summary.hidden = nothingRebuilt;
         toClose.hidden = false;
-        toClose.focus({ preventScroll: event.detail !== 0 });
+        if (nothingRebuilt) zoneFeedback.textContent = "You deleted Raw first, so nothing could rebuild. Restore them and start with Derived or Clean to see the difference.";
+        (nothingRebuilt ? reset : toClose).focus({ preventScroll: event.detail !== 0 });
       } else {
         cards.find((c) => !c.disabled)?.focus({ preventScroll: event.detail !== 0 });
       }

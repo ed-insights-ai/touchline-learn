@@ -52,8 +52,8 @@ const transcript: [string, string][] = [
     <p class="fo-status" role="status" data-status></p>
   </form>
 
-  <p class="fo-bridge">Riley's table is on your desk now. Open up what Kick built, one step at a time. You do not need pipeline or soccer experience, and the labs are optional.</p>
-  <a class="fo-next" href="./start/platform/">Look inside what Kick built</a>
+  <p class="fo-bridge">Riley's table is on your desk now. See what a trustworthy version would have done, one step at a time. You do not need pipeline or soccer experience, and the labs are optional.</p>
+  <a class="fo-next" href="./start/platform/">See what Kick should have done</a>
 </section>
 
 <style is:global>
@@ -106,17 +106,21 @@ const transcript: [string, string][] = [
       if (matchMedia("(pointer: fine)").matches) input.focus({ preventScroll: true });
     });
     try { input.value = localStorage.getItem(key) ?? ""; } catch {}
+    const say = (text: string) => { if (status.textContent !== text) status.textContent = text; };
     const save = () => {
       const answer = input.value.trim();
       try {
         if (answer) localStorage.setItem(key, answer);
         else localStorage.removeItem(key);
-        status.textContent = answer ? "Saved. It will be waiting for you." : "";
+        say(answer ? "Saved. It will be waiting for you." : "");
       } catch {
-        status.textContent = "This browser could not save it, so keep your answer in mind.";
+        say("This browser could not save it, so keep your answer in mind.");
       }
     };
     input.addEventListener("input", save);
-    form.addEventListener("submit", (event) => event.preventDefault());
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (input.value.trim()) root.querySelector<HTMLElement>(".fo-next")!.focus();
+    });
   });
 </script>

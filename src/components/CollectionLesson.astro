@@ -6,8 +6,8 @@ type Option = { label: string; why: string; correct?: boolean };
 
 const settle: Option[] = [
   { label: "Run it again and see if the count changes", why: "A rerun can repeat the same gap, and a new count would not tell you why it moved." },
-  { label: "Ask Kick if it is sure", why: "It would repeat its summary. You need evidence the summary was built from." },
-  { label: "Compare the pages it should have asked for with what happened to each", why: "Yes. A table shows what it holds. Only that comparison can show what never arrived, or was never requested.", correct: true },
+  { label: "Open Dunmore's website now and count its games", why: "That could show the table is wrong today. It cannot show which request failed or why." },
+  { label: "Compare planned pages with what happened to each", why: "Yes. A table shows what it holds. Only that comparison can show what never arrived, or was never requested.", correct: true },
 ];
 const ninth: Option[] = [
   { label: "Add one entry to the registry", why: "Yes. The registry is configuration, so a new school needs no new collector code.", correct: true },
@@ -72,7 +72,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <p>Kick said all eight sites, no errors. Two of the three calls point at the same school, so start there and keep Cedar Grove's for later. This was Kick's first run, so it began with an empty archive. Look at the Played column.</p>
     <div data-board><FirstRunTable rows={reported} caption="Your table, as Kick delivered it" /></div>
     <div class="cl-ask" data-choice data-then="2">
-      <p class="cl-q">Your table says Dunmore has played {dunmorePlayed}. Dunmore says thirteen. What would settle whether something is missing?</p>
+      <p class="cl-q">Your table says Dunmore has played {dunmorePlayed}. Dunmore says thirteen. What evidence would tell you whether Kick missed a source page?</p>
       {settle.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="cl-feedback" role="status"></p>
     </div>
