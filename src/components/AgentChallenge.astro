@@ -8,12 +8,16 @@ const checks = [
 ---
 
 <div class="ac not-content" data-challenge>
-  <h2>The agent is still waiting for your answer.</h2>
+  <h2>Kick is still waiting for your answer.</h2>
   <div class="ac-ai">
-    <p class="ac-who">AI agent <span>scripted example</span></p>
-    <p>Done. I collected the season from all eight school sites with no errors. Your table is ready to publish.</p>
+    <p class="ac-who">Kick <span>scripted example</span></p>
+    <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
   </div>
-  <label for="ac-reply">Your table has been waiting since the first page. What would you ask before you press Publish?</label>
+  <div class="ac-first" data-first hidden>
+    <p class="ac-who">What you wrote after the film</p>
+    <p data-first-text></p>
+  </div>
+  <label for="ac-reply">Riley pressed Publish without asking anything. What would you ask first, now?</label>
   <textarea id="ac-reply" rows="5" data-reply></textarea>
   <button type="button" class="ac-go" data-compare>Compare with a model reply</button>
   <p class="ac-note" role="status" data-note></p>
@@ -39,7 +43,9 @@ const checks = [
   .ac h2 { margin: 0 0 1rem; color: var(--sl-color-white); font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.15; font-weight: 750; letter-spacing: -0.015em; text-wrap: balance; }
   .ac h3 { margin: 0 0 0.5rem; color: #f4faf5; font-size: 1.25rem; line-height: 1.25; outline: none; scroll-margin-top: 5rem; }
   .ac-ai { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
-  .ac-ai p:last-child { margin-bottom: 0; }
+  .ac-ai p:last-child, .ac-first p:last-child { margin-bottom: 0; }
+  .ac-first { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid #f4c62f; background: var(--tl-card); }
+  .ac-first[hidden] { display: none; }
   .ac-who { margin-bottom: 0.2rem !important; font-size: 0.85rem; font-weight: 700; }
   .ac-who span { margin-left: 0.4rem; color: var(--tl-muted); font-weight: 400; }
   .ac label { display: block; margin-bottom: 0.35rem; font-weight: 700; }
@@ -80,6 +86,13 @@ const checks = [
     const note = root.querySelector<HTMLElement>("[data-note]")!;
     const model = root.querySelector<HTMLElement>("[data-model]")!;
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    try {
+      const first = localStorage.getItem("touchline-first-ask");
+      if (first) {
+        root.querySelector<HTMLElement>("[data-first-text]")!.textContent = first;
+        root.querySelector<HTMLElement>("[data-first]")!.hidden = false;
+      }
+    } catch {}
     root.querySelector<HTMLButtonElement>("[data-compare]")!.addEventListener("click", (event) => {
       if (!reply.value.trim()) {
         note.textContent = "Write your challenge first. Even a rough one works.";

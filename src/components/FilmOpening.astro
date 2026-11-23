@@ -1,0 +1,100 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const film = (name: string) => `${base}film/${name}`;
+const transcript: [string, string][] = [
+  ["Narrator", "This is Riley. Final-year data science student. It's Friday, four-twelve, and the conference standings go out at five, with Riley's name on them."],
+  ["Narrator", "Eight college soccer websites. Built for fans, not software. No official feed."],
+  ["Narrator", "Riley could learn how any of this works. Or Riley could type one sentence."],
+  ["Riley's prompt", "Collect this season's men's soccer results from all eight school sites and build a conference table I can publish."],
+  ["Kick, the coding agent", "Done. All eight school sites, forty-six conference matches, no errors. Ready to publish."],
+  ["Narrator", "Riley gives it a good, long, two-second look."],
+  ["Coach Dolan, Hartwell, voicemail", "Yeah, it's Coach Dolan over at Hartwell. We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth. My guys are seeing this. Call me back."],
+  ["Dunmore athletics, voicemail", "Hi, Dunmore athletics. You've got our men at six conference games. We've played thirteen. I have a booster asking me if we forfeited half the season."],
+  ["Cedar Grove men's soccer, voicemail", "Hey, Cedar Grove men's soccer, we're on the bus. September twenty-first, us and St. Lambert. That game happened, I lost my voice in that game. It's not in the standings. Fix it."],
+  ["Riley types", "THE COACHES ARE CALLING. WHAT HAPPENED"],
+  ["Kick", "You're absolutely right, and I apologize for the confusion. The variance arose from a non-canonical reconciliation of upstream fixture semantics. I've normalized the cardinality."],
+  ["Riley types", "what does that mean"],
+  ["Kick", "Great question. You're right to ask, and I apologize. It's fixed."],
+  ["Riley types", "how do you know any of it is right"],
+  ["Kick", "You're absolutely right, and I apologize. I ran it again. No errors."],
+  ["Narrator", "That is all the evidence Riley has."],
+  ["Narrator", "Every check mark hid a decision Riley never knew was theirs to make."],
+  ["On screen", "Collecting sites: What did you miss? Reading pages: Is it the right page? Matching teams: What did you guess? Checking the table: What stops a bad table?"],
+  ["Kick", "What should I build?"],
+  ["Narrator", "Before you press send, what would you ask it?"],
+];
+---
+
+<section class="fo not-content" data-film>
+  <video controls playsinline preload="metadata" poster={film("publish-day.jpg")} aria-label="Publish Day, a two-minute animated film">
+    <source src={film("publish-day.mp4")} type="video/mp4" />
+    <track kind="captions" src={film("publish-day.vtt")} srclang="en" label="English" />
+    <track kind="chapters" src={film("publish-day-chapters.vtt")} srclang="en" label="Chapters" />
+    <a href={film("publish-day.mp4")}>Download the film</a>
+  </video>
+  <p class="fo-note">Scripted story, invented data. Two minutes, with sound.</p>
+  <details class="fo-script">
+    <summary>Read the transcript</summary>
+    <dl>{transcript.map(([who, line]) => <div><dt>{who}</dt><dd>{line}</dd></div>)}</dl>
+  </details>
+
+  <form class="fo-ask" data-ask>
+    <label for="fo-answer">Before you press send, what would you ask it?</label>
+    <p>Write one line, even a rough guess. It comes back on the last page of the course, so you can see what changed.</p>
+    <div class="fo-row">
+      <input id="fo-answer" type="text" maxlength="240" autocomplete="off" data-answer />
+      <button type="submit">Save my answer</button>
+    </div>
+    <p class="fo-status" role="status" data-status></p>
+  </form>
+
+  <p class="fo-bridge">Riley's table is on your desk now. Open up what Kick built, one step at a time, and decide what you would have asked.</p>
+  <a class="fo-next" href="./start/platform/">Look inside what Kick built</a>
+</section>
+
+<style is:global>
+  .fo { max-width: 52rem; margin: 0 auto 2.5rem; color: var(--tl-ink); line-height: 1.55; }
+  .fo video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #06100b; }
+  .fo p { margin: 0 0 0.6rem; }
+  .fo-note { margin-top: 0.45rem !important; color: var(--tl-muted); font-size: 0.9rem; }
+  .fo-script { margin-bottom: 1.4rem; border-bottom: 1px solid var(--tl-line); }
+  .fo-script summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
+  .fo-script dl { margin: 0 0 1rem; }
+  .fo-script dl > div { margin-bottom: 0.65rem; }
+  .fo-script dt { color: var(--tl-muted); font-size: 0.85rem; font-weight: 700; }
+  .fo-script dd { margin: 0; }
+  .fo-ask { margin-bottom: 1.3rem; padding: 1rem; border-left: 3px solid #f4c62f; background: var(--tl-card); }
+  .fo-ask label { display: block; margin-bottom: 0.25rem; color: var(--sl-color-white); font-size: clamp(1.25rem, 3.6vw, 1.55rem); font-weight: 750; line-height: 1.2; }
+  .fo-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .fo-row input { flex: 1 1 16rem; min-width: 0; min-height: 44px; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font: inherit; }
+  .fo-row button, .fo-next { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.1rem; border: 0; border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+  :root[data-theme="light"] .fo-row button, :root[data-theme="light"] .fo-next { color: #fff; }
+  .fo input:focus-visible, .fo button:focus-visible, .fo a:focus-visible, .fo summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  .fo-status { margin: 0.5rem 0 0 !important; }
+  .fo-status:empty { display: none; }
+</style>
+
+<script>
+  const key = "touchline-first-ask";
+  document.querySelectorAll<HTMLElement>("[data-film]").forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>("[data-ask]")!;
+    const input = root.querySelector<HTMLInputElement>("[data-answer]")!;
+    const status = root.querySelector<HTMLElement>("[data-status]")!;
+    try { input.value = localStorage.getItem(key) ?? ""; } catch {}
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const answer = input.value.trim();
+      if (!answer) {
+        status.textContent = "Type a line first, or carry on without one.";
+        input.focus();
+        return;
+      }
+      try {
+        localStorage.setItem(key, answer);
+        status.textContent = "Saved. It will be waiting on the last page.";
+      } catch {
+        status.textContent = "This browser could not save it, so keep your answer in mind.";
+      }
+    });
+  });
+</script>

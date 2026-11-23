@@ -1,0 +1,118 @@
+WEBVTT
+
+00:00:00.790 --> 00:00:03.490
+This is Riley. Final-year data science student.
+
+00:00:03.510 --> 00:00:07.010
+It's Friday, four-twelve, and the conference standings go out at
+
+00:00:07.030 --> 00:00:09.100
+five, with Riley's name on them.
+
+00:00:09.410 --> 00:00:11.240
+Eight college soccer websites.
+
+00:00:11.330 --> 00:00:13.560
+Built for fans, not software.
+
+00:00:13.730 --> 00:00:15.160
+No official feed.
+
+00:00:15.590 --> 00:00:17.820
+Riley could learn how any of this works.
+
+00:00:18.150 --> 00:00:21.420
+Or Riley could type one sentence.
+
+00:00:28.870 --> 00:00:32.490
+Kick: Done. All eight school sites, forty-six conference matches,
+
+00:00:32.510 --> 00:00:34.900
+no errors. Ready to publish.
+
+00:00:35.390 --> 00:00:38.340
+Riley gives it a good, long, two-second look.
+
+00:00:40.670 --> 00:00:42.700
+Coach Dolan, voicemail: Yeah, it's Coach Dolan over at Hartwell.
+
+00:00:42.790 --> 00:00:45.881
+We went into Dunmore October fifteenth and put seven on 'em.
+
+00:00:45.901 --> 00:00:48.620
+Seven-nothing. You've got us fourth.
+
+00:00:48.710 --> 00:00:51.100
+My guys are seeing this. Call me back.
+
+00:00:51.610 --> 00:00:55.750
+Dunmore athletics, voicemail: Hi, Dunmore athletics. You've got our men at six conference games.
+
+00:00:55.770 --> 00:00:59.670
+We've played thirteen. I have a booster asking me if we forfeited
+
+00:00:59.690 --> 00:01:00.720
+half the season.
+
+00:01:01.310 --> 00:01:04.340
+Cedar Grove, voicemail: Hey, Cedar Grove men's soccer, we're on the bus.
+
+00:01:04.510 --> 00:01:06.490
+September twenty-first, us and St.
+
+00:01:06.510 --> 00:01:09.690
+Lambert. That game happened, I lost my voice in that game.
+
+00:01:09.710 --> 00:01:11.220
+It's not in the standings.
+
+00:01:11.550 --> 00:01:12.260
+Fix it.
+
+00:01:13.000 --> 00:01:14.350
+Riley types: THE COACHES ARE CALLING. WHAT HAPPENED
+
+00:01:14.550 --> 00:01:17.700
+Kick: You're absolutely right, and I apologize for the confusion.
+
+00:01:17.870 --> 00:01:22.730
+The variance arose from a non-canonical reconciliation of upstream
+
+00:01:22.750 --> 00:01:26.940
+fixture semantics. I've normalized the cardinality.
+
+00:01:27.400 --> 00:01:28.700
+Riley types: what does that mean
+
+00:01:28.870 --> 00:01:32.580
+Kick: Great question. You're right to ask, and I apologize.
+
+00:01:32.670 --> 00:01:33.620
+It's fixed.
+
+00:01:34.200 --> 00:01:36.900
+Riley types: how do you know any of it is right
+
+00:01:37.110 --> 00:01:39.570
+Kick: You're absolutely right, and I apologize.
+
+00:01:39.590 --> 00:01:41.580
+I ran it again. No errors.
+
+00:01:44.800 --> 00:01:47.300
+[Silence. Only the words "No errors." remain.]
+
+00:01:47.510 --> 00:01:49.900
+That is all the evidence Riley has.
+
+00:01:52.110 --> 00:01:55.530
+Every check mark hid a decision Riley never knew was theirs to
+
+00:01:55.550 --> 00:01:56.100
+make.
+
+00:01:59.270 --> 00:02:00.660
+Kick: What should I build?
+
+00:02:01.670 --> 00:02:04.260
+Before you press send, what would you ask it?
