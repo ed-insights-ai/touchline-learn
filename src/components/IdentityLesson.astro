@@ -55,24 +55,24 @@ const hypotheses: Option[] = [
   { label: "Two schools became one", why: "Your test: one record would carry two different abbreviations.", correct: true },
 ];
 const explanation: Option[] = [
+  { label: "Two schools became one", why: "Right. WBSU and EBSU are different schools sharing one row.", correct: true },
   { label: "A double load", why: "A double load would repeat EBSU rows. These four carry a different abbreviation." },
   { label: "Real extra games", why: "Extra Eastbrook games would still read EBSU, and a school cannot play itself." },
-  { label: "Two schools became one", why: "Right. WBSU and EBSU are different schools sharing one row.", correct: true },
 ];
 const repair: Option[] = [
   { label: "Leave them. The names are close enough", why: `Then one match stays Eastbrook against itself, and Eastbrook stays at ${before.perGame.toFixed(2)}.` },
-  { label: "Delete the four appearances", why: "Those results are real, and one is the other side of an Eastbrook win. Deleting them trades one error for another." },
   { label: "Give them back to Westbrook", why: "Right. Every result stays, and each side returns to the school that played it.", correct: true },
+  { label: "Delete the four appearances", why: "Those results are real, and one is the other side of an Eastbrook win. Deleting them trades one error for another." },
 ];
 const ship: Option[] = [
-  { label: "Auto-merge at 0.70", why: `At 0.70, ${at70.wrong} spellings merge into the wrong school with no warning.` },
-  { label: "Auto-merge at 0.90", why: `At 0.90 it accepts only the ${at90.exact} conference names spelled exactly, so it adds nothing to a lookup. Westbrook State scores ${data.similarity} against Eastbrook State, so one small cutoff change would merge them.` },
-  { label: "AI suggests, a person approves each new name", why: "Right. Each new spelling costs one review, once, and every identity decision stays visible and reversible.", correct: true },
+  { label: "Auto-merge at 0.70", why: "That is the setting that absorbed Westbrook. An unlisted school lands in its closest name, with no error." },
+  { label: "Auto-merge at 0.90", why: `Against the conference list, 0.90 accepted only the ${at90.exact} exact spellings, so it adds nothing to a lookup. A small cutoff change brings the Westbrook merge back.` },
+  { label: "AI suggests, a person approves each new name", why: `Right. Westbrook State and Eastbrook State score ${data.similarity}, so similarity cannot tell two real schools apart. Each new spelling costs one review, once, and every decision stays visible and reversible.`, correct: true },
 ];
 const firstRuling: Option[] = [
-  { label: "St. Lambert", why: "The words overlap, but nothing yet connects this name to that school." },
   { label: "Lambert State", why: "It may be right, but so far that is a guess. Guesses are what caused the bad table." },
   { label: "Hold until there is evidence", why: "Right for now. A held name is visible, and nothing downstream is corrupted.", correct: true },
+  { label: "St. Lambert", why: "The words overlap, but nothing yet connects this name to that school." },
 ];
 const secondRuling: Option[] = [
   { label: "Lambert State", why: "Right. The abbreviation and the ground agree. Both come from one box score, so record that source with your ruling.", correct: true },
@@ -91,26 +91,26 @@ const causes: Option[] = [
   { label: "An old account was reopened", why: "Your test: the orders would come from one customer, with a gap between them.", correct: true },
 ];
 const settle: Option[] = [
+  { label: "Compare who placed the orders behind this record", why: "Right. Source ids, verified holders, ship-to addresses and order dates can separate one customer from two.", correct: true },
   { label: "Confirm order totals still reconcile", why: "A false merge keeps every order, so the totals still match. This check passes either way." },
   { label: "Ask the assistant if it is confident", why: "Confidence is not evidence. The assistant already reported success." },
-  { label: "Compare who placed the orders behind this record", why: "Right. Source ids, ship-to addresses and order dates can separate one customer from two.", correct: true },
 ];
 const sourceRecords = [
-  { id: "C-1184", name: "Jo Park", city: "Duluth, Minn.", opened: "Mar 2021", span: "Mar 2021 to Oct 2026", orders: 31 },
-  { id: "C-3907", name: "Joanna Park", city: "Tucson, Ariz.", opened: "Jun 2024", span: "Jun 2024 to Oct 2026", orders: 21 },
+  { id: "C-1184", name: "Jo Park", holder: "H-2207", city: "Duluth, Minn.", opened: "Mar 2021", span: "Mar 2021 to Oct 2026", orders: 31 },
+  { id: "C-3907", name: "Joanna Park", holder: "H-5518", city: "Tucson, Ariz.", opened: "Jun 2024", span: "Jun 2024 to Oct 2026", orders: 21 },
 ];
 const customerRuling: Option[] = [
-  { label: "One customer who moved", why: "A move would end the Duluth orders. They continue for more than two years after Tucson begins." },
-  { label: "Hold until there is more evidence", why: "Holding fits thin evidence. Here you have two accounts, two cities and nine same-day orders." },
-  { label: "Two customers, falsely merged", why: "Right. The record kept Jo's first order and Joanna's opening date, which created the impossible dates. The orders still total 52, so nothing failed. Split them and record why.", correct: true },
+  { label: "One customer who moved", why: "A move would end the Duluth orders, and these accounts have different verified holders." },
+  { label: "Two customers, falsely merged", why: "Right. Different verified holders settle it. The record kept Jo's first order and Joanna's opening date, which created the impossible dates. The orders still total 52, so nothing failed. This is one of the 706 merges the assistant reported. Split it and record why.", correct: true },
+  { label: "Hold until there is more evidence", why: "Holding fits thin evidence. Verified holder ids are the evidence you were waiting for." },
 ];
-const asks = [
-  { label: "Entity counts before and after", correct: true },
-  { label: "A confidence score for the run", miss: "A confidence score is the tool's opinion of itself." },
-  { label: "Records that cannot be true", correct: true },
-  { label: "Proof that totals still reconcile", miss: "A false merge keeps every row, so totals still match." },
-  { label: "Every merge it made", correct: true },
-  { label: "A log showing zero errors", miss: "This failure produced zero errors." },
+const contrastRecords = [
+  { id: "C-2041", name: "Sam Ito", holder: "H-4410", city: "Reno, Nev.", opened: "Feb 2020", span: "Feb 2020 to May 2023", orders: 18 },
+  { id: "C-3352", name: "S. Ito", holder: "H-4410", city: "Boise, Idaho", opened: "Jun 2023", span: "Jun 2023 to Sep 2026", orders: 14 },
+];
+const contrastRuling: Option[] = [
+  { label: "Split them", why: "One verified holder, and Reno orders end before Boise begins. Splitting would create a false split: one customer counted as two." },
+  { label: "Keep the merge", why: "Right. Same holder, and the orders move from one city to the other. A merge can look odd and still be correct. Evidence decides.", correct: true },
 ];
 const selfGame = data.movedGames[selfIndex];
 const selfDate = new Date(`${selfGame.date}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
@@ -234,7 +234,7 @@ const outsideSchools = data.schools.clean - data.matcher.members;
     <div class="il-show" data-show-standings><button type="button" class="il-next">See the new standings</button></div>
     <div data-board-slot></div>
     <div class="il-after">
-      <p class="il-turn">Eastbrook climbs from {rankOf(data.merged, "eastbrook-state")} at {before.perGame.toFixed(2)} to {rankOf(data.clean, "eastbrook-state")} at {after.perGame.toFixed(2)}. Cedar Grove still leads on points, {cedar.points} to {after.points}. <strong>This is a false merge: two real things became one record, and nothing failed.</strong> It did not just move a team. It removed the doubt that should have been there.</p>
+      <p class="il-turn">Eastbrook climbs from {rankOf(data.merged, "eastbrook-state")} at {before.perGame.toFixed(2)} to {rankOf(data.clean, "eastbrook-state")} at {after.perGame.toFixed(2)}. The assistant said Cedar Grove led on both measures. It leads on points, {cedar.points} to {after.points}, but Eastbrook leads on goal difference. <strong>This is a false merge: two real things became one record, and nothing failed.</strong></p>
       <button type="button" class="il-next" data-next="5">Stop this happening again</button>
     </div>
   </section>
@@ -243,7 +243,7 @@ const outsideSchools = data.schools.clean - data.matcher.members;
     <h3 tabindex="-1">Make identity errors loud</h3>
     <p>Every name takes the same path. Rankings come off, then the name must match a reviewed spelling exactly.</p>
     <div class="il-reviewed">
-      <p>Part of the reviewed list</p>
+      <p>Approved spellings for these schools</p>
       <ul>
         {data.routes.reviewed.map((entry) => <li><span>{entry.spellings.join(", ")}</span><code>{entry.slug}</code></li>)}
       </ul>
@@ -313,14 +313,17 @@ if school is missing:
         <div class="wrong"><dt>Merged wrongly, silently</dt><dd data-count="wrong">{at70.wrong}</dd></div>
         <div><dt>No match, left for a person</dt><dd data-count="review">{at70.review}</dd></div>
       </dl>
+      <p class="il-wrong-names"><span>Candidates:</span> <strong data-pool data-members={data.matcher.members}></strong></p>
+      <p class="il-wrong-names"><span>Exact spellings among the correct merges:</span> <strong data-exact></strong></p>
       <p class="il-wrong-names"><span>Wrong merges at this cutoff:</span> <strong data-wrong-names></strong></p>
       <div data-unlock="every-school">
-        <label class="il-toggle"><input type="checkbox" data-every-school /> Add all {data.schools.clean} schools to the candidate list</label>
-        <p class="il-toggle-note" data-toggle-note></p>
+        <p class="il-question">0.90 looks safe, but it only accepts exact spellings. What if every school were listed?</p>
+        <label class="il-toggle"><input type="checkbox" data-every-school /> Add all {data.schools.clean} schools and return to 0.70</label>
+        <p class="il-toggle-note" data-toggle-note data-note={`At 0.70, the ${at70.wrong} wrong merges are gone because Westbrook is finally a candidate. Real lists are never complete, so the next unlisted school gets absorbed into its closest name with no error.`}></p>
       </div>
     </div>
     <div class="il-group" data-group data-unlock="policy-question">
-      <p class="il-question">Which policy would you ship?</p>
+      <p class="il-question">Next season brings a school nobody listed. Which policy would you ship?</p>
       {ship.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="il-feedback" role="status"></p>
     </div>
@@ -329,7 +332,7 @@ if school is missing:
 
   <section class="il-step" data-step="7">
     <h3 tabindex="-1">Rule on “{data.lambert.published}”</h3>
-    <p>A new box score uses this name. The conference has a St. Lambert, and there is also a Lambert State. This is all you know.</p>
+    <p>A new box score uses this name. The conference has a St. Lambert, and there is also a Lambert State. It just landed in your review queue.</p>
     <div class="il-group" data-group data-unlocks="lambert-evidence">
       {firstRuling.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="il-feedback" role="status"></p>
@@ -382,6 +385,7 @@ if school is missing:
           <dl>
             <div><dt>Source id</dt><dd>{r.id}</dd></div>
             <div><dt>Name</dt><dd>{r.name}</dd></div>
+            <div><dt>Verified holder</dt><dd>{r.holder}</dd></div>
             <div><dt>Ships to</dt><dd>{r.city}</dd></div>
             <div><dt>Account opened</dt><dd>{r.opened}</dd></div>
             <div><dt>Orders placed</dt><dd>{r.span}</dd></div>
@@ -391,24 +395,54 @@ if school is missing:
       </div>
       <p class="il-overlap">On 9 days, orders shipped to both cities.</p>
       <p class="il-prediction" data-cause-note></p>
-      <div class="il-group" data-group data-unlocks="retrieve">
+      <div class="il-group" data-group data-unlocks="contrast" data-action="customer-ruling">
         <p class="il-question">What is your ruling?</p>
         {customerRuling.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
         <p class="il-feedback" role="status"></p>
       </div>
     </div>
+    <div data-unlock="contrast">
+      <p class="il-question">Another merge from the same run</p>
+      <div class="il-sources">
+        {contrastRecords.map((r) => (
+          <dl>
+            <div><dt>Source id</dt><dd>{r.id}</dd></div>
+            <div><dt>Name</dt><dd>{r.name}</dd></div>
+            <div><dt>Verified holder</dt><dd>{r.holder}</dd></div>
+            <div><dt>Ships to</dt><dd>{r.city}</dd></div>
+            <div><dt>Account opened</dt><dd>{r.opened}</dd></div>
+            <div><dt>Orders placed</dt><dd>{r.span}</dd></div>
+            <div><dt>Orders</dt><dd>{r.orders}</dd></div>
+          </dl>
+        ))}
+      </div>
+      <div class="il-group" data-group data-unlocks="retrieve">
+        <p class="il-question">Keep this merge or split it?</p>
+        {contrastRuling.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+        <p class="il-feedback" role="status"></p>
+      </div>
+    </div>
     <div class="il-group" data-group data-unlock="retrieve" data-retrieve>
-      <p class="il-question">Your next AI-built join looks clean. Choose the three things you would ask for.</p>
-      {asks.map((a) => <button type="button" aria-pressed="false" data-ask data-good={a.correct ? "" : undefined} data-miss={a.miss}>{a.label}</button>)}
-      <button type="button" class="il-next" data-check-asks>Check my three</button>
+      <div class="il-ai">
+        <p class="il-ai-who">AI assistant <span>scripted example</span></p>
+        <p>I merged 12,400 supplier records into 11,950. No errors. The spend report is ready.</p>
+      </div>
+      <label class="il-question" for="il-reply">Write one line back. What might have gone wrong, and what would you ask to see?</label>
+      <textarea id="il-reply" rows="3" data-reply></textarea>
+      <button type="button" class="il-next" data-check-reply>Compare with a model reply</button>
       <p class="il-feedback" role="status"></p>
+      <div class="il-model" data-model hidden>
+        <p><strong>A strong reply:</strong> “This could be a false merge. Show me supplier counts by source before and after, any record that cannot be true, and the list of merges so I can check the source records.”</p>
+        <p>Check yours. Did it name the failure, and ask for evidence that could confirm or overturn it?</p>
+        <button type="button" class="il-next" data-finish>See the three checks</button>
+      </div>
     </div>
     <div class="il-after il-close">
       <h3 tabindex="-1">Before you trust any AI-built join, ask for three things</h3>
       <ol>
         <li><strong>Entity counts before and after.</strong> Then have every change explained. {data.schools.clean} schools became {data.schools.merged} here, and nobody asked why.</li>
         <li><strong>Records that cannot be true.</strong> A team playing itself. An order placed before the account existed.</li>
-        <li><strong>Every merge it made.</strong> A false merge raises no error, so if you cannot review the merges, you cannot defend the number.</li>
+        <li><strong>Every merge it made.</strong> A false merge raises no error. You do not read all 706. Run impossible-record checks across them, then review what gets flagged plus a sample.</li>
       </ol>
       <p>Want the full detail? <a href="../05-identity-lab/">Read the deep dive or run the optional lab</a></p>
       <button type="button" class="il-restart" data-restart>Start over</button>
@@ -506,13 +540,13 @@ if school is missing:
   .il-clue { margin: 0.75rem 0; padding: 0.7rem 0.85rem; background: var(--tl-card); border-left: 3px solid var(--il-yellow); }
   .il-clue p:last-child { margin-bottom: 0; }
   .il-score { display: flex; gap: 1.5rem; margin-bottom: 0.3rem !important; font-size: 1.15rem; font-weight: 750; font-variant-numeric: tabular-nums; }
-  .is-diagnosed .il-pill.self rect { stroke: #ff8a78; stroke-width: 2.5; }
+  .is-diagnosed:not(.is-repaired) .il-pill.self rect { stroke: #ff8a78; stroke-width: 2.5; }
   .il-js .il-ledger:not(.is-diagnosed) .il-diag { visibility: hidden; }
   .il-js .il-ledger:not(.is-diagnosed) .il-count { display: none; }
   .il-js [data-questions].is-done, .il-js .il-show:not(.is-open) { display: none; }
   .il-show { margin: 0.75rem 0; }
   .il-prediction:empty { display: none; }
-  .il-prediction { padding: 0.45rem 0.7rem; border-left: 3px solid var(--il-yellow); background: var(--tl-card); font-weight: 600; }
+  .il-prediction { scroll-margin-top: 5rem; padding: 0.45rem 0.7rem; border-left: 3px solid var(--il-yellow); background: var(--tl-card); font-weight: 600; }
   .il-matches { font-weight: 600; }
   .il-self-link { stroke: #ff8a78; stroke-width: 3; transition: opacity 200ms; }
   .il-ledger.is-repaired .il-self-link { opacity: 0; }
@@ -582,6 +616,11 @@ if school is missing:
   .il-sources dt { color: var(--tl-muted); font-weight: 400; }
   .il-sources dd { margin: 0; font-weight: 650; text-align: right; }
   .il-overlap { font-weight: 700; }
+  [data-retrieve] .il-ai { margin-bottom: 0.25rem; }
+  [data-retrieve] textarea { width: 100%; min-height: 5rem; padding: 0.6rem 0.75rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); font: inherit; resize: vertical; }
+  [data-retrieve] textarea:focus-visible { outline: 3px solid var(--il-focus); outline-offset: 2px; }
+  .il-model { padding: 0.75rem 0.85rem; background: var(--tl-card); border-left: 3px solid var(--sl-color-accent); }
+  .il-model[hidden] { display: none; }
   .il-close { scroll-margin-top: 5rem; margin-top: 1.5rem; padding: 1.1rem; color: var(--il-chalk); background: var(--il-pitch); border-radius: 4px; }
   .il-close h3 { color: var(--il-chalk); }
   .il-close ol { margin: 0.5rem 0 1rem; padding-left: 1.25rem; }
@@ -605,7 +644,7 @@ if school is missing:
 
   if (root) {
     type Row = { slug: string; games: number; perGame: number };
-    type Cutoff = { cutoff: number; right: number; wrong: number; review: number; wrongNames: { name: string; into: string }[] };
+    type Cutoff = { cutoff: number; right: number; wrong: number; review: number; exact: number; wrongNames: { name: string; into: string }[] };
     const data = JSON.parse(root.querySelector("#il-data")!.textContent!) as {
       clean: Row[]; cutoffs: Cutoff[]; allCutoffs: Cutoff[]; low: number; high: number; schools: { clean: number; merged: number };
     };
@@ -622,6 +661,7 @@ if school is missing:
     const fullLedger = ledgerSvg.getAttribute("viewBox")!;
     ledgerSvg.setAttribute("viewBox", "0 0 344 206");
     let predicted = "";
+    let suspected = "";
     const moveFocus = (target: HTMLElement | null | undefined, fromKeyboard: boolean) => {
       target?.focus({ preventScroll: !fromKeyboard });
     };
@@ -665,11 +705,11 @@ if school is missing:
       });
     };
 
-    const stepDone = (step: HTMLElement) => {
+    const stepDone = (step: HTMLElement, scroll = true) => {
       if ([...step.querySelectorAll<HTMLElement>("[data-group]")].every((g) => g.dataset.solved)) {
         const after = step.querySelector<HTMLElement>(":scope > .il-after");
         after?.classList.add("is-open");
-        after?.scrollIntoView({ behavior, block: "nearest" });
+        if (scroll) after?.scrollIntoView({ behavior, block: "nearest" });
       }
     };
 
@@ -714,8 +754,9 @@ if school is missing:
       status.textContent = "Identity repaired, leaders disagree";
       status.classList.add("fixed");
       await wait(calm ? 0 : 950);
-      stepDone(step);
-      moveFocus(nextTarget(step), fromKeyboard);
+      stepDone(step, false);
+      nextTarget(step)?.focus({ preventScroll: true });
+      if (fromKeyboard) board.scrollIntoView({ behavior, block: "start" });
     });
 
     const sendToken = (end: string) => {
@@ -745,7 +786,8 @@ if school is missing:
         if (button.dataset.end) sendToken(button.dataset.end);
         if (group.dataset.unlocks) {
           root.querySelector(`[data-unlock="${group.dataset.unlocks}"]`)!.classList.add("is-open");
-          feedback.scrollIntoView({ behavior, block: "start" });
+          const anchor = group.dataset.action === "diagnose" ? root.querySelector<HTMLElement>("[data-prediction]")! : feedback;
+          anchor.scrollIntoView({ behavior, block: "start" });
         }
         const step = group.closest<HTMLElement>("[data-step]")!;
         const fromKeyboard = event.detail === 0;
@@ -754,7 +796,13 @@ if school is missing:
           root.querySelector("[data-prediction]")!.textContent = `Your prediction: ${predicted}.`;
         }
         if (group.dataset.action === "cause") {
-          root.querySelector("[data-cause-note]")!.textContent = `You suspected: ${button.textContent!.trim()}. Does the evidence agree?`;
+          suspected = button.textContent!.trim();
+          root.querySelector("[data-cause-note]")!.textContent = `You suspected: ${suspected}. Does the evidence agree?`;
+        }
+        if (group.dataset.action === "customer-ruling") {
+          root.querySelector("[data-cause-note]")!.textContent = suspected === "Two customers were merged"
+            ? "Your suspicion held: two customers were merged."
+            : `You suspected: ${suspected}. The evidence shows two customers were merged.`;
         }
         if (group.dataset.action === "diagnose") {
           ledger.classList.add("is-diagnosed");
@@ -774,6 +822,10 @@ if school is missing:
           return;
         }
         stepDone(step);
+        if (group.dataset.unlocks === "retrieve") {
+          if (fromKeyboard) root.querySelector<HTMLElement>("[data-reply]")!.focus();
+          return;
+        }
         moveFocus(nextTarget(step), fromKeyboard);
       }));
     });
@@ -793,29 +845,30 @@ if school is missing:
     }));
 
     const retrieve = root.querySelector<HTMLElement>("[data-retrieve]")!;
-    const askButtons = [...retrieve.querySelectorAll<HTMLButtonElement>("[data-ask]")];
-    const askFeedback = retrieve.querySelector<HTMLElement>(".il-feedback")!;
-    askButtons.forEach((b) => b.addEventListener("click", () => b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"))));
-    retrieve.querySelector<HTMLButtonElement>("[data-check-asks]")!.addEventListener("click", (event) => {
-      const chosen = askButtons.filter((b) => b.getAttribute("aria-pressed") === "true");
-      const miss = chosen.find((b) => !("good" in b.dataset));
-      askFeedback.classList.remove("good");
-      if (chosen.length !== 3) askFeedback.textContent = `You chose ${chosen.length}. Choose exactly three.`;
-      else if (miss) askFeedback.textContent = `“${miss.textContent}” would not catch this. ${miss.dataset.miss}`;
-      else {
-        askFeedback.textContent = "Right. Each of these can expose a merge that raised no error.";
-        askFeedback.classList.add("good");
-        askButtons.forEach((b) => (b.disabled = true));
-        (event.currentTarget as HTMLButtonElement).hidden = true;
-        retrieve.dataset.solved = "true";
-        const step = retrieve.closest<HTMLElement>("[data-step]")!;
-        stepDone(step);
-        const close = step.querySelector<HTMLElement>(".il-close")!;
-        close.scrollIntoView({ behavior, block: "start" });
-        moveFocus(close.querySelector("h3"), (event as MouseEvent).detail === 0);
+    const reply = retrieve.querySelector<HTMLTextAreaElement>("[data-reply]")!;
+    const replyFeedback = retrieve.querySelector<HTMLElement>(".il-feedback")!;
+    const model = retrieve.querySelector<HTMLElement>("[data-model]")!;
+    retrieve.querySelector<HTMLButtonElement>("[data-check-reply]")!.addEventListener("click", (event) => {
+      if (!reply.value.trim()) {
+        replyFeedback.textContent = "Write your line first. Even a rough one works.";
+        replyFeedback.scrollIntoView({ behavior, block: "nearest" });
         return;
       }
-      askFeedback.scrollIntoView({ behavior, block: "nearest" });
+      replyFeedback.textContent = "";
+      (event.currentTarget as HTMLButtonElement).hidden = true;
+      reply.readOnly = true;
+      model.hidden = false;
+      model.scrollIntoView({ behavior, block: "nearest" });
+      moveFocus(model.querySelector<HTMLElement>("[data-finish]"), (event as MouseEvent).detail === 0);
+    });
+    retrieve.querySelector<HTMLButtonElement>("[data-finish]")!.addEventListener("click", (event) => {
+      (event.currentTarget as HTMLButtonElement).hidden = true;
+      retrieve.dataset.solved = "true";
+      const step = retrieve.closest<HTMLElement>("[data-step]")!;
+      stepDone(step);
+      const close = step.querySelector<HTMLElement>(".il-close")!;
+      close.scrollIntoView({ behavior, block: "start" });
+      moveFocus(close.querySelector("h3"), (event as MouseEvent).detail === 0);
     });
 
     const pickFeedback = root.querySelector<HTMLElement>("[data-pick-feedback]")!;
@@ -856,6 +909,9 @@ if school is missing:
         root.querySelector(`[data-count="${key}"]`)!.textContent = String(c[key]);
         root.querySelector<HTMLElement>(`[data-bar="${key}"]`)!.style.width = `${(c[key] / total) * 100}%`;
       });
+      const pool = root.querySelector<HTMLElement>("[data-pool]")!;
+      pool.textContent = everySchool.checked ? `all ${data.schools.clean} schools` : `${pool.dataset.members} conference members`;
+      root.querySelector("[data-exact]")!.textContent = String(c.exact);
       root.querySelector("[data-wrong-names]")!.textContent = c.wrongNames.length ? c.wrongNames.map((w) => `${w.name} into ${w.into}`).join(", ") : "none";
       slider.setAttribute("aria-valuetext", `Cutoff ${c.cutoff.toFixed(2)}: ${c.right} correct, ${c.wrong} wrong, ${c.review} for a person`);
     };
@@ -863,10 +919,14 @@ if school is missing:
       showCutoff();
       if (data.cutoffs[Number(slider.value)].cutoff >= 0.9) root.querySelector('[data-unlock="every-school"]')!.classList.add("is-open");
     });
+    const toggleNote = root.querySelector<HTMLElement>("[data-toggle-note]")!;
+    const startCutoff = data.cutoffs.findIndex((c) => c.cutoff === 0.7);
     everySchool.addEventListener("change", () => {
+      if (everySchool.checked) slider.value = String(startCutoff);
       showCutoff();
-      root.querySelector("[data-toggle-note]")!.textContent = "With the true school on the list, the wrong merges disappear at every cutoff. So the real risk is a school nobody listed: the matcher absorbs it into the closest name, with no error.";
+      toggleNote.textContent = everySchool.checked ? toggleNote.dataset.note! : "";
       root.querySelector('[data-unlock="policy-question"]')!.classList.add("is-open");
+      toggleNote.closest("[data-unlock]")!.scrollIntoView({ behavior, block: "nearest" });
     });
     showCutoff();
 
