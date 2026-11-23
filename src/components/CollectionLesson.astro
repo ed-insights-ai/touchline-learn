@@ -1,12 +1,12 @@
 ---
 import FirstRunTable from "./FirstRunTable.astro";
-import { dunmorePlayed, fewestOthers, hartwellRows, noPublishedScore, recovered, repaired, reported, run, stillToPlay, unseen } from "../lib/first-run";
+import { dunmorePlayed, hartwellRows, noPublishedScore, recovered, repaired, reported, run, stillToPlay, unseen } from "../lib/first-run";
 
 type Option = { label: string; why: string; correct?: boolean };
 
 const settle: Option[] = [
   { label: "Compare it with last season's table", why: "Last season can make a number look odd. It cannot tell you what happened to this season's pages." },
-  { label: "Ask the agent if it is sure", why: "It would repeat its summary. You need evidence the summary was built from." },
+  { label: "Ask Kick if it is sure", why: "It would repeat its summary. You need evidence the summary was built from." },
   { label: "See every page it requested and what happened to each", why: "Yes. A table shows what it holds. Only the list of requests can show what never arrived.", correct: true },
 ];
 const ninth: Option[] = [
@@ -20,8 +20,9 @@ const whoIsHurt: Option[] = [
   { label: "Nobody, the saved pages are fine", why: "The pages are fine. The table never read the part of them that mattered here." },
 ];
 const whichRow: Option[] = [
-  { label: hartwellRows.counted, why: "Hartwell hosted this one, so the table already read it from Hartwell's page. Adding it again would count it twice." },
-  { label: hartwellRows.missing, why: "Yes. Dunmore hosted this one, so the table was waiting for Dunmore's page and never got it.", correct: true },
+  { label: "Hartwell hosted the draw, so Hartwell's page supplied it", why: "Yes. The 7-0 was played at Dunmore, so the table was waiting for Dunmore's page and never got it.", correct: true },
+  { label: "The table keeps close games and drops big wins", why: "The table never looks at the margin. Check who hosted each match." },
+  { label: "Dunmore's page arrived in time for the first match", why: "Dunmore's page never arrived at all. Check who hosted each match." },
 ];
 const complete: Option[] = [
   { label: "Yes, all seven are back", why: "Seven conference results are back. You have no way to know what else that page listed." },
@@ -60,13 +61,17 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   <section class="cl-step is-open" data-step="1">
     <h2 tabindex="-1">Start with the table you nearly published</h2>
     <div class="cl-agent">
-      <p class="cl-who">AI agent <span>scripted example</span></p>
-      <p>Done. I collected the season from all eight school sites with no errors. Your table is ready to publish.</p>
+      <p class="cl-who">Coach Dolan, Hartwell <span>voicemail, 5:41</span></p>
+      <p>We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.</p>
     </div>
-    <p>This was the agent's first run, so it began with an empty archive. Look at the Played column.</p>
-    <div data-board><FirstRunTable rows={reported} caption="Your table, as the agent delivered it" /></div>
+    <div class="cl-agent">
+      <p class="cl-who">Dunmore athletics <span>voicemail, 5:44</span></p>
+      <p>You've got our men at six conference games. We've played thirteen.</p>
+    </div>
+    <p>Kick said all eight sites, no errors. Both calls point at the same school. This was Kick's first run, so it began with an empty archive. Look at the Played column.</p>
+    <div data-board><FirstRunTable rows={reported} caption="Your table, as Kick delivered it" /></div>
     <div class="cl-ask" data-choice data-then="2">
-      <p class="cl-q">Dunmore has played {dunmorePlayed} conference matches. Everyone else has played {fewestOthers} or more. What would settle whether something is missing?</p>
+      <p class="cl-q">Your table says Dunmore has played {dunmorePlayed}. Dunmore says thirteen. What would settle whether something is missing?</p>
       {settle.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="cl-feedback" role="status"></p>
     </div>
@@ -86,7 +91,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       <li><i class="is-saved">✓</i> Saved: {run.total - 1}</li>
       <li><i class="is-missing">?</i> No answer: 1</li>
     </ul>
-    <p>The red square is Dunmore's schedule. The collector handled the failure and moved on, so the run ended without an error. The agent's summary left that line out.</p>
+    <p>The red square is Dunmore's schedule. The collector handled the failure and moved on, so the run ended without an error. Kick's summary left that line out.</p>
     <div class="cl-ask" data-choice data-then="3">
       <p class="cl-q">Next season a ninth school joins. With a registry in place, what has to change?</p>
       {ninth.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
@@ -105,7 +110,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <div class="cl-after" data-after="rows" tabindex="-1">
       <p>The visiting schools' pages did arrive, and each one lists its trip to Dunmore. Those results were saved all along. The table just never read them.</p>
       <div class="cl-ask" data-choice data-reveal="repair">
-        <p class="cl-q">Hartwell Tech's saved schedule shows two matches against Dunmore. Which one is missing from your table?</p>
+        <p class="cl-q">Hartwell Tech's saved schedule lists both Dunmore matches: {hartwellRows.counted}, and {hartwellRows.missing}. Only the first reached your table. Why did it survive?</p>
         {whichRow.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
         <p class="cl-feedback" role="status"></p>
       </div>

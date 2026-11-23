@@ -44,7 +44,7 @@ const stops = [
 const hook = [
   { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
   { label: "Whether the numbers are right", why: "That is the hard part. Nothing in “no errors” tells you the scores belong to the right teams and seasons." },
-  { label: "Whether it will run fast enough", why: "Speed is fixable later. A fast pipeline can publish wrong numbers just as confidently." },
+  { label: "Whether it mixed up similar school names", why: "A sharp worry. Two names can look alike and belong to different schools, and a clean run would never mention it." },
 ];
 
 const cases = [
@@ -120,7 +120,11 @@ const ideas = [
       <p class="pt-who">Kick <span>scripted example</span></p>
       <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
     </div>
-    <p>You did not watch it work. Every number in that table began on a page a school wrote for fans rather than programs, and it had to get through seven steps to reach you.</p>
+    <div class="pt-first" data-first hidden>
+      <p class="pt-who">Your question from the film</p>
+      <p data-first-text></p>
+    </div>
+    <p>You did not watch it work. Every number in that table began on a page a school wrote for fans rather than programs. A trustworthy platform takes each one through seven steps, and you do not know how many of them Kick took.</p>
     <div class="pt-group" data-choice data-neutral data-unlocks="tour">
       <p class="pt-q">What worries you most?</p>
       {hook.map((o) => <button type="button" data-why={o.why} data-correct>{o.label}</button>)}
@@ -153,16 +157,17 @@ const ideas = [
 
   <section class="pt-part" data-unlock="cases">
     <h2 tabindex="-1">Where would you catch it?</h2>
-    <p>Four things go wrong while building your table. Read the evidence, then ask of each step: <em>could it actually see this?</em></p>
+    <p>Here are four ways that path can fail. They are practice cases, separate from Riley's table. Read the evidence, then ask of each step: <em>could it actually see this?</em></p>
     {cases.map((c, i) => (
       <div class="pt-case pt-group" role="group" aria-labelledby={`pt-case-${i}`} data-choice data-case={i} data-unlock={i > 0 ? `case-${i}` : undefined} data-unlocks={i < cases.length - 1 ? `case-${i + 1}` : "zones"}>
-        <h3 id={`pt-case-${i}`}>{c.failure}</h3>
+        <h3 id={`pt-case-${i}`} tabindex="-1">{c.failure}</h3>
         <pre class="pt-evidence" tabindex="0"><code>{c.evidence}</code></pre>
         <p class="pt-q">{c.ask}</p>
         <div class="pt-options pt-sees">
           {c.options.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
         </div>
         <p class="pt-feedback" role="status"></p>
+        {i < cases.length - 1 && <button type="button" class="pt-next" data-next-case hidden>Next case</button>}
       </div>
     ))}
     <button type="button" class="pt-next" data-to-zones hidden>Continue</button>
@@ -197,8 +202,8 @@ const ideas = [
     <dl>
       {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
     </dl>
-    <p>The real Touchline runs these steps across about a thousand school sites. Your eight-school table needs them just as much, and you do not yet know which ones the agent skipped.</p>
-    <p><strong>Start at the source. Did the agent collect everything it said it did?</strong></p>
+    <p>The real Touchline runs these steps across about a thousand school sites. Your eight-school table needs them just as much, and you do not yet know which ones Kick skipped.</p>
+    <p><strong>Dunmore says thirteen. Your table says six. Start at the source: did Kick collect everything it said it did?</strong></p>
     <a class="pt-link" href="../../modules/01-collection/">Start Module 1</a>
   </section>
 </div>
@@ -211,7 +216,9 @@ const ideas = [
   .pt h3 { margin: 0 0 0.3rem; color: var(--sl-color-white); font-size: 1.2rem; line-height: 1.25; font-weight: 700; }
   .pt-note { padding: 0.75rem 1rem; border-left: 3px solid var(--pt-yellow); }
   .pt-ai { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
-  .pt-ai p:last-child { margin-bottom: 0; }
+  .pt-ai p:last-child, .pt-first p:last-child { margin-bottom: 0; }
+  .pt-first { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid var(--pt-yellow); background: var(--tl-card); }
+  .pt-first[hidden] { display: none; }
   .pt-who { margin-bottom: 0.2rem !important; font-size: 0.85rem; font-weight: 700; }
   .pt-who span { margin-left: 0.4rem; color: var(--tl-muted); font-weight: 400; }
   .pt-part { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--tl-line); }
@@ -255,6 +262,9 @@ const ideas = [
   .pt-next, .pt-link { border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
   .pt-next[hidden], .pt-summary[hidden] { display: none; }
+  .pt .pt-group button.pt-next { justify-self: start; border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; }
+  :root[data-theme="light"] .pt .pt-group button.pt-next { color: #fff; }
+  .pt-case h3 { outline: none; scroll-margin-top: 5rem; }
   .pt-back[hidden] { display: none; }
   .pt-evidence { margin: 0 0 0.7rem; padding: 0.7rem 0.85rem; overflow-x: auto; border: 1px solid var(--tl-line); background: var(--tl-card); font-size: 0.82rem; }
   .pt-evidence code { padding: 0; background: none; }
@@ -308,6 +318,13 @@ const ideas = [
   if (root) {
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const behavior: ScrollBehavior = calm ? "auto" : "smooth";
+    try {
+      const first = localStorage.getItem("touchline-first-ask");
+      if (first) {
+        root.querySelector<HTMLElement>("[data-first-text]")!.textContent = first;
+        root.querySelector<HTMLElement>("[data-first]")!.hidden = false;
+      }
+    } catch {}
     const open = (key: string) => {
       const target = root.querySelector<HTMLElement>(`[data-unlock="${key}"]`)!;
       target.classList.add("is-open");
@@ -343,11 +360,21 @@ const ideas = [
           proceed.focus({ preventScroll: !fromKeyboard });
           return;
         }
-        const target = open(key);
         if (key.startsWith("case-")) {
-          target.querySelector("button")!.focus({ preventScroll: !fromKeyboard });
-          target.scrollIntoView({ behavior, block: "nearest" });
-        } else if (key === "tour") {
+          const nextCase = group.querySelector<HTMLButtonElement>("[data-next-case]")!;
+          nextCase.hidden = false;
+          nextCase.scrollIntoView({ behavior, block: "nearest" });
+          nextCase.focus({ preventScroll: true });
+          nextCase.addEventListener("click", () => {
+            nextCase.hidden = true;
+            const heading = open(key).querySelector<HTMLElement>("h3")!;
+            heading.focus({ preventScroll: true });
+            heading.scrollIntoView({ behavior, block: "start" });
+          }, { once: true });
+          return;
+        }
+        const target = open(key);
+        if (key === "tour") {
           feedback.scrollIntoView({ behavior, block: "start" });
           target.querySelector<HTMLElement>("h2")!.focus({ preventScroll: true });
         } else {
@@ -427,6 +454,8 @@ const ideas = [
         summary.hidden = false;
         toClose.hidden = false;
         toClose.focus({ preventScroll: event.detail !== 0 });
+      } else {
+        cards.find((c) => !c.disabled)?.focus({ preventScroll: event.detail !== 0 });
       }
       (tried.size === cards.length ? toClose : zoneFeedback).scrollIntoView({ behavior, block: "nearest" });
     }));
@@ -439,6 +468,7 @@ const ideas = [
         card.querySelector("[data-zone-result]")!.textContent = "";
       });
       reset.hidden = true;
+      summary.hidden = true;
       zoneFeedback.textContent = "All three zones are back. Try deleting Derived or Clean first.";
       zoneFeedback.classList.remove("good");
       cards[cards.length - 1].focus({ preventScroll: true });

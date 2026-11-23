@@ -19,19 +19,22 @@ const transcript: [string, string][] = [
   ["Kick", "You're absolutely right, and I apologize. I ran it again. No errors."],
   ["Narrator", "That is all the evidence Riley has."],
   ["Narrator", "Every check mark hid a decision Riley never knew was theirs to make."],
-  ["On screen", "Collecting sites: What did you miss? Reading pages: Is it the right page? Matching teams: What did you guess? Checking the table: What stops a bad table?"],
-  ["Kick", "What should I build?"],
-  ["Narrator", "Before you press send, what would you ask it?"],
+  ["On screen", "Each of the four green check marks opens onto a question mark. The clock returns to 4:52."],
+  ["Kick", "Ready to publish."],
+  ["Narrator", "Before you press Publish, what would you ask it?"],
 ];
 ---
 
 <section class="fo not-content" data-film>
-  <video controls playsinline preload="metadata" poster={film("publish-day.jpg")} aria-label="Publish Day, a two-minute animated film">
-    <source src={film("publish-day.mp4")} type="video/mp4" />
-    <track kind="captions" src={film("publish-day.vtt")} srclang="en" label="English" />
-    <track kind="chapters" src={film("publish-day-chapters.vtt")} srclang="en" label="Chapters" />
-    <a href={film("publish-day.mp4")}>Download the film</a>
-  </video>
+  <div class="fo-player">
+    <video controls playsinline preload="metadata" poster={film("publish-day.jpg")} aria-label="Publish Day, a two-minute animated film">
+      <source src={film("publish-day.mp4")} type="video/mp4" />
+      <track kind="captions" src={film("publish-day.vtt")} srclang="en" label="English" default />
+      <track kind="chapters" src={film("publish-day-chapters.vtt")} srclang="en" label="Chapters" />
+      <a href={film("publish-day.mp4")}>Download the film</a>
+    </video>
+    <button type="button" class="fo-play" data-play hidden>Play the film</button>
+  </div>
   <p class="fo-note">Scripted story, invented data. Two minutes, with sound.</p>
   <details class="fo-script">
     <summary>Read the transcript</summary>
@@ -39,22 +42,27 @@ const transcript: [string, string][] = [
   </details>
 
   <form class="fo-ask" data-ask>
-    <label for="fo-answer">Before you press send, what would you ask it?</label>
-    <p>Write one line, even a rough guess. It comes back on the last page of the course, so you can see what changed.</p>
+    <label for="fo-answer">Before you press Publish, what would you ask it?</label>
+    <p>Write one line, even a rough guess. It stays with you through the course and comes back on the last page.</p>
     <div class="fo-row">
       <input id="fo-answer" type="text" maxlength="240" autocomplete="off" data-answer />
-      <button type="submit">Save my answer</button>
     </div>
     <p class="fo-status" role="status" data-status></p>
   </form>
 
-  <p class="fo-bridge">Riley's table is on your desk now. Open up what Kick built, one step at a time, and decide what you would have asked.</p>
+  <p class="fo-bridge">Riley's table is on your desk now. Open up what Kick built, one step at a time. You do not need pipeline or soccer experience, and the labs are optional.</p>
   <a class="fo-next" href="./start/platform/">Look inside what Kick built</a>
 </section>
 
 <style is:global>
   .fo { max-width: 52rem; margin: 0 auto 2.5rem; color: var(--tl-ink); line-height: 1.55; }
+  .fo-player { position: relative; }
   .fo video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #06100b; }
+  .fo-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-height: 52px; padding: 0.6rem 1.3rem 0.6rem 2.6rem; border: 2px solid #07120d; border-radius: 3px; background: #f4c62f; color: #1b1a0c; font: inherit; font-weight: 750; cursor: pointer; }
+  .fo-play::before { content: ""; position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); border-left: 0.8rem solid #1b1a0c; border-top: 0.5rem solid transparent; border-bottom: 0.5rem solid transparent; }
+  .fo-play[hidden] { display: none; }
+  .fo-map { max-width: 52rem; margin: 0 auto 2rem; border-top: 1px solid var(--tl-line); }
+  .fo-map > summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
   .fo p { margin: 0 0 0.6rem; }
   .fo-note { margin-top: 0.45rem !important; color: var(--tl-muted); font-size: 0.9rem; }
   .fo-script { margin-bottom: 1.4rem; border-bottom: 1px solid var(--tl-line); }
@@ -67,9 +75,9 @@ const transcript: [string, string][] = [
   .fo-ask label { display: block; margin-bottom: 0.25rem; color: var(--sl-color-white); font-size: clamp(1.25rem, 3.6vw, 1.55rem); font-weight: 750; line-height: 1.2; }
   .fo-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .fo-row input { flex: 1 1 16rem; min-width: 0; min-height: 44px; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font: inherit; }
-  .fo-row button, .fo-next { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.1rem; border: 0; border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
-  :root[data-theme="light"] .fo-row button, :root[data-theme="light"] .fo-next { color: #fff; }
-  .fo input:focus-visible, .fo button:focus-visible, .fo a:focus-visible, .fo summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  .fo-next { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.1rem; border: 0; border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+  :root[data-theme="light"] .fo-next { color: #fff; }
+  .fo input:focus-visible, .fo button:focus-visible, .fo-map > summary:focus-visible, .fo a:focus-visible, .fo summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
   .fo-status { margin: 0.5rem 0 0 !important; }
   .fo-status:empty { display: none; }
 </style>
@@ -80,21 +88,23 @@ const transcript: [string, string][] = [
     const form = root.querySelector<HTMLFormElement>("[data-ask]")!;
     const input = root.querySelector<HTMLInputElement>("[data-answer]")!;
     const status = root.querySelector<HTMLElement>("[data-status]")!;
+    const video = root.querySelector<HTMLVideoElement>("video")!;
+    const play = root.querySelector<HTMLButtonElement>("[data-play]")!;
+    play.hidden = false;
+    play.addEventListener("click", () => { video.play(); video.focus(); });
+    video.addEventListener("play", () => { play.hidden = true; });
     try { input.value = localStorage.getItem(key) ?? ""; } catch {}
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
+    const save = () => {
       const answer = input.value.trim();
-      if (!answer) {
-        status.textContent = "Type a line first, or carry on without one.";
-        input.focus();
-        return;
-      }
       try {
-        localStorage.setItem(key, answer);
-        status.textContent = "Saved. It will be waiting on the last page.";
+        if (answer) localStorage.setItem(key, answer);
+        else localStorage.removeItem(key);
+        status.textContent = answer ? "Saved. It will be waiting for you." : "";
       } catch {
         status.textContent = "This browser could not save it, so keep your answer in mind.";
       }
-    });
+    };
+    input.addEventListener("input", save);
+    form.addEventListener("submit", (event) => event.preventDefault());
   });
 </script>

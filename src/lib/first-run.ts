@@ -77,7 +77,6 @@ export const run = {
 };
 
 export const dunmorePlayed = reported.find((r) => r.slug === DOWN)!.p;
-export const fewestOthers = Math.min(...reported.filter((r) => r.slug !== DOWN).map((r) => r.p));
 export const stillToPlay = fixtures.filter((f) => f.conference_game && f.status !== "final").length;
 export const noPublishedScore = fixtures.filter((f) => f.conference_game && f.status === "final" && f.home_score === undefined).length;
 
