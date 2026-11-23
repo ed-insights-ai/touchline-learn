@@ -6,8 +6,10 @@ const transcript: [string, string][] = [
   ["Narrator", "Eight college soccer websites. Built for fans, not software. No official feed."],
   ["Narrator", "Riley could learn how any of this works. Or Riley could type one sentence."],
   ["Riley's prompt", "Collect this season's men's soccer results from all eight school sites and build a conference table I can publish."],
+  ["On screen", "Kick races through four green check marks: collecting sites, reading pages, matching teams, checking the table. An eight-team table fills in, with Dunmore at six played."],
   ["Kick, the coding agent", "Done. All eight school sites, forty-six conference matches, no errors. Ready to publish."],
   ["Narrator", "Riley gives it a good, long, two-second look."],
+  ["On screen", "At 4:58 Riley taps Publish without looking up. The table goes live."],
   ["Coach Dolan, Hartwell, voicemail", "Yeah, it's Coach Dolan over at Hartwell. We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth. My guys are seeing this. Call me back."],
   ["Dunmore athletics, voicemail", "Hi, Dunmore athletics. You've got our men at six conference games. We've played thirteen. I have a booster asking me if we forfeited half the season."],
   ["Cedar Grove men's soccer, voicemail", "Hey, Cedar Grove men's soccer, we're on the bus. September twenty-first, us and St. Lambert. That game happened, I lost my voice in that game. It's not in the standings. Fix it."],
@@ -43,7 +45,7 @@ const transcript: [string, string][] = [
 
   <form class="fo-ask" data-ask>
     <label for="fo-answer">Before you press Publish, what would you ask it?</label>
-    <p>Write one line, even a rough guess. It stays with you through the course and comes back on the last page.</p>
+    <p>Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It stays with you through the course and comes back on the last page.</p>
     <div class="fo-row">
       <input id="fo-answer" type="text" maxlength="240" autocomplete="off" data-answer />
     </div>
@@ -56,17 +58,22 @@ const transcript: [string, string][] = [
 
 <style is:global>
   .fo { max-width: 52rem; margin: 0 auto 2.5rem; color: var(--tl-ink); line-height: 1.55; }
-  .fo-player { position: relative; }
+  :root:has(.fo) .hero { gap: 0.4rem; padding-block: 1rem 0.75rem; }
+  :root:has(.fo) .hero h1 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); }
+  :root:has(.fo) .hero .tagline { font-size: 1rem; }
+  .fo-player { position: relative; max-width: min(100%, calc((100svh - 15rem) * 16 / 9)); margin-inline: auto; }
   .fo video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #06100b; }
   .fo-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-height: 52px; padding: 0.6rem 1.3rem 0.6rem 2.6rem; border: 2px solid #07120d; border-radius: 3px; background: #f4c62f; color: #1b1a0c; font: inherit; font-weight: 750; cursor: pointer; }
   .fo-play::before { content: ""; position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); border-left: 0.8rem solid #1b1a0c; border-top: 0.5rem solid transparent; border-bottom: 0.5rem solid transparent; }
   .fo-play[hidden] { display: none; }
+  .fo .fo-play:focus-visible { outline-color: #f4c62f; }
+  @media (max-width: 30rem) { .fo-play { min-height: 44px; padding: 0.35rem 0.8rem 0.35rem 2.1rem; font-size: 0.88rem; } .fo-play::before { left: 0.85rem; } }
   .fo-map { max-width: 52rem; margin: 0 auto 2rem; border-top: 1px solid var(--tl-line); }
   .fo-map > summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
   .fo p { margin: 0 0 0.6rem; }
   .fo-note { margin-top: 0.45rem !important; color: var(--tl-muted); font-size: 0.9rem; }
   .fo-script { margin-bottom: 1.4rem; border-bottom: 1px solid var(--tl-line); }
-  .fo-script summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
+  .fo-script summary { display: list-item; padding-block: 0.6rem; font-weight: 700; cursor: pointer; }
   .fo-script dl { margin: 0 0 1rem; }
   .fo-script dl > div { margin-bottom: 0.65rem; }
   .fo-script dt { color: var(--tl-muted); font-size: 0.85rem; font-weight: 700; }
@@ -93,6 +100,11 @@ const transcript: [string, string][] = [
     play.hidden = false;
     play.addEventListener("click", () => { video.play(); video.focus(); });
     video.addEventListener("play", () => { play.hidden = true; });
+    video.addEventListener("ended", () => {
+      const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      form.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
+      if (matchMedia("(pointer: fine)").matches) input.focus({ preventScroll: true });
+    });
     try { input.value = localStorage.getItem(key) ?? ""; } catch {}
     const save = () => {
       const answer = input.value.trim();

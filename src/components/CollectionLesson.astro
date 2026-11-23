@@ -5,9 +5,9 @@ import { dunmorePlayed, hartwellRows, noPublishedScore, recovered, repaired, rep
 type Option = { label: string; why: string; correct?: boolean };
 
 const settle: Option[] = [
-  { label: "Compare it with last season's table", why: "Last season can make a number look odd. It cannot tell you what happened to this season's pages." },
+  { label: "Run it again and see if the count changes", why: "A rerun can repeat the same gap, and a new count would not tell you why it moved." },
   { label: "Ask Kick if it is sure", why: "It would repeat its summary. You need evidence the summary was built from." },
-  { label: "See every page it requested and what happened to each", why: "Yes. A table shows what it holds. Only the list of requests can show what never arrived.", correct: true },
+  { label: "Compare the pages it should have asked for with what happened to each", why: "Yes. A table shows what it holds. Only that comparison can show what never arrived, or was never requested.", correct: true },
 ];
 const ninth: Option[] = [
   { label: "Add one entry to the registry", why: "Yes. The registry is configuration, so a new school needs no new collector code.", correct: true },
@@ -59,7 +59,8 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   <script is:inline type="application/json" data-payload set:html={JSON.stringify(payload)}></script>
 
   <section class="cl-step is-open" data-step="1">
-    <h2 tabindex="-1">Start with the table you nearly published</h2>
+    <h2 tabindex="-1">Start with the calls Riley got</h2>
+    <p>You are back at 4:52, but you have heard what this table does at 5:41.</p>
     <div class="cl-agent">
       <p class="cl-who">Coach Dolan, Hartwell <span>voicemail, 5:41</span></p>
       <p>We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.</p>
@@ -68,7 +69,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       <p class="cl-who">Dunmore athletics <span>voicemail, 5:44</span></p>
       <p>You've got our men at six conference games. We've played thirteen.</p>
     </div>
-    <p>Kick said all eight sites, no errors. Both calls point at the same school. This was Kick's first run, so it began with an empty archive. Look at the Played column.</p>
+    <p>Kick said all eight sites, no errors. Two of the three calls point at the same school, so start there and keep Cedar Grove's for later. This was Kick's first run, so it began with an empty archive. Look at the Played column.</p>
     <div data-board><FirstRunTable rows={reported} caption="Your table, as Kick delivered it" /></div>
     <div class="cl-ask" data-choice data-then="2">
       <p class="cl-q">Your table says Dunmore has played {dunmorePlayed}. Dunmore says thirteen. What would settle whether something is missing?</p>
@@ -122,7 +123,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     </div>
     <div class="cl-after" data-after="repaired" tabindex="-1">
       <p><strong>Hartwell Tech moves from 4th to 2nd.</strong> Their own page arrived on time. Someone else's outage cost them two places, and the run still said it worked.</p>
-      <p class="cl-aside">Played still varies because {stillToPlay} conference matches are yet to be played and {noPublishedScore} final has no published score. Module 6 deals with what a blank means.</p>
+      <p class="cl-aside">Played still varies because {stillToPlay} conference matches are yet to be played and {noPublishedScore} final has no published score: Cedar Grove against St. Lambert on September 21, the third call. Module 6 deals with what a blank means.</p>
       <div class="cl-ask" data-choice data-then="4">
         <p class="cl-q">All seven are back. Is Dunmore's season complete now?</p>
         {complete.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}

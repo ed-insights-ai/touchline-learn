@@ -205,4 +205,5 @@ so neither ranking depends on this gap.
 Using the fixture record above, write a contract for it in plain language: each
 field, its type, whether it is required, and whether it may be absent. Then
 decide what a reader should do with a record whose `status` is `final` and
-which has no scores. The 2026 men's file contains one.
+which has no scores. The 2026 men's file contains one: Cedar Grove against
+St. Lambert on September 21, the game from the third voicemail in the opening film.
