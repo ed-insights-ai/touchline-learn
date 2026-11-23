@@ -56,3 +56,12 @@ happened on the platform.
 
 `python sample/generate.py --check` confirms the committed sample is exactly
 what the generator writes.
+
+## Licence
+
+- **Code** (the labs, `sample/generate.py`, `scripts/`, and the site's
+  configuration and components) is under the [MIT License](LICENSE).
+- **The guide** (the text in `src/content/docs/`, the diagrams, and the
+  generated sample data) is under
+  [Creative Commons Attribution 4.0](LICENSE-CONTENT). Use it, adapt it and
+  teach from it; credit "Touchline Learn" with a link to the site.
