@@ -129,8 +129,10 @@ const buildPack = (absent: string) => {
     if (!seen.has(key) || /\d/.test(r.result)) seen.set(key, r.result);
   }));
   const row = repaired.find((r) => r.slug === absent)!;
+  const hostOnly = pages.reduce((n, page) => n + page.rows.filter((r) => r.side === "vs" && r.opp === nameOf(absent) && /\d/.test(r.result)).length, 0);
   return {
     absent: nameOf(absent),
+    hostOnly,
     text: pages.map((page) => `${page.name}, 2026 men's soccer schedule\n${page.rows.map((r) => `${r.date}  ${r.side}  ${r.opp}  ${r.result}`.trimEnd()).join("\n")}`).join("\n\n"),
     listed: seen.size,
     scored: [...seen.values()].filter((r) => /\d/.test(r)).length,
@@ -151,7 +153,7 @@ if (story.schools !== 8 || story.requests !== 20 || story.finals !== 54 || story
   || unseen.schools.length !== 7 || unseen.cells !== 28 || unseen.notComplete !== 7 || unseen.schedules !== 5
   || unseen.expected !== 42 || unseen.held !== 40 || unseen.withBox !== 32
   || keptFromHarbor.length !== 8 || harborDark !== 4 || keptFromHarbor.some((f) => !f.id.startsWith("tally:harbor-point:"))
-  || packB.listed !== 56 || packB.scored !== 53 || pack.listed !== 56 || pack.scored !== 53 || pack.dunmorePlayed !== 13 || pack.dunmorePoints !== 18
+  || first.hostOnly !== bounds.played || packB.listed !== 56 || packB.scored !== 53 || pack.listed !== 56 || pack.scored !== 53 || pack.dunmorePlayed !== 13 || pack.dunmorePoints !== 18
   || unseen.missingSchools.join() !== "dunmore,eastbrook-state"
   || cells["2025/men/dunmore/schedule"].state !== "no-collector" || cells["2025/men/eastbrook-state/schedule"].state !== "unavailable"
   || emptyCell.state !== "empty" || places.filter((p) => p.before !== p.after).length !== 5) {

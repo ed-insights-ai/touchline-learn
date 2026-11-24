@@ -75,14 +75,15 @@ unavailable      : 1
 RESULT: incremental collection behaves as expected
 ```
 
-**Your turn.**
+**Your turn.** Each change starts from the original file, so undo one before
+you try the next (`git checkout labs/m01_collect.py`).
 
 1. Take a second site down. In `labs/m01_collect.py`, change
    `DOWN = ["dunmore"]` to `DOWN = ["dunmore", "hartwell-tech"]`. Before you
    run it, predict how many finished matches the host-only rule reads. Then run
    it. You should see `39 of 52` read host-only, `51 from both pages`, and a
-   new line saying 2 matches are on no saved page. The season still has 54 finished matches.
-   Why does the lab now count 52, and why does each school's named gap now say
+   new line saying 2 matches are on no saved page. The season still has 54
+   finished matches. Why does the lab now count 52 finished from saved pages, and why does each school's named gap now say
    6 home matches where Dunmore's said 7?
 2. Take a page out of the registry. In `friday()`, just after the line that
    builds `url_of`, add `url_of.pop("eastbrook-state")` and run part one.
@@ -97,6 +98,9 @@ RESULT: incremental collection behaves as expected
    arrives, and nothing on day 3 looked like an error. Ask your assistant how a
    collector could notice a site that does this, and what each way of noticing
    would cost.
+
+Every run above kept the pages it saved. That is what Module 2 starts from:
+rebuilding Friday's table without asking a single site again.
 
 ---
 

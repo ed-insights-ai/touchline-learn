@@ -45,6 +45,9 @@
       const norow = val("norow") === "1";
       const missing = !val("absent") || !val("blank") || !val("rows") || (!norow && (num("played") === null || num("points") === null));
       if (missing) {
+        list.replaceChildren();
+        note.textContent = "";
+        if (store[`found-${id}`]) put(`found-${id}`, "");
         if (asked) need.textContent = "Answer each line from what your assistant wrote. For the row, enter both numbers or tick “Not in its table.” Only the count may be left blank.";
         return;
       }
@@ -106,6 +109,11 @@
     leak();
     showBack();
     root.querySelectorAll<HTMLElement>("[data-evidence]").forEach((box) => {
+      const none = box.querySelector<HTMLInputElement>('[data-save$="-norow"]');
+      const rowFields = [...box.querySelectorAll<HTMLInputElement>('[data-save$="-played"], [data-save$="-points"]')];
+      const syncRow = () => rowFields.forEach((f) => { f.disabled = !!none?.checked; });
+      none?.addEventListener("change", syncRow);
+      syncRow();
       box.querySelector<HTMLButtonElement>("[data-evidence-check]")?.addEventListener("click", () => evidence(box, true));
       if (store[`checked-${box.dataset.evidence}`]) evidence(box);
     });
@@ -149,7 +157,7 @@
         return picked ? picked.value === answer : null;
       }
       if (values.some((f) => !f.value.trim())) return null;
-      const num = (v: string) => { const m = v.replace(/(\d),(\d{3})/g, "$1$2").match(/-?\d+/); return m ? Number(m[0]) : null; };
+      const num = (v: string) => { const t = v.replace(/(\d),(\d{3})/g, "$1$2"); if (/\d[.,]\d/.test(t)) return null; const m = t.match(/-?\d+/); return m ? Number(m[0]) : null; };
       if (type === "number" || type === "range") {
         const nums = values.map((f) => num(f.value));
         if (nums.some((n) => n === null)) return null;
@@ -214,7 +222,7 @@
       button.addEventListener("click", (event) => {
         if (questions.some((q) => grade(q) === null)) {
           need.classList.add("is-wrong");
-          need.textContent = "Answer every part first, with digits where a number is asked.";
+          need.textContent = "Answer every part first, with whole numbers where a number is asked.";
           return;
         }
         put(flag, "1");
@@ -230,10 +238,18 @@
     };
     root.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
       const label = button.dataset.label ?? button.textContent!.trim();
-      button.addEventListener("click", () => copy(button, button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!, label));
+      button.addEventListener("click", () => {
+        const body = button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!;
+        const lead = button.dataset.copyPrefix ? (store[button.dataset.copyPrefix] ?? "").trim() : "";
+        copy(button, lead ? `${lead}\n\n${body}` : body, label);
+      });
     });
     const briefButton = root.querySelector<HTMLButtonElement>("[data-copy-brief]");
-    briefButton?.addEventListener("click", () => copy(briefButton, root.querySelector<HTMLTextAreaElement>("#cv-brief")?.value ?? "", "Copy my clause"));
+    briefButton?.addEventListener("click", () => {
+      const text = root.querySelector<HTMLTextAreaElement>("#cv-brief")?.value.trim() ?? "";
+      if (!text) { briefButton.textContent = "Write your clause first"; setTimeout(() => { briefButton.textContent = "Copy my clause"; }, 2500); return; }
+      copy(briefButton, text, "Copy my clause");
+    });
 
     root.querySelector<HTMLButtonElement>("[data-reset]")?.addEventListener("click", () => {
       try { localStorage.removeItem(KEY); localStorage.removeItem("touchline-m1-progress"); } catch {}

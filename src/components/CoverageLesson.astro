@@ -23,7 +23,7 @@ import { outcomes } from "../lib/parts";
     <p class="cv-lead">A collection can finish without an error and still hand you an incomplete table.</p>
     <p class="cv-eyebrow-sm">By the end you can</p>
     <ol class="cv-goals">{outcomes.map((o) => <li><a href={o.href}><span>{o.where}</span>{o.short}</a></li>)}</ol>
-    <p class="cv-facts"><span data-no-first><strong>New here?</strong> Start with <a href="../../">Publish Day</a>.</span><a href="../01-collection-field-work/">Optional field work &amp; lab →</a></p>
+    <p class="cv-facts" data-no-first><span><strong>New here?</strong> Start with <a href="../../">Publish Day</a>.</span></p>
   </div>
   <Rail />
   <Setup />
