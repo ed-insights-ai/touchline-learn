@@ -43,7 +43,7 @@
       const list = box.querySelector<HTMLElement>("[data-found]")!;
       const note = box.querySelector<HTMLElement>("[data-evidence-note]")!;
       const norow = val("norow") === "1";
-      const missing = !val("absent") || !val("blank") || !val("teams") || (!norow && (num("played") === null || num("points") === null));
+      const missing = !val("absent") || !val("blank") || !val("rows") || (!norow && (num("played") === null || num("points") === null));
       if (missing) {
         if (asked) need.textContent = "Answer each line from what your assistant wrote. For the row, enter both numbers or tick “Not in its table.” Only the count may be left blank.";
         return;
@@ -53,7 +53,7 @@
       const absent = d.absent!;
       const host = d.host ? Number(d.host) : null;
       const checks: [boolean, string, string][] = [
-        [val("teams") === "yes", `One row for each of the ${d.teams} members`, val("teams") === "short" ? "A school with no page of its own can drop out of the table." : "Non-conference opponents or a school counted twice made it into the table."],
+        [val("rows") === "yes", `One row for each of the ${d.teams} members`, val("rows") === "short" ? "A school with no page of its own can drop out of the table." : "Non-conference opponents or a school counted twice made it into the table."],
         [!norow && num("played") === Number(d.played) && num("points") === Number(d.points), `${absent} on ${d.played} played and ${d.points} points`, norow ? `It dropped ${absent}, whose results are all on its opponents' pages.` : num("played") === host ? `${num("played")} played is Kick's host-only count: it read none of ${absent}'s home matches from the visitors' pages.` : `The pages support ${d.played} played and ${d.points} points. A gap here is a counting slip, double counting, or non-conference rows.`],
         [val("absent") === absent, `Said ${absent}'s own page was not there`, val("absent") === "none" ? "It never mentioned a missing page." : `It named ${val("absent")}, whose page was there. The missing one was ${absent}'s.`],
         [val("blank") === "sep21", "Named September 21 as a final without a score", val("blank") === "none" ? "It said nothing about a blank score, or filled one in." : "The blank is September 21, Cedar Grove v St. Lambert."],

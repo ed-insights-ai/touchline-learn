@@ -196,7 +196,6 @@
   .cv-evidence .cv-fb:not(:empty) { background: var(--tl-bg); }
   .cv-ev-qs { display: grid; gap: 0.7rem; margin: 0 0 0.9rem; }
   .cv-ev-none { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px; margin-left: 0.5rem; font-weight: 400; }
-  .cv-ev-none input { width: auto !important; }
   .cv-evidence > button { margin-bottom: 0.6rem; }
   .cv-found { display: grid; gap: 0.3rem; margin: 0 0 0.5rem !important; padding: 0 !important; list-style: none; }
   .cv-found li { margin: 0; padding: 0.4rem 0.7rem; border-left: 3px solid var(--cv-red); background: var(--tl-bg); }
@@ -349,7 +348,7 @@
   .cv-askkick .cv-reveal { margin-top: 0.8rem; }
 
   .cv-fillin { gap: 0.4rem 0.5rem !important; margin: 0 !important; }
-  .cv-fillin input { width: 4.5rem !important; }
+  .cv-fillin input:not([type="checkbox"]) { width: 4.5rem !important; }
   .cv-split { margin: 0 0 1.25rem; }
   .cv-split table { display: table; width: 100%; max-width: 34rem; margin: 0; border-collapse: collapse; font-variant-numeric: tabular-nums; }
   .cv-split th, .cv-split td { padding: 0.4rem 0.5rem; border: 0; border-bottom: 1px solid var(--tl-line); background: none; text-align: right; }
