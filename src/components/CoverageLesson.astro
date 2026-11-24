@@ -11,6 +11,7 @@ import Rewind from "./coverage/Rewind.astro";
 import ProveIt from "./coverage/ProveIt.astro";
 import CarryIt from "./coverage/CarryIt.astro";
 import Rail from "./coverage/Rail.astro";
+import JourneyTop from "./JourneyTop.astro";
 import { bounds, pack, story } from "../lib/coverage";
 import { outcomes } from "../lib/parts";
 
@@ -19,6 +20,7 @@ import { outcomes } from "../lib/parts";
 <CoverageRuntime />
 
 <div class="cv cv-core not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
+  <JourneyTop />
   <div class="cv-orient">
     <p class="cv-lead">A collection can finish without an error and still hand you an incomplete table.</p>
     <p class="cv-eyebrow-sm">By the end you can</p>
