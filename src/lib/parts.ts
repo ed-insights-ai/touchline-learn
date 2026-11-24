@@ -26,9 +26,9 @@ export const partAt = (id: string) => {
   return { ...part, n: n + 1, of: parts.length, phaseName: phases.find((p) => p.key === part.phase)!.name, next: parts[n + 1] };
 };
 
-export const outcomes: { can: string; href: string; where: string }[] = [
-  { can: "Say what a collection should contain before it runs, from a source outside the run.", href: "#case-dunmore", where: "Case 1" },
-  { can: "Trace one missing source to the block of records it takes with it, and bound how far a number could move.", href: "#case-hartwell", where: "Case 2" },
-  { can: "Tell empty, unknown and never asked apart, and say what each lets you claim.", href: "#case-cedar-grove", where: "Case 3" },
-  { can: "Decide what a collector does when a source is silent, and separate a run that succeeded from a table that is ready to publish.", href: "#decision", where: "The decision" },
+export const outcomes: { can: string; short: string; href: string; where: string }[] = [
+  { can: "Say what a collection should contain before it runs, from a source outside the run.", short: "Say what a collection should contain, before it runs", href: "#case-dunmore", where: "Case 1" },
+  { can: "Trace one missing source to the block of records it takes with it, and bound how far a number could move.", short: "Trace a missing source to the records it takes, and bound the damage", href: "#case-hartwell", where: "Case 2" },
+  { can: "Tell empty, unknown and never asked apart, and say what each lets you claim.", short: "Tell empty, unknown and never asked apart", href: "#case-cedar-grove", where: "Case 3" },
+  { can: "Decide what a collector does when a source is silent, and separate a run that succeeded from a table that is ready to publish.", short: "Separate a run that succeeded from a table ready to publish", href: "#decision", where: "The decision" },
 ];
