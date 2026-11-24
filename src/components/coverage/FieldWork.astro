@@ -24,13 +24,13 @@ const kickPlan = [
   "Print a summary: pages fetched, matches found, errors.",
 ];
 const planAudit = [
-  { key: "pages", q: "Says which pages the collector will ask for", answer: "1", why: "Step 1. Eight schedule pages. It lists the requests, and that is the only expectation the plan ever states.", wrong: {"0": "Step 1 does: it lists every page to download."} },
-  { key: "fail", q: "Says what the collector does when a site does not answer", answer: "3", why: "Step 3: retry, warn, continue. The plan does handle the failure.", wrong: {"0": "Step 3 does handle it: retry three times, warn, and carry on."} },
-  { key: "named", q: "Makes the finished summary name the site that failed", answer: "0", why: "No step does. Step 3 comes close: it writes the school's name to a log. The finished summary is step 6, and step 6 prints counts. Riley read the summary.", wrong: {"3": "Step 3 writes the name to a log. Riley never saw the log, only the summary.", "6": "Step 6 prints counts: pages, matches, errors. No names."} },
-  { key: "empty", q: "Tells a page with nothing on it apart from a page that never arrived", answer: "0", why: "No step does. Both end as zero rows.", wrong: {"2": "Step 2 turns tables into rows. An empty page and a missing page both give zero rows, and nothing tells them apart."} },
-  { key: "total", q: "Says how many matches the finished table should hold", answer: "0", why: "No step does. Step 6 reports “matches found,” a count with nothing to compare it to.", wrong: {"6": "Step 6 reports matches found. Found is not the same as expected: there is nothing to compare it to.", "5": "Step 5 computes the table from whatever arrived. It never says how big it should be."} },
-  { key: "once", q: "Stops the same match being counted twice", answer: "4", why: "Step 4. It is a sensible rule, and it is the rule that turned one missing page into seven missing matches.", wrong: {"0": "Step 4 is exactly that rule."} },
-  { key: "keep", q: "Stops a later, partial run erasing what this run recorded", answer: "0", why: "No step does. Every run starts from nothing and writes over what was there.", wrong: {"5": "Step 5 writes the table from scratch every run, over whatever was there."} },
+  { key: "pages", q: "Says which pages the collector will ask for", answer: "1", why: "Step 1. Eight schedule pages. It lists the requests, and that is the only expectation the plan ever states.", wrong: {"0": "Step 1 does: it lists every page to download, and that is the only expectation the plan ever states."} },
+  { key: "fail", q: "Says what the collector does when a site does not answer", answer: "3", why: "Step 3: retry, warn, continue. The plan does handle the failure.", wrong: {"0": "Step 3 does: retry three times, warn, and carry on."} },
+  { key: "named", q: "Makes the finished summary name the site that failed", answer: "0", why: "No step does. Step 3 comes close: it writes the school's name to a log. The finished summary is step 6, and step 6 prints counts. Riley read the summary.", wrong: {"3": "No step does. Step 3 writes the name to a log, and Riley never saw the log, only the summary.", "6": "No step does. Step 6 prints counts: pages, matches, errors. No names."} },
+  { key: "empty", q: "Tells a page with nothing on it apart from a page that never arrived", answer: "0", why: "No step does. Both end as zero rows.", wrong: {"2": "No step does. Step 2 turns tables into rows, and an empty page and a missing page both give zero rows."} },
+  { key: "total", q: "Says how many matches the finished table should hold", answer: "0", why: "No step does. Step 6 reports “matches found,” a count with nothing to compare it to.", wrong: {"6": "No step does. Step 6 reports matches found, a count with nothing to compare it to.", "5": "No step does. Step 5 computes the table from whatever arrived and never says how big it should be."} },
+  { key: "once", q: "Stops the same match being counted twice", answer: "4", why: "Step 4. It is a sensible rule, and it is the rule that turned one missing page into seven missing matches.", wrong: {"0": "Step 4 does. It is a sensible rule, and it is the rule that turned one missing page into seven missing matches."} },
+  { key: "keep", q: "Stops a later, partial run erasing what this run recorded", answer: "0", why: "No step does. Every run starts from nothing and writes over what was there.", wrong: {"5": "No step does. Step 5 writes the table from scratch every run, over whatever was there."} },
 ];
 const members = `${pack.members.slice(0, -1).join(", ")} and ${pack.members.at(-1)}`;
 const packPrompt = `Here are this season's men's soccer schedule pages from the Prairie Lakes Conference school sites. The eight members are ${members}. Build the conference table I can publish.`;
@@ -58,11 +58,11 @@ const square = (slug: string, layer: string) => {
   return { name: `${row.name}, ${LAYERS[at].label}`, ...row.cells[at] };
 };
 const gaps = [
-  { key: "dun", ...square("dunmore", "schedule"), answer: "reader", why: "No collector. The 2025 pages are in a form nothing can read, so asking again returns the same thing. The work is a new reader.", wrong: {"retry": "Asking again returns the same pages in the same form nothing can read.", "inspect": "A person can read them. The platform still can't, and that takes code."} },
-  { key: "hp-s", ...square("harbor-point", "schedule"), answer: "wait", why: "It is complete. Harbor Point's gap is in its box scores, and a gap in one layer says nothing about the others.", wrong: {"retry": "There is nothing to retry. This square is complete; the gap is in another layer."} },
-  { key: "eb-s", ...square("eastbrook-state", "schedule"), answer: "inspect", why: "A page did arrive and could not prove its season. Asking again will most likely be served the same page, so a person has to look at what the site sends for 2025 and decide whether it can be proved.", wrong: {"retry": "A page did arrive. Asking again will most likely be served the same page.", "reader": "The page was read fine. It just could not prove which season it covers."} },
-  { key: "eb-m", ...square("eastbrook-state", "matches"), answer: "upstream", why: "Its reason names the schedule. Box score links are discovered from a proved schedule, so this square cannot close until that one does.", wrong: {"retry": "These links come from the schedule. Until the schedule is proved, there is nothing to ask for."} },
-  { key: "hp-m", ...square("harbor-point", "matches"), answer: "source", why: `The site no longer serves those pages, so no retry and no new reader brings them back from Harbor Point. The only place left is the other school in each match, if that school publishes its own copy. For ${harborDark} of the eight, the other school is Dunmore or Eastbrook State, where nothing could be collected either.`, wrong: {"retry": "The site no longer serves those pages. A retry gets nothing back.", "reader": "No reader helps when the pages are gone from the site."} },
+  { key: "dun", ...square("dunmore", "schedule"), answer: "reader", why: "No collector. The 2025 pages are in a form nothing can read, so asking again returns the same thing. The work is a new reader.", wrong: {"retry": "Asking again returns the same pages in the same form nothing can read. The work is new collecting code for that site.", "inspect": "A person can read them, but the platform still can't. The work is new collecting code for that site."} },
+  { key: "hp-s", ...square("harbor-point", "schedule"), answer: "wait", why: "It is complete. Harbor Point's gap is in its box scores, and a gap in one layer says nothing about the others.", wrong: {"retry": "There is nothing to retry: this square is complete. Harbor Point's gap is in its box scores, and a gap in one layer says nothing about the others."} },
+  { key: "eb-s", ...square("eastbrook-state", "schedule"), answer: "inspect", why: "A page did arrive and could not prove its season. Asking again will most likely be served the same page, so a person has to look at what the site sends for 2025 and decide whether it can be proved.", wrong: {"retry": "A page did arrive and could not prove its season, and asking again will most likely be served the same page. A person has to examine what the site sends for 2025.", "reader": "The page was read fine. It could not prove which season it covers, so a person has to examine what the site sends for 2025."} },
+  { key: "eb-m", ...square("eastbrook-state", "matches"), answer: "upstream", why: "Its reason names the schedule. Box score links are discovered from a proved schedule, so this square cannot close until that one does.", wrong: {"retry": "Fix the schedule first. Box score links come from a proved schedule, so until it is proved there is nothing to ask for."} },
+  { key: "hp-m", ...square("harbor-point", "matches"), answer: "source", why: `The site no longer serves those pages, so no retry and no new reader brings them back from Harbor Point. The only place left is the other school in each match, if that school publishes its own copy. For ${harborDark} of the eight, the other school is Dunmore or Eastbrook State, where nothing could be collected either.`, wrong: {"retry": "The site no longer serves those pages, so a retry gets nothing back. Look to the other school in each match, if it publishes its own copy.", "reader": "No reader helps when the pages are gone from the site. Look to the other school in each match, if it publishes its own copy."} },
 ];
 
 const pseudo = `expected = every (school, page kind) the job needs
@@ -115,7 +115,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <div class="cv-check" data-once="plan">
       <p class="cv-qlabel">For each requirement, pick the step that meets it, or “No step.”</p>
       {planAudit.map((a) => (
-        <div class="cv-line" data-q data-type="select" data-answer={a.answer} data-why={a.why} data-wrong={JSON.stringify(a.wrong)}>
+        <div class="cv-line" data-q data-type="select" data-answer={a.answer} data-why={a.why} data-wrong={JSON.stringify(a.wrong)} data-hint-full>
           <label><span>{a.q}</span>
             <select data-save={`plan-${a.key}`}>
               <option value="">Choose</option>
@@ -266,11 +266,11 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <p>Bring back one answer: which of the three is “Dunmore's site was down on Friday afternoon”?</p>
     <details class="cv-more">
       <summary>Check what you brought back</summary>
-      <p>The best answer is <em>missing at random, given the host</em>: whether a match is missing depends on who hosted it, which you can observe. It rests on an assumption no table of results can test, that the outage had nothing to do with the scores.</p>
+      <p>For working with this table, the best answer is <em>missing at random, given the host</em>: whether a match is missing depends on who hosted it, which you can observe. It rests on an assumption no table of results can test, that the outage had nothing to do with the scores.</p>
       <p>Even if that holds, Kick's table cannot estimate Dunmore's home results, because it holds none. Statisticians call that a <strong>positivity failure</strong>. Getting past it takes a model of team strength, with assumptions of its own.</p>
       <p>If your assistant said something else, push back:</p>
       <ul>
-        <li><b>“Completely at random.”</b> Ask which unit it meant. Among pages, one outage on one Friday may well be random. Among matches it is not: every missing match is a Dunmore home match.</li>
+        <li><b>“Completely at random.”</b> Fair about the outage itself: one Friday cannot tell you whether outages strike any site equally. But the matches you lost are all Dunmore home matches, so in this table the gap follows something you can see. Analyze it as missing at random, given the host.</li>
         <li><b>“Not at random.”</b> Ask what makes it think the outage depended on the results. A school that pulled its page after a bad run would be that case. Nothing in the record says Dunmore did.</li>
         <li><b>One answer for every gap.</b> The pattern covers only the seven matches lost with the page. September 21 is missing for a different reason and needs its own answer.</li>
       </ul>
@@ -293,7 +293,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <div class="cv-check" data-once="close">
       <p class="cv-qlabel">For each square, what would close the gap, if there is one? An action can be right more than once, or never.</p>
       {gaps.map((g) => (
-        <div class="cv-line" data-q data-type="select" data-answer={g.answer} data-why={g.why} data-wrong={JSON.stringify(g.wrong)}>
+        <div class="cv-line" data-q data-type="select" data-answer={g.answer} data-why={g.why} data-wrong={JSON.stringify(g.wrong)} data-hint-full>
           <label><span>{g.name}<span class="cv-sub">{stateName[g.state]}. {g.note}</span></span>
             <select data-save={`gap-${g.key}`}><option value="">Choose</option>{actions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
           </label>

@@ -47,6 +47,7 @@
       if (missing) {
         list.replaceChildren();
         note.textContent = "";
+        box.querySelector<HTMLElement>(".cv-reveal")?.classList.remove("is-open");
         if (store[`found-${id}`]) put(`found-${id}`, "");
         if (asked) need.textContent = "Answer each line from what your assistant wrote. For the row, enter both numbers or tick “Not in its table.” Only the count may be left blank.";
         return;
@@ -157,7 +158,7 @@
         return picked ? picked.value === answer : null;
       }
       if (values.some((f) => !f.value.trim())) return null;
-      const num = (v: string) => { const t = v.replace(/(\d),(\d{3})/g, "$1$2"); if (/\d[.,]\d/.test(t)) return null; const m = t.match(/-?\d+/); return m ? Number(m[0]) : null; };
+      const num = (v: string) => { const m = v.replace(/(\d),(\d{3})/g, "$1$2").trim().match(/^(-?\d+)(\s*%|\s+[a-z][a-z ]*)?$/i); return m ? Number(m[1]) : null; };
       if (type === "number" || type === "range") {
         const nums = values.map((f) => num(f.value));
         if (nums.some((n) => n === null)) return null;
@@ -184,7 +185,11 @@
           fb.classList.add(ok ? "is-right" : "is-wrong");
           const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? q.querySelector<HTMLInputElement>("input[type=radio]:checked")?.value ?? "";
           const hint = !ok && q.dataset.wrong ? (JSON.parse(q.dataset.wrong) as Record<string, string>)[picked] ?? "" : "";
-          fb.textContent = `${ok ? "Correct." : "Not quite."} ${hint ? `${hint} The answer is ` : ""}${q.dataset.why}`;
+          const why = q.dataset.why ?? "";
+          const sel = q.querySelector<HTMLSelectElement>("select");
+          const label = !ok && sel ? [...sel.options].find((o) => o.value === q.dataset.answer!.split("|")[0])?.text.trim() ?? "" : "";
+          const named = !label || why.toLowerCase().startsWith(label.toLowerCase().slice(0, 14));
+          fb.textContent = ok ? `Correct. ${why}` : hint && q.hasAttribute("data-hint-full") ? `Not quite. ${hint}` : `Not quite. ${hint ? `${hint} ` : ""}${named ? why : `The answer is “${label}.” ${why}`}`;
         });
         box.querySelectorAll<Field>("input, select").forEach((f) => { f.disabled = true; });
         button.hidden = true;
@@ -241,6 +246,7 @@
       button.addEventListener("click", () => {
         const body = button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!;
         const lead = button.dataset.copyPrefix ? (store[button.dataset.copyPrefix] ?? "").trim() : "";
+        if (button.dataset.copyPrefix && !lead) { button.textContent = "Write your paragraph first"; setTimeout(() => { button.textContent = label; }, 2500); return; }
         copy(button, lead ? `${lead}\n\n${body}` : body, label);
       });
     });
