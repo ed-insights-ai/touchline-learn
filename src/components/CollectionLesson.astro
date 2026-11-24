@@ -11,7 +11,7 @@ const settle: Option[] = [
 ];
 const whatToTell: Option[] = [
   { label: "We never got your page, so we can't confirm it", why: "Yes. The log supports exactly that much: one page was asked for and never answered.", correct: true },
-  { label: "We have six, so the other seven must be nonconference", why: "That is a guess. Nobody here has seen Dunmore's page." },
+  { label: "Your site only lists six conference games", why: "Nobody here has seen Dunmore's page, so you cannot say what it lists." },
   { label: "Your site was down, so those games are lost for good", why: "Too far. A failed request says nothing about what can still be recovered." },
 ];
 const otherUnit: Option[] = [
@@ -36,8 +36,8 @@ const reports: (Option & { text: string })[] = [
 ];
 const theCall: Option[] = [
   { label: "Kick's table, with a fix promised for Monday", why: "That is Riley's Friday. You know all eight rows are wrong." },
-  { label: "The rebuilt table, marked provisional, naming what is open", why: "A defensible call. Readers get the best table your saved pages support, and they can see what is still open.", correct: true },
-  { label: "A note that standings are delayed while one page is missing", why: "Also defensible. You give up a useful table to avoid publishing anything unverified, and you still named the gap.", correct: true },
+  { label: "The rebuilt table, marked provisional, naming what is open", why: "A defensible call. Readers get the best table your saved pages support. A delay notice would also be defensible: it gives up a useful table to avoid publishing anything unverified.", correct: true },
+  { label: "A note that standings are delayed, naming what is still open", why: "A defensible call. You give up a useful table to avoid publishing anything unverified. A provisional table would also be defensible, as long as it named the same gaps.", correct: true },
 ];
 const tagFirst: Option[] = [
   { label: "The page stays unsaved, and nothing flags it", why: "Right. The site keeps saying “unchanged,” because the tag claims a copy you do not have, for as long as the page stays the same. That is why the tag comes after the save.", correct: true },
@@ -46,7 +46,7 @@ const tagFirst: Option[] = [
 ];
 const cedar: Option[] = [
   { label: "Yes, every planned page is now saved", why: "Every planned page, yes. Look at what the plan left out." },
-  { label: "Yes, a final with no score must be 0-0", why: "A blank is not a zero. Module 6 is about exactly that." },
+  { label: "No, St. Lambert's page is still missing", why: "St. Lambert's page was saved. Look at what the plan left out." },
   { label: "No, its box score was never in the plan", why: "Right. Cedar Grove's schedule links a box score for that game, and this plan never requested it. No log line can report a page nobody asked for.", correct: true },
 ];
 const code = `for page in planned_pages:
@@ -99,9 +99,8 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <h2 tabindex="-1">Ask for the collection plan and its log</h2>
     <dl class="cl-plan">
       <div><dt>Registry</dt><dd>The list of sources to ask. Here, eight school sites. The real platform lists about a thousand. A new school on a website platform you already read is one new entry, with no new code.</dd></div>
-      <div><dt>Unit of work</dt><dd>One conference, one gender, one season: Prairie Lakes men, 2026. Units run separately, so one can fail while the others finish.</dd></div>
     </dl>
-    <p>The registry supplies the sources. Each run turns it into a plan of page requests, and the fetch log keeps one line for every request. Kick's plan had {run.total} pages: {run.schedules} school schedules, plus {run.boxes} box scores from Alder Ridge, the first school on its list. It never added the other seven. These are the eight schedule lines.</p>
+    <p>The registry supplies the sources. Each run turns it into a plan of page requests, and the fetch log keeps one line for every request. Kick's plan had {run.total} pages: {run.schedules} school schedules, plus {run.boxes} box scores, the individual match pages, from Alder Ridge, the first school on its list. It never added the other seven. These are the eight schedule lines.</p>
     <table class="cl-log">
       <caption>Fetch log, schedule pages</caption>
       <thead><tr><th scope="col">School</th><th scope="col">Result</th></tr></thead>
@@ -122,8 +121,11 @@ const bytes = (n: number) => n.toLocaleString("en-US");
         <li><i class="is-missing">?</i> No answer: 1</li>
       </ul>
       <p>The other schools' schedules link box scores too, and this plan never asked for them. <strong>A clean log can only account for what was planned.</strong></p>
+      <dl class="cl-plan">
+        <div><dt>Unit of work</dt><dd>One conference, one gender, one season: Prairie Lakes men, 2026. Each unit runs on its own.</dd></div>
+      </dl>
       <div class="cl-ask" data-choice data-then="3">
-        <p class="cl-q">Dunmore went quiet during the men's unit. What should happen to the women's unit in the same run?</p>
+        <p class="cl-q">Suppose this run also covered the Prairie Lakes women. Dunmore went quiet during the men's unit. What should happen to the women's unit?</p>
         {otherUnit.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
         <p class="cl-feedback" role="status"></p>
       </div>
@@ -132,7 +134,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
 
   <section class="cl-step" data-step="3">
     <h2 tabindex="-1">Work out what one missing page did</h2>
-    <p>Both teams list every match, so the table reads each one once, from the host school's page. That keeps it from counting a match twice. It also means Dunmore's seven home matches never reached it.</p>
+    <p>Both teams list every match, so the table reads each one once, from the host school's page. That keeps it from counting a match twice. It also means Dunmore's seven home matches never reached it. Each of the other seven schools' saved schedules lists one trip to Dunmore.</p>
     <div class="cl-ask" data-choice data-reveal="rows">
       <p class="cl-q">How many rows in your table will change once those seven are counted?</p>
       {rowsHurt.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
@@ -153,7 +155,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     </div>
     <div class="cl-after" data-after="repaired" tabindex="-1">
       <p><strong>Hartwell Tech moves from 4th to 2nd.</strong> Their own page arrived on time. Someone else's outage cost them two places, and the run still said it worked. In all, one missing page changed all eight rows and moved five teams.</p>
-      <p class="cl-aside">Played still varies because {stillToPlay} conference matches are yet to be played and {noPublishedScore} final has no score on either school's schedule: Cedar Grove against St. Lambert on September 21, the third call. Keep that call in mind.</p>
+      <p class="cl-aside">Played still varies because {stillToPlay} conference matches are yet to be played and {noPublishedScore} final has no score on either school's schedule: Cedar Grove against St. Lambert on September 21, the third call. Cedar Grove's schedule marks it final and links a box score for it. Keep that call in mind.</p>
       <button type="button" class="cl-next" data-go="4">Continue</button>
     </div>
   </section>
@@ -176,7 +178,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
 
   <section class="cl-step" data-step="5">
     <h2 tabindex="-1">Run it again and do only the new work</h2>
-    <p>The next morning Dunmore answers again, and St. Lambert has changed its schedule page. The collector saved a small tag with each page, meaning <em>I hold a safe copy of this version</em>, so it asks all {run.total}: <em>has this changed since I last saw it?</em> Only pages that say yes, or that it never got, are downloaded.</p>
+    <p>The next morning Dunmore answers again, and St. Lambert has changed its entry for the November 21 match. The collector saved a small tag with each page, meaning <em>I hold a safe copy of this version</em>, so it asks all {run.total}: <em>has this changed since I last saw it?</em> Only pages that say yes, or that it never got, are downloaded.</p>
     <div class="cl-grid" role="img" aria-label={`2 pages downloaded. ${run.total - 2} pages unchanged. No pages missing.`}>
       {Array.from({ length: run.total }, (_, i) => {
         const fresh = i === run.downIndex || i === run.changedIndex;
@@ -188,6 +190,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       <li><i class="is-same">=</i> Unchanged: {run.total - 2}</li>
     </ul>
     <p class="cl-bytes"><b>{bytes(run.rerunBytes)}</b> bytes of pages downloaded instead of {bytes(run.allBytes)}. Across a thousand sites every day, that difference is the job.</p>
+    <p>The order matters: the collector saves the page first, and only then stores its tag.</p>
     <pre tabindex="0"><code>{code}</code></pre>
     <div class="cl-ask" data-choice data-reveal="rerun">
       <p class="cl-q">Suppose the code stored the tag first, and then the save failed. If the page does not change, what happens on later runs?</p>
@@ -215,7 +218,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   <section class="cl-close il-close" data-step="close">
     <h2 tabindex="-1">Before you trust "no errors," ask for three things</h2>
     <ol>
-      <li><strong>The plan.</strong> You cannot see a gap without a list of what should be there, and a page left off the list leaves no trace.</li>
+      <li><strong>The plan.</strong> You cannot see a gap without a list of what should be there, and a page left off the list never appears in the log.</li>
       <li><strong>What happened to each request.</strong> Saved, unchanged or missing, with the reason.</li>
       <li><strong>Who each gap affects.</strong> One missing page moved a team that never had a problem.</li>
     </ol>
@@ -410,7 +413,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
         render();
         root.querySelector("[data-board-note]")!.textContent = "Seven results added.";
         wrap.querySelector("caption")!.textContent = "Your table, with all seven saved results added. P is played, GD is goal difference, Pts is points.";
-        setTimeout(() => reveal("repaired", false, false), calm ? 0 : 480);
+        setTimeout(() => reveal("repaired", keyboard), 1000);
       }, offscreen && !calm ? 380 : 0);
     });
 
