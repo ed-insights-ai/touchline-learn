@@ -54,7 +54,7 @@ const returnChoices = [
 const hook = [
   { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
   { label: "Whether the numbers are right", why: "That is the hard part. Nothing in “no errors” tells you the scores belong to the right teams and seasons." },
-  { label: "Whether “no errors” checked anything", why: "The right suspicion. “No errors” means the code finished. It says nothing about whether anyone tested the result." },
+  { label: "Whether “no errors” checked anything", why: "The right suspicion. “No errors” is Kick's report that the code finished. It says nothing about whether anyone tested the result." },
 ];
 
 const dunmoreLooks = [
@@ -132,7 +132,7 @@ const ideas = [
 
   <header class="pt-hero">
     <h2>It is 4:52, and the chair is yours</h2>
-    <p data-no-first>Haven't seen the film? <a href="../../">Watch the two minutes</a> first. This page picks up where it ends.</p>
+    <p data-no-first>Came here directly? <a href="../../">The film is two minutes</a>, and this page picks up where it ends.</p>
     <p>Go back to 4:52, before Riley's tap, and take the chair yourself. This is what Kick just sent you.</p>
     <div class="pt-ai">
       <p class="pt-who">Kick <span>scripted example</span></p>
@@ -462,7 +462,7 @@ const ideas = [
     const skip = root.querySelector<HTMLAnchorElement>("[data-skip]")!;
     const lookNote = root.querySelector<HTMLElement>("[data-look-note]")!;
     const looks = [...dunmore.querySelectorAll<HTMLButtonElement>("[data-look]")];
-    looks.forEach((look) => look.addEventListener("click", () => {
+    looks.forEach((look) => look.addEventListener("click", (event) => {
       const right = "firstLook" in look.dataset;
       looks.forEach((b) => {
         b.classList.toggle("is-right", b === look && right);
@@ -475,10 +475,11 @@ const ideas = [
         lookNote.scrollIntoView({ behavior, block: "nearest" });
         return;
       }
-      looks.forEach((b) => (b.disabled = true));
+      if (answered) return;
       answered = true;
       syncLast();
       forward.scrollIntoView({ behavior, block: "nearest" });
+      if (event.detail === 0) forward.focus({ preventScroll: true });
     }));
     let practicing = false;
     let answered = false;
@@ -520,7 +521,9 @@ const ideas = [
       if (current < stops.length - 1) {
         show(current + 1);
         if (event.detail === 0) enterPanel();
-        else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: matchMedia("(max-height: 30rem)").matches ? "start" : "nearest" });
+        else if (matchMedia("(max-height: 30rem)").matches) {
+          (current === stops.length - 1 ? panels[current] : root.querySelector(".pt-rail")!).scrollIntoView({ behavior, block: "start" });
+        } else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: "nearest" });
         return;
       }
       continued = true;
@@ -582,13 +585,13 @@ const ideas = [
       if (tried.size === cards.length) {
         const nothingRebuilt = lost.size === cards.length;
         summary.hidden = nothingRebuilt;
-        toClose.hidden = false;
+        toClose.hidden = nothingRebuilt;
         if (nothingRebuilt) zoneFeedback.textContent = "Raw went first, so Clean had nothing to rebuild from, and then Derived had no Clean. Restore them and start with Derived or Clean to see the difference.";
         (nothingRebuilt ? reset : toClose).focus({ preventScroll: event.detail !== 0 });
       } else {
         cards.find((c) => !c.disabled)?.focus({ preventScroll: event.detail !== 0 });
       }
-      (tried.size === cards.length ? toClose : zoneFeedback).scrollIntoView({ behavior, block: "nearest" });
+      (tried.size === cards.length ? (toClose.hidden ? reset : toClose) : zoneFeedback).scrollIntoView({ behavior, block: "nearest" });
     }));
     reset.addEventListener("click", () => {
       lost.clear();
