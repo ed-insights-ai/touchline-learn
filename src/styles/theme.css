@@ -114,3 +114,6 @@
   .tl-panes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .tl-panes section + section { border-left: 1px solid var(--tl-line); }
 }
+
+/* Overview: the plain sections below the platform map share its column. */
+.ov-rest { max-width: 52rem; margin: 0 auto 2rem; padding-top: 0.5rem; border-top: 1px solid var(--tl-line); }

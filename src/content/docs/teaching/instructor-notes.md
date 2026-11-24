@@ -11,14 +11,14 @@ A module fits one 50-minute session. A three-week unit, three sessions a week:
 
 | Week | Session 1 | Session 2 | Session 3 |
 |---|---|---|---|
-| 1 | Opening discussion, the platform in one view, lab setup | Modules 1 and 2 | Module 3 |
+| 1 | Opening discussion, the Overview's seven steps, lab setup | Modules 1 and 2 | Module 3 |
 | 2 | Module 4 | Module 5 | Module 6, contract-writing lab |
 | 3 | Module 7 | Modules 8 and 9 | Module 10, closing discussion, capstone briefing |
 
 The Module 1 core path takes about 55 minutes with its two films, and its field work page suits
 homework.
 
-For a single guest lecture, use the platform in one view, then Modules 3 and 6.
+For a single guest lecture, use the Overview's seven steps, then Modules 3 and 6.
 They carry the two ideas students are least likely to have met: proof before
 parse, and kinds of missing data.
 

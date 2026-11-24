@@ -1,0 +1,125 @@
+---
+import { dunmorePlayed } from "../lib/first-run";
+import { ideas, matchLabel, stops, zones } from "../lib/one-match";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const moduleHref = (slug: string) => `${base}modules/${slug}/`;
+---
+
+<section class="pm not-content" id="one-match" aria-labelledby="pm-title">
+  <h2 id="pm-title">What a trustworthy pipeline does with one result</h2>
+  <p>Kick showed four green check marks. A trustworthy platform takes every result through seven steps and keeps its data in three zones. Here is one result from Riley's table, {matchLabel}, taken through all seven. Like everything in this course's data, the match is invented.</p>
+
+  <figure class="pm-figure">
+    <ol class="pm-band" aria-label="Seven steps in three zones">
+      {zones.map((z) => (
+        <li class={`pm-zone ${z.key}`}>
+          <p class="pm-zname">{z.name} <small>{z.also.toLowerCase()}</small></p>
+          <p class="pm-holds">{z.holds}</p>
+          <ol class="pm-chips">
+            {stops.map((s, i) => s.zone === z.key && <li><a href={`#step-${s.name.toLowerCase()}`}><b>{i + 1}</b>{s.name}</a></li>)}
+          </ol>
+        </li>
+      ))}
+    </ol>
+    <figcaption>Each zone is computed from the one before it. As long as raw survives, everything after it can be rebuilt with versioned code and reference lists. That is what makes a bug recoverable.</figcaption>
+  </figure>
+
+  <ol class="pm-steps">
+    {stops.map((s, i) => (
+      <li class={`pm-step ${s.zone}`} id={`step-${s.name.toLowerCase()}`}>
+        <div class="pm-head">
+          <b aria-hidden="true">{i + 1}</b>
+          <h3><span>{s.name}.</span> {s.title}</h3>
+          <a href={moduleHref(s.module.slug)}>Module {s.module.n}</a>
+        </div>
+        <p>{s.body}</p>
+        <p class="pm-risk">{s.risk}</p>
+        <p class="pm-kick">{s.mark ? <>Kick's check mark: <q>{s.mark}</q></> : "Kick showed no check mark for this step."}</p>
+        <details>
+          <summary>See it on this match</summary>
+          <pre><code>{s.artifact}</code></pre>
+        </details>
+      </li>
+    ))}
+  </ol>
+
+  <h2>Four ideas you will build across the course</h2>
+  <dl class="pm-ideas">
+    {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
+  </dl>
+  <p class="pm-more">Want to practice placing failures on these steps? <a href={`${base}practice/follow-one-match/`}>Follow one match</a> steps through it again with four short cases to come back to as you finish Modules 2, 3, 5 and 7.</p>
+
+  <div class="pm-handoff">
+    <p class="pm-eyebrow">Module 1 · Collection and coverage</p>
+    <h2>Start at step one: what did Kick actually collect?</h2>
+    <p>You now know the seven steps a result should pass through. You do not yet know which ones Kick took.</p>
+    <p><strong>Dunmore says 13. Your table says {dunmorePlayed}.</strong> Module 1 slows Friday down from Riley's prompt, shows the five stages Kick's script actually ran and how they line up with these seven, then teaches how to measure what a collection missed.</p>
+    <p class="pm-fine">About 55 minutes. A browser is enough, and no soccer or pipeline background is needed.</p>
+    <a class="pm-go" href={moduleHref("01-collection")}>Start Module 1</a>
+  </div>
+</section>
+
+<style is:global>
+  .pm { max-width: 52rem; margin: 0 auto 2.5rem; padding-top: 2rem; border-top: 1px solid var(--tl-line); color: var(--tl-ink); line-height: 1.55; }
+  .pm p { margin: 0 0 0.75rem; }
+  .pm h2 { margin: 0 0 0.75rem; color: var(--sl-color-white); font-size: clamp(1.4rem, 4.2vw, 1.9rem); line-height: 1.15; font-weight: 750; letter-spacing: -0.015em; text-wrap: balance; scroll-margin-top: 5rem; }
+  .pm h3 { margin: 0; color: var(--sl-color-white); font-size: 1.08rem; line-height: 1.3; font-weight: 650; }
+  .pm h3 span { color: var(--tl-muted); font-weight: 700; }
+
+  .pm-figure { margin: 1.25rem 0 1.5rem; }
+  .pm-band { display: grid; grid-template-columns: 2fr 3.6fr 1.6fr; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+  .pm-band > li { position: relative; margin: 0; padding: 0.7rem 0.75rem 0.8rem; border: 1px solid var(--tl-line); border-top-width: 4px; }
+  .pm-band > li:not(:last-child)::after { content: ""; position: absolute; right: -0.33rem; top: 50%; z-index: 1; width: 0.6rem; height: 0.6rem; border-top: 2px solid var(--tl-muted); border-right: 2px solid var(--tl-muted); background: none; transform: translate(0, -50%) rotate(45deg); }
+  .pm-zone.raw { background: var(--tl-raw); border-top-color: var(--tl-raw-edge); }
+  .pm-zone.clean { background: var(--tl-clean); border-top-color: var(--tl-clean-edge); }
+  .pm-zone.derived { background: var(--tl-derived); border-top-color: var(--tl-derived-edge); }
+  .pm .pm-zname { margin: 0; font-weight: 750; }
+  .pm-zname small { display: block; margin-left: 0; color: var(--tl-muted); font-size: 0.78rem; font-weight: 500; }
+  .pm .pm-holds { margin: 0 0 0.55rem; color: var(--tl-muted); font-size: 0.85rem; line-height: 1.3; }
+  .pm-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0; padding: 0; list-style: none; }
+  .pm-chips li { margin: 0; }
+  .pm-chips a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 36px; padding: 0.25rem 0.6rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.88rem; font-weight: 600; text-decoration: none; }
+  .pm-chips a:hover { border-color: var(--sl-color-accent); }
+  .pm-chips b { color: var(--tl-muted); font-variant-numeric: tabular-nums; }
+  .pm-figure figcaption { margin-top: 0.6rem; color: var(--tl-muted); font-size: 0.9rem; }
+
+  .pm-steps { display: grid; gap: 0.5rem; margin: 0 0 2rem; padding: 0; list-style: none; counter-reset: none; }
+  .pm-step { margin: 0; padding: 0.8rem 0.95rem 0.6rem; border: 1px solid var(--tl-line); border-left-width: 4px; background: var(--tl-card); scroll-margin-top: 5rem; }
+  .pm-step.raw { border-left-color: var(--tl-raw-edge); }
+  .pm-step.clean { border-left-color: var(--tl-clean-edge); }
+  .pm-step.derived { border-left-color: var(--tl-derived-edge); }
+  .pm-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.35rem; }
+  .pm-head > b { flex: none; width: 1.4rem; color: var(--sl-color-accent); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+  .pm-head h3 { flex: 1; }
+  .pm-head a { flex: none; color: var(--tl-muted); font-size: 0.82rem; white-space: nowrap; }
+  .pm-step > p { margin-left: 2rem; }
+  .pm .pm-risk { margin-bottom: 0.35rem; font-weight: 600; }
+  .pm .pm-kick { margin-bottom: 0.2rem; color: var(--tl-muted); font-size: 0.85rem; }
+  .pm-step details { margin-left: 2rem; }
+  .pm-step summary { display: list-item; min-height: 36px; padding-block: 0.35rem; color: var(--tl-muted); font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+  .pm pre { margin: 0.1rem 0 0.6rem; padding: 0.7rem 0.8rem; overflow-x: auto; background: var(--tl-bg); border: 1px solid var(--tl-line); font-size: 0.78rem; line-height: 1.55; }
+  .pm pre code { padding: 0; background: none; font-size: inherit; overflow-wrap: anywhere; white-space: pre-wrap; }
+
+  .pm-ideas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 1rem; }
+  .pm-ideas > div { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-top: 3px solid var(--sl-color-accent); background: var(--tl-card); }
+  .pm-ideas dt { font-weight: 700; color: var(--sl-color-white); }
+  .pm-ideas dd { margin: 0.2rem 0 0; color: var(--tl-ink); font-size: 0.95rem; }
+  .pm .pm-more { margin-bottom: 2rem; color: var(--tl-muted); font-size: 0.92rem; }
+
+  .pm-handoff { padding: 1.2rem 1.25rem 1.3rem; border-radius: 4px; color: #f4faf5; background: #0f4a33; }
+  .pm-handoff h2 { color: #f4faf5; }
+  .pm .pm-eyebrow { margin-bottom: 0.3rem; color: #f4c62f; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .pm-handoff strong { color: #fff; }
+  .pm .pm-fine { color: #c9ddd0; font-size: 0.9rem; }
+  .pm-go { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0.25rem; padding: 0.55rem 1.2rem; border-radius: 3px; background: #f4c62f; color: #1b1a0c !important; font-weight: 750; text-decoration: none; }
+  .pm a:focus-visible, .pm summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  .pm-handoff a:focus-visible { outline-color: #f4c62f; }
+
+  @media (max-width: 40rem) {
+    .pm-band { grid-template-columns: 1fr; }
+    .pm-band > li:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -0.36rem; transform: translate(-50%, 0) rotate(135deg); }
+    .pm-ideas { grid-template-columns: 1fr; }
+    .pm-step > p, .pm-step details { margin-left: 0; }
+  }
+</style>

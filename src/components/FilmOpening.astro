@@ -49,19 +49,17 @@ const transcript: [string, string][] = [
       <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
     </div>
     <label for="fo-answer">Before you press Publish, what would you ask it?</label>
-    <p>Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It comes back on the next page, in Module 1 and on the last page.</p>
+    <p>Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It comes back in Module 1 and on the last page.</p>
     <div class="fo-row">
       <input id="fo-answer" type="text" maxlength="240" autocomplete="off" data-answer />
     </div>
     <p class="fo-status" role="status" data-status></p>
   </form>
 
-  <p class="fo-bridge">Riley's table is on your desk now. What would have to be true before you could trust it? You do not need pipeline or soccer experience, and the labs are optional.</p>
-  <a class="fo-next" href="./start/platform/">Look inside before you publish</a>
 </section>
 
 <style is:global>
-  .fo { max-width: 52rem; margin: 0 auto 2.5rem; color: var(--tl-ink); line-height: 1.55; }
+  .fo { max-width: 52rem; margin: 0 auto 1rem; color: var(--tl-ink); line-height: 1.55; }
   :root:has(.fo) .hero { gap: 0.4rem; padding-block: 1rem 0.75rem; }
   :root:has(.fo) .hero h1 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); }
   :root:has(.fo) .hero .tagline { font-size: 1rem; }
@@ -76,8 +74,6 @@ const transcript: [string, string][] = [
   .fo .fo-play:focus-visible { outline-color: #f4c62f; }
   @media (max-width: 30rem) { .fo-play { min-height: 44px; padding: 0.35rem 0.8rem 0.35rem 2.1rem; font-size: 0.88rem; } .fo-play::before { left: 0.85rem; } }
   @media (max-height: 30rem) and (orientation: landscape) { .fo-player { max-width: min(100%, calc((100svh - var(--sl-nav-height, 4rem) - 0.75rem) * 16 / 9)); } .fo-play { min-height: 44px; white-space: nowrap; } :root:has(.fo) .hero { padding-block: 0.25rem; gap: 0; } :root:has(.fo) .hero h1 { font-size: 1.1rem; } :root:has(.fo) .hero .tagline { display: none; } }
-  .fo-map { max-width: 52rem; margin: 0 auto 2rem; border-top: 1px solid var(--tl-line); }
-  .fo-map > summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
   .fo p { margin: 0 0 0.6rem; }
   .fo-note { margin-top: 0.45rem !important; color: var(--tl-muted); font-size: 0.9rem; }
   .fo-script { margin-bottom: 1.4rem; border-bottom: 1px solid var(--tl-line); }
@@ -93,9 +89,7 @@ const transcript: [string, string][] = [
   .fo-ask label { display: block; margin-bottom: 0.25rem; color: var(--sl-color-white); font-size: clamp(1.25rem, 3.6vw, 1.55rem); font-weight: 750; line-height: 1.2; }
   .fo-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .fo-row input { flex: 1 1 16rem; min-width: 0; min-height: 44px; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font: inherit; }
-  .fo-next { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.1rem; border: 0; border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
-  :root[data-theme="light"] .fo-next { color: #fff; }
-  .fo input:focus-visible, .fo button:focus-visible, .fo-map > summary:focus-visible, .fo a:focus-visible, .fo summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  .fo input:focus-visible, .fo button:focus-visible, .fo a:focus-visible, .fo summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
   .fo-status { margin: 0.5rem 0 0 !important; }
   .fo-status:empty { display: none; }
 </style>
@@ -139,7 +133,7 @@ const transcript: [string, string][] = [
     input.addEventListener("input", save);
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      if (input.value.trim()) root.querySelector<HTMLElement>(".fo-next")!.focus();
+      if (input.value.trim()) document.getElementById("one-match")?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
   });
 </script>

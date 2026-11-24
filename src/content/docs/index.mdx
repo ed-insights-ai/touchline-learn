@@ -9,11 +9,13 @@ hero:
 
 import CourseJourney from "../../components/CourseJourney.astro";
 import FilmOpening from "../../components/FilmOpening.astro";
+import PlatformMap from "../../components/PlatformMap.astro";
 
 <FilmOpening />
 
-<details class="fo-map">
-<summary>See the full course map</summary>
+<PlatformMap />
+
+<div class="ov-rest">
 
 ## What you will be able to do
 
@@ -24,14 +26,6 @@ import FilmOpening from "../../components/FilmOpening.astro";
 - Tell a false merge from a real one, and unknown data from a true zero.
 - Say where a language model can sit in a pipeline, and where it must not.
 
-## The journey
-
-Each module opens one part of what Kick did, answers one question about your
-table, and raises the next. At the end you go back to Kick and decide whether to
-publish.
-
-<CourseJourney />
-
 ## Who it is for
 
 Anyone who uses AI to work with data and wants to know when to trust the result,
@@ -40,10 +34,19 @@ computer science. No knowledge of soccer is needed. One rule is enough: a match
 has two teams and a score, and a season is a set of matches.
 
 The course uses Touchline, a working data platform that collects results from
-about a thousand college soccer websites. Riley, Kick and the data you work with are
-invented. The other stories in the lessons happened on that platform. Each module also has an
-optional lab if you want to run the code. [How to use this guide](./start/how-to-use/)
-has the details. Instructors will find capstone projects, pacing and an answer
-key under [Teaching](./teaching/instructor-notes/).
+about a thousand college soccer websites. Riley, Kick and the data you work with
+are invented. The other stories in the lessons happened on that platform. Each
+module is sized for one sitting, and each has an optional lab if you want to run
+the code. [How to use this guide](./start/how-to-use/) has the details.
+Instructors will find capstone projects, pacing and an answer key under
+[Teaching](./teaching/instructor-notes/).
 
-</details>
+## The journey
+
+Each module opens one part of the pipeline, answers one question about Riley's
+table, and raises the next. At the end you go back to Kick and decide whether to
+publish.
+
+<CourseJourney />
+
+</div>

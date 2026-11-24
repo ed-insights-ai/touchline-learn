@@ -8,6 +8,7 @@ export default defineConfig({
   site: "https://ed-insights-ai.github.io",
   base: "/touchline-learn",
   trailingSlash: "always",
+  redirects: { "/start/platform/": "/touchline-learn/practice/follow-one-match/" },
   integrations: [
     starlight({
       title: "Touchline Learn",
@@ -25,7 +26,6 @@ export default defineConfig({
       ],
       sidebar: [
         { label: "Overview", link: "/" },
-        { label: "Start here", items: ["start/platform"] },
         { label: "Modules", items: [{ autogenerate: { directory: "modules" } }] },
         { label: "Finish", items: ["finish/back-to-the-agent"] },
         { label: "Guide, labs and data", items: ["start/how-to-use", "start/setup", "start/sample-data"] },

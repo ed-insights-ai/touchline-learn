@@ -13,9 +13,9 @@ time, because each step relies on the one before it. The goal is judgment:
 knowing what each part is for, what breaks without it, and what to ask when an
 AI tool hands you a result.
 
-Interactive lessons ask you to decide before they explain. Commit to an answer
-even when you are unsure. A wrong guess you can explain teaches more than a
-right answer you skimmed past.
+Each lesson teaches an idea first, then checks it with a question you answer
+before the explanation appears. Commit to an answer even when you are unsure. A
+wrong answer you can explain teaches more than a right one you skimmed past.
 
 Work at your own pace. Each module is sized for one sitting. Capstone projects
 and discussion notes are under [Teaching](../../teaching/capstones/).

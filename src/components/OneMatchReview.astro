@@ -1,72 +1,18 @@
 ---
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { journeyModules } from "../data/journey";
-import { dunmorePlayed } from "../lib/first-run";
+import { matchLabel, stops, zones } from "../lib/one-match";
 
-const FIXTURE = "tally:alder-ridge:8203";
-const sample = (...parts: string[]) => join(process.cwd(), "sample", ...parts);
-const json = (...parts: string[]) => JSON.parse(readFileSync(sample(...parts), "utf-8"));
-
-const fixture = json("data", "fixtures", "2026-men-plc.json").fixtures.find((f: { id: string }) => f.id === FIXTURE);
-const box = json("data", "matches", "2026-men-plc.json").matches[FIXTURE];
-const rawName = "2026-men-box-tally-alder-ridge-8203.html";
-const html = readFileSync(sample("raw_html", "alder-ridge", rawName), "utf-8");
-const lines = html.split("\n");
-const titleLine = lines.find((l) => l.includes("<title>"))!.trim().replaceAll("&#x27;", "'");
-const tableStart = lines.findIndex((l) => l.includes("Score by Period"));
-const tableEnd = lines.findIndex((l, i) => i > tableStart && l.includes("</table>"));
-const scoreRows = lines.slice(tableStart + 1, tableEnd).map((l) => l.trim());
-const rawSnippet = [titleLine, ...scoreRows].join("\n");
-const teamRows = scoreRows.length - 1;
-const scheduleLinks = readdirSync(sample("raw_html", "alder-ridge"))
-  .filter((f) => f.startsWith("2026-men-") && f.endsWith(".html") && !f.includes("-box-"))
-  .some((f) => readFileSync(sample("raw_html", "alder-ridge", f), "utf-8").includes("boxscore/8203"));
-if (!scheduleLinks) throw new Error("the tour's schedule no longer links to this match");
-const [home, away] = box.teams as { name: string; abbr: string; score: number; periods: number[] }[];
-const total = (periods: number[]) => periods.reduce((a, b) => a + b, 0);
-if (teamRows !== 2 || !titleLine.includes("9/8/2026")) throw new Error("the tour's proof example no longer holds");
-if (total(home.periods) !== home.score || total(away.periods) !== away.score) throw new Error("the tour's period totals no longer add up");
-if (home.score !== fixture.home_score || away.score !== fixture.away_score) throw new Error("the tour's fixture and box score disagree");
-
-const parsed = `home: ${home.name}, ${home.score} (periods ${home.periods.join(", ")})
-away: ${away.name}, ${away.score} (periods ${away.periods.join(", ")})
-date: ${fixture.date}`;
-
-const stops = [
-  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector works from a list of the sites it must ask and follows the links each schedule page publishes. It never guesses a URL, and it records which pages answered and which did not.", artifact: `asked: ${box.source_url}\nresult: answered, saved`, risk: "Without it: a page that never arrived leaves no trace, and a guessed URL quietly returns the wrong page." },
-  { name: "Archive", zone: "raw", title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
-  { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The school's own schedule must list this match and link to this page. Then the page itself must name the match date and show exactly two teams.", artifact: `schedule lists this match and links here: yes\ntitle names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
-  { name: "Parse", zone: "clean", title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
-  { name: "Resolve", zone: "clean", title: "Give each team one identity", body: "Published names become stable ids, so every later join means the same school.", artifact: `${home.name} → ${fixture.home}\n${away.name} → ${fixture.away}`, risk: "Without it: one school splits into several, or two schools become one." },
-  { name: "Check", zone: "clean", title: "Let a gate stop the line", body: "Automatic checks compare the record against its contract, the written rules for its shape, and against itself.", artifact: `${home.name}: ${home.periods.join(" + ")} = ${home.score}\n${away.name}: ${away.periods.join(" + ")} = ${away.score}\nschedule and match page agree: yes`, risk: "Without it: a bad record reaches everything built on it." },
-  { name: "Build", zone: "derived", title: "Publish from the clean files", body: "The website, the analytical database and the written season summaries, called journals, all read the same record.", artifact: `${home.name} ${home.score}, ${away.name} ${away.score}\nwebsite · database · journal`, risk: "Without it: each product tells its own version of the result." },
-];
-
-const marks = ["Collecting sites", "Collecting sites", "Reading pages", "Reading pages", "Matching teams", "Checking the table", ""];
-const moduleFor = [1, 2, 3, 4, 5, 7, 8].map((n) => journeyModules.find((m) => m.n === n)!);
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const returnChoices = [
-  ...stops.map((s, i) => ({ label: s.name, module: moduleFor[i] })),
+  ...stops.map((s) => ({ label: s.name, module: s.module })),
   { label: "A blank or missing score", module: journeyModules.find((m) => m.n === 6)! },
   { label: "Something AI wrote", module: journeyModules.find((m) => m.n === 9)! },
-];
-
-const hook = [
-  { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
-  { label: "Whether the numbers are right", why: "That is the hard part. Nothing in “no errors” tells you the scores belong to the right teams and seasons." },
-  { label: "Whether “no errors” checked anything", why: "The right suspicion. “No errors” is Kick's report that the code finished. It says nothing about whether anyone tested the result." },
-];
-
-const dunmoreLooks = [
-  { label: "Fetch", sees: "Which pages it asked for, and which answered", why: "Yes, start there. Fetch is the one step that knows what it tried to collect. Module 1 opens that record.", first: true },
-  { label: "Prove", sees: "Pages that arrived", why: "Prove can only judge pages that reach it. Whether Dunmore's did is a question for an earlier step." },
-  { label: "Check", sees: "Finished records, against written rules and each other", why: "Check might notice that six looks low. It cannot tell you why." },
-  { label: "Build", sees: "Only the clean files", why: "Build publishes what it was given, so it would print six with confidence." },
 ];
 
 const cases = [
   {
     failure: "The wrong season, delivered successfully",
+    after: 3,
     evidence: "asked for:  /sports/mens-soccer/schedule/2019\nstatus:     200 OK\npage title: 2026 Men's Soccer Schedule",
     ask: "Which is the earliest step that could notice?",
     options: [
@@ -78,6 +24,7 @@ const cases = [
   },
   {
     failure: "Your own parser swapped a season of scores",
+    after: 2,
     evidence: "your record:  Alder Ridge 0, Eastbrook State 1\nactual match: Alder Ridge 1, Eastbrook State 0\nthe school's page has since been redesigned",
     ask: "You have fixed the parser. What lets you get the right scores back?",
     options: [
@@ -89,6 +36,7 @@ const cases = [
   },
   {
     failure: "Two schools become one",
+    after: 5,
     evidence: "name on page:  Lambert St.  (Lambert State)\nname in list:  St. Lambert\nname matcher:  87% similar, merged",
     ask: "Which step made this mistake, and should have refused?",
     options: [
@@ -100,6 +48,7 @@ const cases = [
   },
   {
     failure: "Two sources disagree",
+    after: 7,
     evidence: "same match, two pages\nschedule page:  Harbor Point 2, Eastbrook State 1\nmatch page:     Harbor Point 2, Eastbrook State 2",
     ask: "Which step should stop this from reaching readers?",
     options: [
@@ -110,59 +59,25 @@ const cases = [
     ],
   },
 ];
-
-const zones = [
-  { key: "raw", name: "Raw", holds: "Every page, byte for byte", also: "Also called bronze", lost: "Gone. Nothing can recreate these pages." },
-  { key: "clean", name: "Clean", holds: "Season files in a fixed shape", also: "Also called silver", lost: "Rebuilt from raw." },
-  { key: "derived", name: "Derived", holds: "Website, database, journals", also: "Also called gold", lost: "Rebuilt from clean." },
-];
-
-const ideas = [
-  ["Archive first, parse later", "The saved pages are the evidence of what each site served. The clean files are a calculation from them."],
-  ["Prove the page before extracting records", "A page has to show it is what was asked for. No proof means no data, and a named gap."],
-  ["Absence is data", "The pipeline records what it did not find and why. Unknown never becomes zero."],
-  ["Code computes, the model writes", "Code computes every number. AI may only repeat one that can be traced, and anything else is dropped."],
-];
 ---
 
 <script is:inline>document.documentElement.classList.add("pt-js");</script>
 
 <div class="pt not-content" data-tour>
-  <noscript><p class="pt-note">This tour is interactive. Turn on JavaScript to make each decision and see its feedback.</p></noscript>
+  <noscript><p class="pt-note">The step tour, the cases and the zones need JavaScript. The Overview shows all seven steps without it.</p></noscript>
 
-  <header class="pt-hero">
-    <h2>It is 4:52, and the chair is yours</h2>
-    <p data-no-first>Came here directly? <a href="../../">The film is two minutes</a>, and this page picks up where it ends.</p>
-    <p>Go back to 4:52, before Riley's tap, and take the chair yourself. This is what Kick just sent you.</p>
-    <div class="pt-ai">
-      <p class="pt-who">Kick <span>scripted example</span></p>
-      <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
-    </div>
-    <div class="pt-first" data-first hidden>
-      <p class="pt-who">Your question from the film</p>
-      <p data-first-text></p>
-      <p>Keep it beside you through the seven steps and see which one could answer it.</p>
-    </div>
-    <p>You did not watch it work. Every number in that table began on a page a school wrote for fans rather than programs. A trustworthy platform takes each one through seven steps, and you do not know how many of them Kick took.</p>
-    <div class="pt-group" data-hook data-choice data-neutral data-unlocks="tour">
-      <p class="pt-q">What worries you most?</p>
-      {hook.map((o) => <button type="button" data-why={o.why} data-correct>{o.label}</button>)}
-      <p class="pt-feedback" role="status"></p>
-    </div>
-    <button type="button" class="pt-next" data-start-tour hidden>Follow one match</button>
-  </header>
+  <p>This page revisits the seven steps from the <a href={`${base}#one-match`}>Overview</a> as practice. Step through the match any time. The cases ask you to place a failure on a step, and each is marked with the module it builds on, so come back to them as you go.</p>
 
-  <section class="pt-part" data-unlock="tour">
+  <section class="pt-part">
     <h2 tabindex="-1">Follow one match through the platform</h2>
-    <p>{away.name} at {home.name}, September 8, is one of the results in your table. Like everything in this course's sample, the game is invented. This is what a trustworthy pipeline would do with it. You cannot yet tell whether Kick did any of it.</p>
+    <p>{matchLabel}. Select a step, or use Back and Next.</p>
     <ol class="pt-rail" aria-label="Seven pipeline steps">
       {stops.map((s, i) => <li><button type="button" class={`pt-stop ${s.zone}`} data-stop={i} aria-current={i === 0 ? "step" : undefined}><b>{i + 1}</b>{s.name}</button></li>)}
     </ol>
-    <p class="pt-remind" data-remind>Your table says Dunmore played {dunmorePlayed}. Dunmore says 13. Could this step tell you why?</p>
     <div class="pt-panels" aria-live="polite">
       {stops.map((s, i) => (
         <article class={`pt-panel ${s.zone}`} data-panel={i} hidden={i !== 0}>
-          <p class="pt-zone">{s.zone === "derived" ? "Derived zone" : s.zone === "raw" ? "Raw zone" : "Clean zone"}. {marks[i] ? `Kick's check mark: ${marks[i]}` : "Kick showed no check mark for this"}</p>
+          <p class="pt-zone">{s.zone === "derived" ? "Derived zone" : s.zone === "raw" ? "Raw zone" : "Clean zone"}. Module {s.module.n}</p>
           <h3 tabindex="-1">{s.title}</h3>
           <p>{s.body}</p>
           <pre><code>{s.artifact}</code></pre>
@@ -170,48 +85,35 @@ const ideas = [
         </article>
       ))}
     </div>
-    <div class="pt-group pt-dunmore" role="group" aria-labelledby="pt-dunmore-q" data-dunmore hidden>
-      <p class="pt-q" id="pt-dunmore-q">Where would you look first for Dunmore's missing games?</p>
-      <div class="pt-options pt-sees">
-        {dunmoreLooks.map((o) => <button type="button" data-look={o.why} data-first-look={o.first ? "" : undefined}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
-      </div>
-      <p class="pt-feedback" role="status" data-look-note></p>
-    </div>
     <div class="pt-nav">
       <button type="button" class="pt-back" data-back disabled>Back</button>
-      <button type="button" class="pt-back" data-practice hidden>Practice four failures first (optional)</button>
       <button type="button" class="pt-next" data-forward>Next step</button>
     </div>
   </section>
 
-  <section class="pt-part" data-unlock="cases">
+  <section class="pt-part">
     <h2 tabindex="-1">Where would you catch it?</h2>
-    <p>Here are four ways that path can fail. They are practice cases, and none of them is what went wrong in Riley's table. Read the evidence, then ask of each step: <em>could it actually see this?</em></p>
+    <p>Four ways that path can fail. Read the evidence, then ask of each step: <em>could it actually see this?</em> A wrong choice tells you what that step can see, so you can try again.</p>
     {cases.map((c, i) => (
-      <div class="pt-case pt-group" role="group" aria-labelledby={`pt-case-${i}`} data-choice data-case={i} data-unlock={i > 0 ? `case-${i}` : undefined} data-unlocks={i < cases.length - 1 ? `case-${i + 1}` : "zones"}>
-        <h3 id={`pt-case-${i}`} tabindex="-1">{c.failure}</h3>
+      <div class="pt-case pt-group" role="group" aria-labelledby={`pt-case-${i}`} data-choice>
+        <p class="pt-after">After Module {c.after}</p>
+        <h3 id={`pt-case-${i}`}>{c.failure}</h3>
         <pre class="pt-evidence" tabindex="0"><code>{c.evidence}</code></pre>
         <p class="pt-q">{c.ask}</p>
-        <div class="pt-options pt-sees">
-          {c.options.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
+        <div class="pt-options">
+          {c.options.map((o) => <button type="button" data-why={`${o.label} can see: ${o.sees}. ${o.why}`} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
         </div>
         <p class="pt-feedback" role="status"></p>
-        {i < cases.length - 1 && <button type="button" class="pt-next" data-next-case hidden>Next case</button>}
       </div>
     ))}
-    <div class="pt-nav">
-      <button type="button" class="pt-back" data-practice-exit>Back to the main path</button>
-      <button type="button" class="pt-next" data-to-zones hidden>Continue</button>
-    </div>
   </section>
 
-  <section class="pt-part" data-unlock="zones">
+  <section class="pt-part">
     <h2 tabindex="-1">What can you afford to lose?</h2>
-    <p>Fetch's record will show what went missing. First, how much of Riley's table could be saved: did Kick keep the pages it collected?</p>
     <p>Each zone is computed from the one before it, using versioned code and reference lists. Delete a zone and any rebuild happens right away. Try different orders.</p>
     <div class="pt-zones">
       {zones.map((z) => (
-        <button type="button" class={`pt-zone-card ${z.key}`} data-zone={z.key} data-lost={z.lost}>
+        <button type="button" class={`pt-zone-card ${z.key}`} data-zone={z.key}>
           <strong>{z.name}</strong>
           <span>{z.holds}</span>
           <small>{z.also}</small>
@@ -222,27 +124,18 @@ const ideas = [
     </div>
     <p class="pt-feedback" role="status" data-zone-feedback></p>
     <p class="pt-summary" data-zone-summary hidden>As long as raw survives, everything after it can be rebuilt with versioned code and reference lists. That is what makes a bug recoverable.</p>
-    <div class="pt-nav">
-      <button type="button" class="pt-back" data-zone-reset hidden>Restore and try another order</button>
-      <button type="button" class="pt-next" data-to-close hidden>See the four ideas</button>
-    </div>
+    <button type="button" class="pt-back" data-zone-reset hidden>Restore and try another order</button>
   </section>
 
-  <a class="pt-skip" data-skip href="../../modules/01-collection/">Skip to Module 1</a>
-
-  <section class="pt-part pt-close" data-unlock="close">
-    <h2 tabindex="-1">Four ideas you will build across the course</h2>
-    <dl>
-      {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
-    </dl>
-    <p>The real Touchline runs these steps across about a thousand school sites. Your eight-school table needs them just as much, and you do not yet know which ones Kick skipped.</p>
+  <section class="pt-part pt-close">
+    <h2 tabindex="-1">Where does your question live?</h2>
     <div class="pt-return" data-first-return hidden>
-      <p>Go back to your question: <q data-first-return-text></q> Which step could answer it? If none fit, keep it for the last page.</p>
-      <div class="pt-return-steps">{returnChoices.map((c) => <button type="button" data-return={`Module ${c.module.n} asks: “${c.module.ask}” If that is your question, carry it there. If not, try another.`}>{c.label}</button>)}</div>
+      <p>Your question from the film: <q data-first-return-text></q> Which step could answer it? If none fit, keep it for the last page.</p>
+      <div class="pt-return-steps">{returnChoices.map((c) => <button type="button" aria-pressed="false" data-return={`Module ${c.module.n} asks: “${c.module.ask}” If that is your question, carry it there. If not, try another.`}>{c.label}</button>)}</div>
       <p role="status" data-return-note></p>
     </div>
-    <p><strong>Dunmore says thirteen. Your table says six. Module 1 finds out what Kick collected, and what it kept.</strong></p>
-    <a class="pt-link" href="../../modules/01-collection/">Start Module 1</a>
+    <p data-no-first>Each step has a module that asks its question. The <a href={`${base}#one-match`}>Overview</a> links each step to its module.</p>
+    <a class="pt-link" href={`${base}modules/01-collection/`}>Go to Module 1</a>
   </section>
 </div>
 
@@ -342,11 +235,14 @@ const ideas = [
   .pt-zone-card.is-lost { border-color: var(--pt-red); box-shadow: inset 0 3px 0 var(--pt-red); }
   .pt-zone-card.is-rebuilt { border-color: var(--sl-color-accent); box-shadow: inset 0 3px 0 var(--sl-color-accent); }
 
+  .pt-after { margin: 0 0 0.2rem !important; color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
   .pt-close { --pt-focus: #f4c62f; padding: 1.1rem; border: 0; border-radius: 4px; color: #f4faf5; background: #0f4a33; }
   .pt-close h2 { color: #f4faf5; }
   .pt-close dl { display: grid; gap: 0.55rem; margin: 0 0 1rem; }
   .pt-close dt { font-weight: 700; }
   .pt-close dd { margin: 0; color: #d5e6db; }
+  .pt-close a:not(.pt-link) { color: #f4c62f; }
+  .pt-close [data-no-first][hidden] { display: none; }
   .pt-close .pt-link { background: #f4c62f; color: #1b1a0c !important; }
   .pt-close a:focus-visible { outline-color: #f4c62f; }
 
@@ -367,18 +263,13 @@ const ideas = [
   if (root) {
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const behavior: ScrollBehavior = calm ? "auto" : "smooth";
-    const startTour = root.querySelector<HTMLButtonElement>("[data-start-tour]")!;
-    let hasFirst = false;
+
     try {
       const first = localStorage.getItem("touchline-first-ask");
       if (first) {
-        root.querySelector<HTMLElement>("[data-first-text]")!.textContent = first;
-        root.querySelector<HTMLElement>("[data-first]")!.hidden = false;
         root.querySelector<HTMLElement>("[data-first-return-text]")!.textContent = first;
         root.querySelector<HTMLElement>("[data-first-return]")!.hidden = false;
-        root.querySelector<HTMLElement>("[data-hook]")!.hidden = true;
         root.querySelector<HTMLElement>("[data-no-first]")!.hidden = true;
-        hasFirst = true;
       }
     } catch {}
     const returnNote = root.querySelector<HTMLElement>("[data-return-note]")!;
@@ -387,117 +278,27 @@ const ideas = [
       returnSteps.forEach((b) => b.setAttribute("aria-pressed", String(b === step)));
       returnNote.textContent = step.dataset.return!;
     }));
-    const open = (key: string) => {
-      const target = root.querySelector<HTMLElement>(`[data-unlock="${key}"]`)!;
-      target.classList.add("is-open");
-      return target;
-    };
-    if (hasFirst) open("tour");
-    const present = (section: HTMLElement, fromKeyboard: boolean) => {
-      const heading = section.querySelector<HTMLElement>("h2");
-      heading?.focus({ preventScroll: true });
-      if (!fromKeyboard || heading) (heading ?? section).scrollIntoView({ behavior, block: "start" });
-    };
 
     root.querySelectorAll<HTMLElement>("[data-choice]").forEach((group) => {
       const feedback = group.querySelector<HTMLElement>(".pt-feedback")!;
       const buttons = [...group.querySelectorAll<HTMLButtonElement>("button[data-why]")];
-      const neutral = "neutral" in group.dataset;
-      buttons.forEach((button) => button.addEventListener("click", (event) => {
+      buttons.forEach((button) => button.addEventListener("click", () => {
         const right = "correct" in button.dataset;
         feedback.textContent = button.dataset.why!;
-        feedback.classList.toggle("good", right && !neutral);
-        feedback.classList.toggle("neutral", neutral);
-        button.classList.add(neutral ? "is-chosen" : right ? "is-right" : "is-wrong");
-        if (!right) {
-          feedback.scrollIntoView({ behavior, block: "nearest" });
-          return;
-        }
-        buttons.forEach((b) => (b.disabled = true));
-        const fromKeyboard = event.detail === 0;
-        const key = group.dataset.unlocks!;
-        if (key === "zones") {
-          const proceed = root.querySelector<HTMLButtonElement>("[data-to-zones]")!;
-          root.querySelector<HTMLButtonElement>("[data-practice-exit]")!.hidden = true;
-          proceed.hidden = false;
-          proceed.scrollIntoView({ behavior, block: "nearest" });
-          proceed.focus({ preventScroll: !fromKeyboard });
-          return;
-        }
-        if (key.startsWith("case-")) {
-          const nextCase = group.querySelector<HTMLButtonElement>("[data-next-case]")!;
-          nextCase.hidden = false;
-          nextCase.scrollIntoView({ behavior, block: "nearest" });
-          nextCase.focus({ preventScroll: true });
-          nextCase.addEventListener("click", () => {
-            nextCase.hidden = true;
-            const heading = open(key).querySelector<HTMLElement>("h3")!;
-            heading.focus({ preventScroll: true });
-            heading.scrollIntoView({ behavior, block: "start" });
-          }, { once: true });
-          return;
-        }
-        if (key === "tour") {
-          startTour.hidden = false;
-          startTour.scrollIntoView({ behavior, block: "nearest" });
-          startTour.focus({ preventScroll: true });
-          return;
-        }
-        present(open(key), fromKeyboard);
+        feedback.classList.toggle("good", right);
+        button.classList.add(right ? "is-right" : "is-wrong");
+        if (right) buttons.forEach((b) => (b.disabled = true));
+        feedback.scrollIntoView({ behavior, block: "nearest" });
       }));
-    });
-
-    startTour.addEventListener("click", (event) => {
-      startTour.hidden = true;
-      present(open("tour"), event.detail === 0);
     });
 
     const stops = [...root.querySelectorAll<HTMLButtonElement>("[data-stop]")];
     const panels = [...root.querySelectorAll<HTMLElement>("[data-panel]")];
     const back = root.querySelector<HTMLButtonElement>("[data-back]")!;
     const forward = root.querySelector<HTMLButtonElement>("[data-forward]")!;
-    const dunmore = root.querySelector<HTMLElement>("[data-dunmore]")!;
-    const practice = root.querySelector<HTMLButtonElement>("[data-practice]")!;
-    const remind = root.querySelector<HTMLElement>("[data-remind]")!;
-    const skip = root.querySelector<HTMLAnchorElement>("[data-skip]")!;
-    const lookNote = root.querySelector<HTMLElement>("[data-look-note]")!;
-    const looks = [...dunmore.querySelectorAll<HTMLButtonElement>("[data-look]")];
-    looks.forEach((look) => look.addEventListener("click", (event) => {
-      const right = "firstLook" in look.dataset;
-      looks.forEach((b) => {
-        b.classList.toggle("is-right", b === look && right);
-        b.classList.toggle("is-wrong", b === look && !right);
-        b.setAttribute("aria-pressed", String(b === look));
-      });
-      lookNote.classList.toggle("good", right);
-      lookNote.textContent = look.dataset.look!;
-      if (!right) {
-        lookNote.scrollIntoView({ behavior, block: "nearest" });
-        return;
-      }
-      if (answered) return;
-      answered = true;
-      syncLast();
-      forward.scrollIntoView({ behavior, block: "nearest" });
-      if (event.detail === 0) forward.focus({ preventScroll: true });
-    }));
-    let practicing = false;
-    let answered = false;
-    let continued = false;
-    let closed = false;
     let current = 0;
-    const syncLast = () => {
-      const last = current === stops.length - 1;
-      forward.hidden = last && (!answered || continued || practicing);
-      practice.hidden = !last || !answered || continued || practicing;
-    };
     const show = (index: number) => {
       current = index;
-      const last = index === stops.length - 1;
-      dunmore.hidden = !last;
-      remind.hidden = last;
-      syncLast();
-      skip.hidden = closed;
       stops.forEach((stop, i) => {
         stop.toggleAttribute("aria-current", false);
         if (i === index) stop.setAttribute("aria-current", "step");
@@ -505,53 +306,21 @@ const ideas = [
       });
       panels.forEach((panel, i) => (panel.hidden = i !== index));
       back.disabled = index === 0;
-      forward.textContent = last ? "Continue" : "Next step";
+      forward.disabled = index === stops.length - 1;
     };
-    stops.forEach((stop, i) => stop.addEventListener("click", () => show(i)));
     const enterPanel = () => {
       const heading = panels[current].querySelector<HTMLElement>("h3")!;
       heading.focus({ preventScroll: true });
-      heading.scrollIntoView({ behavior, block: "start" });
+      heading.scrollIntoView({ behavior, block: "nearest" });
     };
-    back.addEventListener("click", (event) => {
-      show(current - 1);
-      if (event.detail === 0) enterPanel();
-    });
-    forward.addEventListener("click", (event) => {
-      if (current < stops.length - 1) {
-        show(current + 1);
-        if (event.detail === 0) enterPanel();
-        else if (matchMedia("(max-height: 30rem)").matches) {
-          (current === stops.length - 1 ? panels[current] : root.querySelector(".pt-rail")!).scrollIntoView({ behavior, block: "start" });
-        } else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: "nearest" });
-        return;
-      }
-      continued = true;
-      syncLast();
-      present(open("zones"), event.detail === 0);
-    });
-    practice.addEventListener("click", (event) => {
-      practicing = true;
-      syncLast();
-      present(open("cases"), event.detail === 0);
-    });
+    stops.forEach((stop, i) => stop.addEventListener("click", () => show(i)));
+    back.addEventListener("click", (event) => { show(current - 1); if (event.detail === 0) enterPanel(); });
+    forward.addEventListener("click", (event) => { show(current + 1); if (event.detail === 0) enterPanel(); });
     show(0);
-
-    root.querySelector<HTMLButtonElement>("[data-practice-exit]")!.addEventListener("click", (event) => {
-      (event.currentTarget as HTMLButtonElement).hidden = true;
-      root.querySelector<HTMLButtonElement>("[data-to-zones]")!.hidden = true;
-      present(open("zones"), event.detail === 0);
-    });
-
-    root.querySelector<HTMLButtonElement>("[data-to-zones]")!.addEventListener("click", (event) => {
-      (event.currentTarget as HTMLButtonElement).hidden = true;
-      present(open("zones"), event.detail === 0);
-    });
 
     const cards = [...root.querySelectorAll<HTMLButtonElement>("[data-zone]")];
     const zoneFeedback = root.querySelector<HTMLElement>("[data-zone-feedback]")!;
     const summary = root.querySelector<HTMLElement>("[data-zone-summary]")!;
-    const toClose = root.querySelector<HTMLButtonElement>("[data-to-close]")!;
     const reset = root.querySelector<HTMLButtonElement>("[data-zone-reset]")!;
     const lost = new Set<string>();
     const tried = new Set<string>();
@@ -570,7 +339,7 @@ const ideas = [
       const result = outcome(zone);
       if (result.gone) lost.add(zone);
       tried.add(zone);
-      if (result.gone) reset.hidden = false;
+      reset.hidden = false;
       card.disabled = true;
       card.querySelector("[data-zone-result]")!.textContent = result.text;
       card.classList.toggle("is-lost", result.gone);
@@ -583,15 +352,13 @@ const ideas = [
           ? `${name} depended on a zone you already lost.${more}`
           : `${name} is safe to delete while the zone before it survives.${more}`;
       if (tried.size === cards.length) {
-        const nothingRebuilt = lost.size === cards.length;
-        summary.hidden = nothingRebuilt;
-        toClose.hidden = nothingRebuilt;
-        if (nothingRebuilt) zoneFeedback.textContent = "Raw went first, so Clean had nothing to rebuild from, and then Derived had no Clean. Restore them and start with Derived or Clean to see the difference.";
-        (nothingRebuilt ? reset : toClose).focus({ preventScroll: event.detail !== 0 });
+        summary.hidden = false;
+        if (lost.size === cards.length) zoneFeedback.textContent = "Raw went first, so Clean had nothing to rebuild from, and then Derived had no Clean. Restore them and start with Derived or Clean to see the difference.";
+        reset.focus({ preventScroll: event.detail !== 0 });
       } else {
         cards.find((c) => !c.disabled)?.focus({ preventScroll: event.detail !== 0 });
       }
-      (tried.size === cards.length ? (toClose.hidden ? reset : toClose) : zoneFeedback).scrollIntoView({ behavior, block: "nearest" });
+      zoneFeedback.scrollIntoView({ behavior, block: "nearest" });
     }));
     reset.addEventListener("click", () => {
       lost.clear();
@@ -603,17 +370,9 @@ const ideas = [
       });
       reset.hidden = true;
       summary.hidden = true;
-      toClose.hidden = true;
       zoneFeedback.textContent = "All three zones are back. Try a different order.";
       zoneFeedback.classList.remove("good");
       cards[cards.length - 1].focus({ preventScroll: true });
-    });
-    toClose.addEventListener("click", (event) => {
-      toClose.hidden = true;
-      reset.hidden = true;
-      closed = true;
-      skip.hidden = true;
-      present(open("close"), event.detail === 0);
     });
   }
 </script>
