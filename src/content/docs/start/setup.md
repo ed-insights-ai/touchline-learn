@@ -59,7 +59,7 @@ python labs/m03_proof.py
 
 | Lab | Module | What it does |
 |---|---|---|
-| `labs/m01_collect.py` | [1](../../modules/01-collection-lab/) | Three days of incremental collection against a pretend web |
+| `labs/m01_collect.py` | [1](../../modules/01-collection/#brief) | Three days of incremental collection against a pretend web |
 | `labs/m02_archive.py` | [2](../../modules/02-archive/) | Fixes a parser bug by replaying the archive |
 | `labs/m03_proof.py` | [3](../../modules/03-provenance/) | Refuses pages that cannot prove their season |
 | `labs/m04_parse.py` | [4](../../modules/04-parsing/) | Three parsers, one of which survives a template change |

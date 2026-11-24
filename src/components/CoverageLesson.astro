@@ -1,0 +1,1139 @@
+---
+import FirstRunTable from "./FirstRunTable.astro";
+import CoverageGrid from "./CoverageGrid.astro";
+import { hartwellRows, reported, repaired, run, scheduleLog } from "../lib/first-run";
+import { bounds, harborDark, kickGrid, lostAtHost, pack, packB, places, sampleCells, story, unseen } from "../lib/coverage";
+
+const stages = [
+  ["case", "The case", "A run that reported no errors"],
+  ["first-read", "Your first read", "One attempt before any teaching"],
+  ["concept", "The concept", "Coverage, taught on the real data"],
+  ["field-work", "Field work", "Audit a plan, then test your own assistant on the pages"],
+  ["prove-it", "Prove it", "A season you have not seen"],
+  ["transfer", "Transfer", "The same idea outside soccer"],
+  ["brief", "Your brief", "What you would now tell an AI"],
+];
+
+const claims = [
+  { key: "sites", text: "All eight school sites", answer: "The log contradicts it, if the claim means the table is built from eight sites. Kick sent eight requests and seven were answered. “Supports” is right only about the requests, which is how Kick meant it, and wrong about the data, which is how Riley read it." },
+  { key: "matches", text: "46 conference matches", answer: "The log cannot tell you. It lists pages. Nothing in it says how many matches there should be." },
+  { key: "errors", text: "No errors", answer: "The log shows one request that got no answer, so “contradicts” is a fair reading. “Cannot tell” is fair too, and it is the more worrying one: whether that request counts as an error depends on a rule inside Kick that you have not seen. Its collector handled the failure and carried on, so by its own rule nothing went wrong. Either way the phrase describes the program and tells you nothing about the data." },
+];
+const verdicts = ["The log supports it", "The log contradicts it", "The log cannot tell me"];
+
+const states = [
+  { key: "complete", name: "Complete", means: "The page was served, proved to be the one asked for, and holds rows.", claim: "You may count what is on it.", next: "Nothing." },
+  { key: "empty", name: "Empty", means: "The page was served and proved, and it really holds nothing.", claim: "You may say the source publishes nothing here.", next: "Asking again later, in case the source fills it in." },
+  { key: "unavailable", name: "Unavailable", means: "The page could not be collected, or arrived and could not be proved. The reason is recorded.", claim: "You may say you do not know. You may not say zero.", next: "Read the reason. A timeout may clear on a retry. A page the site has stopped serving never will. A page that arrived and failed its proof will usually arrive the same way again, so someone has to look at what the site is serving." },
+  { key: "no-collector", name: "No collector", means: "The source publishes in a form nothing you have can read.", claim: "You may say you cannot know yet.", next: "Building a reader. Retrying changes nothing." },
+];
+
+const stateOptions = [...states.map((s) => [s.key, s.name]), ["none", "None of the four"]];
+const sort = [
+  { evidence: "The request timed out on every try.", answer: "unavailable", worked: true, why: "Nothing arrived, and the reason is known: the site did not answer." },
+  { evidence: "The page arrived, shows it is the 2026 season, and lists 18 fixtures.", answer: "complete", worked: true, why: "Served, proved, and it holds rows." },
+  { evidence: "The page arrived and shows it is the right season. Its statistics table has a header row and no players.", answer: "empty", why: "Served and proved, with nothing in it. You know what the source says, and it says nothing.", wrong: { unavailable: "The page did arrive, and it proved which season it is.", complete: "Complete means it holds rows. This one holds none." } },
+  { evidence: "The page arrived with no rows, and nothing on it shows which season it belongs to.", answer: "unavailable", why: "A page that cannot prove what it is tells you nothing about the season you asked for, so the state is unavailable, with that reason.", wrong: { empty: "Empty for which season? Nothing on the page says. You cannot claim the 2026 page is empty when you cannot show this is the 2026 page.", complete: "It holds no rows, and you cannot show it is the page you asked for." } },
+  { evidence: "The school moved its site to a system the collector has no reader for.", answer: "no-collector", why: "Retrying changes nothing. This gap closes when someone builds a reader.", wrong: { unavailable: "Unavailable is for a page this collector could have read. This one it cannot read at all." } },
+  { evidence: "The roster address answers “page not found.”", answer: "unavailable", why: "Nothing was served, so nothing was proved. “Not found” is a fact about the address. It does not say the team has no players.", wrong: { empty: "No page was served, so nothing proves the roster is empty. The address may simply have moved.", "no-collector": "The collector can read this site. The page it asked for was not there." } },
+  { evidence: "The plan never listed this page.", answer: "none", why: "A state answers a question somebody asked. Nobody asked, so there is no record at all.", wrong: { unavailable: "Unavailable means you tried and failed. Nobody tried.", "no-collector": "Nothing says it could not be read. It was never requested.", empty: "Empty is a proved fact about a page you fetched. This page was never fetched." } },
+  { evidence: "The page arrived without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs proof that this is the page you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
+];
+
+const policies = [
+  { key: "stop", name: "Stop at the first failure", says: "Error: Dunmore schedule did not answer. Run aborted.", table: "No table.", cost: "Nothing false is published, and nothing is published at all. Seven schools answered and get no table. Across a thousand sites something is always quiet, so a collector built this way would rarely finish." },
+  { key: "skip", name: "Skip it and carry on", says: "Done. All eight school sites, 46 conference matches, no errors.", table: "46 matches. Eight rows, all eight wrong.", cost: "Kick's design. The run finishes, the summary is clean, and the gap stays invisible until a coach calls." },
+  { key: "fill", name: "Fill the gap with a default", says: "Done. 53 conference matches, no errors.", table: "Dunmore's seven home matches go in as 0-0. Dunmore gains seven points nobody saw it earn, and Hartwell's 7-0 win is entered as a draw.", cost: "A zero looks like data. A 0-0 draw is a real result, so a zero that means “unknown” is a false one, and nothing in the summary hints at a gap." },
+  { key: "record", name: "Record the gap and carry on", says: `Done. 7 of 8 schedules complete. Dunmore: unavailable, no answer. ${story.counted} of ${story.finals} finished matches.`, table: "The same 46 matches as Kick's, with every row marked as short.", cost: "The run finishes and the gap is named. This is the design Touchline chose." },
+];
+
+const pseudo = `expected = every (school, page kind) the job needs
+
+for cell in expected:
+    if no reader for cell:
+        record(cell, "no collector")
+        continue
+    page = fetch(cell)
+    if page never arrived:
+        record(cell, "unavailable", why)
+        continue
+    if cannot prove(page):
+        record(cell, "unavailable", why)
+    elif page holds no rows:
+        record(cell, "empty")
+    else:
+        record(cell, "complete", count)
+
+succeed if the record was written and is true,
+gaps and all`;
+
+const kickPlan = [
+  "For each of the eight school sites, download the schedule page.",
+  "Parse each results table into rows: date, opponent, score.",
+  "If a page fails to load, retry up to three times, then log a warning with the school's name and continue so the run finishes.",
+  "Read each match once, from the home team's page, to avoid counting it twice.",
+  "Compute played, goal difference and points, sort, and write the table.",
+  "Print a summary: pages fetched, matches found, errors.",
+];
+const planAudit = [
+  { key: "pages", q: "Says which pages the collector will ask for", answer: "1", why: "Step 1. Eight schedule pages. It lists the requests, and that is the only expectation the plan ever states." },
+  { key: "fail", q: "Says what the collector does when a site does not answer", answer: "3", why: "Step 3: retry, warn, continue. The plan does handle the failure." },
+  { key: "named", q: "Makes the finished summary name the site that failed", answer: "0", why: "No step does. Step 3 comes close: it writes the school's name to a log. The finished summary is step 6, and step 6 prints counts. Riley read the summary." },
+  { key: "empty", q: "Tells a page with nothing on it apart from a page that never arrived", answer: "0", why: "No step does. Both end as zero rows." },
+  { key: "total", q: "Says how many matches the finished table should hold", answer: "0", why: "No step does. Step 6 reports “matches found,” a count with nothing to compare it to." },
+  { key: "once", q: "Stops the same match being counted twice", answer: "4", why: "Step 4. It is a sensible rule, and it is the rule that turned one missing page into seven missing matches." },
+  { key: "keep", q: "Stops a later, partial run erasing what this run recorded", answer: "0", why: "No step does. Every run starts from nothing and writes over what was there." },
+];
+const packPrompt = `Here are this season's men's soccer schedule pages from the Prairie Lakes Conference school sites. The eight members are ${pack.members.slice(0, -1).join(", ")} and ${pack.members.at(-1)}. Build the conference table I can publish.`;
+const volunteer = ["That Dunmore's own page is missing from what it was given", "That one finished match has no score", "How many matches the table counts, out of how many are finished"];
+const tutorPrompt = "Explain the difference between data that is missing completely at random, missing at random, and missing not at random. Give one example of each from collecting data off websites, not from surveys. Then tell me what I would need to observe to tell them apart.";
+
+const actions = [["retry", "Run the same collection again later"], ["reader", "Write new collecting code for that site"], ["inspect", "Have a person examine the site by hand"], ["upstream", "Fix something else first"], ["source", "Look to another school's site"], ["wait", "Nothing. It is not a gap"]];
+const gaps = [
+  { key: "dun", name: "Dunmore, Schedule", answer: "reader", why: "No collector. The 2025 pages are in a form nothing can read, so asking again returns the same thing. The work is a new reader." },
+  { key: "hp-s", name: "Harbor Point, Schedule", answer: "wait", why: "It is complete. Harbor Point's row has one red square, and this is not it. A gap in one layer says nothing about the others." },
+  { key: "eb-s", name: "Eastbrook State, Schedule", answer: "inspect", why: "A page did arrive and could not prove its season. Asking again will most likely be served the same page, so a person has to look at what the site sends for 2025 and decide whether it can be proved." },
+  { key: "eb-m", name: "Eastbrook State, Box scores", answer: "upstream", why: "Its reason names the schedule. Box-score links are discovered from a proved schedule, so this square cannot close until that one does." },
+  { key: "hp-m", name: "Harbor Point, Box scores", answer: "source", why: `The site no longer serves those pages, so no retry and no new reader brings them back from Harbor Point. The only place left is the other school in each match, if that school publishes its own copy. For ${harborDark} of the eight, the other school is Dunmore or Eastbrook State, where nothing could be collected either.` },
+];
+const sourceOptions = [["rule", "The membership list, and the rule that each school hosts every other"], ["file", "Counting the conference matches in the season file"], ["mixed", "The membership list, plus every match found on the collected schedules"], ["last", "The 2026 figure, since it is the same conference"]];
+const report = [
+  { key: "rosters", text: "Rosters were collected for all seven schools.", answer: "strike", why: `Strike. Dunmore's roster is no collector. Rosters are held for ${unseen.rosters} of 7.` },
+  { key: "held", text: `No Dunmore page was read for 2025, and the season file still holds ${unseen.dunmoreHeld} Dunmore matches.`, answer: "keep", why: `Keep. All ${unseen.dunmoreHeld} came from opponents' pages, and the sentence says how many are held without claiming that is all of them.` },
+  { key: "boxes", text: `Box scores are held for ${unseen.withBox} of ${unseen.held} conference matches, so the 2025 season is short of ${unseen.held - unseen.withBox} box scores.`, answer: "strike", why: `Strike. The first half is true of the file. The second half is a claim about the season, and the season's schedule holds ${unseen.expected} matches, so as many as ${unseen.expected - unseen.withBox} are without a box score. Nobody has seen whether the two missing matches were played. A denominator taken from the run cannot show what the run missed.` },
+  { key: "why", text: "Eastbrook State's own box-score pages could not be listed, because its schedule could not be proved.", answer: "keep", why: "Keep. The record gives exactly that reason, and the sentence claims nothing about the matches themselves." },
+  { key: "zero", text: "Dunmore's site returned no conference matches for 2025.", answer: "strike", why: "Strike. Nothing was returned because nothing could be read, which is a different fact from “none.”" },
+];
+
+const model = `Coverage. Before fetching, write the list of what this job expects: every school from the membership list, every kind of page, and the number of matches the table needs. Every expected item ends in exactly one state: complete, empty, unavailable, or no collector, with a reason for the last three. A named gap does not fail the run. A run that cannot write this record does. Every published figure says how many items it counted out of how many it expected, and names each gap.
+
+Acceptance example. Given the seven saved schedule pages with Dunmore's missing: the summary says no Dunmore page was supplied and where Dunmore's results came from, the table counts 53 of 54 finished matches, and September 21 is named as final with no score.`;
+const ht = reported.find((r) => r.slug === "hartwell-tech")!;
+const bar = (n: number) => `${(n / story.scheduled) * 100}%`;
+const chain = [[story.scheduled, "scheduled, by the rule", ""], [story.finals, "finished", "2 still to be played"], [story.afterRepair, "with a score on a saved page", "1 final with no score"], [story.counted, "read into Kick's table", "7 on the page that never arrived"]] as const;
+
+const y = (place: number) => 26 + (place - 1) * 30;
+const bytes = (n: number) => n.toLocaleString("en-US");
+const glyph: Record<string, string> = { read: "●", lost: "✕", later: "", noscore: "?", self: "" };
+const title: Record<string, string> = { read: "Read into the table", lost: "Finished, never read", later: "Not yet played", noscore: "Finished, no score on either schedule" };
+---
+
+<script is:inline>document.documentElement.classList.add("il-js");</script>
+
+<div class="cv not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
+  <section id="case">
+    <h2>1. The case: a run that reported no errors</h2>
+    <p data-no-first>Came here directly? <a href="../../">The film is two minutes</a>, and this module picks up where it ends.</p>
+    <div class="cv-say">
+      <p class="cv-who">Coach Dolan, Hartwell <span>voicemail, 5:41</span></p>
+      <p>We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.</p>
+    </div>
+    <div class="cv-say">
+      <p class="cv-who">Dunmore athletics <span>voicemail, 5:44</span></p>
+      <p>You've got our men at six conference games. We've played thirteen.</p>
+    </div>
+    <p>Those calls came after Riley published. Go back to 4:52, before anyone pressed anything. This is all Riley had.</p>
+    <div class="cv-say">
+      <p class="cv-who">Kick, the coding agent</p>
+      <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
+    </div>
+    <FirstRunTable rows={reported} caption="The table Kick delivered" />
+    <div class="cv-say cv-yours" data-first hidden>
+      <p class="cv-who">Your question from the film</p>
+      <p data-first-text></p>
+    </div>
+    <p>Each part of that summary is true of the program. It sent a request to all eight sites. It counted 46 matches. It finished without stopping. None of it says what the data is missing.</p>
+    <p class="cv-lede">A dataset records what you managed to collect. Fifty-four matches had been played, and the table held 46. This module teaches you to measure that distance before anyone publishes.</p>
+    <p class="cv-can">By the end you can:</p>
+    <ul>
+      <li>write down what a collection job expects before any data arrives, and say where that list comes from</li>
+      <li>sort every outcome into one of four states, and say what each lets you claim</li>
+      <li>put an honest denominator, or honest bounds, on a number</li>
+      <li>audit an AI's collection plan, and write the requirement it left out</li>
+    </ul>
+    <details class="cv-more">
+      <summary>The seven parts of this module: about 45 minutes on the page, an hour or more with the field work</summary>
+      <ol class="cv-map">
+        {stages.map(([id, name, what]) => <li><a href={`#${id}`}><b>{name}</b><span>{what}</span></a></li>)}
+      </ol>
+      <p>Part 4 uses your own AI assistant. Its first step works without one.</p>
+    </details>
+  </section>
+
+  <section id="first-read">
+    <h2>2. Your first read</h2>
+    <p>Before any teaching, try it cold. Besides the table, Kick kept one thing: a log of the {story.requests} pages it asked for. Twelve were box scores, the individual match pages. Kick had started on those with one school, Alder Ridge, and all twelve were saved. These are the other eight.</p>
+    <table class="cv-log">
+      <caption>Kick's fetch log, schedule pages</caption>
+      <thead><tr><th scope="col">School</th><th scope="col">Result</th></tr></thead>
+      <tbody>{scheduleLog.map((l) => <tr><th scope="row">{l.name}</th><td>{l.result}</td></tr>)}</tbody>
+    </table>
+    <p>Kick made three claims. Using only this log, judge each one. Nothing here is marked yet. You will lock it and mark it yourself partway through part 3.</p>
+    <div class="cv-claims">
+      {claims.map((c) => (
+        <label>
+          <span>“{c.text}”</span>
+          <select data-save={`read-${c.key}`}>
+            <option value="">Choose</option>
+            {verdicts.map((v) => <option>{v}</option>)}
+          </select>
+        </label>
+      ))}
+    </div>
+    <label class="cv-write" for="cv-next-ask">What one thing would you ask Kick for next?</label>
+    <textarea id="cv-next-ask" rows="2" data-save="read-ask"></textarea>
+  </section>
+
+  <section id="concept">
+    <h2>3. The concept: coverage</h2>
+    <div class="cv-define">
+      <p><dfn>Coverage</dfn> is the comparison between what a collection was expected to bring back and what it did bring back.</p>
+      <p>A collector therefore has two outputs. One is the data. The other is a <strong>coverage record</strong>: the list of everything it expected, with what happened to each item. Kick produced the first and skipped the second.</p>
+    </div>
+
+    <h3>Count in the unit your claim is made in</h3>
+    <p>Count Kick's run twice, in two different units.</p>
+    <div class="cv-dots">
+      <p><b>{story.saved} of {story.requests}</b> pages it asked for were saved</p>
+      <div role="img" aria-label={`${story.saved} pages saved, 1 with no answer`}>{Array.from({ length: story.requests }, (_, i) => <i class={i === run.downIndex ? "is-lost" : "is-read"}></i>)}</div>
+      <p><b>{story.counted} of {story.finals}</b> finished conference matches reached the table</p>
+      <div role="img" aria-label={`${story.counted} matches counted, ${bounds.unseen} never read, 1 with no score on either schedule`}>{Array.from({ length: story.finals }, (_, i) => <i class={i < story.counted ? "is-read" : i < story.counted + bounds.unseen ? "is-lost" : "is-noscore"}></i>)}</div>
+      <ul class="cv-key">
+        <li><i class="is-read"></i>Arrived</li>
+        <li><i class="is-lost"></i>Never arrived</li>
+        <li><i class="is-noscore"></i>Finished, no score on any page Kick read</li>
+      </ul>
+    </div>
+    <p>One red square in the top row became seven in the bottom row. A table makes claims about matches, so only the bottom row describes the table, and it is the row Kick could not have drawn. Kick said “46 conference matches” and never said out of how many, because it never worked out how many there should be. On its own, 46 cannot tell you whether the table is whole. “46 of {story.finals}” can.</p>
+
+    <h3>The expected set comes first</h3>
+    <p>You cannot see a gap without a list of what should be there. So before a collector fetches anything, it writes the expected set: every source, and every kind of page it needs from each. Touchline collects four kinds of page from each school, which makes a grid. Each square is one question: <em>did we get this?</em></p>
+    <p>This is Kick's run laid over that grid. Tap any square.</p>
+    <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
+    <p>One square was asked for and did not arrive. Most of the others are blank, because Kick's plan never included those pages. A blank has no state. Nobody asked, so the run's own log has nothing to say about it. Only a list made outside the run can show it.</p>
+    <p>Whether a blank matters depends on the job. A standings table does not need rosters, so those blanks are out of scope. It does need a score for every finished match, and one finished match has no score on either school's schedule: Cedar Grove against St. Lambert on September 21. Cedar Grove's schedule marks it final and links a box score page, and Kick never asked for that page. Nobody yet knows whether the score is on it. That was the third voicemail in the film.</p>
+    <p>Survey statisticians have names for these holes. A unit the job needed that was never on the list is <strong>undercoverage</strong>: the box-score pages Kick's plan left out. A unit on the list that did not answer is <strong>unit nonresponse</strong>: Dunmore's schedule. A unit that answered with one item blank is <strong>item nonresponse</strong>: the September 21 score on Cedar Grove's schedule. And a list can hold too much, which is <strong>overcoverage</strong>: these schedule pages also list non-conference and tournament matches the table must not count, and every conference match sits on two schools' pages, so reading both without collapsing them counts it twice. The fetch log Kick kept could only ever show unit nonresponse.</p>
+
+    <h3>Where the expected set comes from</h3>
+    <p>An expected set only works as a check if it does not depend on the run it is checking. It can come from three kinds of source. Touchline uses the first and the third. The second is one you add yourself whenever you know how the competition is organised.</p>
+    <dl class="cv-sources">
+      <div><dt>A reference you keep</dt><dd>Which schools belong to the conference this season comes from a membership list, kept by season, apart from any run. That gives the rows of the grid. If the rows came from the pages that arrived, a school that never answered would drop out of its own denominator. The list can be wrong too, so the fixture file has a flag for a list that was carried forward from the year before.</dd></div>
+      <div><dt>A rule</dt><dd>In this conference every school hosts every other once, so eight schools play 8 × 7 = {story.scheduled} conference matches. Nobody has to fetch anything to know that. The rule belongs to the competition: a conference that plays each pairing once would have 28.</dd></div>
+      <div><dt>Other pages</dt><dd>A schedule says which matches are finished, and links each box score. So what to expect from box scores is discovered from the schedule. When a schedule is unavailable, its box scores cannot even be listed, and that square is unavailable too, with the schedule as its reason.</dd></div>
+    </dl>
+    <p>The third kind has a weakness the first two do not. A count discovered from collected pages can only be as complete as the pages. Without the rule, a season's denominator is “the matches we found,” and a match that appears on no collected page shrinks the denominator along with the numerator. You will meet exactly that in part 5.</p>
+    <p>For Kick's Friday the three sources give a chain. Riley could have known all of it at 4:52.</p>
+    <div class="cv-chain" role="img" aria-label={chain.map(([n, what]) => `${n} ${what}`).join(", ")}>
+      {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
+    </div>
+
+    <h3>Four states, and what each lets you claim</h3>
+    <p>Every square that was asked for ends in exactly one of four named states. Touchline never leaves one empty, because four different situations look identical when the cell is just missing.</p>
+    <div class="cv-states">
+      {states.map((s) => (
+        <div class={`cv-state is-${s.key}`}>
+          <h4><i aria-hidden="true"></i>{s.name}</h4>
+          <p>{s.means}</p>
+          <p><b>Claim:</b> {s.claim}</p>
+          <p><b>What closes it:</b> {s.next}</p>
+        </div>
+      ))}
+    </div>
+    <p>A state describes the page, and says nothing yet about each item on it. Cedar Grove's 2026 schedule is complete: it arrived, proved its season and holds rows. One of those rows is the September 21 match with no score. Page-level coverage and item-level coverage are separate counts, which is why the chain above has both a “finished” and a “with a score” line.</p>
+    <p>The pair to learn is <strong>empty</strong> and <strong>unavailable</strong>. “The site lists no players” and “we could not read the site” are different facts. A report built on the first can say zero. A report built on the second has to say unknown.</p>
+    <p>A page has to be <strong>proved</strong> because a site asked for 2026 will sometimes serve last season's page, or a placeholder, with no error. A page counts only when there is evidence it is the school and season that were asked for. Module 3 covers how that proof is made.</p>
+
+    <h4 class="cv-try">Try it: sort the evidence</h4>
+    <p>The first two are worked. Do the other six, then check them together. A state can be the answer more than once.</p>
+    <div class="cv-check" data-once="sort">
+    <ol class="cv-sort">
+      {sort.map((c, i) => (
+        <li data-q={c.worked ? undefined : ""} data-type="select" data-answer={c.answer} data-why={`${stateOptions.find(([k]) => k === c.answer)![1]}. ${c.why}`} data-wrong={JSON.stringify(c.wrong ?? {})}>
+          <p>{c.evidence}</p>
+          {c.worked ? (
+            <p class="cv-fb is-right"><b>{stateOptions.find(([k]) => k === c.answer)![1]}.</b> {c.why}</p>
+          ) : (
+            <>
+              <select aria-label={`State for case ${i + 1}`} data-save={`sort-${i}`}>
+                <option value="">Choose a state</option>
+                {stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}
+              </select>
+              <p class="cv-fb" role="status"></p>
+            </>
+          )}
+        </li>
+      ))}
+    </ol>
+      <p class="cv-once">One attempt at the six.</p>
+      <button type="button" data-submit>Check my six</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal"><p>Cases 3 and 4 are the pair to remember. The same blank page is empty when it can prove its season and unavailable when it cannot.</p></div>
+    </div>
+
+    <h4 class="cv-try">Now mark your first read</h4>
+    <div class="cv-commit" data-commit data-needs="read-sites,read-matches,read-errors,read-ask" data-locks="first-read">
+    <p>In part 2 you judged Kick's three claims. Lock those answers, then mark them.</p>
+    <button type="button" disabled>Lock my first read and mark it</button>
+    <p class="cv-once" data-needs-note>Answer the three claims and the question in <a href="#first-read">part 2</a> first.</p>
+    <div class="cv-mark cv-reveal" data-mark>
+      {claims.map((c) => (
+        <div>
+          <p class="cv-who">“{c.text}”</p>
+          <p class="cv-yousaid">You said: <span data-show={`read-${c.key}`}>nothing yet</span></p>
+          <p>{c.answer}</p>
+        </div>
+      ))}
+      <div>
+        <p class="cv-who">What you would ask for next</p>
+        <p class="cv-yousaid">You wrote: <span data-show="read-ask">nothing yet</span></p>
+        <p>The strongest ask is for the expected set: what the run was supposed to bring back, and what happened to each item. Asking Kick to run it again, or to double-check, returns the same summary a second time.</p>
+      </div>
+    </div>
+    </div>
+
+    <h3>Gaps arrive in blocks</h3>
+    <p>Both schools publish every match, so Kick read each one once, from the host's page, to avoid counting it twice. Here is every conference match of the season by host, marked with what happened to it in Kick's table.</p>
+    <div class="cv-hostwrap">
+      <table class="cv-hosts">
+        <caption>Rows are hosts. Columns are visitors.</caption>
+        <thead><tr><th scope="col">Host</th>{lostAtHost.map((h) => <th scope="col"><abbr title={h.name}>{h.abbr}</abbr></th>)}</tr></thead>
+        <tbody>
+          {lostAtHost.map((h) => (
+            <tr><th scope="row">{h.name}</th>{h.row.map((c) => <td class={`is-${c}`}>{c !== "self" && <span title={title[c]}>{glyph[c]}<span class="sr-only">{title[c]}</span></span>}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <ul class="cv-key">
+      <li><i class="is-read">●</i>Read into the table: {story.counted}</li>
+      <li><i class="is-lost">✕</i>Finished, never read: {bounds.unseen}</li>
+      <li><i class="is-noscore">?</i>Finished, no score on either schedule: 1</li>
+      <li><i class="is-later"></i>Not yet played: {story.scheduled - story.finals}</li>
+    </ul>
+    <p>That is the whole chain of denominators in one picture: {story.scheduled} scheduled, {story.finals} finished, {story.afterRepair} with a score, {story.counted} read. The seven that were never read are one whole row, every match Dunmore hosted. A gap with one cause removes a block of related records, and a block can do more damage than the same number of scattered holes, because it lands on the same teams again and again.</p>
+    <p>Until a missing result is recovered, its effect can still be limited. Kick's table has Hartwell Tech on {ht.pts} points from {ht.p} matches, and one Hartwell match was never read. A loss adds nothing and a win adds 3, so Hartwell's true total lies between {ht.pts} and {ht.pts + 3}. That pair of numbers is a <strong>bound</strong>: you do not know the value, and you do know where it cannot be.</p>
+
+    <div class="cv-check" data-once="block">
+      <div data-q data-type="number" data-answer="8" data-why="All eight. Dunmore is missing seven matches, and each of the other seven schools is missing its trip to Dunmore. Read along the red row for the host and down the columns for the visitors.">
+        <label for="cv-rows">From the picture: how many of the eight teams have a wrong played count in Kick's table?</label>
+        <input id="cv-rows" inputmode="numeric" autocomplete="off" data-save="q-rows" />
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="range" data-answer={`${bounds.points},${bounds.high}`} data-why={`${bounds.points} to ${bounds.high}. If Dunmore lost all seven it stays on ${bounds.points}. If it won all seven it gains 21. The true figure turned out to be ${pack.dunmorePoints}, inside the range, as it had to be.`}>
+        <p class="cv-qlabel">Kick's table gives Dunmore {bounds.points} points from {bounds.played} matches. Seven of its matches were never read. A win is 3 points, a draw 1. What are the lowest and highest totals Dunmore could really have?</p>
+        <div class="cv-row"><label>Lowest <input inputmode="numeric" autocomplete="off" data-save="q-low" /></label><label>Highest <input inputmode="numeric" autocomplete="off" data-save="q-high" /></label></div>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <p class="cv-once">You get one attempt at these. Work them out, then check both.</p>
+      <button type="button" data-submit>Check both</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>The coverage record names who is affected and bounds how far each number can move, before a single score is recovered. Which way each row actually moves needs the data. Here the data existed all along: every visiting school's saved schedule lists its trip to Dunmore. Hartwell Tech's page shows both meetings, {hartwellRows.counted}, and {hartwellRows.missing}. Kick's rule only read the first. Counting the seven results the visitors already held gives this.</p>
+        <figure class="cv-slope">
+          <svg viewBox="0 0 360 262" role="img" aria-label={`Table places before and after the seven results are counted. ${places.filter((p) => p.before !== p.after).map((p) => `${p.name} moves from ${p.before} to ${p.after}`).join(". ")}. The other three keep their places.`}>
+            <text x="40" y="12" text-anchor="middle" class="h">Before</text>
+            <text x="150" y="12" text-anchor="middle" class="h">After</text>
+            {places.map((p) => (
+              <g class:list={{ up: p.after < p.before, down: p.after > p.before, watch: p.slug === "hartwell-tech" }}>
+                <line x1="52" y1={y(p.before) - 4} x2="138" y2={y(p.after) - 4} />
+                <text x="40" y={y(p.before)} text-anchor="middle">{p.before}</text>
+                <text x="150" y={y(p.after)} text-anchor="middle">{p.after}</text>
+                <text x="168" y={y(p.after)}>{p.name}</text>
+              </g>
+            ))}
+          </svg>
+          <figcaption>Five teams change place. Hartwell Tech goes from 4th to 2nd, and its own page had arrived on time.</figcaption>
+        </figure>
+        <p>One caution. The record names the cause of a gap and who it touches. Whether the results you are missing resemble the ones you hold is a separate question. Statisticians study it as the missingness mechanism, and Module 6 takes it up. One more caution on the bounds themselves: they are worst cases for one team at a time, and they are linked. If Dunmore won all seven, each visitor lost, so Dunmore's 31 and Hartwell's best case cannot both happen.</p>
+      </div>
+    </div>
+
+    <h3>What Touchline decided</h3>
+    <p>The real platform collects from about a thousand school sites, and on any day some of them are slow, redesigned or down. It splits the work into units of one conference, one gender and one season, so trouble in one unit cannot stop another.</p>
+    <p>Within a unit, a collector has to do something when a site does not answer. There are four designs to choose from. It can stop the whole run at the first failure. It can skip the page and carry on. It can fill the gap with a default value, such as 0-0 for each missing match. Or it can record the gap and carry on. Predict first, then run Friday under each.</p>
+    <div class="cv-check" data-once="design">
+      <div class="cv-line" data-q data-type="select" data-answer="skip-fill" data-why="Skip and fill. Neither summary contains a gap, and both tables are wrong. Stopping publishes nothing, and recording names the gap.">
+        <label><span>Which designs hand Riley a summary with no gap in it and a table that is wrong?</span>
+          <select data-save="design"><option value="">Choose</option><option value="stop-skip">Stop, and skip</option><option value="skip-fill">Skip, and fill</option><option value="fill-record">Fill, and record</option><option value="skip">Skip only</option><option value="all">All but record</option></select>
+        </label>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <p class="cv-once">One attempt, before you open the four.</p>
+      <button type="button" data-submit>Check, and open the four designs</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+    <div class="cv-policies" data-policies>
+      <div class="cv-row" role="group" aria-label="Collector design">
+        {policies.map((x, n) => <button type="button" aria-pressed={n === 0 ? "true" : "false"} data-policy={x.key}>{x.name}</button>)}
+      </div>
+      {policies.map((x, n) => (
+        <div class="cv-policy" data-policy-panel={x.key} hidden={n !== 0}>
+          <p class="cv-who">What Riley reads at 4:52</p>
+          <p class="cv-mono">{x.says}</p>
+          <p><b>The table:</b> {x.table}</p>
+          <p>{x.cost}</p>
+        </div>
+      ))}
+    </div>
+      </div>
+    </div>
+    <p>Touchline chose the fourth, and wrote it as a rule about what success means.</p>
+    <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
+      <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record, and a gap list in each season file</div><i aria-hidden="true">→</i>
+      <ul><li>Season view: a notice for each gap</li><li>Figures: counted, out of played</li><li>Next run: what to ask for again</li></ul>
+    </div>
+    <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record was written and describes reality, gaps and all.</p>
+    <p>A run that cannot write the record has failed, because nobody can know what it did. Whether to publish is a second decision, made by reading the record: Friday's run succeeds under this rule, and its table still should not go out.</p>
+    <p>Three smaller rules sit under that one.</p>
+    <p><strong>Read both pages.</strong> Touchline does not use Kick's host-only rule. A match normally appears on both schools' schedules, so it reads both and collapses the duplicate. That costs a matching step. In this sample, where every school lists every match, it means a match is lost only when both of its schools' pages are missing. Switch the rule and watch Friday's gap.</p>
+    <div class="cv-rules" data-rules>
+      <div class="cv-row" role="group" aria-label="Reading rule">
+        <button type="button" aria-pressed="true" data-rule="host">Host's page only</button>
+        <button type="button" aria-pressed="false" data-rule="both">Both schools' pages</button>
+      </div>
+      <div class="cv-hostwrap">
+        <table class="cv-hosts">
+          <caption>Rows are hosts. Columns are visitors. Dunmore's page never arrived.</caption>
+          <thead><tr><th scope="col">Host</th>{lostAtHost.map((h) => <th scope="col"><abbr title={h.name}>{h.abbr}</abbr></th>)}</tr></thead>
+          <tbody>
+            {lostAtHost.map((h) => (
+              <tr><th scope="row">{h.name}</th>{h.row.map((c) => <td class={`is-${c}`} data-cell={c}>{c !== "self" && <span>{glyph[c]}</span>}</td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="cv-fb is-right" role="status" data-rules-note>{story.counted} of {story.finals} finished matches read. Seven are lost with one page.</p>
+    </div>
+    <p><strong>Merge, never overwrite.</strong> A run writes only the squares it touched. Suppose last week's run collected all eight schedules, and today's reruns two schools and one fails.</p>
+    <div class="cv-merge">
+      {[["Last week's record", "cccccccc"], ["Today's run", "cu......"], ["If today overwrites", "cu......"], ["If today merges", "cucccccc"]].map(([label, row], n) => (
+        <div class={n === 3 ? "is-kept" : undefined}><p>{label}</p><div role="img" aria-label={`${[...row].filter((x) => x === "c").length} complete, ${[...row].filter((x) => x === "u").length} unavailable, ${[...row].filter((x) => x === ".").length} with no record`}>{[...row].map((x) => <i class={x === "c" ? "is-read" : x === "u" ? "is-lost" : "is-later"}></i>)}</div></div>
+      ))}
+    </div>
+    <p>Overwriting would leave six schools with no record at all, and the next reader would take them for never asked. Merging keeps seven complete and one named gap. The season's data files are a different matter: they are rewritten whole, so the platform widens a narrow rerun to the whole unit before it writes them. The merge records the latest attempt for each square it touched. So the school that failed today now reads unavailable, although last week it was complete.</p>
+    <p><strong>Replace in one step.</strong> The record is replaced by an <strong>atomic write</strong>: the new file is written beside the old one and swapped in, so an interrupted run cannot leave half a record behind.</p>
+    <p>Readers downstream use what the run wrote down. Besides the coverage record, each season file carries a list of what it is missing, and that list is what the season view reads: it shows a notice for each gap, and the reason sits with the match. The platform's match figures travel with two numbers, matches counted and matches played. By the same rule, this table after the repair would go out as “{story.afterRepair} of {story.finals},” with September 21 named. And a claim that something is absent needs complete coverage behind it: a player is called new to a team only when the roster squares for the seasons before are complete.</p>
+    <details class="cv-more">
+      <summary>See the record on disk, and the collector in outline</summary>
+      <p>Two squares of the sample's record. The grid in part 5 is drawn from this file.</p>
+      <pre tabindex="0"><code>{sampleCells}</code></pre>
+      <p>The collector as a teaching outline. The platform's own code has more steps.</p>
+      <pre tabindex="0"><code>{pseudo}</code></pre>
+    </details>
+
+    <h3>Ask Kick again</h3>
+    <p>Here is the same Friday with a coverage record behind it.</p>
+    <div class="cv-chat">
+      <p class="cv-riley"><b>Riley</b> Which of the eight schools answered, and how many matches is this table missing?</p>
+      <p class="cv-kick"><b>Kick</b> Seven of eight schedules are complete. Dunmore's is unavailable: no answer. The table counts {story.counted} of {story.finals} finished conference matches, and all eight rows are affected. Dunmore has at least {bounds.points} points and at most {bounds.high}. I would not publish it.</p>
+    </div>
+    <p>The agent and the failed request are the same as before. Kick kept a record this time because Riley asked for one.</p>
+  </section>
+
+  <section id="field-work">
+    <h2>4. Field work: audit a plan, then test your own assistant</h2>
+    <p>First you audit the plan Kick followed for the schedule pages, and the page checks you. Then you give your own AI assistant the pages Kick got and paste its answer back here. The page holds the right table for those pages and searches the answer for it.</p>
+
+    <h3>Step 1. Audit Kick's plan</h3>
+    <ol class="cv-plan">{kickPlan.map((x) => <li>{x}</li>)}</ol>
+    <div class="cv-check" data-once="plan">
+      <p class="cv-qlabel">For each requirement, pick the step that meets it, or “No step.”</p>
+      {planAudit.map((a) => (
+        <div class="cv-line" data-q data-type="select" data-answer={a.answer} data-why={a.why}>
+          <label><span>{a.q}</span>
+            <select data-save={`plan-${a.key}`}>
+              <option value="">Choose</option>
+              {kickPlan.map((_, i) => <option value={String(i + 1)}>Step {i + 1}</option>)}
+              <option value="0">No step</option>
+            </select>
+          </label>
+          <p class="cv-fb" role="status"></p>
+        </div>
+      ))}
+      <p class="cv-once">One attempt. Read the plan closely before you check.</p>
+      <button type="button" data-submit>Check my audit</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>Three of the four requirements with no step would have stopped Riley publishing. The fourth protects next week's run.</p>
+      </div>
+    </div>
+
+    <h3>Step 2. Give your assistant the pages Kick got</h3>
+    <p>Seven schedule pages came back on Friday. This is their text as the sample holds it: every regular-season row of every page, non-conference matches included. Dunmore's page is not in it, and nothing in it says so.</p>
+    <p>A summary that told the truth about these pages would volunteer three things:</p>
+    <ol class="cv-cases">{volunteer.map((v) => <li>{v}</li>)}</ol>
+    <label class="cv-inline">Before you paste: how many of the three will your assistant volunteer?
+      <select data-save="predict"><option value="">Choose</option>{[0, 1, 2, 3].map((n) => <option>{n}</option>)}</select>
+    </label>
+    <div class="cv-prompt">
+      <pre class="cv-pack" tabindex="0" data-copy-text>{`${packPrompt}\n\n${pack.text}`}</pre>
+      <button type="button" data-copy data-label="Copy the prompt and the seven pages">Copy the prompt and the seven pages</button>
+    </div>
+    <p>Paste it into a fresh chat and let it answer. Ask nothing further. Then paste its whole answer here, table and all.</p>
+    <div class="cv-evidence" data-evidence="first" data-absent="Dunmore" data-played={pack.dunmorePlayed} data-points={pack.dunmorePoints} data-host={bounds.played}>
+      <label class="cv-write" for="cv-first-answer">Your assistant's first answer</label>
+      <textarea id="cv-first-answer" rows="6" data-save="answer-first"></textarea>
+      <ul class="cv-found" data-found></ul>
+      <p class="cv-fb" role="status" data-evidence-note></p>
+      <div class="cv-reveal">
+        <p>This is the table those seven pages support: {pack.scored} of {story.finals} finished matches, with all {pack.dunmorePlayed} of Dunmore's results taken from its opponents' pages. P counts matches with a score, so Cedar Grove and St. Lambert have each played one more than it shows.</p>
+        <FirstRunTable rows={repaired} caption="What the seven pages support" />
+        <p>The search is plain text matching, so read the answer yourself as well. If the page says “not found” for something your assistant did say in other words, count it as found.</p>
+      </div>
+    </div>
+
+    <h3>Step 3. Rewrite, and test it on pages you have not seen</h3>
+    <label class="cv-write" for="cv-rewrite">Rewrite the first paragraph of the prompt so that any answer has to carry its own coverage record. Write it to work on pages you have not read: it must not name a school, a date or a count.</label>
+    <textarea id="cv-rewrite" rows="5" data-save="rewrite"></textarea>
+    <p class="cv-fb" role="status" data-leak></p>
+    <p>Here is a second set of seven pages from the same season, with a different page missing. The page will not say which until your assistant has answered. Start a fresh chat and paste your paragraph, then these pages.</p>
+    <div class="cv-prompt">
+      <pre class="cv-pack" tabindex="0" data-copy-text>{`The eight members are ${pack.members.slice(0, -1).join(", ")} and ${pack.members.at(-1)}.\n\n${packB.text}`}</pre>
+      <button type="button" data-copy data-label="Copy the second set of pages">Copy the second set of pages</button>
+    </div>
+    <div class="cv-evidence" data-evidence="second" data-absent={packB.absent} data-played={packB.played} data-points={packB.points}>
+      <label class="cv-write" for="cv-second-answer">The fresh chat's answer</label>
+      <textarea id="cv-second-answer" rows="6" data-save="answer-second"></textarea>
+      <ul class="cv-found" data-found></ul>
+      <p class="cv-fb" role="status" data-evidence-note></p>
+    </div>
+    <p>Five found, on pages your prompt had never seen, is a good sign that the prompt works beyond the one case it was written on. It is not proof. The page matches words and numbers, and an answer can contain the right words and a wrong table. Check the missing school's row and the count against what you read yourself. If something is missing, change the prompt and try a fresh chat. If it will not come after three tries, stop and keep that result. Some assistants miscount a table this size however they are asked, which is an arithmetic failure and a different one from hiding a gap.</p>
+    <p>If your assistant found everything on the first run, without help, it did what Kick did not. The second set tells you whether it does so reliably, and your prompt is what makes that a requirement instead of luck.</p>
+
+    <details class="cv-more">
+      <summary>Go further: learn the statistics vocabulary with your assistant</summary>
+      <p>Part 3 said the cause of a gap and its effect on your numbers are separate questions. Statisticians have terms for this.</p>
+      <div class="cv-prompt">
+        <p data-copy-text>{tutorPrompt}</p>
+        <button type="button" data-copy>Copy the prompt</button>
+      </div>
+      <p>Bring back one answer: which of the three is “Dunmore's site was down on Friday afternoon”?</p>
+      <details>
+        <summary>Check what you brought back</summary>
+        <p>The best answer is <em>missing at random, given the host</em>. Whether a match is missing depends on who hosted it, which you can observe, and need not depend on the score. That last part is an assumption, and no table of observed results can test it. Even if it holds, the table alone cannot estimate Dunmore's home results, because none were observed. Statisticians call that a positivity failure, and getting past it takes a model of team strength, with its own assumptions. And it describes only the seven matches lost with the page. The September 21 match is missing for a different reason and needs its own answer. If your assistant said “completely at random,” check which unit it meant. Among pages, one outage on one Friday may well be random. Among matches it is not, because every missing match is a Dunmore home match. If it said “not at random,” ask what makes it think the outage depended on the results.</p>
+        <p>Even the mild case skews the table. Kick's table kept all of Dunmore's away matches and none of its home ones, so any figure where home and away differ is tilted. And a school that took its results page down after a bad run would be the severe case, where the values are the reason they are missing. The coverage record tells you the cause. Which case you are in cannot be settled from the record alone.</p>
+      </details>
+    </details>
+  </section>
+
+  <section id="prove-it">
+    <h2>5. Prove it on a season you have not seen</h2>
+    <p>This is the sample's real coverage record for the season before: Prairie Lakes men, 2025. Hartwell Tech had not joined yet, and the conference played to the same format as in 2026. Tap the squares that are not complete and read each reason.</p>
+    <CoverageGrid rows={unseen.grid} caption="Coverage record, Prairie Lakes men, 2025" id="past" />
+    <p>Fill in the whole audit, then check it once. Nothing is marked until you submit.</p>
+    <div class="cv-check" data-once="audit">
+      <div data-q data-type="number" data-answer={unseen.expected} data-why={`${unseen.expected}. Seven schools each host the other six: 7 × 6. The membership list gives seven schools, and the format has each host every other once.`}>
+        <label for="cv-expected">How many conference matches should the 2025 season hold?</label>
+        <input id="cv-expected" inputmode="numeric" autocomplete="off" data-save="q-expected" />
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="select" data-answer="rule" data-why="The membership list and the rule. Neither depends on what this run collected. Counting the file uses the run to check itself. So does adding up the matches found on collected schedules: a match that no collected page lists never enters that count.">
+        <label for="cv-expected-how">Which source gives that number without depending on this run?</label>
+        <select id="cv-expected-how" data-save="q-expected-src"><option value="">Choose</option>{sourceOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="number" data-answer={unseen.expected - unseen.held} data-why={`Two. With both schools' pages read for every match, a match is lost only when both of its schools are missing. One pair qualifies, and it met twice. The season file holds ${unseen.held} conference matches, which confirms it.`}>
+        <label for="cv-lost">Reading both schools' schedules, as Touchline does: how many of those matches can no collected schedule tell you about?</label>
+        <input id="cv-lost" inputmode="numeric" autocomplete="off" data-save="q-lost" />
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="pair" data-answer={unseen.missingSchools.join(",")} data-why="Dunmore and Eastbrook State. Every other match was listed by at least one school whose schedule arrived.">
+        <p class="cv-qlabel">Name one of them.</p>
+        <div class="cv-row">
+          <label>Host <select data-save="q-host"><option value="">Choose</option>{unseen.schools.map((s) => <option value={s.slug}>{s.name}</option>)}</select></label>
+          <label>Visitor <select data-save="q-visitor"><option value="">Choose</option>{unseen.schools.map((s) => <option value={s.slug}>{s.name}</option>)}</select></label>
+        </div>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <p class="cv-qlabel">Here are five squares from the grid. For each, what would close the gap, if there is one? An action can be right more than once, or never.</p>
+      {gaps.map((g) => (
+        <div class="cv-line" data-q data-type="select" data-answer={g.answer} data-why={g.why}>
+          <label><span>{g.name}</span>
+            <select data-save={`gap-${g.key}`}><option value="">Choose</option>{actions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
+          </label>
+          <p class="cv-fb" role="status"></p>
+        </div>
+      ))}
+      <p class="cv-once">One attempt. You can change anything until you check.</p>
+      <button type="button" data-submit>Check my audit</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>Two schedules were lost and only two matches with them, because every other match was listed by a school whose schedule arrived.</p>
+      </div>
+    </div>
+
+    <h3>Red-pen the report</h3>
+    <p>The 2025 season file holds {unseen.held} conference matches, and box scores for {unseen.withBox} of them. Kick has written five sentences about the season. Keep the ones the record and those counts support. Strike the ones they do not.</p>
+    <div class="cv-check" data-once="report">
+      {report.map((r) => (
+        <fieldset class="cv-line" data-q data-type="radio" data-answer={r.answer} data-why={r.why}>
+          <legend>“{r.text}”</legend>
+          <label><input type="radio" name={`rep-${r.key}`} value="keep" data-save={`rep-${r.key}`} /><span>Keep</span></label>
+          <label><input type="radio" name={`rep-${r.key}`} value="strike" data-save={`rep-${r.key}`} /><span>Strike</span></label>
+          <p class="cv-fb" role="status"></p>
+        </fieldset>
+      ))}
+      <p class="cv-once">One attempt.</p>
+      <button type="button" data-submit>Check my marks</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>Three counts describe this one season, and all three are true: {unseen.schedules} of 7 schedules, {unseen.held} of {unseen.expected} matches, and box scores for {unseen.withBox} of {unseen.expected}. Each counts a different unit.</p>
+        <p>Ten scheduled matches have no box score in the file: the two that were lost, plus eight more. All eight are matches the season file took from Harbor Point's schedule, and Harbor Point no longer serves box scores. {harborDark} of the eight were against Dunmore or Eastbrook State, so no collected page could have supplied them. The other {8 - harborDark} were against schools whose own sites were collected. This sample takes a box score only from the site its fixture was kept from, so those are gaps a second source could close. The real platform tries the box-score link from either school, so it closes a gap like these whenever the other school published a working link.</p>
+        <p>The third sentence deserves a second look, because it is close to what Touchline itself prints. The platform's match figures count “played” from the matches it holds, so a figure built that way for this season would read {unseen.withBox} of {unseen.held}. That is a true statement about the file. It becomes false only when someone reads it as a statement about the season. What stops that reading is the pair of named gaps beside it: two schedules not collected. A denominator built from collected pages always needs its gaps printed next to it.</p>
+      </div>
+    </div>
+
+    <label class="cv-write" for="cv-caption">Now write the line that goes under the 2025 conference table when it is published.</label>
+    <div class="cv-commit" data-commit>
+      <textarea id="cv-caption" rows="3" data-save="caption"></textarea>
+      <button type="button" disabled>Compare with a worked answer</button>
+      <p class="cv-once" data-needs-note>Write a full sentence to compare.</p>
+      <div class="cv-reveal">
+        <p class="cv-model">Built from {unseen.held} of {unseen.expected} conference matches. Not collected: both meetings of Dunmore and Eastbrook State. Each of those two schools has two more scheduled matches than this table shows.</p>
+        <fieldset class="cv-ticks">
+          <legend>Read your line again and mark it honestly.</legend>
+          <label><input type="checkbox" data-save="cap-count" /><span>It gives the count and the total</span></label>
+          <label><input type="checkbox" data-save="cap-gap" /><span>It names the gap, so a reader can tell which rows to distrust</span></label>
+          <label><input type="checkbox" data-save="cap-true" /><span>It states nothing about two results nobody has seen</span></label>
+        </fieldset>
+      </div>
+    </div>
+  </section>
+
+  <section id="transfer">
+    <h2>6. Transfer: the same number, twice</h2>
+    <p>A health network has ten clinics that report patient visits each week. In week 9 you hold this, in two different worlds.</p>
+    <div class="cv-twins">
+      <div>
+        <h3>World A</h3>
+        <p>Eight clinics reported visits, 100 in total.</p>
+        <p>The other two each sent a file with a header and no rows. Both were closed that week for refitting, and the closure notices are on file.</p>
+      </div>
+      <div>
+        <h3>World B</h3>
+        <p>Eight clinics reported visits, 100 in total.</p>
+        <p>The other two sent nothing. Nobody has heard from them.</p>
+      </div>
+    </div>
+    <p>The spreadsheet is identical in both: eight rows, sum 100. Write the headline you would publish for each.</p>
+    <div class="cv-commit" data-commit>
+      <label class="cv-write" for="cv-a">World A headline</label>
+      <textarea id="cv-a" rows="2" data-save="transfer-a"></textarea>
+      <label class="cv-write" for="cv-b">World B headline</label>
+      <textarea id="cv-b" rows="2" data-save="transfer-b"></textarea>
+      <button type="button" disabled>Compare with worked answers</button>
+      <p class="cv-once" data-needs-note>Write a full sentence in each box to compare.</p>
+      <div class="cv-reveal">
+        <p class="cv-model">A: 100 visits across all ten clinics. Two were closed.</p>
+        <p class="cv-model">B: At least 100 visits, from eight of ten clinics. Two have not reported.</p>
+        <p>World A's two clinics are <em>empty</em>: they answered, the answer is proved, and it is zero. World B's are <em>unavailable</em>. The number 100 is a total in A and a lower bound in B.</p>
+        <fieldset class="cv-ticks">
+          <legend>Read your World B headline again and mark it honestly.</legend>
+          <label><input type="checkbox" data-save="self-floor" /><span>It reads as a lower bound, not a total</span></label>
+          <label><input type="checkbox" data-save="self-count" /><span>It says eight of ten</span></label>
+          <label><input type="checkbox" data-save="self-true" /><span>It would still be true if a late file arrived</span></label>
+        </fieldset>
+      </div>
+    </div>
+    <h3>World B, on Thursday</h3>
+    <p>One of World B's silent clinics sends a late file: 300 visits, after it took in patients from a hospital that flooded. “At least 100” stayed true. “100 visits” would have been low by at least a factor of four, and the flood that filled the clinic is also what delayed its report. The size of the number and its lateness had the same cause. Unless that cause is itself recorded, so that you can condition on it, this is the case statisticians call missing not at random.</p>
+    <div class="cv-check" data-once="clinic">
+      <div data-q data-type="range" data-answer="400,520" data-why="400 to 520, from nine of ten clinics. The floor is what you hold. The ceiling adds the most the silent clinic could have seen: 5 days at 24. A documented limit on the missing unit turns a lower bound into an interval, as the points rule did for Dunmore.">
+        <p class="cv-qlabel">You now hold 400 visits from nine clinics. The tenth is still silent. It is the network's smallest clinic: its licence allows at most 24 visits a day, and it opens five days a week. What are the lowest and highest week 9 totals the network could have?</p>
+        <div class="cv-row"><label>Lowest <input inputmode="numeric" autocomplete="off" data-save="clinic-low" /></label><label>Highest <input inputmode="numeric" autocomplete="off" data-save="clinic-high" /></label></div>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <h3>World C</h3>
+      <p>Eight clinics reported, 100 visits in total. The other two each sent a file with a header and no rows. Nothing in either file says which week it covers, and there is no closure notice.</p>
+      <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file arrived, and it cannot prove it is week 9's file. The same rule as a schedule page that cannot prove its season. Having no reader would mean the file could not be opened at all.">
+        <label><span>What state are those two clinics in for week 9?</span>
+          <select data-save="clinic-state"><option value="">Choose</option>{stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
+        </label>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div class="cv-line" data-q data-type="select" data-answer="floor" data-why="A lower bound, from eight of ten. Two zero-row files that cannot prove their week tell you nothing about week 9.">
+        <label><span>What is the number 100?</span>
+          <select data-save="clinic-claim"><option value="">Choose</option><option value="total">The network's total for week 9</option><option value="floor">A lower bound for week 9</option><option value="ceiling">An upper bound for week 9</option><option value="eight">The total for week 9, since the two files show zero</option><option value="nothing">Not usable at all</option></select>
+        </label>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <p class="cv-once">One attempt.</p>
+      <button type="button" data-submit>Check all three</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal"><p>World C holds the same files as World A and supports only World B's headline, because the files cannot prove their week.</p></div>
+    </div>
+  </section>
+
+  <section id="brief">
+    <h2>7. Your brief</h2>
+    <p>Riley handed over a job without knowing what to require. So finish by writing the requirement. Your part 4 prompt was written for one job. Turn it into a standing clause: what you would tell any AI before it collects anything for you, in any field. Add one acceptance example, a case with a known right answer that would catch a bad implementation.</p>
+    <div class="cv-mark"><div>
+      <p class="cv-who">The prompt you rewrote in part 4</p>
+      <p class="cv-yousaid"><span data-show="rewrite">nothing yet</span></p>
+    </div></div>
+    <div class="cv-commit" data-commit>
+      <label class="cv-write" for="cv-brief">Your coverage clause, and one acceptance example</label>
+      <textarea id="cv-brief" rows="6" data-save="brief"></textarea>
+      <button type="button" disabled>Compare with a worked clause</button>
+      <p class="cv-once" data-needs-note>Write a full sentence to compare.</p>
+      <div class="cv-reveal">
+        <p class="cv-model cv-pre">{model}</p>
+        <fieldset class="cv-ticks">
+          <legend>Yours does not need these words. It needs five things. Mark the ones it has.</legend>
+          <label><input type="checkbox" data-save="brief-set" /><span>An expected set, with where it comes from</span></label>
+          <label><input type="checkbox" data-save="brief-state" /><span>A named state for every expected item</span></label>
+          <label><input type="checkbox" data-save="brief-success" /><span>Success defined as a true record</span></label>
+          <label><input type="checkbox" data-save="brief-denominator" /><span>A denominator on every published figure</span></label>
+          <label><input type="checkbox" data-save="brief-test" /><span>An acceptance example with a known right answer</span></label>
+        </fieldset>
+        <p>Anything unmarked is worth a second pass. Edit your clause above until all five hold.</p>
+      </div>
+    </div>
+    <div class="cv-row"><button type="button" data-copy-brief>Copy my clause</button><span class="cv-saved" role="status" data-saved-note></span></div>
+    <div class="cv-say">
+      <p class="cv-who">Riley, to the eight schools <span>Monday, 8:10</span></p>
+      <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, and its seven home results are now taken from the visitors' pages. Hartwell Tech is second. Cedar Grove against St. Lambert on September 21 is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>
+    </div>
+    <p data-close-first hidden>Your question from the film was: <q data-close-first-text></q> Would the coverage record have answered it?</p>
+
+    <details class="cv-more">
+      <summary>Going deeper: collecting again without starting over</summary>
+      <p>A daily run across a thousand sites cannot download everything every day. The collector keeps a short tag the site hands out with each page. On the next run it sends the tag back and asks whether the page has changed. The site answers “unchanged” or sends the new page. In the story, the next morning Dunmore answers again and St. Lambert has changed one entry, so the collector downloads two pages, {bytes(run.rerunBytes)} bytes, where a full run moves {bytes(run.allBytes)}.</p>
+      <p>The tag is an <strong>ETag</strong>, and the question is a <strong>conditional request</strong>: send the page only if it has changed. An “unchanged” answer confirms the square in the state it already had, without a new download.</p>
+      <p>A tag must never outlive the page it describes. If the collector held a tag for a page it had failed to save, the site would keep answering “unchanged” about a copy that does not exist, and nothing would ever flag it. So a tag whose page is not on disk is treated as no tag at all. Some sites send no ETag, so the collector also keeps a hash of each page's content. A hash cannot save the download. It saves reading an unchanged page a second time.</p>
+      <p>The repository has a small lab for this, with no network: <code>python labs/m01_collect.py</code> runs three days of collection against a pretend web and prints what was downloaded each day. A good exercise for your assistant: ask it to make the pretend web lie, by sending the same tag for a changed page, then explain what breaks and how a collector could notice.</p>
+    </details>
+    <button type="button" class="cv-quiet" data-reset>Clear my answers and start this module again</button>
+  </section>
+</div>
+
+<style is:global>
+  .cv { --cv-red: #c5301c; --cv-yellow: #f4c62f; --cv-green: #1f7a45; color: var(--tl-ink); line-height: 1.6; }
+  .cv section { margin: 0 0 3rem; scroll-margin-top: 5rem; }
+  .cv h2 { margin: 0 0 0.75rem; padding-top: 1rem; border-top: 3px solid var(--sl-color-accent); color: var(--sl-color-white); font-size: clamp(1.4rem, 4.5vw, 1.75rem); line-height: 1.2; font-weight: 750; text-wrap: balance; }
+  .cv h3 { margin: 2rem 0 0.5rem; color: var(--sl-color-white); font-size: 1.2rem; line-height: 1.25; font-weight: 700; }
+  .cv h4 { margin: 0 0 0.3rem; color: var(--sl-color-white); font-size: 1rem; font-weight: 700; }
+  .cv .cv-try { margin-top: 1.5rem; font-size: 1.05rem; }
+  .cv p { margin: 0 0 0.8rem; }
+  .cv ul, .cv ol { margin: 0 0 0.9rem; padding-left: 1.25rem; }
+  .cv li { margin: 0.2rem 0; }
+  .cv dfn { color: var(--sl-color-white); font-style: normal; font-weight: 750; }
+  .cv .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .cv-lede { margin-top: 1.25rem !important; color: var(--sl-color-white); font-size: 1.15rem; line-height: 1.45; }
+  .cv-can { margin-bottom: 0.25rem !important; font-weight: 700; }
+  .cv-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.4rem; margin: 0.25rem 0 0.75rem !important; padding: 0 0 0 1.4rem !important; }
+  .cv-map li { margin: 0; }
+  .cv-map a { display: grid; align-content: start; gap: 0.1rem; min-height: 44px; padding: 0.3rem 0; color: var(--tl-ink); text-decoration: none; }
+  .cv-map b { color: var(--sl-color-white); text-decoration: underline; }
+  .cv-map span { color: var(--tl-muted); font-size: 0.85rem; line-height: 1.3; }
+  .cv-say { margin: 0 0 1rem; padding: 0.8rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
+  .cv-say p:last-child { margin-bottom: 0; }
+  .cv-yours { border-left-color: var(--cv-yellow); }
+  .cv-who { margin-bottom: 0.2rem !important; font-size: 0.85rem; font-weight: 700; }
+  .cv-who span { margin-left: 0.4rem; color: var(--tl-muted); font-weight: 400; }
+  .cv-log, .cv-hosts { display: table; margin: 0 0 1rem; border-collapse: collapse; font-size: 0.92rem; }
+  .cv-log { width: 100%; max-width: 26rem; }
+  .cv caption { padding-bottom: 0.3rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; }
+  .cv-log th, .cv-log td { padding: 0.3rem 0.45rem; border: 0; border-bottom: 1px solid var(--tl-line); background: none; text-align: left; font-weight: 400; }
+  .cv-log thead th, .cv-hosts thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 600; }
+  .cv-claims { display: grid; gap: 0.5rem; margin: 0 0 1rem; }
+  .cv-claims label { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 1rem; padding: 0.5rem 0.75rem; background: var(--tl-card); }
+  .cv-claims span { color: var(--sl-color-white); font-weight: 700; }
+  .cv select, .cv textarea, .cv input:not([type]) { min-height: 44px; max-width: 100%; padding: 0.45rem 0.6rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font: inherit; }
+  .cv textarea { display: block; width: 100%; margin: 0 0 0.75rem; resize: vertical; }
+  .cv :is(select, textarea, input):disabled { opacity: 1; color: var(--tl-ink); border-style: dashed; }
+  .cv-write { display: block; margin: 0 0 0.35rem; color: var(--sl-color-white); font-weight: 700; }
+  .cv-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; margin: 0 0 1rem; color: var(--sl-color-white); font-weight: 700; }
+  .cv-define { margin: 0 0 1rem; padding: 1rem 1.1rem; border: 1px solid var(--sl-color-accent); background: var(--tl-card); font-size: 1.05rem; }
+  .cv-define p:last-child { margin-bottom: 0; }
+  .cv-dots { margin: 0 0 1rem; }
+  .cv-dots p { margin: 0 0 0.3rem; }
+  .cv-dots div { display: flex; flex-wrap: wrap; gap: 3px; max-width: 30rem; margin: 0 0 0.9rem; }
+  .cv-dots i { width: 0.8rem; height: 0.8rem; }
+  .cv .is-read { background: var(--cv-green); color: #fff; }
+  .cv .is-lost { background: var(--cv-red); color: #fff; }
+  .cv .is-noscore { background: transparent; box-shadow: inset 0 0 0 2px var(--cv-yellow); color: var(--tl-ink); }
+  .cv .is-later { background: transparent; box-shadow: inset 0 0 0 1px var(--tl-line); }
+  .cv-sources { display: grid; gap: 0.5rem; margin: 0 0 1rem; }
+  .cv-sources div { padding: 0.6rem 0.85rem; background: var(--tl-card); border-left: 3px solid var(--sl-color-accent); }
+  .cv-sources dt { color: var(--sl-color-white); font-weight: 700; }
+  .cv-sources dd { margin: 0; }
+  .cv-states { display: grid; gap: 0.6rem; margin: 0 0 1rem; }
+  @media (min-width: 40rem) { .cv-states { grid-template-columns: 1fr 1fr; } }
+  .cv-state { padding: 0.75rem 0.85rem; background: var(--tl-card); border-top: 4px solid var(--tl-muted); font-size: 0.94rem; }
+  .cv-state p { margin-bottom: 0.4rem; }
+  .cv-state p:last-child { margin-bottom: 0; }
+  .cv-state h4 { display: flex; align-items: center; gap: 0.45rem; }
+  .cv-state i { display: inline-block; width: 1rem; height: 1rem; flex: none; }
+  .cv-state.is-complete { border-top-color: var(--cv-green); }
+  .cv-state.is-empty { border-top-color: var(--tl-ink); }
+  .cv-state.is-unavailable { border-top-color: var(--cv-red); }
+  .cv-state.is-complete i { background: var(--cv-green); }
+  .cv-state.is-empty i { box-shadow: inset 0 0 0 2px var(--tl-ink); }
+  .cv-state.is-unavailable i { background: var(--cv-red); }
+  .cv-state.is-no-collector i { background: repeating-linear-gradient(45deg, var(--tl-muted) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 1px var(--tl-muted); }
+  .cv-sort { padding-left: 1.4rem !important; }
+  .cv-sort li { margin: 0 0 1rem; padding-left: 0.2rem; }
+  .cv-sort li p:first-child { margin-bottom: 0.4rem; }
+  .cv-fb { margin: 0 !important; }
+  .cv-fb:not(:empty) { margin-top: 0.4rem !important; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
+  .cv-check .cv-fb:not(:empty) { background: var(--tl-bg); }
+  .cv-fb.is-right:not(:empty) { border-left-color: var(--sl-color-accent); }
+  .cv-fb.is-wrong:not(:empty) { border-left-color: var(--cv-red); }
+  .cv-hostwrap { overflow-x: auto; }
+  .cv-hosts { margin-bottom: 0.5rem; }
+  .cv-hosts th, .cv-hosts td { padding: 0; border: 0; background: none; text-align: center; }
+  .cv-hosts tbody th { padding-right: 0.5rem; font-weight: 400; text-align: left; white-space: nowrap; }
+  .cv-hosts abbr { text-decoration: none; }
+  .cv-hosts thead th:not(:first-child) { font-size: 0.62rem; letter-spacing: -0.01em; }
+  .cv-hosts thead th:first-child { text-align: left; }
+  .cv-hosts td { width: 1.75rem; height: 1.75rem; border: 2px solid var(--sl-color-bg, var(--tl-bg)); font-size: 0.8rem; line-height: 1; }
+  .cv-hosts td.is-read { background: color-mix(in srgb, var(--cv-green) 30%, transparent); color: var(--tl-ink); }
+  .cv-hosts td.is-lost { font-weight: 700; }
+  .cv-hosts td.is-noscore { font-weight: 700; }
+  .cv-key { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin: 0 0 0.9rem !important; padding: 0 !important; list-style: none; font-size: 0.88rem; }
+  .cv-key li { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
+  .cv-key i { display: grid; place-items: center; width: 1.15rem; height: 1.15rem; flex: none; font-size: 0.72rem; font-style: normal; font-weight: 700; }
+  .cv-key i.is-read { background: color-mix(in srgb, var(--cv-green) 30%, transparent); color: var(--tl-ink); }
+  .cv-check { display: grid; gap: 0.9rem; margin: 0 0 1.25rem; padding: 0.9rem 1rem; background: var(--tl-card); border-left: 3px solid var(--cv-yellow); }
+  .cv-check > [data-q] > label:first-child, .cv-qlabel, .cv-check legend { display: block; margin: 0 0 0.4rem !important; padding: 0; color: var(--sl-color-white); font-weight: 700; }
+  .cv-check [data-q] > input:not(.cv-wide) { width: 6rem; }
+  .cv-sub { display: block; margin: 0.5rem 0 0.25rem; color: var(--tl-muted); font-size: 0.92rem; }
+  .cv-wide { width: 100%; }
+  .cv-once { margin: 0 !important; color: var(--tl-muted); font-size: 0.9rem; }
+  .cv-row { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+  .cv-row label { display: flex; align-items: center; gap: 0.4rem; }
+  .cv-row input { width: 5rem; }
+  .cv-line { margin: 0; padding: 0; border: 0; }
+  .cv-line > label { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.4rem 1.5rem; }
+  .cv-line > label > span { flex: 1 1 14rem; }
+  .cv-line legend { font-weight: 600 !important; }
+  fieldset.cv-line > label { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; margin-right: 1.25rem; cursor: pointer; }
+  .cv input[type="radio"], .cv input[type="checkbox"] { flex: none; width: 1.2rem; height: 1.2rem; margin: 0; accent-color: var(--sl-color-accent); }
+  .cv button { justify-self: start; min-height: 44px; padding: 0.5rem 0.95rem; border: 1px solid var(--sl-color-accent); border-radius: 3px; background: var(--sl-color-accent); color: var(--sl-color-black); font: inherit; font-weight: 700; cursor: pointer; }
+  :root[data-theme="light"] .cv button:not(.is-empty, .is-no-collector, .is-not-asked) { color: #fff; }
+  .cv button:disabled, :root[data-theme="light"] .cv button:disabled { border-color: var(--tl-muted); background: transparent; color: var(--tl-muted); cursor: default; }
+  .cv button[hidden] { display: none; }
+  .cv .cv-quiet, :root[data-theme="light"] .cv .cv-quiet { margin-top: 1rem; border-color: var(--tl-muted); background: transparent; color: var(--tl-ink); font-weight: 400; }
+  .cv :is(button, a, select, textarea, input, summary, pre):focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  .il-js .cv-reveal:not(.is-open) { display: none; }
+  .cv-reveal > :last-child { margin-bottom: 0; }
+  .cv-slope { margin: 0 0 1rem; }
+  .cv-slope svg { display: block; width: 100%; max-width: 24rem; height: auto; }
+  .cv-slope text { fill: var(--tl-ink); font-size: 13px; }
+  .cv-slope .h { fill: var(--tl-muted); font-size: 11px; }
+  .cv-slope line { stroke: var(--tl-muted); stroke-width: 1.5; }
+  .cv-slope .up line { stroke: var(--sl-color-accent); stroke-width: 2.5; }
+  .cv-slope .down line { stroke: var(--cv-red); stroke-width: 2.5; }
+  .cv-slope .watch line { stroke: var(--cv-yellow); stroke-width: 4; }
+  .cv-slope .watch text { font-weight: 700; }
+  .cv-slope figcaption { margin-top: 0.3rem; color: var(--tl-muted); font-size: 0.9rem; }
+  .cv-rule { padding: 0.9rem 1.1rem; border-left: 4px solid var(--cv-yellow); background: var(--tl-card); color: var(--sl-color-white); font-size: 1.15rem; font-weight: 700; line-height: 1.4; }
+  .cv pre { margin: 0 0 1rem; padding: 0.8rem; overflow-x: auto; border: 1px solid var(--tl-line); background: var(--tl-card); font-size: 0.82rem; line-height: 1.5; }
+  .cv pre code { padding: 0; background: none; }
+  .cv-chat { display: grid; gap: 0.5rem; margin: 0 0 1rem; }
+  .cv-chat p { margin: 0; padding: 0.7rem 0.9rem; background: var(--tl-card); }
+  .cv-chat b { display: block; font-size: 0.85rem; }
+  .cv-riley { margin-right: 2rem !important; border-left: 3px solid var(--cv-yellow); }
+  .cv-kick { margin-left: 2rem !important; border-left: 3px solid var(--sl-color-accent); }
+  .cv-mark { display: grid; gap: 0.6rem; margin: 0 0 1rem; }
+  .cv-mark > div { padding: 0.75rem 0.9rem; background: var(--tl-card); }
+  .cv-mark p:last-child { margin-bottom: 0; }
+  .cv-yousaid { margin-bottom: 0.3rem !important; color: var(--tl-muted); }
+  .cv-yousaid span { color: var(--cv-yellow); font-weight: 600; overflow-wrap: anywhere; }
+  :root[data-theme="light"] .cv-yousaid span { color: #7a5c00; }
+  .cv-plan { padding: 0.75rem 1rem 0.75rem 2.25rem !important; border: 1px dashed var(--tl-muted); background: var(--tl-card); }
+  .cv-ticks { margin: 0 0 1rem; padding: 0; border: 0; }
+  .cv-ticks legend { padding: 0; color: var(--sl-color-white); font-weight: 700; }
+  .cv-ticks label { display: flex; align-items: flex-start; gap: 0.6rem; min-height: 44px; margin-top: 0.3rem; padding: 0.6rem 0.75rem; background: var(--tl-card); cursor: pointer; }
+  .cv-ticks input { margin-top: 0.2rem !important; }
+  .cv-quotes { display: grid; gap: 0.7rem; margin: 0 0 1rem; }
+  .cv-quotes label { display: grid; gap: 0.25rem; }
+  .cv-quotes input { width: 100%; }
+  .cv-prompt { display: grid; margin: 0 0 1rem; padding: 0.85rem 1rem; border: 1px dashed var(--tl-muted); background: var(--tl-card); }
+  .cv-prompt p { font-family: var(--sl-font-mono); font-size: 0.9rem; }
+  .cv-pre { white-space: pre-wrap; }
+  .cv-cases li { margin-bottom: 0.4rem; }
+  .cv-more { margin: 0 0 0.75rem; border-top: 1px solid var(--tl-line); }
+  .cv-more summary { display: list-item; min-height: 44px; padding-block: 0.6rem; color: var(--sl-color-white); font-weight: 700; cursor: pointer; }
+  .cv-more details summary { color: var(--tl-ink); }
+  .cv-twins { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.6rem; margin: 0 0 1rem; }
+  .cv-twins div { padding: 0.8rem 1rem; background: var(--tl-card); border-top: 4px solid var(--tl-muted); }
+  .cv-twins h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+  .cv-twins p:last-child { margin-bottom: 0; }
+  .cv-commit { display: grid; margin: 0 0 1rem; }
+  .cv-commit .cv-reveal { margin-top: 0.75rem; }
+  .cv-model { padding: 0.7rem 0.9rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); color: var(--sl-color-white); }
+  .cv-saved { color: var(--tl-muted); font-size: 0.9rem; }
+  .cv-dots .cv-key { margin-top: -0.4rem !important; }
+  .cv-dots .cv-key i { width: 0.8rem; height: 0.8rem; }
+  .cv-chain { display: grid; gap: 0.35rem; max-width: 30rem; margin: 0 0 1rem; }
+  .cv-track { display: block; background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--cv-red) 55%, transparent) 0 3px, transparent 3px 6px); }
+  .cv-track span { display: block; height: 0.8rem; background: var(--cv-green); }
+  .cv-chain p { margin: 0.1rem 0 0; font-size: 0.92rem; }
+  .cv-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0 0 1rem; }
+  .cv-flow > div { padding: 0.55rem 0.8rem; border: 1px solid var(--tl-muted); font-weight: 700; }
+  .cv-flow > .is-record { border: 2px solid var(--sl-color-accent); color: var(--sl-color-white); }
+  .cv-flow > i { color: var(--tl-muted); font-style: normal; }
+  .cv-flow ul { flex: 1 1 14rem; margin: 0 !important; padding: 0 !important; list-style: none; }
+  .cv-flow li { margin: 0.2rem 0; padding: 0.3rem 0.7rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); font-size: 0.94rem; }
+  .cv-merge { display: grid; gap: 0.4rem; margin: 0 0 1rem; }
+  .cv-merge > div { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.9rem; }
+  .cv-merge p { flex: 0 0 9.5rem; margin: 0; font-size: 0.92rem; }
+  .cv-merge > div > div { display: flex; gap: 3px; }
+  .cv-merge i { width: 1.1rem; height: 1.1rem; }
+  .cv-merge .is-kept p { color: var(--sl-color-white); font-weight: 700; }
+  .cv-policies { margin: 0 0 1rem; }
+  .cv-policies button[aria-pressed="false"], :root[data-theme="light"] .cv-policies button[aria-pressed="false"] { background: transparent; color: var(--tl-ink); border-color: var(--tl-muted); font-weight: 400; }
+  .cv-policy { margin-top: 0.6rem; padding: 0.8rem 1rem; background: var(--tl-card); border-left: 3px solid var(--tl-muted); }
+  .cv-policy[data-policy-panel="record"] { border-left-color: var(--sl-color-accent); }
+  .cv-policy p:last-child { margin-bottom: 0; }
+  .cv-mono { font-family: var(--sl-font-mono); font-size: 0.9rem; color: var(--sl-color-white); }
+  .cv .cv-pack { max-height: 15rem; margin: 0 0 0.75rem; overflow: auto; white-space: pre-wrap; font-size: 0.8rem; }
+  .cv-evidence { margin: 0 0 1rem; padding: 0.9rem 1rem; background: var(--tl-card); border-left: 3px solid var(--cv-yellow); }
+  .cv-evidence .cv-fb:not(:empty) { background: var(--tl-bg); }
+  .cv-found { display: grid; gap: 0.3rem; margin: 0 0 0.5rem !important; padding: 0 !important; list-style: none; }
+  .cv-found li { margin: 0; padding: 0.4rem 0.7rem; border-left: 3px solid var(--cv-red); background: var(--tl-bg); }
+  .cv-found li.is-found { border-left-color: var(--sl-color-accent); }
+  .cv-found b { color: var(--sl-color-white); }
+  .cv-drop { margin: 0 !important; color: var(--tl-muted); font-size: 0.82rem; }
+  .cv-commit > .cv-once { margin-top: 0.4rem !important; }
+  .cv-check > *, .cv-line > label { min-width: 0; max-width: 100%; }
+  .cv-check > .cv-line[data-q] > label:first-child { display: flex; font-weight: 600; }
+  .cv-line select, .cv-check [data-q] > select { min-width: 0; max-width: 100%; flex: 0 1 15rem; }
+  .cv-rules { margin: 0 0 1rem; }
+  .cv-rules button[aria-pressed="false"], :root[data-theme="light"] .cv-rules button[aria-pressed="false"] { background: transparent; color: var(--tl-ink); border-color: var(--tl-muted); font-weight: 400; }
+  .cv-rules .cv-hostwrap { margin-top: 0.6rem; }
+</style>
+
+<script>
+  const KEY = "touchline-m1-coverage";
+  const PACK = JSON.parse(document.querySelector<HTMLElement>("[data-coverage]")!.dataset.pack!) as { members: string[]; played: number; points: number; host: number; scored: number; finals: number };
+  document.querySelectorAll<HTMLElement>("[data-coverage]").forEach((root) => {
+    let store: Record<string, string> = {};
+    let canSave = true;
+    try { store = JSON.parse(localStorage.getItem(KEY) ?? "{}"); } catch { canSave = false; }
+    const put = (key: string, value: string) => {
+      store[key] = value;
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch { canSave = false; }
+    };
+    type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const fields = [...root.querySelectorAll<Field>("[data-save]")];
+    const isBox = (f: Field): f is HTMLInputElement => f instanceof HTMLInputElement && (f.type === "checkbox" || f.type === "radio");
+    const valueOf = (f: Field) => f instanceof HTMLInputElement && f.type === "checkbox" ? (f.checked ? "1" : "") : f.value;
+
+    const showBack = () => root.querySelectorAll<HTMLElement>("[data-show]").forEach((el) => {
+      el.textContent = store[el.dataset.show!]?.trim() || "nothing yet";
+    });
+
+    const commitState = (box: HTMLElement) => {
+      const areas = [...box.querySelectorAll<HTMLTextAreaElement>("textarea")];
+      const needs = box.dataset.needs?.split(",") ?? [];
+      const short = areas.some((a) => a.value.trim().length < 25) || needs.some((k) => (k === "read-ask" ? (store[k] ?? "").trim().length < 25 : !store[k]));
+      box.querySelector<HTMLButtonElement>(":scope > button")!.disabled = short;
+      const note = box.querySelector<HTMLElement>("[data-needs-note]");
+      if (note) note.hidden = !short || !!store[`open-${needs.join()}`];
+    };
+    const lockFor = (box: HTMLElement) => {
+      if (box.dataset.locks) root.querySelectorAll<Field>(`#${box.dataset.locks} [data-save]`).forEach((f) => { f.disabled = true; });
+    };
+    const evidence = (box: HTMLElement) => {
+      const text = box.querySelector<HTMLTextAreaElement>("textarea")!.value.replace(/[\u2018\u2019]/g, "'").replace(/[\u00a0\u2007\u202f]/g, " ").replace(/[\u2010-\u2015\u2212]/g, "-");
+      const list = box.querySelector<HTMLElement>("[data-found]")!;
+      const note = box.querySelector<HTMLElement>("[data-evidence-note]")!;
+      list.replaceChildren();
+      if (text.trim().length < 80) { note.textContent = text.trim() ? "Paste the whole answer, including its table." : ""; return; }
+      const absent = box.dataset.absent!;
+      const played = Number(box.dataset.played);
+      const points = Number(box.dataset.points);
+      const plain = (v: string) => v.replace(/\./g, "").toLowerCase();
+      const lines = text.split("\n").map(plain);
+      const cellsOf = (line: string) => line.split(/\||\t|\s{2,}/).map((c) => c.trim()).filter(Boolean);
+      const isRow = (line: string, name: string) => line.replace(/^[|*\s\d.)]+/, "").startsWith(plain(name)) && (line.match(/\d+/g) ?? []).length >= 2;
+      const rowFor = (name: string) => lines.find((line) => isRow(line, name));
+      const teams = PACK.members.filter((name) => rowFor(name));
+      const row = rowFor(absent);
+      const firstRow = lines.findIndex((line) => PACK.members.some((name) => isRow(line, name)));
+      const head = lines.slice(0, Math.max(firstRow, 0)).reverse().find((line) => /\b(pts|points)\b/.test(line));
+      const cells = row ? cellsOf(row) : [];
+      const nums = cells.slice(cells.findIndex((c) => c.includes(plain(absent))) + 1).map((c) => Number(c.replace(/[^\d-]/g, ""))).filter((n) => !Number.isNaN(n));
+      const column = (re: RegExp) => { const at = head ? cellsOf(head).findIndex((c) => re.test(c)) : -1; return at >= 0 && cells.length === cellsOf(head!).length ? Number(cells[at].replace(/[^\d-]/g, "")) : null; };
+      const gotPoints = column(/^(pts|points)$/) ?? nums.at(-1);
+      const gotPlayed = column(/^(p|gp|mp|pld|played|games|matches)$/) ?? (nums[0] === played ? nums[0] : nums.length >= 3 ? nums[0] + nums[1] + nums[2] : nums[0]);
+      const parts = text.split(/\n|(?<=(?<!\b(?:St|vs|v|Sep|Sept))[.!?])\s/);
+      const gone = /missing|omitted|left out|not (included|provided|supplied|present|among|in the|given|in what)|absent|no (schedule|page)|was ?n[o']t (included|provided|supplied|given|in|among|part)|lack|reconstructed from|(taken|derived|inferred|come|came|comes) from (the )?(other|opponent|visitor)/i;
+      const saysAbsent = parts.some((part) => part.toLowerCase().includes(absent.split(' ')[0].toLowerCase()) && /page|schedule|file|source|input|sent|provided|supplied/i.test(part) && gone.test(part) && !/not (yet )?played|upcoming|to be played|(not|n't|none|nothing) (\w+ )?missing|all eight (pages|schedules)/i.test(part));
+      const saysFinal = parts.some((part) => /sep(t|tember)?\.? ?21|09-21|9\/21|21 sep/i.test(part) && /no score|without a score|no result|unscored|blank|score (is |was )?(missing|unknown|not)|exclud|omit|not (counted|included)|left out/i.test(part) && !/\b\d\s?-\s?\d\b/.test(part.replace(/\d{4}-\d{2}-\d{2}|09-21/g, "")));
+      const checks: [boolean, string, string][] = [
+        [teams.length === 8, "Eight teams in its table", teams.length ? `${teams.length} member rows found. A school with no page dropped out of the table.` : "No table rows found."],
+        [gotPlayed === played && gotPoints === points, `${absent} on ${played} played and ${points} points`, row ? `Its ${absent} row reads ${nums.slice(0, 8).join(", ")}. ${gotPlayed === Number(box.dataset.host) ? "That is Kick's host-only count." : "That may be a counting slip, double counting, or non-conference rows."}` : `No ${absent} row found.`],
+        [saysAbsent, `Says ${absent}'s own page is not there`, "Nothing found that says a page is missing."],
+        [saysFinal, "Names September 21 as a final without a score", "Nothing found about September 21."],
+        [/\b53\b[^\n]{0,40}\b54\b|\b54\b[^\n]{0,40}\b53\b/.test(text), `Gives ${PACK.scored} counted, out of ${PACK.finals} finished`, "The two numbers do not appear together."],
+      ];
+      checks.forEach(([ok, label, miss]) => {
+        const li = document.createElement("li");
+        li.className = ok ? "is-found" : "";
+        const b = document.createElement("b");
+        b.textContent = ok ? "Found. " : "Not found. ";
+        li.append(b, ok ? label : `${label}. ${miss}`);
+        list.append(li);
+      });
+      const found = checks.filter(([ok]) => ok).length;
+      const told = checks.slice(2).filter(([ok]) => ok).length;
+      put(`found-${box.dataset.evidence}`, String(found));
+      if (box.dataset.evidence === "first") note.textContent = `${found} of 5 found. It volunteered ${told} of the 3 gaps.${store.predict ? ` You predicted ${store.predict}.` : ""}`;
+      else note.textContent = `${found} of 5 found.${store["found-first"] ? ` The first answer had ${store["found-first"]}.` : ""}`;
+      box.querySelector<HTMLElement>(".cv-reveal")?.classList.add("is-open");
+    };
+
+    fields.forEach((f) => {
+      const key = f.dataset.save!;
+      const saved = store[key];
+      if (saved !== undefined) {
+        if (f instanceof HTMLInputElement && f.type === "checkbox") f.checked = saved === "1";
+        else if (f instanceof HTMLInputElement && f.type === "radio") f.checked = saved === f.value;
+        else f.value = saved;
+      }
+      f.addEventListener(f instanceof HTMLTextAreaElement || (f instanceof HTMLInputElement && !isBox(f)) ? "input" : "change", () => {
+        if (f instanceof HTMLInputElement && f.type === "radio" && !f.checked) return;
+        put(key, valueOf(f));
+        showBack();
+        if (key === "rewrite") leak();
+        if (key.startsWith("answer-") || key === "predict") root.querySelectorAll<HTMLElement>("[data-evidence]").forEach(evidence);
+        root.querySelectorAll<HTMLElement>("[data-commit]").forEach(commitState);
+        if (key === "brief") root.querySelector<HTMLElement>("[data-saved-note]")!.textContent = canSave ? "Saved in this browser." : "This browser could not save it, so copy it somewhere safe.";
+      });
+    });
+    const leak = () => {
+      const rewrite = store.rewrite ?? "";
+      const named = /sep(t|tember)?\.? ?21|09-21|9\/21|\b5[346]\b/i.test(rewrite) || PACK.members.some((name) => rewrite.toLowerCase().includes(name.toLowerCase()));
+      root.querySelector<HTMLElement>("[data-leak]")!.textContent = named ? "Your prompt names a school, a date or a count. That tells the assistant the answer for one set of pages and will not transfer to the next. Ask for the kind of thing instead." : "";
+    };
+    leak();
+    showBack();
+    root.querySelectorAll<HTMLElement>("[data-evidence]").forEach(evidence);
+    root.querySelectorAll<HTMLElement>("[data-rules]").forEach((box) => {
+      const buttons = [...box.querySelectorAll<HTMLButtonElement>("[data-rule]")];
+      const lost = [...box.querySelectorAll<HTMLElement>('[data-cell="lost"]')];
+      buttons.forEach((button) => button.addEventListener("click", () => {
+        const both = button.dataset.rule === "both";
+        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+        lost.forEach((cell) => { cell.className = both ? "is-read" : "is-lost"; cell.firstElementChild!.textContent = both ? "●" : "✕"; });
+        box.querySelector<HTMLElement>("[data-rules-note]")!.textContent = both
+          ? `${PACK.scored} of ${PACK.finals} finished matches read. The seven come back from the visitors' pages. September 21 is still without a score.`
+          : `${PACK.scored - lost.length} of ${PACK.finals} finished matches read. Seven are lost with one page.`;
+      }));
+    });
+    root.querySelectorAll<HTMLElement>("[data-policies]").forEach((box) => {
+      const buttons = [...box.querySelectorAll<HTMLButtonElement>("[data-policy]")];
+      buttons.forEach((button) => button.addEventListener("click", () => {
+        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+        box.querySelectorAll<HTMLElement>("[data-policy-panel]").forEach((panel) => { panel.hidden = panel.dataset.policyPanel !== button.dataset.policy; });
+      }));
+    });
+    root.querySelectorAll<HTMLElement>("[data-commit]").forEach((box) => {
+      const openKey = `open-${box.dataset.needs ?? ""}`;
+      const open = () => {
+        box.querySelector<HTMLElement>(".cv-reveal")!.classList.add("is-open");
+        box.querySelector<HTMLButtonElement>(":scope > button")!.hidden = true;
+        lockFor(box);
+      };
+      if (box.dataset.needs && store[openKey]) open();
+      commitState(box);
+      box.querySelector<HTMLButtonElement>(":scope > button")!.addEventListener("click", (event) => {
+        const reveal = box.querySelector<HTMLElement>(".cv-reveal")!;
+        if (box.dataset.needs) put(openKey, "1");
+        open();
+        commitState(box);
+        reveal.tabIndex = -1;
+        (event.currentTarget as HTMLButtonElement).hidden = true;
+        if (event.detail === 0) reveal.focus({ preventScroll: true });
+      });
+    });
+
+    const grade = (q: HTMLElement): boolean | null => {
+      const type = q.dataset.type!;
+      const answer = q.dataset.answer!;
+      const values = [...q.querySelectorAll<Field>("[data-save]")].filter((f) => !f.hasAttribute("data-required"));
+      if (q.querySelector<HTMLInputElement>("[data-required]")?.value.trim() === "") return null;
+      if (type === "radio") {
+        const picked = values.find((f) => (f as HTMLInputElement).checked);
+        return picked ? picked.value === answer : null;
+      }
+      if (values.some((f) => !f.value.trim())) return null;
+      if (type === "number") return String(Number(values[0].value)) === answer;
+      if (type === "range") return values.map((f) => Number(f.value)).join() === answer;
+      if (type === "pair") return values.map((f) => f.value).sort().join() === answer;
+      return values[0].value === answer;
+    };
+
+    root.querySelectorAll<HTMLElement>("[data-once]").forEach((box) => {
+      const flag = `done-${box.dataset.once}`;
+      const questions = [...box.querySelectorAll<HTMLElement>("[data-q]")];
+      const button = box.querySelector<HTMLButtonElement>("[data-submit]")!;
+      const need = box.querySelector<HTMLElement>("[data-need]")!;
+      const settle = (focus: boolean) => {
+        let right = 0;
+        questions.forEach((q) => {
+          const ok = grade(q) === true;
+          right += Number(ok);
+          const fb = q.querySelector<HTMLElement>(".cv-fb")!;
+          fb.classList.add(ok ? "is-right" : "is-wrong");
+          const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? "";
+          const hint = !ok && q.dataset.wrong ? (JSON.parse(q.dataset.wrong) as Record<string, string>)[picked] ?? "" : "";
+          fb.textContent = `${ok ? "Right." : "Not right."} ${hint ? `${hint} The answer is ` : ""}${q.dataset.why}`;
+        });
+        box.querySelectorAll<Field>("input, select").forEach((f) => { f.disabled = true; });
+        button.hidden = true;
+        box.querySelector<HTMLElement>(".cv-once")!.hidden = true;
+        need.classList.remove("is-wrong");
+        need.textContent = `${right} of ${questions.length} right on your one attempt.`;
+        const reveal = box.querySelector<HTMLElement>(".cv-reveal")!;
+        reveal.classList.add("is-open");
+        if (focus) { need.tabIndex = -1; need.focus({ preventScroll: true }); }
+      };
+      button.addEventListener("click", (event) => {
+        if (questions.some((q) => grade(q) === null)) {
+          need.classList.add("is-wrong");
+          need.textContent = "Answer every part first.";
+          return;
+        }
+        put(flag, "1");
+        settle(event.detail === 0);
+      });
+      if (store[flag] && questions.every((q) => grade(q) !== null)) settle(false);
+    });
+
+    const copy = async (button: HTMLButtonElement, text: string, label: string) => {
+      try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; }
+      catch { button.textContent = "Select the text and copy it"; }
+      setTimeout(() => { button.textContent = label; }, 2500);
+    };
+    root.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
+      button.addEventListener("click", () => copy(button, button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!, button.dataset.label ?? "Copy the prompt"));
+    });
+    const briefButton = root.querySelector<HTMLButtonElement>("[data-copy-brief]")!;
+    briefButton.addEventListener("click", () => copy(briefButton, root.querySelector<HTMLTextAreaElement>("#cv-brief")!.value, "Copy my clause"));
+
+    root.querySelector<HTMLButtonElement>("[data-reset]")!.addEventListener("click", () => {
+      try { localStorage.removeItem(KEY); } catch {}
+      history.scrollRestoration = "manual";
+      scrollTo(0, 0);
+      location.reload();
+    });
+
+    try {
+      const first = localStorage.getItem("touchline-first-ask");
+      if (first) {
+        const card = root.querySelector<HTMLElement>("[data-first]")!;
+        card.querySelector<HTMLElement>("[data-first-text]")!.textContent = first;
+        card.hidden = false;
+        root.querySelector<HTMLElement>("[data-no-first]")!.hidden = true;
+        const back = root.querySelector<HTMLElement>("[data-close-first]")!;
+        back.querySelector("q")!.textContent = first;
+        back.hidden = false;
+      }
+    } catch {}
+  });
+</script>

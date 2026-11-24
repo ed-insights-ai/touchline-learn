@@ -1,0 +1,66 @@
+---
+import { LAYERS, type GridRow } from "../lib/coverage";
+
+interface Props { rows: GridRow[]; caption: string; id: string }
+const { rows, caption, id } = Astro.props;
+const names: Record<string, string> = { complete: "Complete", empty: "Empty", unavailable: "Unavailable", "no-collector": "No collector", "not-asked": "Not asked" };
+const glyph: Record<string, string> = { complete: "✓", empty: "○", unavailable: "✕", "no-collector": "–", "not-asked": "" };
+const used = [...new Set(rows.flatMap((r) => r.cells.map((c) => c.state)))];
+---
+
+<div class="cg" data-grid>
+  <table>
+    <caption>{caption}</caption>
+    <thead><tr><th scope="col">School</th>{LAYERS.map((l) => <th scope="col">{l.label}</th>)}</tr></thead>
+    <tbody>
+      {rows.map((r) => (
+        <tr>
+          <th scope="row">{r.name}</th>
+          {r.cells.map((c, i) => (
+            <td>
+              <button type="button" class={`is-${c.state}`} aria-label={`${r.name}, ${LAYERS[i].label}: ${names[c.state]}. ${c.note}`} data-note={`${r.name}, ${LAYERS[i].label}. ${names[c.state]}: ${c.note}`}>{glyph[c.state]}</button>
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <ul class="cg-key">
+    {Object.keys(names).filter((k) => used.includes(k as GridRow["cells"][number]["state"])).map((k) => <li><i class={`is-${k}`}>{glyph[k]}</i>{names[k]}</li>)}
+  </ul>
+  <p class="cg-note" role="status" id={`cg-note-${id}`}>Tap a square to read what happened.</p>
+</div>
+
+<style is:global>
+  .cg { margin: 0 0 1rem; }
+  .cg table { display: table; width: 100%; max-width: 34rem; margin: 0; border-collapse: collapse; table-layout: fixed; }
+  .cg caption { padding-bottom: 0.3rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; }
+  .cg th, .cg td { padding: 2px; border: 0; background: none; text-align: center; }
+  .cg thead th { color: var(--tl-muted); font-size: 0.78rem; font-weight: 600; line-height: 1.15; vertical-align: bottom; }
+  .cg thead th:first-child, .cg tbody th { width: 34%; padding-right: 0.4rem; text-align: left; font-size: 0.9rem; font-weight: 400; overflow-wrap: anywhere; }
+  .cg td button { display: grid; place-items: center; width: 100%; min-height: 44px; padding: 0; border: 0; border-radius: 0; font: inherit; font-weight: 700; cursor: pointer; }
+  .cg button.is-selected { outline: 3px solid var(--sl-color-white); outline-offset: -3px; }
+  .cg .is-complete { background: #1f7a45; color: #fff; }
+  .cg .is-empty { background: transparent; box-shadow: inset 0 0 0 2px var(--tl-ink); color: var(--tl-ink); }
+  .cg .is-unavailable { background: #c5301c; color: #fff; }
+  .cg .is-no-collector { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--tl-muted) 30%, transparent) 0 4px, transparent 4px 8px); box-shadow: inset 0 0 0 1px var(--tl-muted); color: var(--tl-ink); font-size: 1.2rem; }
+  .cg .is-not-asked { background: transparent; box-shadow: inset 0 0 0 1px var(--tl-line); color: var(--tl-muted); }
+  .cg td button.is-not-asked { border: 1px dashed var(--tl-muted); box-shadow: none; }
+  .cg-key { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: 0.6rem 0 0.5rem !important; padding: 0 !important; list-style: none; font-size: 0.88rem; }
+  .cg-key li { display: flex; align-items: center; gap: 0.35rem; margin: 0; }
+  .cg-key i { display: grid; place-items: center; width: 1.15rem; height: 1.15rem; font-size: 0.72rem; font-style: normal; font-weight: 700; }
+  .cg-key i.is-not-asked { border: 1px dashed var(--tl-muted); box-shadow: none; }
+  .cg-note { min-height: 3rem; margin: 0 !important; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-grid]").forEach((grid) => {
+    const note = grid.querySelector<HTMLElement>(".cg-note")!;
+    const buttons = [...grid.querySelectorAll<HTMLButtonElement>("td button")];
+    buttons.forEach((button) => button.addEventListener("click", () => {
+      buttons.forEach((b) => b.classList.toggle("is-selected", b === button));
+      note.textContent = button.dataset.note!;
+      note.scrollIntoView({ block: "nearest" });
+    }));
+  });
+</script>
