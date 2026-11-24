@@ -27,21 +27,21 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 
 const filmScript = [
-  "You want a league table for eight schools. The results are out there, spread across eight websites, on pages made for people to read.",
-  "A scraper is a program that downloads those pages and pulls rows out of them. The simplest one is a single loop.",
-  "For each site: download the page, find the results table, read each row, and add it to the standings. On a good day, it works.",
-  "Then one site doesn't answer. The loop waits, gives up, and the whole run fails, taking the finished sites down with it.",
-  "So downloading becomes its own part: scrape. It works from a list of addresses, checks the answer each site sends back, waits, and tries again. When a site stays silent, scrape has to do something about it, and what it should do is a real decision. Hold on to that.",
-  "A month later you find a bug. The parser swapped home and away scores. You fix it and go back for the pages, but the sites have moved on, and some of last month's pages are gone.",
-  "So the next part is store. Save every page exactly as it arrived, before any of your code reads it. Now a bug is cheap. Fix the parser and run it again on the saved pages, without asking the web for anything.",
-  "The third break is quieter. A site is redesigned, and the results are no longer the first table on the page. The loop reads the wrong table, and nothing complains.",
-  "So parse becomes a part of its own. It finds a table by what the table says it is, and hands on rows in one fixed shape: date, opponent, result.",
-  "Now put the rows together. A match between two schools is listed on both schools' pages. Add up every row, and every match counts twice.",
-  "So build is where rows become matches. It decides which copy of each match to keep, and only then works out the standings.",
-  "Last, the run ends and hands you a table. Did every site answer? How many rows came in? Were there errors? The table can't say.",
-  "So report writes down what the run did: the pages it fetched, the rows it found, and the errors it hit.",
-  "Line the parts up, and you have a pipeline. Each stage takes what the last one made and hands on something new. Each can be checked on its own, and run again without starting over.",
-  "Now look at what that report counts. Every line in it is about what the run did. None of it says what the run should have found. That is the question this module is about.",
+  "You want a league table for eight schools. The results are spread across eight websites, on pages made for people, not programs.",
+  "To collect them, you write a scraper: a program that downloads those pages and pulls rows out of them. The simplest one is a single loop.",
+  "For each site: download the page, find the results table, read each row, and add it to the standings. On a good day, it works. Then, one at a time, five ordinary things go wrong.",
+  "First: one site doesn't answer. The loop waits, gives up, and crashes, taking the finished sites down with it.",
+  "So downloading becomes its own stage: scrape. It works down a list of addresses, checks whether each site answered, waits, and tries again. A silent site is now scrape's to deal with, instead of a crash. What it should do about one is a real decision. Hold on to that.",
+  "Second: a month later, you find a bug. Your code had home and away scores backwards. You fix it and go back for the pages, but the sites have changed, and some of last month's pages are gone.",
+  "That brings in store. Save every page exactly as it arrived, before any of your code reads it. Now a bug is cheap. Fix the code and run it again on the saved pages, without asking the web for anything.",
+  "Third, and quieter: a site is redesigned, and a ticket table now sits above the results. The loop reads the first table it finds, the wrong one, and nothing complains.",
+  "Reading the page becomes its own stage: parse. It finds the schedule by its label, not its position, and hands on rows in one fixed shape: date, opponent, result.",
+  "Fourth: put the rows together. A match between A and B is listed on A's page, and again on B's. Add up every row, and every match counts twice.",
+  "That forces build, where rows become matches. It decides which copy of each match to keep, and only then works out the standings. Which copy it keeps is another quiet choice. Hold on to that one, too.",
+  "Fifth: the run ends and hands you a table. Did every site answer? How many rows came in? Were there errors? The table can't say.",
+  "That is report's job. It writes down what the run did: the pages it fetched, the rows it found, and the errors it hit.",
+  "Line the five stages up, and one loop has become a pipeline. Scrape hands pages to store. Store hands saved pages to parse. Parse hands rows to build. Build makes the table, and hands its counts to report. Each stage can be checked on its own, and run again without starting over.",
+  "Now read that report again. Eight pages fetched, one hundred and four rows, no errors. Every line is about what the run did. Not one says what the run should have found. That gap is what this module is about.",
 ];
 
 const learnPrompt =`I'm a data science student learning how data is collected from websites. Teach me what a web scraper is and how it becomes a data pipeline. Use one running example throughout: collecting a season of match results from eight school athletics sites to build a league table.
@@ -72,9 +72,9 @@ const choices = [
   <p>It names the season, the sport, the sources and the product. It reads as complete.</p>
 
   <h3 class="cv-step"><span>2</span>What Kick built</h3>
-  <p>Kick built a scraper, a program that downloads pages made for people and pulls rows out of them. This three-minute film builds one from a single loop, breaking it five times on the way.</p>
+  <p>Kick built a scraper, a program that downloads pages made for people and pulls rows out of them. This film, under four minutes, builds one from a single loop, breaking it five times on the way.</p>
   <figure class="cv-film">
-    <video controls playsinline preload="metadata" poster={film("one-loop-to-a-pipeline.jpg")} aria-label="One Loop to a Pipeline, a three-minute animated explainer">
+    <video controls playsinline preload="metadata" poster={film("one-loop-to-a-pipeline.jpg")} aria-label="One Loop to a Pipeline, an animated explainer of under four minutes">
       <source src={film("one-loop-to-a-pipeline.mp4")} type="video/mp4" />
       <track kind="captions" src={film("one-loop-to-a-pipeline.vtt")} srclang="en" label="English" default />
       <track kind="chapters" src={film("one-loop-to-a-pipeline-chapters.vtt")} srclang="en" label="Chapters" />
