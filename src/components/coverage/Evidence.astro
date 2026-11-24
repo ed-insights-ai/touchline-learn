@@ -29,7 +29,7 @@ const key = (k: string) => `ev-${id}-${k}`;
       <select data-save={key("rows")}><option value="">Choose</option><option value="yes">Yes</option><option value="short">No, a member is missing</option><option value="extra">No, a team is doubled or a non-member is in it</option></select>
     </label></div>
     <p class="cv-row cv-fillin">
-      <span>{hideAbsent ? "The missing school: each page you pasted starts with its school's name, so find the member with no page. Its row in the table:" : `${absent}'s row in its table:`}</span>
+      <span>{hideAbsent ? "The member with no page (each page starts with its school's name). Its row in the table:" : `${absent}'s row in its table:`}</span>
       <input inputmode="numeric" autocomplete="off" aria-label="Played" data-save={key("played")} /><span>played,</span>
       <input inputmode="numeric" autocomplete="off" aria-label="Points" data-save={key("points")} /><span>points</span>
       <label class="cv-ev-none"><input type="checkbox" data-save={key("norow")} /><span>Not in its table</span></label>
