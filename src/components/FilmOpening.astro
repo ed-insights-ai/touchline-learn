@@ -52,8 +52,8 @@ const transcript: [string, string][] = [
     <p class="fo-status" role="status" data-status></p>
   </form>
 
-  <p class="fo-bridge">Riley's table is on your desk now. See what a trustworthy version would have done, one step at a time. You do not need pipeline or soccer experience, and the labs are optional.</p>
-  <a class="fo-next" href="./start/platform/">See what Kick should have done</a>
+  <p class="fo-bridge">Riley's table is on your desk now. What would have to be true before you could trust it? You do not need pipeline or soccer experience, and the labs are optional.</p>
+  <a class="fo-next" href="./start/platform/">Look inside before you publish</a>
 </section>
 
 <style is:global>
@@ -101,6 +101,9 @@ const transcript: [string, string][] = [
     play.addEventListener("click", () => { video.play(); video.focus(); });
     video.addEventListener("play", () => { play.hidden = true; });
     video.addEventListener("ended", () => {
+      const active = document.activeElement;
+      const box = video.getBoundingClientRect();
+      if ((active !== video && active !== document.body) || box.bottom < 0 || box.top > innerHeight) return;
       const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
       form.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
       if (matchMedia("(pointer: fine)").matches) input.focus({ preventScroll: true });

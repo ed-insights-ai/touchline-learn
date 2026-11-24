@@ -61,6 +61,10 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   <section class="cl-step is-open" data-step="1">
     <h2 tabindex="-1">Start with the calls Riley got</h2>
     <p>You are back at 4:52, but you have heard what this table does at 5:41.</p>
+    <div class="cl-agent cl-first" data-first hidden>
+      <p class="cl-who">Your question from the film</p>
+      <p data-first-text></p>
+    </div>
     <div class="cl-agent">
       <p class="cl-who">Coach Dolan, Hartwell <span>voicemail, 5:41</span></p>
       <p>We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.</p>
@@ -194,6 +198,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   .cl-noscript { padding: 0.75rem 1rem; border-left: 3px solid var(--cl-yellow); }
   .cl-agent { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
   .cl-agent p:last-child { margin-bottom: 0; }
+  .cl-first { border-left-color: #f4c62f; }
   .cl-who { margin-bottom: 0.2rem !important; font-size: 0.85rem; font-weight: 700; }
   .cl-who span { margin-left: 0.4rem; color: var(--tl-muted); font-weight: 400; }
   .cl-plan { display: grid; gap: 0.5rem; margin: 0 0 0.9rem; }
@@ -358,4 +363,15 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       location.reload();
     });
   });
+</script>
+
+<script>
+  try {
+    const first = localStorage.getItem("touchline-first-ask");
+    const card = document.querySelector<HTMLElement>("[data-collection] [data-first]");
+    if (first && card) {
+      card.querySelector<HTMLElement>("[data-first-text]")!.textContent = first;
+      card.hidden = false;
+    }
+  } catch {}
 </script>

@@ -44,6 +44,11 @@ const stops = [
 
 const marks = ["Collecting sites", "Collecting sites", "Reading pages", "Reading pages", "Matching teams", "Checking the table", ""];
 const moduleFor = [1, 2, 3, 4, 5, 7, 8].map((n) => journeyModules.find((m) => m.n === n)!);
+const returnChoices = [
+  ...stops.map((s, i) => ({ label: s.name, module: moduleFor[i] })),
+  { label: "A blank or missing score", module: journeyModules.find((m) => m.n === 6)! },
+  { label: "Something AI wrote", module: journeyModules.find((m) => m.n === 9)! },
+];
 
 const hook = [
   { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
@@ -140,6 +145,7 @@ const ideas = [
   <section class="pt-part" data-unlock="tour">
     <h2 tabindex="-1">Follow one match through the platform</h2>
     <p>{away.name} at {home.name}, September 8, is one of the results in your table. Like everything in this course's sample, the game is invented. This is what a trustworthy pipeline would do with it. You cannot yet tell whether Kick did any of it.</p>
+    <p><strong>Keep Dunmore's call in mind: your table says six, Dunmore says thirteen. At each step, ask whether it could have caught that.</strong></p>
     <ol class="pt-rail" aria-label="Seven pipeline steps">
       {stops.map((s, i) => <li><button type="button" class={`pt-stop ${s.zone}`} data-stop={i} aria-current={i === 0 ? "step" : undefined}><b>{i + 1}</b>{s.name}</button></li>)}
     </ol>
@@ -209,8 +215,8 @@ const ideas = [
     </dl>
     <p>The real Touchline runs these steps across about a thousand school sites. Your eight-school table needs them just as much, and you do not yet know which ones Kick skipped.</p>
     <div class="pt-return" data-first-return hidden>
-      <p>Go back to your question: <q data-first-return-text></q> Which step could answer it?</p>
-      <div class="pt-return-steps">{stops.map((s, i) => <button type="button" data-return={`Module ${moduleFor[i].n}, ${moduleFor[i].name}, covers that. Carry your question there.`}>{s.name}</button>)}</div>
+      <p>Go back to your question: <q data-first-return-text></q> Which step could answer it? If none fit, keep it for the last page.</p>
+      <div class="pt-return-steps">{returnChoices.map((c) => <button type="button" data-return={`Module ${c.module.n} asks: “${c.module.ask}” If that is your question, carry it there. If not, try another.`}>{c.label}</button>)}</div>
       <p role="status" data-return-note></p>
     </div>
     <p><strong>Dunmore says thirteen. Your table says six. Everyone starts at the source: did Kick collect everything it said it did?</strong></p>
@@ -312,7 +318,7 @@ const ideas = [
   .pt-zone-card.is-lost { border-color: var(--pt-red); box-shadow: inset 0 3px 0 var(--pt-red); }
   .pt-zone-card.is-rebuilt { border-color: var(--sl-color-accent); box-shadow: inset 0 3px 0 var(--sl-color-accent); }
 
-  .pt-close { padding: 1.1rem; border: 0; border-radius: 4px; color: #f4faf5; background: #0f4a33; }
+  .pt-close { --pt-focus: #f4c62f; padding: 1.1rem; border: 0; border-radius: 4px; color: #f4faf5; background: #0f4a33; }
   .pt-close h2 { color: #f4faf5; }
   .pt-close dl { display: grid; gap: 0.55rem; margin: 0 0 1rem; }
   .pt-close dt { font-weight: 700; }
