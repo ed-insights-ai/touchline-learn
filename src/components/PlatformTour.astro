@@ -2,6 +2,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { journeyModules } from "../data/journey";
+import { dunmorePlayed } from "../lib/first-run";
 
 const FIXTURE = "tally:alder-ridge:8203";
 const sample = (...parts: string[]) => join(process.cwd(), "sample", ...parts);
@@ -57,9 +58,9 @@ const hook = [
 ];
 
 const dunmoreLooks = [
-  { label: "Fetch", sees: "Which pages it asked for, and which answered", why: "Start there. Fetch is the one step that knows what it tried to collect. Module 1 opens that record." },
-  { label: "Prove", sees: "Pages that arrived", why: "Prove can only judge a page it received. A page that never came is not in front of it." },
-  { label: "Check", sees: "Finished records, against written rules and each other", why: "Check might notice that six looks low. It cannot tell you where the other games went." },
+  { label: "Fetch", sees: "Which pages it asked for, and which answered", why: "Yes, start there. Fetch is the one step that knows what it tried to collect. Module 1 opens that record.", first: true },
+  { label: "Prove", sees: "Pages that arrived", why: "Prove can only judge pages that reach it. Whether Dunmore's did is a question for an earlier step." },
+  { label: "Check", sees: "Finished records, against written rules and each other", why: "Check might notice that six looks low. It cannot tell you why." },
   { label: "Build", sees: "Only the clean files", why: "Build publishes what it was given, so it would print six with confidence." },
 ];
 
@@ -131,6 +132,7 @@ const ideas = [
 
   <header class="pt-hero">
     <h2>It is 4:52, and the chair is yours</h2>
+    <p data-no-first>Skipped the film? <a href="../../">Watch the two minutes</a> first. This page picks up where it ends.</p>
     <p>Go back to 4:52, before Riley's tap, and take the chair yourself. This is what Kick just sent you.</p>
     <div class="pt-ai">
       <p class="pt-who">Kick <span>scripted example</span></p>
@@ -139,6 +141,7 @@ const ideas = [
     <div class="pt-first" data-first hidden>
       <p class="pt-who">Your question from the film</p>
       <p data-first-text></p>
+      <p>Keep it beside you through the seven steps and see which one could answer it.</p>
     </div>
     <p>You did not watch it work. Every number in that table began on a page a school wrote for fans rather than programs. A trustworthy platform takes each one through seven steps, and you do not know how many of them Kick took.</p>
     <div class="pt-group" data-hook data-choice data-neutral data-unlocks="tour">
@@ -152,10 +155,10 @@ const ideas = [
   <section class="pt-part" data-unlock="tour">
     <h2 tabindex="-1">Follow one match through the platform</h2>
     <p>{away.name} at {home.name}, September 8, is one of the results in your table. Like everything in this course's sample, the game is invented. This is what a trustworthy pipeline would do with it. You cannot yet tell whether Kick did any of it.</p>
-    <p><strong>Keep Dunmore's call in mind: your table says six, Dunmore says thirteen. At each step, ask whether it could have caught that.</strong></p>
     <ol class="pt-rail" aria-label="Seven pipeline steps">
       {stops.map((s, i) => <li><button type="button" class={`pt-stop ${s.zone}`} data-stop={i} aria-current={i === 0 ? "step" : undefined}><b>{i + 1}</b>{s.name}</button></li>)}
     </ol>
+    <p class="pt-remind" data-remind>Your table says Dunmore played {dunmorePlayed}. Dunmore says 13. Could this step catch it?</p>
     <div class="pt-panels" aria-live="polite">
       {stops.map((s, i) => (
         <article class={`pt-panel ${s.zone}`} data-panel={i} hidden={i !== 0}>
@@ -168,15 +171,15 @@ const ideas = [
       ))}
     </div>
     <div class="pt-group pt-dunmore" role="group" aria-labelledby="pt-dunmore-q" data-dunmore hidden>
-      <p class="pt-q" id="pt-dunmore-q">You have seen all seven. Where would you look first for Dunmore's missing games?</p>
+      <p class="pt-q" id="pt-dunmore-q">Where would you look first for Dunmore's missing games?</p>
       <div class="pt-options pt-sees">
-        {dunmoreLooks.map((o) => <button type="button" data-look={o.why}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
+        {dunmoreLooks.map((o) => <button type="button" data-look={o.why} data-first-look={o.first ? "" : undefined}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
       </div>
-      <p class="pt-feedback neutral" role="status" data-look-note></p>
+      <p class="pt-feedback" role="status" data-look-note></p>
     </div>
     <div class="pt-nav">
       <button type="button" class="pt-back" data-back disabled>Back</button>
-      <a class="pt-back" data-tour-exit href="../../modules/01-collection/" hidden>Start Module 1</a>
+      <button type="button" class="pt-back" data-practice hidden>Practice four failures first (optional)</button>
       <button type="button" class="pt-next" data-forward>Next step</button>
     </div>
   </section>
@@ -221,7 +224,7 @@ const ideas = [
     </div>
   </section>
 
-  <a class="pt-skip" data-skip href="../../modules/01-collection/">Skip the tour and start Module 1</a>
+  <a class="pt-skip" data-skip href="../../modules/01-collection/">Skip to Module 1</a>
 
   <section class="pt-part pt-close" data-unlock="close">
     <h2 tabindex="-1">Four ideas you will build across the course</h2>
@@ -292,6 +295,8 @@ const ideas = [
   .pt-next, .pt-back, .pt-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.05rem; border-radius: 3px; font-weight: 700; cursor: pointer; text-decoration: none; }
   .pt-next, .pt-link { border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
+  .pt-remind { margin: 0.6rem 0 0.4rem !important; font-weight: 650; }
+  .pt-remind[hidden] { display: none; }
   .pt-next[hidden], .pt-summary[hidden], .pt-group[hidden], .pt-return[hidden] { display: none; }
   .pt-panel h3 { outline: none; scroll-margin-top: 5rem; }
   .pt-return-steps { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.6rem; }
@@ -341,6 +346,11 @@ const ideas = [
   .pt-close .pt-link { background: #f4c62f; color: #1b1a0c !important; }
   .pt-close a:focus-visible { outline-color: #f4c62f; }
 
+  @media (max-height: 30rem) and (orientation: landscape) {
+    .pt-stop { min-height: 44px; }
+    [data-unlock="tour"] .pt-nav { position: sticky; bottom: 0; z-index: 1; padding-block: 0.35rem; background: var(--tl-bg); }
+  }
+
   @media (max-width: 30rem) {
     .pt-rail { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .pt-panel { margin-top: 3px; border-top: 1px solid var(--tl-line); }
@@ -364,6 +374,7 @@ const ideas = [
         root.querySelector<HTMLElement>("[data-first-return-text]")!.textContent = first;
         root.querySelector<HTMLElement>("[data-first-return]")!.hidden = false;
         root.querySelector<HTMLElement>("[data-hook]")!.hidden = true;
+        root.querySelector<HTMLElement>("[data-no-first]")!.hidden = true;
         hasFirst = true;
       }
     } catch {}
@@ -442,12 +453,19 @@ const ideas = [
     const back = root.querySelector<HTMLButtonElement>("[data-back]")!;
     const forward = root.querySelector<HTMLButtonElement>("[data-forward]")!;
     const dunmore = root.querySelector<HTMLElement>("[data-dunmore]")!;
-    const tourExit = root.querySelector<HTMLElement>("[data-tour-exit]")!;
+    const practice = root.querySelector<HTMLButtonElement>("[data-practice]")!;
+    const remind = root.querySelector<HTMLElement>("[data-remind]")!;
     const skip = root.querySelector<HTMLAnchorElement>("[data-skip]")!;
     const lookNote = root.querySelector<HTMLElement>("[data-look-note]")!;
     const looks = [...dunmore.querySelectorAll<HTMLButtonElement>("[data-look]")];
     looks.forEach((look) => look.addEventListener("click", () => {
-      looks.forEach((b) => b.classList.toggle("is-chosen", b === look));
+      const right = "firstLook" in look.dataset;
+      looks.forEach((b) => {
+        b.classList.toggle("is-right", b === look && right);
+        b.classList.toggle("is-wrong", b === look && !right);
+        b.setAttribute("aria-pressed", String(b === look));
+      });
+      lookNote.classList.toggle("good", right);
       lookNote.textContent = look.dataset.look!;
     }));
     let practicing = false;
@@ -457,8 +475,9 @@ const ideas = [
       current = index;
       const last = index === stops.length - 1;
       dunmore.hidden = !last;
-      tourExit.hidden = !last;
-      skip.hidden = closed || (last && !practicing);
+      remind.hidden = last;
+      practice.hidden = !last || practicing;
+      skip.hidden = closed;
       stops.forEach((stop, i) => {
         stop.toggleAttribute("aria-current", false);
         if (i === index) stop.setAttribute("aria-current", "step");
@@ -466,7 +485,7 @@ const ideas = [
       });
       panels.forEach((panel, i) => (panel.hidden = i !== index));
       back.disabled = index === 0;
-      forward.textContent = index === stops.length - 1 ? "Now break it" : "Next step";
+      forward.textContent = last ? "Continue" : "Next step";
     };
     stops.forEach((stop, i) => stop.addEventListener("click", () => show(i)));
     const enterPanel = () => {
@@ -482,12 +501,14 @@ const ideas = [
       if (current < stops.length - 1) {
         show(current + 1);
         if (event.detail === 0) enterPanel();
-        else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: "nearest" });
+        else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: matchMedia("(max-height: 30rem)").matches ? "start" : "nearest" });
         return;
       }
+      present(open("zones"), event.detail === 0);
+    });
+    practice.addEventListener("click", (event) => {
       practicing = true;
-      skip.textContent = "Skip the practice and start Module 1";
-      skip.hidden = false;
+      practice.hidden = true;
       present(open("cases"), event.detail === 0);
     });
     show(0);
