@@ -158,7 +158,7 @@ const ideas = [
     <ol class="pt-rail" aria-label="Seven pipeline steps">
       {stops.map((s, i) => <li><button type="button" class={`pt-stop ${s.zone}`} data-stop={i} aria-current={i === 0 ? "step" : undefined}><b>{i + 1}</b>{s.name}</button></li>)}
     </ol>
-    <p class="pt-remind" data-remind>Your table says Dunmore played {dunmorePlayed}. Dunmore says 13. Could this step catch it?</p>
+    <p class="pt-remind" data-remind>Your table says Dunmore played {dunmorePlayed}. Dunmore says 13. Could this step tell you why?</p>
     <div class="pt-panels" aria-live="polite">
       {stops.map((s, i) => (
         <article class={`pt-panel ${s.zone}`} data-panel={i} hidden={i !== 0}>
@@ -199,12 +199,15 @@ const ideas = [
         {i < cases.length - 1 && <button type="button" class="pt-next" data-next-case hidden>Next case</button>}
       </div>
     ))}
-    <button type="button" class="pt-next" data-to-zones hidden>Continue</button>
+    <div class="pt-nav">
+      <button type="button" class="pt-back" data-practice-exit>Back to the main path</button>
+      <button type="button" class="pt-next" data-to-zones hidden>Continue</button>
+    </div>
   </section>
 
   <section class="pt-part" data-unlock="zones">
     <h2 tabindex="-1">What can you afford to lose?</h2>
-    <p>Before you open that record, one more question decides how much of Riley's table can be saved: what did Kick keep?</p>
+    <p>Fetch's record will show what went missing. First, how much of Riley's table could be saved: did Kick keep the pages it collected?</p>
     <p>Each zone is computed from the one before it, using versioned code and reference lists. Delete a zone and any rebuild happens right away. Try different orders.</p>
     <div class="pt-zones">
       {zones.map((z) => (
@@ -238,7 +241,7 @@ const ideas = [
       <div class="pt-return-steps">{returnChoices.map((c) => <button type="button" data-return={`Module ${c.module.n} asks: “${c.module.ask}” If that is your question, carry it there. If not, try another.`}>{c.label}</button>)}</div>
       <p role="status" data-return-note></p>
     </div>
-    <p><strong>Dunmore says thirteen. Your table says six. Everyone starts at the source: did Kick collect everything it said it did?</strong></p>
+    <p><strong>Dunmore says thirteen. Your table says six. Module 1 finds out what Kick collected, and what it kept.</strong></p>
     <a class="pt-link" href="../../modules/01-collection/">Start Module 1</a>
   </section>
 </div>
@@ -415,6 +418,7 @@ const ideas = [
         const key = group.dataset.unlocks!;
         if (key === "zones") {
           const proceed = root.querySelector<HTMLButtonElement>("[data-to-zones]")!;
+          root.querySelector<HTMLButtonElement>("[data-practice-exit]")!.hidden = true;
           proceed.hidden = false;
           proceed.scrollIntoView({ behavior, block: "nearest" });
           proceed.focus({ preventScroll: !fromKeyboard });
@@ -467,6 +471,11 @@ const ideas = [
       });
       lookNote.classList.toggle("good", right);
       lookNote.textContent = look.dataset.look!;
+      if (!right) {
+        lookNote.scrollIntoView({ behavior, block: "nearest" });
+        return;
+      }
+      looks.forEach((b) => (b.disabled = true));
       answered = true;
       syncLast();
       forward.scrollIntoView({ behavior, block: "nearest" });
@@ -525,6 +534,12 @@ const ideas = [
     });
     show(0);
 
+    root.querySelector<HTMLButtonElement>("[data-practice-exit]")!.addEventListener("click", (event) => {
+      (event.currentTarget as HTMLButtonElement).hidden = true;
+      root.querySelector<HTMLButtonElement>("[data-to-zones]")!.hidden = true;
+      present(open("zones"), event.detail === 0);
+    });
+
     root.querySelector<HTMLButtonElement>("[data-to-zones]")!.addEventListener("click", (event) => {
       (event.currentTarget as HTMLButtonElement).hidden = true;
       present(open("zones"), event.detail === 0);
@@ -568,7 +583,7 @@ const ideas = [
         const nothingRebuilt = lost.size === cards.length;
         summary.hidden = nothingRebuilt;
         toClose.hidden = false;
-        if (nothingRebuilt) zoneFeedback.textContent = "You deleted Raw first, so nothing could rebuild. Restore them and start with Derived or Clean to see the difference.";
+        if (nothingRebuilt) zoneFeedback.textContent = "Raw went first, so Clean had nothing to rebuild from, and then Derived had no Clean. Restore them and start with Derived or Clean to see the difference.";
         (nothingRebuilt ? reset : toClose).focus({ preventScroll: event.detail !== 0 });
       } else {
         cards.find((c) => !c.disabled)?.focus({ preventScroll: event.detail !== 0 });
