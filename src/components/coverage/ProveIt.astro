@@ -28,14 +28,22 @@ const report = [
       <input id="cv-expected" inputmode="numeric" autocomplete="off" data-save="q-expected" />
       <p class="cv-fb" role="status"></p>
     </div>
-    {report.map((r) => (
-      <fieldset class="cv-line" data-q data-type="radio" data-answer={r.answer} data-why={r.why}>
-        <legend>“{r.text}”</legend>
-        <label><input type="radio" name={`rep-${r.key}`} value="keep" data-save={`rep-${r.key}`} /><span>Keep</span></label>
-        <label><input type="radio" name={`rep-${r.key}`} value="strike" data-save={`rep-${r.key}`} /><span>Strike</span></label>
-        <p class="cv-fb" role="status"></p>
-      </fieldset>
-    ))}
+    <div class="cv-draft">
+      <div class="cv-chat-bar">
+        <span class="cv-agent-badge">Kick · Drafted report</span>
+        <span class="cv-chat-meta">5 claims to check</span>
+      </div>
+      <div class="cv-draft-body">
+        {report.map((r) => (
+          <fieldset class="cv-line" data-q data-type="radio" data-answer={r.answer} data-why={r.why}>
+            <legend>“{r.text}”</legend>
+            <label><input type="radio" name={`rep-${r.key}`} value="keep" data-save={`rep-${r.key}`} /><span>Keep</span></label>
+            <label><input type="radio" name={`rep-${r.key}`} value="strike" data-save={`rep-${r.key}`} /><span>Strike</span></label>
+            <p class="cv-fb" role="status"></p>
+          </fieldset>
+        ))}
+      </div>
+    </div>
     <p class="cv-once">Answer all six, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>

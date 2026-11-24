@@ -1,12 +1,30 @@
 ---
 import { story } from "../../lib/coverage";
 import { pipeline, spell } from "../../lib/cases";
+import KickThink from "./KickThink.astro";
 
 const asks = [
-  { q: "Did the whole run work?", a: `Yes. All eight school sites, ${story.counted} conference matches, no errors.` },
-  { q: "Can you double-check the table?", a: `I ran it again. ${story.counted} conference matches, no errors. The table is unchanged.` },
-  { q: "Is every number in the table right?", a: "Yes. Every match was read from its host's page and added up correctly. No errors." },
-  { q: "What did you expect to collect, and what happened to each one?", a: `I expected ${spell(pipeline.asked)} schedule pages, one per school. ${spell(pipeline.saved, true)} were saved. Dunmore's did not answer after three tries, so I logged a warning and carried on.`, evidence: true },
+  {
+    q: "Did the whole run work?",
+    trace: "Read completion summary only",
+    a: `Yes. All eight school sites, ${story.counted} conference matches, no errors.`,
+  },
+  {
+    q: "Can you double-check the table?",
+    trace: "Re-ran script · read completion summary only",
+    a: `I ran it again. ${story.counted} conference matches, no errors. The table is unchanged.`,
+  },
+  {
+    q: "Is every number in the table right?",
+    trace: "Checked table math against parsed rows only",
+    a: "Yes. Every match was read from its host's page and added up correctly. No errors.",
+  },
+  {
+    q: "What did you expect to collect, and what happened to each one?",
+    trace: `Checked fetch log · ${pipeline.asked} expected, ${pipeline.saved} saved, ${pipeline.silent} timeout`,
+    a: `I expected ${spell(pipeline.asked)} schedule pages, one per school. ${spell(pipeline.saved, true)} were saved. Dunmore's did not answer after three tries, so I logged a warning and carried on.`,
+    evidence: true,
+  },
 ];
 ---
 
@@ -22,13 +40,20 @@ const asks = [
   <div class="cv-chat" data-ask-log aria-live="polite">
     {asks.map((x, i) => (
       <div class="cv-exchange" data-ask-reply={i} data-evidence-reply={x.evidence ? "" : undefined}>
-        <p class="cv-riley"><b>You</b>{x.q}</p>
-        <p class="cv-kick"><b>Kick</b>{x.a}</p>
+        <div class="cv-riley">
+          <b>You</b>
+          <p>{x.q}</p>
+        </div>
+        <div class:list={["cv-kick", { "is-hit": x.evidence }]}>
+          <b>Kick</b>
+          <KickThink inline={x.trace} highlight={x.evidence} />
+          <p>{x.a}</p>
+        </div>
       </div>
     ))}
   </div>
   <div class="cv-reveal" data-ask-done>
-    <p>All three of the first answers are technically true, yet they only describe how the code ran. Only asking what Kick <em>expected</em> to collect surfaces the missing page.</p>
+    <p>All three of the first answers are technically true, yet they only describe how the code ran. Only asking what Kick <em>expected</em> to collect forces it past the summary and into the log.</p>
   </div>
 </div>
 

@@ -77,8 +77,12 @@ const next = [
 
   <h3 id="carry-it-prompt">The question to take with you</h3>
   <p>Ask this whenever an AI collects or summarizes data for you:</p>
-  <div class="cv-prompt">
-    <p data-copy-text>{ask}</p>
+  <div class="cv-user-prompt cv-takeaway-prompt" role="region" aria-label="Reusable coverage prompt">
+    <div class="cv-chat-bar">
+      <span class="cv-chat-badge">Prompt</span>
+      <span class="cv-chat-meta">You → any AI</span>
+    </div>
+    <p class="cv-chat-text" data-copy-text>{ask}</p>
     <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 

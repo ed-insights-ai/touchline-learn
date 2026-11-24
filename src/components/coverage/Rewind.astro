@@ -1,8 +1,16 @@
 ---
 import { bounds, story } from "../../lib/coverage";
 import { noScore, pipeline, rileyAsk, spell, toPlay } from "../../lib/cases";
+import KickThink from "./KickThink.astro";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
+
+const rewindThoughts = [
+  "Riley asked me to list every expected page and match before collecting, and to name every gap in the summary—so I can't just count what arrives and call it done.",
+  `Expected set: ${pipeline.asked} school schedule pages and ${story.scheduled} scheduled conference matches (${story.schools} × ${story.schools - 1}), minus ${spell(toPlay)} still to play—so ${story.finals} finished matches to account for.`,
+  `Dunmore's schedule timed out after three tries. If I only read each match from the host's page, I'll drop ${spell(bounds.unseen)} Dunmore home matches—let me recover those from the visitors' saved pages instead.`,
+  `That accounts for ${story.afterRepair} of ${story.finals}. ${noScore.home} vs. ${noScore.away} on ${noScore.day} is marked final with no score on either schedule, and its box score page wasn't requested yet. I'll leave it uncounted and name both gaps in the record.`,
+];
 
 const record = [
   ["Schedule pages", `${pipeline.asked} expected, ${pipeline.saved} saved. Dunmore: unavailable, no answer after three tries.`],
@@ -42,10 +50,19 @@ const record = [
 
       <h3>What Kick returns when asked</h3>
       <p class="cv-label">Simulated response. Same agent, same Dunmore outage.</p>
-      <table class="cv-log cv-record">
-        <caption>Kick's coverage record, Friday</caption>
-        <tbody>{record.map(([what, said]) => <tr><th scope="row">{what}</th><td>{said}</td></tr>)}</tbody>
-      </table>
+      <KickThink duration="Thought for 8s" thoughts={rewindThoughts} />
+      <div class="cv-agent-reply" role="region" aria-label="Kick's coverage record">
+        <div class="cv-chat-bar">
+          <span class="cv-agent-badge">Kick · Coding agent</span>
+          <span class="cv-status-note">{story.afterRepair} of {story.finals} · gaps named</span>
+        </div>
+        <div class="cv-agent-record">
+          <table class="cv-log cv-record">
+            <caption>Kick's coverage record, Friday</caption>
+            <tbody>{record.map(([what, said]) => <tr><th scope="row">{what}</th><td>{said}</td></tr>)}</tbody>
+          </table>
+        </div>
+      </div>
       <div class="cv-say">
         <p class="cv-who">Riley, to the eight schools <span>Monday morning</span></p>
         <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. Hartwell Tech is second. {noScore.home} vs. {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>

@@ -1,5 +1,6 @@
 ---
 import FirstRunTable from "../FirstRunTable.astro";
+import KickThink from "./KickThink.astro";
 import Pipeline from "./Pipeline.astro";
 import Voicemail from "./Voicemail.astro";
 import PartHead from "./PartHead.astro";
@@ -7,6 +8,13 @@ import NextPart from "./NextPart.astro";
 import { reported } from "../../lib/first-run";
 import { bounds, story } from "../../lib/coverage";
 import { pipeline, rileyAsk, spell } from "../../lib/cases";
+
+const kickThoughts = [
+  `Okay—this is pretty clear. Riley wants this season's men's soccer results from all ${spell(pipeline.asked)} school sites, rolled up into a conference table they can publish. Season, sport, sources, and output are all right there, so I don't need to slow Riley down with clarifying questions.`,
+  `Let's think through the scraper. Every conference match shows up on both teams' schedule pages, so reading all ${spell(pipeline.asked)} pages blindly will double-count matches. Reading each match from the home team's page only is cleaner and keeps the counts tidy.`,
+  "School athletics sites can be flaky—if one times out, crashing the whole script right before Riley publishes would be annoying. Better to retry three times, log a warning, and keep going so the run still finishes.",
+  "Parse the finished matches with scores, compute played, goal difference, and points, and print a short summary—pages fetched, matches found, errors. Straightforward enough. Let's build it.",
+];
 
 const kickPlan = [
   `Download the schedule page from each of the ${spell(pipeline.asked)} school sites, and the box scores Alder Ridge's schedule links.`,
@@ -56,7 +64,8 @@ const choices = [
     </div>
     <p class="cv-chat-text">{rileyAsk}</p>
   </div>
-  <p>It names the season, the sport, the sources, and the output. At a glance, it sounds complete.</p>
+  <KickThink duration="Thought for 6s" thoughts={kickThoughts} />
+  <p>Every choice in that trace sounds reasonable on its own. Kick made all of them in six seconds and never asked Riley a single question.</p>
 
   <h3 class="cv-step" id="setup-built"><span>2</span>What Kick built</h3>
   <p>Kick built a web scraper, a program that downloads pages meant for people and extracts structured rows from them. This 4-minute video builds one from a single loop and shows five ordinary ways it breaks.</p>
@@ -71,7 +80,7 @@ const choices = [
   <p>Kick's pipeline followed those same five stages. Here is what happened at each step on Friday.</p>
   <Pipeline />
   <details class="cv-more">
-    <summary>Kick's plan, in its own words</summary>
+    <summary>Kick's build plan</summary>
     <ol class="cv-plan">{kickPlan.map((x) => <li>{x}</li>)}</ol>
   </details>
   <p>Whenever you check a data pipeline, there are three main questions to ask:</p>
