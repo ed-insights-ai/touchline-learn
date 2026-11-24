@@ -44,47 +44,56 @@ const dots = [
       <p>When Kick reads both schools' pages, all {spell(bounds.unseen)} missing matches are recovered from the visitors' pages, and Hartwell Tech moves up to second.</p>
     </div>
   </div>
-  <figure class="cv-split">
-    <table>
-      <caption>How the missing block skews one team's stats</caption>
-      <thead><tr><th scope="col">Dunmore</th><th scope="col">Matches</th><th scope="col">Goals conceded / match</th><th scope="col">Goal difference</th></tr></thead>
-      <tbody>
-        <tr><th scope="row">In Kick's table</th><td>{dunmoreSplit.kick.p}</td><td>{dunmoreSplit.kick.perMatch}</td><td>{signed(dunmoreSplit.kick.gd)}</td></tr>
-        <tr><th scope="row">Across all {dunmoreSplit.all.p}</th><td>{dunmoreSplit.all.p}</td><td>{dunmoreSplit.all.perMatch}</td><td>{signed(dunmoreSplit.all.gd)}</td></tr>
-      </tbody>
-    </table>
-    <figcaption>Kick's table included all of Dunmore's away matches and none of its home matches, making a defense that struggled at home look solid.</figcaption>
-  </figure>
-  <p>That distortion is <strong>selection bias</strong>: which matches went missing wasn't random, so the remaining matches aren't a representative sample of the season. Statisticians group missing data into three patterns based on what caused the gap:</p>
-  <ul class="cv-three">
-    <li><b>Missing completely at random</b><span>Nothing about the item determined whether it went missing, like a coin toss. The data you have is a fair sample, just smaller.</span></li>
-    <li><b>Missing at random, given something you observe</b><span>A recorded variable explains the gap. Here, it's venue: every missing match was a Dunmore home game. Stats unrelated to venue stay fair; stats that depend on venue get skewed.</span></li>
-    <li><b>Missing not at random</b><span>The missing values themselves caused the gap, like a school pulling its page down after a losing streak. The coverage record alone can't prove or rule this out.</span></li>
-  </ul>
-  <div class="cv-check" data-once="bias">
+  <div class="cv-check" data-once="skew">
     <p class="cv-kind">Knowledge check</p>
-    <div class="cv-line" data-q data-type="select" data-answer="mar" data-why="Missing at random, given the venue. Whether a match was lost depends on who hosted it, which we can see, and not on the score." data-wrong={JSON.stringify({ mcar: "A random coin toss would drop home and away games across different schools. Here, every lost game was a Dunmore home match.", mnar: "That would mean the outage happened because of the scores. Nothing in the record suggests that." })}>
-      <label><span>Which missingness pattern describes the seven lost matches?</span>
-        <select data-save="bias-kind"><option value="">Choose</option><option value="mcar">Missing completely at random</option><option value="mar">Missing at random, given the venue</option><option value="mnar">Missing not at random</option></select>
+    <div class="cv-line" data-q data-type="select" data-answer="unknown" data-why="Can't tell from Kick's table. The skew depends on how Dunmore played at home, and Kick's table holds none of those matches. Home advantage is a guess about matches nobody saw." data-wrong={JSON.stringify({ high: "That assumes Dunmore conceded fewer at home, as home advantage would suggest. Kick's table has no Dunmore home match to check that against.", low: "That turns out to be true, but nothing in Kick's table could have told you so. It has no Dunmore home match to compare with." })}>
+      <label><span>Kick's table holds every Dunmore away match and no Dunmore home match. Before any home result is recovered, which way is Dunmore's goals conceded per match skewed?</span>
+        <select data-save="bias-dir"><option value="">Choose</option><option value="low">Too low</option><option value="high">Too high</option><option value="unknown">Can't tell from Kick's table</option></select>
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div class="cv-line" data-q data-type="select" data-answer="venue" data-why="Any Dunmore stat where home and away performance differ. Games played is simply short, while goals conceded per match gets skewed because only away games were kept." data-wrong={JSON.stringify({ none: "Each individual match was parsed accurately, but the subset of matches is skewed.", points: "Points are short (and bounds handle that), while selection bias skews any rate or average where home and away performance differ." })}>
+    <p class="cv-once">Choose one, then check.</p>
+    <button type="button" data-submit>Check answer</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal">
+      <p>Here is what the recovered home matches showed.</p>
+      <figure class="cv-split">
+        <table>
+          <caption>How the missing block skews one team's stats</caption>
+          <thead><tr><th scope="col">Dunmore</th><th scope="col">Matches</th><th scope="col">Goals conceded / match</th><th scope="col">Goal difference</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">In Kick's table</th><td>{dunmoreSplit.kick.p}</td><td>{dunmoreSplit.kick.perMatch}</td><td>{signed(dunmoreSplit.kick.gd)}</td></tr>
+            <tr><th scope="row">Across all {dunmoreSplit.all.p}</th><td>{dunmoreSplit.all.p}</td><td>{dunmoreSplit.all.perMatch}</td><td>{signed(dunmoreSplit.all.gd)}</td></tr>
+          </tbody>
+        </table>
+        <figcaption>Dunmore's defense struggled at home, so a table of away matches only made it look solid. A different team could have leaned the other way.</figcaption>
+      </figure>
+    </div>
+  </div>
+  <p>That distortion is <strong>selection bias</strong>: which records went missing wasn't random, so the ones left aren't a representative sample. Statisticians group missing data into three patterns by what caused the gap. Picture a survey where some people skip the income question:</p>
+  <ul class="cv-three">
+    <li><b>Missing completely at random</b><span>Nothing about the person decided it, like a page of the form lost in the mail. The answers you have are a fair sample, just smaller.</span></li>
+    <li><b>Missing at random, given something you observe</b><span>A recorded variable explains the gaps: younger respondents skip it more often, and you know everyone's age. Comparisons within an age group stay fair; totals across ages lean.</span></li>
+    <li><b>Missing not at random</b><span>The missing value itself caused the gap: the highest earners skip the question because of what they earn. Nothing you recorded can reveal it.</span></li>
+  </ul>
+  <div class="cv-check" data-once="bias">
+    <p class="cv-kind">Knowledge check</p>
+    <div class="cv-line" data-q data-type="select" data-answer="mar" data-why="Missing at random, given the host. Whether a match was lost depends on who hosted it, which the record shows, and not on the score." data-wrong={JSON.stringify({ mcar: "A coin toss would scatter the lost matches across hosts. Here, every lost match had the same host.", mnar: "That would mean the outage happened because of the scores. Nothing in the record suggests that." })}>
+      <label><span>Which pattern describes Dunmore's seven lost matches?</span>
+        <select data-save="bias-kind"><option value="">Choose</option><option value="mcar">Missing completely at random</option><option value="mar">Missing at random, given something recorded</option><option value="mnar">Missing not at random</option></select>
+      </label>
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <div class="cv-line" data-q data-type="select" data-answer="venue" data-why="Any Dunmore stat where home and away performance differ. Games played is simply short, while goals conceded per match is tilted because only away games were kept." data-wrong={JSON.stringify({ none: "Each individual match was parsed accurately, but the subset of matches is skewed.", points: "Points are short, and a bound handles that. The skew reaches any rate or average where home and away differ." })}>
       <label><span>Which of Dunmore's stats in Kick's table does this missing block skew?</span>
         <select data-save="bias-which"><option value="">Choose</option><option value="none">None, since every match included was read correctly</option><option value="points">Only its points</option><option value="venue">Any stat where home and away performance differ</option></select>
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div class="cv-line" data-q data-type="select" data-answer="low" data-why={`Too low. Dunmore conceded more goals at home, and every home match was missing, so ${dunmoreSplit.kick.perMatch} jumped to ${dunmoreSplit.all.perMatch} once all ${dunmoreSplit.all.p} matches were included.`}>
-      <label><span>Which way did it skew Dunmore's goals conceded per match?</span>
-        <select data-save="bias-way"><option value="">Choose</option><option value="low">Too low</option><option value="high">Too high</option><option value="none">Not at all</option></select>
-      </label>
-      <p class="cv-fb" role="status"></p>
-    </div>
-    <p class="cv-once">Answer all three, then check.</p>
+    <p class="cv-once">Answer both, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Before the home results were recovered, you couldn't tell which direction the stat was skewed. A coverage record can identify the cause of a gap and which numbers it affects, but not which way they lean.</p></div>
+    <div class="cv-reveal"><p>“Given the host” rests on an assumption: the outage had nothing to do with the scores. No table of results can test that. Even if it holds, Kick's table can't estimate Dunmore's home form, because it holds zero Dunmore home matches. A coverage record names the cause of a gap and which numbers it touches. Only the recovered pages could show which way they leaned.</p></div>
   </div>
 
   <Beat part="case-hartwell" name="Name it" />

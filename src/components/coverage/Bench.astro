@@ -139,7 +139,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
               <th scope="col"><abbr title="Played">P</abbr></th>
               <th scope="col"><abbr title="Goal difference">GD</abbr></th>
               <th scope="col"><abbr title="Points">Pts</abbr></th>
-              <th scope="col">vs. complete table ({out.scored})</th>
+              <th scope="col">vs. all {out.scored} scored matches</th>
             </tr>
           </thead>
           <tbody data-bn-table set:html={tableRows(out)} />
@@ -255,7 +255,9 @@ const config = JSON.stringify({ data: benchData, state, withFill });
   const same = (a: BenchState, b: BenchState) => a.rule === b.rule && a.design === b.design && a.down.join() === b.down.join();
 
   document.querySelectorAll<HTMLElement>("[data-bench]").forEach((root) => {
-    const { data, withFill, state: start } = JSON.parse(root.dataset.bench!) as Config;
+    const config = JSON.parse(root.dataset.bench!) as Config;
+    const { data, withFill } = config;
+    let start = config.state;
     let state = start;
     const part = (name: string) => root.querySelector<HTMLElement>(`[data-bn-${name}]`);
     const press = (sel: string, on: (b: HTMLButtonElement) => boolean) =>
@@ -313,12 +315,15 @@ const config = JSON.stringify({ data: benchData, state, withFill });
     });
 
     root.addEventListener("bench:set", (e) => {
-      const d = ((e as CustomEvent).detail ?? {}) as Partial<BenchState>;
-      set({
+      const d = ((e as CustomEvent).detail ?? {}) as Partial<BenchState> & { baseline?: boolean };
+      const next = {
         down: Array.isArray(d.down) ? d.down : state.down,
         rule: RULES.includes(d.rule as Rule) ? d.rule! : state.rule,
         design: DESIGNS.includes(d.design as Design) ? d.design! : state.design,
-      });
+      };
+      if (d.baseline) start = normalise(data, next);
+      set(next);
+      if (d.baseline) draw();
     });
   });
 </script>

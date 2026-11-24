@@ -1,0 +1,47 @@
+---
+interface Props {
+  id: "first" | "second";
+  absent: string;
+  played: number;
+  points: number;
+  host?: number;
+  members: string[];
+  scored: number;
+  finals: number;
+  heading: string;
+  hideAbsent?: boolean;
+}
+const { id, absent, played, points, host, members, scored, finals, heading, hideAbsent = false } = Astro.props;
+const key = (k: string) => `ev-${id}-${k}`;
+---
+
+<div class="cv-evidence" data-evidence={id} data-absent={absent} data-played={played} data-points={points} data-host={host} data-scored={scored} data-finals={finals} data-teams={members.length}>
+  <p class="cv-kind">Read its answer <span>you grade the assistant</span></p>
+  <p class="cv-qlabel">{heading}</p>
+  <div class="cv-ev-qs">
+    <div class="cv-line"><label><span>Which school's own page did it say was not among the pages?</span>
+      <select data-save={key("absent")}><option value="">Choose</option>{members.map((m) => <option>{m}</option>)}<option value="none">It didn't say one was missing</option></select>
+    </label></div>
+    <div class="cv-line"><label><span>Did it say a finished match had no score?</span>
+      <select data-save={key("blank")}><option value="">Choose</option><option value="sep21">Yes, September 21</option><option value="other">Yes, a different match</option><option value="none">No, or it gave that match a score</option></select>
+    </label></div>
+    <div class="cv-line"><label><span>How many teams are in its table?</span>
+      <input inputmode="numeric" autocomplete="off" data-save={key("teams")} />
+    </label></div>
+    <p class="cv-row cv-fillin">
+      <span>{hideAbsent ? "Find the school whose page is not in what you pasted. Its row in the table:" : `${absent}'s row in its table:`}</span>
+      <input inputmode="numeric" autocomplete="off" aria-label="Played" data-save={key("played")} /><span>played,</span>
+      <input inputmode="numeric" autocomplete="off" aria-label="Points" data-save={key("points")} /><span>points</span>
+    </p>
+    <p class="cv-row cv-fillin">
+      <span>It said the table counts</span>
+      <input inputmode="numeric" autocomplete="off" aria-label="Matches counted" data-save={key("counted")} /><span>matches out of</span>
+      <input inputmode="numeric" autocomplete="off" aria-label="Matches finished" data-save={key("finished")} /><span>finished. Leave both blank if it gave no count.</span>
+    </p>
+  </div>
+  <button type="button" data-evidence-check>Compare with the pages</button>
+  <p class="cv-fb" role="status" data-evidence-need></p>
+  <ul class="cv-found" data-found></ul>
+  <p class="cv-fb" role="status" data-evidence-note></p>
+  <slot />
+</div>

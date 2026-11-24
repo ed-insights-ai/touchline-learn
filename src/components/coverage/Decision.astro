@@ -38,7 +38,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
   <p>Here is the first design choice: what should Kick do when Dunmore's site doesn't answer? <span data-decision-said data-said={JSON.stringify(said)}>Test Friday under all four options below and compare what happens.</span></p>
   <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's page is down. Compare all four options." />
   <div class="cv-chose" data-gate data-chose>
-    <p class="cv-once">Try all four options above to unlock the comparison. <span data-chose-tried></span></p>
+    <p class="cv-once">Click each of the four options above to unlock the comparison. <span data-chose-tried></span></p>
     <button type="button" data-chose-open disabled>Show comparison</button>
     <div class="cv-reveal">
   <div class="cv-scroll">
@@ -60,7 +60,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
     </div>
     <div>
       <h4>2. Should we publish?</h4>
-      <p>Does that record support what the table claims? Friday's run succeeds under this rule, yet its table still shouldn't be published as-is.</p>
+      <p>Does that record support what the table claims? Hold the table back while a gap can still be closed from pages you already have. Once nothing more can be recovered, publish with every remaining gap named.</p>
     </div>
   </div>
   <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
@@ -107,10 +107,10 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
   const apply = (choice: string) => {
     if (out) {
       out.textContent = said[choice]
-        ? `Earlier in the setup you chose “${said[choice]}”, so the simulator starts there. Try the other three options too.`
-        : "You didn't pick an option in the setup, so the simulator starts on Kick's default. Try all four options below.";
+        ? `Earlier in the setup you chose “${said[choice]}”, so the simulator starts there. Click each of the four options to compare them.`
+        : "You didn't pick an option in the setup, so the simulator starts on Kick's default. Click each of the four options below.";
     }
-    if (bench && said[choice]) bench.dispatchEvent(new CustomEvent("bench:set", { detail: { design: choice } }));
+    if (bench && said[choice]) bench.dispatchEvent(new CustomEvent("bench:set", { detail: { design: choice, baseline: true } }));
   };
   let started = false;
   const start = () => { if (started) return; started = true; apply(stored()); };
@@ -140,10 +140,6 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
       write("bench-tried", [...tried].join());
       show();
     };
-    const pressed = () => bench?.querySelector<HTMLElement>('[data-bn-design][aria-pressed="true"]')?.dataset.bnDesign;
-    const seenStart = () => record(pressed());
-    if (document.readyState === "complete") setTimeout(seenStart, 0);
-    else addEventListener("load", () => setTimeout(seenStart, 0));
     const open = (focus: boolean) => {
       gate.classList.add("is-open");
       gate.querySelector<HTMLElement>(".cv-reveal")!.classList.add("is-open");

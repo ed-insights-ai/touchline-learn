@@ -201,9 +201,9 @@ export function reading(data: BenchData, st: BenchState, out: Outcome): string {
   const lost = st.rule === "host"
     ? `${who} did not answer, and ${matches(out.unread)} went with ${one ? "that page" : "those pages"}: every match ${one ? "that school" : "those schools"} hosted.`
     : `With both pages read, only a match between two schools that did not answer is lost: ${matches(out.unread)}.`;
-  if (st.design === "fill") return `${lost} Each is in the table as 0-0. ${out.wrong} of ${n} rows differ from the real table, and nothing marks which scores were invented.`;
+  if (st.design === "fill") return `${lost} Each is in the table as 0-0. ${out.wrong} of ${n} rows differ from the table on all ${out.scored} scored matches, and nothing marks which scores were invented.${blank}`;
   const rows = `${out.wrong} of ${n} rows are wrong, because each visitor is missing a match as well.`;
-  return `${lost} ${rows}${st.design === "record" ? " The table is the same as when Kick skips the page. What changed is the summary: it names the gap." : ""}`;
+  return `${lost} ${rows}${st.design === "record" ? " The table is the same as when Kick skips the page. What changed is the summary: it names the gap." : ""}${blank}`;
 }
 
 export function tableRows(out: Outcome): string {

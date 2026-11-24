@@ -35,54 +35,44 @@
     const lockFor = (box: HTMLElement) => {
       if (box.dataset.locks) root.querySelectorAll<Field>(`#${box.dataset.locks} [data-save]`).forEach((f) => { f.disabled = true; });
     };
-    const evidence = (box: HTMLElement) => {
-      if (!PACK) return;
-      const text = box.querySelector<HTMLTextAreaElement>("textarea")!.value.replace(/[\u2018\u2019]/g, "'").replace(/[\u00a0\u2007\u202f]/g, " ").replace(/[\u2010-\u2015\u2212]/g, "-");
+    const evidence = (box: HTMLElement, asked = false) => {
+      const id = box.dataset.evidence!;
+      const val = (k: string) => (store[`ev-${id}-${k}`] ?? "").trim();
+      const num = (k: string) => (/^\d+$/.test(val(k)) ? Number(val(k)) : null);
+      const need = box.querySelector<HTMLElement>("[data-evidence-need]")!;
       const list = box.querySelector<HTMLElement>("[data-found]")!;
       const note = box.querySelector<HTMLElement>("[data-evidence-note]")!;
-      list.replaceChildren();
-      if (text.trim().length < 80) { note.textContent = text.trim() ? "Paste the whole answer, including its table." : ""; return; }
-      const absent = box.dataset.absent!;
-      const played = Number(box.dataset.played);
-      const points = Number(box.dataset.points);
-      const plain = (v: string) => v.replace(/\./g, "").toLowerCase();
-      const lines = text.split("\n").map(plain);
-      const cellsOf = (line: string) => line.split(/\||\t|\s{2,}/).map((c) => c.trim()).filter(Boolean);
-      const isRow = (line: string, name: string) => line.replace(/^[|*\s\d.)]+/, "").startsWith(plain(name)) && (line.match(/\d+/g) ?? []).length >= 2;
-      const rowFor = (name: string) => lines.find((line) => isRow(line, name));
-      const teams = PACK.members.filter((name) => rowFor(name));
-      const row = rowFor(absent);
-      const firstRow = lines.findIndex((line) => PACK.members.some((name) => isRow(line, name)));
-      const head = lines.slice(0, Math.max(firstRow, 0)).reverse().find((line) => /\b(pts|points)\b/.test(line));
-      const cells = row ? cellsOf(row) : [];
-      const nums = cells.slice(cells.findIndex((c) => c.includes(plain(absent))) + 1).map((c) => Number(c.replace(/[^\d-]/g, ""))).filter((n) => !Number.isNaN(n));
-      const column = (re: RegExp) => { const at = head ? cellsOf(head).findIndex((c) => re.test(c)) : -1; return at >= 0 && cells.length === cellsOf(head!).length ? Number(cells[at].replace(/[^\d-]/g, "")) : null; };
-      const gotPoints = column(/^(pts|points)$/) ?? nums.at(-1);
-      const gotPlayed = column(/^(p|gp|mp|pld|played|games|matches)$/) ?? (nums[0] === played ? nums[0] : nums.length >= 3 ? nums[0] + nums[1] + nums[2] : nums[0]);
-      const parts = text.split(/\n|(?<=(?<!\b(?:St|vs|v|Sep|Sept))[.!?])\s/);
-      const gone = /missing|omitted|left out|not (included|provided|supplied|present|among|in the|given|in what)|absent|no (schedule|page)|was ?n[o']t (included|provided|supplied|given|in|among|part)|lack|reconstructed from|(taken|derived|inferred|come|came|comes) from (the )?(other|opponent|visitor)/i;
-      const saysAbsent = parts.some((part) => part.toLowerCase().includes(absent.split(' ')[0].toLowerCase()) && /page|schedule|file|source|input|sent|provided|supplied/i.test(part) && gone.test(part) && !/not (yet )?played|upcoming|to be played|(not|n't|none|nothing) (\w+ )?missing|all eight (pages|schedules)/i.test(part));
-      const saysFinal = parts.some((part) => /sep(t|tember)?\.? ?21|09-21|9\/21|21 sep/i.test(part) && /no score|without a score|no result|unscored|blank|score (is |was )?(missing|unknown|not)|exclud|omit|not (counted|included)|left out/i.test(part) && !/\b\d\s?-\s?\d\b/.test(part.replace(/\d{4}-\d{2}-\d{2}|09-21/g, "")));
+      const missing = !val("absent") || !val("blank") || num("teams") === null || num("played") === null || num("points") === null || (!!val("counted") !== !!val("finished"));
+      if (missing) {
+        if (asked) need.textContent = "Answer each line from what your assistant wrote. Leave only the count blank, and only if it gave none.";
+        return;
+      }
+      need.textContent = "";
+      const d = box.dataset;
+      const absent = d.absent!;
+      const host = d.host ? Number(d.host) : null;
       const checks: [boolean, string, string][] = [
-        [teams.length === 8, "Eight teams in its table", teams.length ? `${teams.length} member rows found. A school with no page dropped out of the table.` : "No table rows found."],
-        [gotPlayed === played && gotPoints === points, `${absent} on ${played} played and ${points} points`, row ? `Its ${absent} row reads ${nums.slice(0, 8).join(", ")}. ${gotPlayed === Number(box.dataset.host) ? "That is Kick's host-only count." : "That may be a counting slip, double counting, or non-conference rows."}` : `No ${absent} row found.`],
-        [saysAbsent, `Says ${absent}'s own page is not there`, "Nothing found that says a page is missing."],
-        [saysFinal, "Names September 21 as a final without a score", "Nothing found about September 21."],
-        [/\b53\b[^\n]{0,40}\b54\b|\b54\b[^\n]{0,40}\b53\b/.test(text), `Gives ${PACK.scored} counted, out of ${PACK.finals} finished`, "The two numbers do not appear together."],
+        [num("teams") === Number(d.teams), `All ${d.teams} teams in its table`, `It listed ${num("teams")}. A school with no page of its own can drop out of the table.`],
+        [num("played") === Number(d.played) && num("points") === Number(d.points), `${absent} on ${d.played} played and ${d.points} points`, num("played") === host ? `${num("played")} played is Kick's host-only count: it read none of ${absent}'s home matches from the visitors' pages.` : `The pages support ${d.played} played and ${d.points} points. A gap here is a counting slip, double counting, or non-conference rows.`],
+        [val("absent") === absent, `Said ${absent}'s own page was not there`, val("absent") === "none" ? "It never mentioned a missing page." : `It named ${val("absent")}, whose page was there. The missing one was ${absent}'s.`],
+        [val("blank") === "sep21", "Named September 21 as a final without a score", val("blank") === "none" ? "It said nothing about a blank score, or filled one in." : "The blank is September 21, Cedar Grove v St. Lambert."],
+        [num("counted") === Number(d.scored) && num("finished") === Number(d.finals), `Gave ${d.scored} counted, out of ${d.finals} finished`, val("counted") ? `It said ${val("counted")} of ${val("finished")}. The pages support ${d.scored} of ${d.finals}.` : "It gave no count out of a total."],
       ];
+      list.replaceChildren();
       checks.forEach(([ok, label, miss]) => {
         const li = document.createElement("li");
         li.className = ok ? "is-found" : "";
         const b = document.createElement("b");
-        b.textContent = ok ? "Found. " : "Not found. ";
+        b.textContent = ok ? "Got it. " : "Missed. ";
         li.append(b, ok ? label : `${label}. ${miss}`);
         list.append(li);
       });
       const found = checks.filter(([ok]) => ok).length;
       const told = checks.slice(2).filter(([ok]) => ok).length;
-      put(`found-${box.dataset.evidence}`, String(found));
-      if (box.dataset.evidence === "first") note.textContent = `${found} of 5 found. It volunteered ${told} of the 3 gaps.${store.predict ? ` You predicted ${store.predict}.` : ""}`;
-      else note.textContent = `${found} of 5 found.${store["found-first"] ? ` The first answer had ${store["found-first"]}.` : ""}`;
+      put(`found-${id}`, String(found));
+      if (id === "first") note.textContent = `${found} of 5. It volunteered ${told} of the 3 gaps.${store.predict ? ` You predicted ${store.predict}.` : ""}`;
+      else note.textContent = `${found} of 5.${store["found-first"] ? ` The first answer had ${store["found-first"]}.` : ""}`;
+      put(`checked-${id}`, "1");
       box.querySelector<HTMLElement>(".cv-reveal")?.classList.add("is-open");
     };
 
@@ -99,7 +89,7 @@
         put(key, valueOf(f));
         showBack();
         if (key === "rewrite") leak();
-        if (key.startsWith("answer-") || key === "predict") root.querySelectorAll<HTMLElement>("[data-evidence]").forEach(evidence);
+        if (key.startsWith("ev-") || key === "predict") root.querySelectorAll<HTMLElement>("[data-evidence]").forEach((box) => { if (store[`checked-${box.dataset.evidence}`]) evidence(box); });
         root.querySelectorAll<HTMLElement>("[data-commit]").forEach(commitState);
         const savedNote = root.querySelector<HTMLElement>("[data-saved-note]");
         if (key === "brief" && savedNote) savedNote.textContent = canSave ? "Saved in this browser." : "This browser could not save it, so copy it somewhere safe.";
@@ -114,25 +104,9 @@
     };
     leak();
     showBack();
-    root.querySelectorAll<HTMLElement>("[data-evidence]").forEach(evidence);
-    root.querySelectorAll<HTMLElement>("[data-rules]").forEach((box) => {
-      const buttons = [...box.querySelectorAll<HTMLButtonElement>("[data-rule]")];
-      const lost = [...box.querySelectorAll<HTMLElement>('[data-cell="lost"]')];
-      buttons.forEach((button) => button.addEventListener("click", () => {
-        const both = button.dataset.rule === "both";
-        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
-        lost.forEach((cell) => { cell.className = both ? "is-read" : "is-lost"; cell.firstElementChild!.textContent = both ? "●" : "✕"; });
-        box.querySelector<HTMLElement>("[data-rules-note]")!.textContent = both
-          ? `${PACK?.scored} of ${PACK?.finals} finished matches read. The seven come back from the visitors' pages. September 21 is still without a score.`
-          : `${(PACK?.scored ?? 0) - lost.length} of ${PACK?.finals} finished matches read. Seven are lost with one page.`;
-      }));
-    });
-    root.querySelectorAll<HTMLElement>("[data-policies]").forEach((box) => {
-      const buttons = [...box.querySelectorAll<HTMLButtonElement>("[data-policy]")];
-      buttons.forEach((button) => button.addEventListener("click", () => {
-        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
-        box.querySelectorAll<HTMLElement>("[data-policy-panel]").forEach((panel) => { panel.hidden = panel.dataset.policyPanel !== button.dataset.policy; });
-      }));
+    root.querySelectorAll<HTMLElement>("[data-evidence]").forEach((box) => {
+      box.querySelector<HTMLButtonElement>("[data-evidence-check]")?.addEventListener("click", () => evidence(box, true));
+      if (store[`checked-${box.dataset.evidence}`]) evidence(box);
     });
     root.querySelectorAll<HTMLElement>("[data-commit]").forEach((box) => {
       const name = box.dataset.needs ?? box.querySelector<HTMLTextAreaElement>("textarea[data-save]")?.dataset.save ?? "";
@@ -181,7 +155,7 @@
         return (type === "range" ? [...(nums as number[])].sort((a, b) => a - b) : nums).join() === answer;
       }
       if (type === "pair") return values.map((f) => f.value).sort().join() === answer;
-      return values[0].value === answer;
+      return answer.split("|").includes(values[0].value);
     };
 
     root.querySelectorAll<HTMLElement>("[data-once]").forEach((box) => {
@@ -254,7 +228,8 @@
       setTimeout(() => { button.textContent = label; }, 2500);
     };
     root.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
-      button.addEventListener("click", () => copy(button, button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!, button.dataset.label ?? "Copy the prompt"));
+      const label = button.dataset.label ?? button.textContent!.trim();
+      button.addEventListener("click", () => copy(button, button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!, label));
     });
     const briefButton = root.querySelector<HTMLButtonElement>("[data-copy-brief]");
     briefButton?.addEventListener("click", () => copy(briefButton, root.querySelector<HTMLTextAreaElement>("#cv-brief")?.value ?? "", "Copy my clause"));

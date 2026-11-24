@@ -29,7 +29,7 @@ const film = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}film/publish-day.m
     button.addEventListener("click", () => {
       if (!media) {
         media = new Audio();
-        media.preload = "none";
+        media.preload = "metadata";
         media.src = button.dataset.vm!;
         media.addEventListener("timeupdate", () => { if (media!.currentTime >= end) media!.pause(); });
         media.addEventListener("pause", () => { if (media!.paused) reset(); });
@@ -40,9 +40,11 @@ const film = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}film/publish-day.m
       reset();
       if (again) return;
       end = Number(button.dataset.vmEnd);
-      media.currentTime = Number(button.dataset.vmStart);
       playing = button;
       button.setAttribute("aria-pressed", "true");
+      const start = Number(button.dataset.vmStart);
+      if (media.readyState >= HTMLMediaElement.HAVE_METADATA) media.currentTime = start;
+      else media.addEventListener("loadedmetadata", () => { media!.currentTime = start; }, { once: true });
       media.play().catch(() => { reset(); button.textContent = "Audio could not play here"; });
     });
   });

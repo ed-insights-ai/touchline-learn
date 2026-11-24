@@ -1,6 +1,7 @@
 ---
 import CoverageStyles from "./Styles.astro";
 import CoverageRuntime from "./Runtime.astro";
+import Evidence from "./Evidence.astro";
 import FirstRunTable from "../FirstRunTable.astro";
 import CoverageGrid from "../CoverageGrid.astro";
 import { repaired, reported, run } from "../../lib/first-run";
@@ -126,7 +127,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
           <p class="cv-fb" role="status"></p>
         </div>
       ))}
-      <p class="cv-once">One attempt. Read the plan closely before you check.</p>
+      <p class="cv-once">Read the plan closely before you check.</p>
       <button type="button" data-submit>Check my audit</button>
       <p class="cv-fb" role="status" data-need></p>
       <div class="cv-reveal">
@@ -135,7 +136,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     </div>
 
     <h3>Step 2. Give your assistant the pages Kick got</h3>
-    <p>Seven schedule pages came back on Friday. This is their text as the sample holds it: every regular-season row of every page, non-conference matches included. Dunmore's page is not in it, and nothing in it says so. The page you are reading holds the right table for these pages, and it will search your assistant's answer for it.</p>
+    <p>Seven schedule pages came back on Friday. This is their text as the sample holds it: every regular-season row of every page, non-conference matches included. Dunmore's page is not in it, and nothing in it says so. The page you are reading holds the right table for these pages. You read your assistant's answer and record what it said, and the page compares that with the pages.</p>
     <p>A summary that told the truth about these pages would volunteer three things:</p>
     <ol class="cv-cases">{volunteer.map((v) => <li>{v}</li>)}</ol>
     <label class="cv-inline">Before you paste: how many of the three will your assistant volunteer?
@@ -145,18 +146,13 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       <pre class="cv-pack" tabindex="0" data-copy-text>{`${packPrompt}\n\n${pack.text}`}</pre>
       <button type="button" data-copy data-label="Copy the prompt and the seven pages">Copy the prompt and the seven pages</button>
     </div>
-    <p>Paste it into a fresh chat and let it answer. Ask nothing further. Then paste its whole answer here, table and all.</p>
-    <div class="cv-evidence" data-evidence="first" data-absent="Dunmore" data-played={pack.dunmorePlayed} data-points={pack.dunmorePoints} data-host={bounds.played}>
-      <label class="cv-write" for="cv-first-answer">Your assistant's first answer</label>
-      <textarea id="cv-first-answer" rows="6" data-save="answer-first"></textarea>
-      <ul class="cv-found" data-found></ul>
-      <p class="cv-fb" role="status" data-evidence-note></p>
+    <p>Paste it into a fresh chat and let it answer. Ask nothing further. Then read its answer, table and all, and record what it actually said. Count only what it volunteered.</p>
+    <Evidence id="first" absent="Dunmore" played={pack.dunmorePlayed} points={pack.dunmorePoints} host={bounds.played} members={pack.members} scored={pack.scored} finals={story.finals} heading="Your assistant's first answer">
       <div class="cv-reveal">
         <p>This is the table those seven pages support: {pack.scored} of {story.finals} finished matches, with all {pack.dunmorePlayed} of Dunmore's results taken from its opponents' pages. P counts matches with a score, so Cedar Grove and St. Lambert have each played one more than it shows.</p>
         <FirstRunTable rows={repaired} caption="What the seven pages support" />
-        <p>The search is plain text matching, so read the answer yourself as well. If the page says “not found” for something your assistant did say in other words, count it as found.</p>
       </div>
-    </div>
+    </Evidence>
 
     <h3>Step 3. Rewrite, and test it on pages you have not seen</h3>
     <p>Now make the coverage record a requirement. If you worked through the lesson, you already added one sentence to Riley's request. It is a good place to start.</p>
@@ -173,13 +169,8 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       <pre class="cv-pack" tabindex="0" data-copy-text>{`The eight members are ${members}.\n\n${packB.text}`}</pre>
       <button type="button" data-copy data-label="Copy the second set of pages">Copy the second set of pages</button>
     </div>
-    <div class="cv-evidence" data-evidence="second" data-absent={packB.absent} data-played={packB.played} data-points={packB.points}>
-      <label class="cv-write" for="cv-second-answer">The fresh chat's answer</label>
-      <textarea id="cv-second-answer" rows="6" data-save="answer-second"></textarea>
-      <ul class="cv-found" data-found></ul>
-      <p class="cv-fb" role="status" data-evidence-note></p>
-    </div>
-    <p>Five found, on pages your prompt had never seen, is a good sign that the prompt works beyond the one case it was written on. It is not proof. The page matches words and numbers, and an answer can contain the right words and a wrong table. Check the missing school's row and the count against what you read yourself. If something is missing, change the prompt and try a fresh chat. If it will not come after three tries, stop and keep that result. Some assistants miscount a table this size however they are asked, which is an arithmetic failure and a different one from hiding a gap.</p>
+    <Evidence id="second" absent={packB.absent} played={packB.played} points={packB.points} members={pack.members} scored={packB.scored} finals={story.finals} heading="The fresh chat's answer" hideAbsent />
+    <p>Five found, on pages your prompt had never seen, is a good sign that the prompt works beyond the one case it was written on. It is not proof. An answer can name every gap and still hold a wrong table, which is why you copied the missing school's row and the count yourself. If something is missing, change the prompt and try a fresh chat. If it will not come after three tries, stop and keep that result. Some assistants miscount a table this size however they are asked, which is an arithmetic failure and a different one from hiding a gap.</p>
     <p>If your assistant found everything on the first run, without help, it did what Kick did not. The second set tells you whether it does so reliably, and your prompt is what makes that a requirement instead of luck.</p>
   </section>
 
@@ -267,7 +258,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
         </div>
         <p class="cv-fb" role="status"></p>
       </div>
-      <p class="cv-once">One attempt. You can change anything until you check.</p>
+      <p class="cv-once">You can change anything until you check.</p>
       <button type="button" data-submit>Check my audit</button>
       <p class="cv-fb" role="status" data-need></p>
       <div class="cv-reveal">
@@ -314,7 +305,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
           <p class="cv-fb" role="status"></p>
         </div>
       ))}
-      <p class="cv-once">One attempt.</p>
+      <p class="cv-once">Pick an action for each square, then check.</p>
       <button type="button" data-submit>Check my five</button>
       <p class="cv-fb" role="status" data-need></p>
       <div class="cv-reveal">

@@ -9,16 +9,6 @@ const nextModule = journey.flatMap((stage) => stage.modules).find((m) => m.slug 
 const ask = current.ask;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
-const filmScript = [
-  "Monday morning. No angry voicemails. Riley's table went out at 53 of 54, with the one missing game named.",
-  "That is what Friday taught. No errors describes only the program. A coverage record, checked against what should exist, describes the data. And anything it can't see is unknown. Never zero.",
-  "Tuesday. Kick adds a tidy rule to spell out school names on the published table. An \"St.\" becomes State. Great for Brightwater. Less great for State Lambert.",
-  "St. Lambert (voicemail): Hi, this is Saint Lambert soccer. Saint, as in the saint. Your table says State Lambert. We are not a state school. Please fix it.",
-  "Kick: Fixed. Saint stays Saint. One line.",
-  "The code is fixed in a minute. Friday's table isn't. Ask the eight sites again, and you won't get Friday's standings. You'll get Tuesday's pages, with weekend updates mixed in. And Dunmore might not answer at all.",
-  "This time, Riley knows what to ask.",
-  "Riley: Can you rebuild Friday's table from the pages you kept, without asking a single site again, and show me you did?",
-];
 const heads = [
   ["total", "100 visits across the network"],
   ["floor", "At least 100 visits, from eight of ten clinics. Two have not reported."],
@@ -53,9 +43,9 @@ const next = [
   <div class="cv-check" data-once="transfer">
     <p class="cv-kind">Transfer</p>
     {(["a", "b"] as const).map((w) => (
-      <div class="cv-line" data-q data-type="select" data-answer={w === "a" ? "total" : "floor"}
-        data-why={w === "a" ? "100 visits across the network. The two closed clinics answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two silent clinics are unavailable: unknown, not zero."}
-        data-wrong={JSON.stringify(w === "a" ? { floor: "World A's two clinics did answer, with proof. Nothing is unknown.", zeros: "True, and it gives the same total. Choose the headline that states it plainly.", unknown: "Every clinic is accounted for, so the total is known." } : { total: "Two clinics never answered, so 100 is only what you received.", zeros: "Nobody reported zero. Silence is unknown, not zero.", unknown: "You do know it is at least 100. Say that." })}>
+      <div class="cv-line" data-q data-type="select" data-answer={w === "a" ? "total|zeros" : "floor"}
+        data-why={w === "a" ? "100 visits across the network, whether or not the headline mentions the two closed clinics. They answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two silent clinics are unavailable: unknown, not zero."}
+        data-wrong={JSON.stringify(w === "a" ? { floor: "World A's two clinics did answer, with proof. Nothing is unknown.", unknown: "Every clinic is accounted for, so the total is known." } : { total: "Two clinics never answered, so 100 is only what you received.", zeros: "Nobody reported zero. Silence is unknown, not zero.", unknown: "You do know it is at least 100. Say that." })}>
         <label><span>World {w.toUpperCase()}: which headline is honest?</span>
           <select data-save={`transfer-${w}`}><option value="">Choose</option>{heads.map(([k, t]) => <option value={k}>{t}</option>)}</select>
         </label>
@@ -92,6 +82,12 @@ const next = [
     <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 
+  <h3 id="carry-it-further">Optional: go further</h3>
+  <p>Each of these stands on its own on the <a href="../01-collection-field-work/?from=carry-it">Module 1 field work page</a>.</p>
+  <ul class="cv-next-links">
+    {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
+  </ul>
+
   <h3 id="carry-it-tuesday">Then Tuesday</h3>
   <p>This 90-second closing video wraps up Monday's fix and introduces the bug that kicks off Module 2.</p>
   <figure class="cv-film">
@@ -101,16 +97,6 @@ const next = [
     </video>
     <figcaption>Monday, Then Tuesday. Every count shown on screen comes from the sample dataset.</figcaption>
   </figure>
-  <details class="cv-more">
-    <summary>Read the video narration</summary>
-    {filmScript.map((x) => <p>{x}</p>)}
-  </details>
-
-  <h3 id="carry-it-further">Optional: go further</h3>
-  <p>Each of these stands on its own on the <a href="../01-collection-field-work/?from=carry-it">Module 1 field work page</a>.</p>
-  <ul class="cv-next-links">
-    {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
-  </ul>
 
   <aside class="cv-next-card" aria-label="Next module">
     <p class="cv-next-eyebrow">Up next · Module 2</p>
