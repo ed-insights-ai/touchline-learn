@@ -44,7 +44,7 @@ export const clips = {
   cedar: [61.2, 72.3],
 } as const;
 
-const film = readFileSync(root("src", "components", "FilmOpening.astro"), "utf-8");
+const film = readFileSync(root("public", "film", "publish-day.vtt"), "utf-8");
 
 if (!film.includes(rileyAsk) || blank.length !== 1 || noScore.day !== "September 21" || noScore.home !== "Cedar Grove" || noScore.away !== "St. Lambert"
   || pipeline.asked !== 8 || pipeline.silent !== 1 || pipeline.saved !== 7 || pipeline.boxes !== 12 || pipeline.rows !== 8

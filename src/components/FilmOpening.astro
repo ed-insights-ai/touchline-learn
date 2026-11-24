@@ -1,30 +1,6 @@
 ---
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
-const transcript: [string, string][] = [
-  ["Narrator", "This is Riley. Final-year data science student. It's Friday, four-twelve, and the conference standings go out at five, with Riley's name on them."],
-  ["Narrator", "Eight college soccer websites. Built for fans, not software. No official feed."],
-  ["Narrator", "Riley could learn how any of this works. Or Riley could type one sentence."],
-  ["Riley's prompt", "Collect this season's men's soccer results from all eight school sites and build a conference table I can publish."],
-  ["On screen", "Kick races through four green check marks: collecting sites, reading pages, matching teams, checking the table. An eight-team table fills in, with Dunmore at six played."],
-  ["Kick, the coding agent", "Done. All eight school sites, forty-six conference matches, no errors. Ready to publish."],
-  ["Narrator", "Riley gives it a good, long, two-second look."],
-  ["On screen", "At 4:58 Riley taps Publish without looking up. The table goes live."],
-  ["Coach Dolan, Hartwell, voicemail", "Yeah, it's Coach Dolan over at Hartwell. We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth. My guys are seeing this. Call me back."],
-  ["Dunmore athletics, voicemail", "Hi, Dunmore athletics. You've got our men at six conference games. We've played thirteen. I have a booster asking me if we forfeited half the season."],
-  ["Cedar Grove men's soccer, voicemail", "Hey, Cedar Grove men's soccer, we're on the bus. September twenty-first, us and St. Lambert. That game happened, I lost my voice in that game. It's not in the standings. Fix it."],
-  ["Riley types", "THE COACHES ARE CALLING. WHAT HAPPENED"],
-  ["Kick", "You're absolutely right, and I apologize for the confusion. The variance arose from a non-canonical reconciliation of upstream fixture semantics. I've normalized the cardinality."],
-  ["Riley types", "what does that mean"],
-  ["Kick", "Great question. You're right to ask, and I apologize. It's fixed."],
-  ["Riley types", "how do you know any of it is right"],
-  ["Kick", "You're absolutely right, and I apologize. I ran it again. No errors."],
-  ["Narrator", "That is all the evidence Riley has."],
-  ["Narrator", "Every check mark hid a decision Riley never knew was theirs to make."],
-  ["On screen", "Each of the four green check marks opens onto a question mark. The clock returns to 4:52."],
-  ["Kick", "Ready to publish."],
-  ["Narrator", "Before you press Publish, what would you ask it?"],
-];
 ---
 
 <section class="fo not-content" id="film" data-film>
@@ -38,10 +14,6 @@ const transcript: [string, string][] = [
     <button type="button" class="fo-play" data-play hidden>Play the film</button>
   </div>
   <p class="fo-note">Scripted story, invented data. Two minutes, with sound.</p>
-  <details class="fo-script">
-    <summary>Read the transcript</summary>
-    <dl>{transcript.map(([who, line]) => <div><dt>{who}</dt><dd>{line}</dd></div>)}</dl>
-  </details>
 
   <form class="fo-ask" data-ask>
     <div class="fo-claim">
@@ -78,13 +50,7 @@ const transcript: [string, string][] = [
   @media (max-width: 30rem) { .fo-play { min-height: 44px; padding: 0.35rem 0.8rem 0.35rem 2.1rem; font-size: 0.88rem; } .fo-play::before { left: 0.85rem; } }
   @media (max-height: 30rem) and (orientation: landscape) { .fo-player { max-width: min(100%, calc((100svh - var(--sl-nav-height, 4rem) - 0.75rem) * 16 / 9)); } .fo-play { min-height: 44px; white-space: nowrap; } :root:has(.fo) .hero { padding-block: 0.25rem; gap: 0; } :root:has(.fo) .hero h1 { font-size: 1.1rem; } :root:has(.fo) .hero .tagline { display: none; } }
   .fo p { margin: 0 0 0.6rem; }
-  .fo-note { margin-top: 0.45rem !important; color: var(--tl-muted); font-size: 0.9rem; }
-  .fo-script { margin-bottom: 1.4rem; border-bottom: 1px solid var(--tl-line); }
-  .fo-script summary { display: list-item; padding-block: 0.6rem; font-weight: 700; cursor: pointer; }
-  .fo-script dl { margin: 0 0 1rem; }
-  .fo-script dl > div { margin-bottom: 0.65rem; }
-  .fo-script dt { color: var(--tl-muted); font-size: 0.85rem; font-weight: 700; }
-  .fo-script dd { margin: 0; }
+  .fo-note { margin: 0.45rem 0 1.4rem !important; color: var(--tl-muted); font-size: 0.9rem; }
   .fo-ask { margin-bottom: 1.3rem; padding: 1rem; border-left: 3px solid #f4c62f; background: var(--tl-card); }
   .fo-claim { margin-bottom: 0.9rem; padding-left: 0.75rem; border-left: 3px solid var(--sl-color-accent); }
   .fo .fo-claim p:last-child { margin-bottom: 0; }
