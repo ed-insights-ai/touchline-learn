@@ -64,5 +64,5 @@ const homeRow = scoreRows.find((r) => r.includes(home.name))!;
 export const trail: Record<Zone, { what: string; text: string }> = {
   raw: { what: "the saved page's score row", text: homeRow },
   clean: { what: "the parsed record", text: `home: ${home.name}, ${home.score} (periods ${home.periods.join(", ")})` },
-  derived: { what: "every product", text: `${home.name} ${home.score}, ${away.name} ${away.score}` },
+  derived: { what: "the published result", text: `${home.name} ${home.score}, ${away.name} ${away.score}` },
 };

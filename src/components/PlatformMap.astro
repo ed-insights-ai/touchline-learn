@@ -31,7 +31,7 @@ const moduleHref = (slug: string) => `${base}modules/${slug}/`;
         <div class="pm-head">
           <b aria-hidden="true">{i + 1}</b>
           <h3><span>{s.name}.</span> {s.title}</h3>
-          <span class="pm-mods">{s.modules.length > 1 ? "Modules" : "Module"} {s.modules.map((m, j) => <>{j > 0 && " and "}<a href={moduleHref(m.slug)}>{m.n}</a></>)}</span>
+          <span class="pm-mods">{s.modules.length > 1 ? "Modules" : "Module"} {s.modules.map((m, j) => <>{j > 0 && " and "}<a href={moduleHref(m.slug)} aria-label={`Module ${m.n}: ${m.name}`}>{m.n}</a></>)}</span>
         </div>
         <p>{s.body}</p>
         <p class="pm-risk">{s.risk}</p>
@@ -76,6 +76,7 @@ const moduleHref = (slug: string) => `${base}modules/${slug}/`;
   .pm-trail span { color: var(--tl-muted); font-size: 0.75rem; font-weight: 600; }
   .pm-trail code { padding: 0; background: none; font-size: 0.78rem; line-height: 1.4; overflow-wrap: anywhere; }
   .pm .pm-ten { margin: -1.4rem 0 2rem; color: var(--tl-muted); font-size: 0.92rem; }
+  .pm-ten a { color: var(--sl-color-text-accent); }
   .pm-figure figcaption { margin-top: 0.6rem; color: var(--tl-muted); font-size: 0.9rem; }
 
   .pm-steps { display: grid; gap: 0.5rem; margin: 0 0 2rem; padding: 0; list-style: none; counter-reset: none; }
