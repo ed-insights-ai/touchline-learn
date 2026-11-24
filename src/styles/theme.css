@@ -116,7 +116,10 @@
 }
 
 /* Overview: the plain sections below the platform map share its column. */
-.ov-rest { max-width: 52rem; margin: 2.5rem auto 2rem; padding-top: 1.5rem; border-top: 1px solid var(--tl-line); }
+.ov-rest { max-width: 52rem; margin: 2.5rem auto 2rem; padding-top: 3rem; border-top: 1px solid var(--tl-line); }
+.ov-rest .ov-kicker { margin: 0 0 0.35rem; color: var(--sl-color-accent); font-size: 0.82rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; }
+.ov-rest .ov-kicker + h2, .ov-rest .ov-kicker + .sl-heading-wrapper { margin-top: 0; }
+.ov-rest h2 { color: var(--sl-color-white); font-size: clamp(1.6rem, 4.6vw, 2.2rem); line-height: 1.12; font-weight: 750; letter-spacing: -0.015em; }
 
 /* Larger reading size on desktop; every rem on the site scales with it. */
 @media (min-width: 50rem) { html { font-size: 106.25%; } }

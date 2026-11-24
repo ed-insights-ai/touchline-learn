@@ -1,5 +1,5 @@
 ---
-import { away, home, ideas, matchLabel, stops, trail, zones } from "../lib/one-match";
+import { away, home, ideas, stops, trail, zones } from "../lib/one-match";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const moduleHref = (slug: string) => `${base}modules/${slug}/`;
@@ -18,7 +18,7 @@ const icons = [
 <section class="pm not-content" id="one-match" aria-labelledby="pm-title" data-pm>
   <p class="pm-kicker">The mental model</p>
   <h2 id="pm-title">One match, seven steps</h2>
-  <p class="pm-lead">Kick's four green check marks were status messages. They named what the script was busy with, not what it proved. A trustworthy platform takes every result through seven steps and keeps its data in three zones. Here is one result from Riley's table, {matchLabel}, taken through all seven.</p>
+  <p class="pm-lead">Kick said Riley's table was ready to publish. Its four green check marks named what the script was busy with, not what it proved. Touchline takes every result through seven steps and keeps its data in three zones. Follow one match from Riley's table through all seven.</p>
 
   <div class="pm-score" aria-label={`${home.name} ${home.score}, ${away.name} ${away.score}`}>
     <span>{home.name}</span>
@@ -97,9 +97,9 @@ const icons = [
   .pm-score small { grid-column: 1 / -1; color: var(--tl-muted); font-size: 0.85rem; text-align: center; }
 
   .pm-figure { margin: 0 0 1.5rem; }
-  .pm-band { display: grid; grid-template-columns: 2fr 3.6fr 1.6fr; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .pm-band { display: grid; grid-template-columns: 2fr 3.6fr 1.6fr; gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
   .pm-band > li { position: relative; margin: 0; padding: 0.8rem 0.85rem 0.9rem; border: 1px solid var(--tl-line); border-top-width: 4px; border-radius: 4px; }
-  .pm-band > li:not(:last-child)::after { content: ""; position: absolute; right: -0.36rem; top: 50%; z-index: 1; width: 0.6rem; height: 0.6rem; border-top: 2px solid var(--tl-muted); border-right: 2px solid var(--tl-muted); transform: translate(0, -50%) rotate(45deg); }
+  .pm-band > li:not(:last-child)::after { content: ""; position: absolute; right: -0.68rem; top: 50%; z-index: 1; width: 0.6rem; height: 0.6rem; border-top: 2px solid var(--tl-muted); border-right: 2px solid var(--tl-muted); transform: translate(0, -50%) rotate(45deg); }
   .pm-zone.raw { background: var(--tl-raw); border-top-color: var(--tl-raw-edge); }
   .pm-zone.clean { background: var(--tl-clean); border-top-color: var(--tl-clean-edge); }
   .pm-zone.derived { background: var(--tl-derived); border-top-color: var(--tl-derived-edge); }
@@ -160,7 +160,7 @@ const icons = [
 
   @media (max-width: 40rem) {
     .pm-band { grid-template-columns: 1fr; }
-    .pm-band > li:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -0.38rem; transform: translate(-50%, 0) rotate(135deg); }
+    .pm-band > li:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -0.68rem; transform: translate(-50%, 0) rotate(135deg); }
     .pm-ideas { grid-template-columns: 1fr; }
     .pm-score strong { font-size: 1.6rem; }
     .pm-score span { font-size: 1rem; }
@@ -178,6 +178,11 @@ const icons = [
     const next = nav.querySelector<HTMLButtonElement>("[data-next]")!;
     const where = nav.querySelector<HTMLElement>("[data-where]")!;
     let current = 0;
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reveal = (card: HTMLElement) => {
+      const box = card.getBoundingClientRect();
+      if (box.top < 80 || box.top > innerHeight * 0.55) card.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+    };
     const show = (index: number, focus = false) => {
       current = index;
       steps.forEach((step, i) => step.classList.toggle("is-on", i === index));
@@ -196,6 +201,7 @@ const icons = [
     chips.forEach((chip) => chip.addEventListener("click", (event) => {
       event.preventDefault();
       show(Number(chip.dataset.chip), event.detail === 0);
+      reveal(steps[current]);
     }));
     prev.addEventListener("click", (event) => show(current - 1, event.detail === 0));
     next.addEventListener("click", (event) => show(current + 1, event.detail === 0));
