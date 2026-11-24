@@ -33,7 +33,7 @@ away: ${away.name}, ${away.score} (periods ${away.periods.join(", ")})
 date: ${fixture.date}`;
 
 const stops = [
-  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector follows a link that the school's schedule page published. It never builds a URL by guessing.", artifact: box.source_url, risk: "Without it: guessed URLs quietly return the wrong page." },
+  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector works from a list of the sites it must ask and follows the links each schedule page publishes. It never guesses a URL, and it records which pages answered and which did not.", artifact: box.source_url, risk: "Without it: a page that never arrived leaves no trace, and a guessed URL quietly returns the wrong page." },
   { name: "Archive", zone: "raw", title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
   { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The school's own schedule must list this match and link to this page. Then the page itself must name the match date and show exactly two teams.", artifact: `schedule lists this match and links here: yes\ntitle names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
   { name: "Parse", zone: "clean", title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
@@ -54,6 +54,13 @@ const hook = [
   { label: "Whether it downloaded everything", why: "A fair worry, and it is where this course starts. “No errors” says nothing about pages that never arrived, and a page that did arrive can still be the wrong one." },
   { label: "Whether the numbers are right", why: "That is the hard part. Nothing in “no errors” tells you the scores belong to the right teams and seasons." },
   { label: "Whether “no errors” checked anything", why: "The right suspicion. “No errors” means the code finished. It says nothing about whether anyone tested the result." },
+];
+
+const dunmoreLooks = [
+  { label: "Fetch", sees: "Which pages it asked for, and which answered", why: "Start there. Fetch is the one step that knows what it tried to collect. Module 1 opens that record." },
+  { label: "Prove", sees: "Pages that arrived", why: "Prove can only judge a page it received. A page that never came is not in front of it." },
+  { label: "Check", sees: "Finished records, against written rules and each other", why: "Check might notice that six looks low. It cannot tell you where the other games went." },
+  { label: "Build", sees: "Only the clean files", why: "Build publishes what it was given, so it would print six with confidence." },
 ];
 
 const cases = [
@@ -91,13 +98,13 @@ const cases = [
     ],
   },
   {
-    failure: "Two calculations disagree",
-    evidence: "same match, two independent pipelines\npipeline A:  Harbor Point 2, Eastbrook State 1\npipeline B:  Harbor Point 2, Eastbrook State 2",
+    failure: "Two sources disagree",
+    evidence: "same match, two pages\nschedule page:  Harbor Point 2, Eastbrook State 1\nmatch page:     Harbor Point 2, Eastbrook State 2",
     ask: "Which step should stop this from reaching readers?",
     options: [
-      { label: "Parse", sees: "One page at a time", why: "One of the parsers may be the cause, but neither can see the other's answer." },
-      { label: "Resolve", sees: "Names and the list of known schools", why: "Both pipelines agree on who played. The disagreement is about the score." },
-      { label: "Check", sees: "Finished records, against written rules and each other", why: "Right. A parity gate compares the two results and holds the release until someone explains the difference.", correct: true },
+      { label: "Parse", sees: "One page at a time", why: "A misread page may be the cause, but Parse reads one page at a time and cannot compare them." },
+      { label: "Resolve", sees: "Names and the list of known schools", why: "Both pages agree on who played. The disagreement is about the score." },
+      { label: "Check", sees: "Finished records, against written rules and each other", why: "Right. Check compares the two and holds the release until someone explains the difference.", correct: true },
       { label: "Build", sees: "Only the clean files", why: "If Build runs first, your readers find the disagreement before you do." },
     ],
   },
@@ -111,7 +118,7 @@ const zones = [
 
 const ideas = [
   ["Archive first, parse later", "The saved pages are the evidence of what each site served. The clean files are a calculation from them."],
-  ["Prove before you read", "A page has to show it is what was asked for. No proof means no data, and a named gap."],
+  ["Prove the page before extracting records", "A page has to show it is what was asked for. No proof means no data, and a named gap."],
   ["Absence is data", "The pipeline records what it did not find and why. Unknown never becomes zero."],
   ["Code computes, the model writes", "Code computes every number. AI may only repeat one that can be traced, and anything else is dropped."],
 ];
@@ -123,7 +130,7 @@ const ideas = [
   <noscript><p class="pt-note">This tour is interactive. Turn on JavaScript to make each decision and see its feedback.</p></noscript>
 
   <header class="pt-hero">
-    <h2>Before you publish, look inside</h2>
+    <h2>It is 4:52, and the chair is yours</h2>
     <p>Go back to 4:52, before Riley's tap, and take the chair yourself. This is what Kick just sent you.</p>
     <div class="pt-ai">
       <p class="pt-who">Kick <span>scripted example</span></p>
@@ -160,8 +167,16 @@ const ideas = [
         </article>
       ))}
     </div>
+    <div class="pt-group pt-dunmore" role="group" aria-labelledby="pt-dunmore-q" data-dunmore hidden>
+      <p class="pt-q" id="pt-dunmore-q">You have seen all seven. Where would you look first for Dunmore's missing games?</p>
+      <div class="pt-options pt-sees">
+        {dunmoreLooks.map((o) => <button type="button" data-look={o.why}><strong>{o.label}</strong><span>Can see: {o.sees}</span></button>)}
+      </div>
+      <p class="pt-feedback neutral" role="status" data-look-note></p>
+    </div>
     <div class="pt-nav">
       <button type="button" class="pt-back" data-back disabled>Back</button>
+      <a class="pt-back" data-tour-exit href="../../modules/01-collection/" hidden>Start Module 1</a>
       <button type="button" class="pt-next" data-forward>Next step</button>
     </div>
   </section>
@@ -273,7 +288,7 @@ const ideas = [
   .pt pre code { padding: 0; background: none; font-size: inherit; overflow-wrap: anywhere; white-space: pre-wrap; }
   [data-zone-feedback] + .pt-next { margin-top: 0.75rem; }
   .pt-risk { margin-bottom: 0 !important; font-weight: 600; }
-  .pt-nav { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.75rem; }
+  .pt-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; margin-top: 0.75rem; }
   .pt-next, .pt-back, .pt-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0.55rem 1.05rem; border-radius: 3px; font-weight: 700; cursor: pointer; text-decoration: none; }
   .pt-next, .pt-link { border: 0; background: var(--sl-color-accent); color: var(--sl-color-black); }
   :root[data-theme="light"] .pt-next, :root[data-theme="light"] .pt-link { color: #fff; }
@@ -340,6 +355,7 @@ const ideas = [
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const behavior: ScrollBehavior = calm ? "auto" : "smooth";
     const startTour = root.querySelector<HTMLButtonElement>("[data-start-tour]")!;
+    let hasFirst = false;
     try {
       const first = localStorage.getItem("touchline-first-ask");
       if (first) {
@@ -348,7 +364,7 @@ const ideas = [
         root.querySelector<HTMLElement>("[data-first-return-text]")!.textContent = first;
         root.querySelector<HTMLElement>("[data-first-return]")!.hidden = false;
         root.querySelector<HTMLElement>("[data-hook]")!.hidden = true;
-        startTour.hidden = false;
+        hasFirst = true;
       }
     } catch {}
     const returnNote = root.querySelector<HTMLElement>("[data-return-note]")!;
@@ -362,6 +378,7 @@ const ideas = [
       target.classList.add("is-open");
       return target;
     };
+    if (hasFirst) open("tour");
     const present = (section: HTMLElement, fromKeyboard: boolean) => {
       const heading = section.querySelector<HTMLElement>("h2");
       heading?.focus({ preventScroll: true });
@@ -424,9 +441,24 @@ const ideas = [
     const panels = [...root.querySelectorAll<HTMLElement>("[data-panel]")];
     const back = root.querySelector<HTMLButtonElement>("[data-back]")!;
     const forward = root.querySelector<HTMLButtonElement>("[data-forward]")!;
+    const dunmore = root.querySelector<HTMLElement>("[data-dunmore]")!;
+    const tourExit = root.querySelector<HTMLElement>("[data-tour-exit]")!;
+    const skip = root.querySelector<HTMLAnchorElement>("[data-skip]")!;
+    const lookNote = root.querySelector<HTMLElement>("[data-look-note]")!;
+    const looks = [...dunmore.querySelectorAll<HTMLButtonElement>("[data-look]")];
+    looks.forEach((look) => look.addEventListener("click", () => {
+      looks.forEach((b) => b.classList.toggle("is-chosen", b === look));
+      lookNote.textContent = look.dataset.look!;
+    }));
+    let practicing = false;
+    let closed = false;
     let current = 0;
     const show = (index: number) => {
       current = index;
+      const last = index === stops.length - 1;
+      dunmore.hidden = !last;
+      tourExit.hidden = !last;
+      skip.hidden = closed || (last && !practicing);
       stops.forEach((stop, i) => {
         stop.toggleAttribute("aria-current", false);
         if (i === index) stop.setAttribute("aria-current", "step");
@@ -453,6 +485,9 @@ const ideas = [
         else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: "nearest" });
         return;
       }
+      practicing = true;
+      skip.textContent = "Skip the practice and start Module 1";
+      skip.hidden = false;
       present(open("cases"), event.detail === 0);
     });
     show(0);
@@ -525,7 +560,8 @@ const ideas = [
     toClose.addEventListener("click", (event) => {
       toClose.hidden = true;
       reset.hidden = true;
-      root.querySelector<HTMLElement>("[data-skip]")!.hidden = true;
+      closed = true;
+      skip.hidden = true;
       present(open("close"), event.detail === 0);
     });
   }

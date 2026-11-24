@@ -44,8 +44,12 @@ const transcript: [string, string][] = [
   </details>
 
   <form class="fo-ask" data-ask>
+    <div class="fo-claim">
+      <p class="fo-who">Kick, the coding agent</p>
+      <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
+    </div>
     <label for="fo-answer">Before you press Publish, what would you ask it?</label>
-    <p>Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It stays with you through the course and comes back on the last page.</p>
+    <p>Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It comes back on the next page, in Module 1 and on the last page.</p>
     <div class="fo-row">
       <input id="fo-answer" type="text" maxlength="240" autocomplete="off" data-answer />
     </div>
@@ -68,6 +72,7 @@ const transcript: [string, string][] = [
   .fo-play[hidden] { display: none; }
   .fo .fo-play:focus-visible { outline-color: #f4c62f; }
   @media (max-width: 30rem) { .fo-play { min-height: 44px; padding: 0.35rem 0.8rem 0.35rem 2.1rem; font-size: 0.88rem; } .fo-play::before { left: 0.85rem; } }
+  @media (max-height: 30rem) and (orientation: landscape) { .fo-player { max-width: min(100%, calc((100svh - 1rem) * 16 / 9)); } .fo-play { min-height: 44px; white-space: nowrap; } }
   .fo-map { max-width: 52rem; margin: 0 auto 2rem; border-top: 1px solid var(--tl-line); }
   .fo-map > summary { display: flex; align-items: center; min-height: 44px; font-weight: 700; cursor: pointer; }
   .fo p { margin: 0 0 0.6rem; }
@@ -79,6 +84,9 @@ const transcript: [string, string][] = [
   .fo-script dt { color: var(--tl-muted); font-size: 0.85rem; font-weight: 700; }
   .fo-script dd { margin: 0; }
   .fo-ask { margin-bottom: 1.3rem; padding: 1rem; border-left: 3px solid #f4c62f; background: var(--tl-card); }
+  .fo-claim { margin-bottom: 0.9rem; padding-left: 0.75rem; border-left: 3px solid var(--sl-color-accent); }
+  .fo .fo-claim p:last-child { margin-bottom: 0; }
+  .fo .fo-who { margin-bottom: 0.1rem; font-size: 0.85rem; font-weight: 700; }
   .fo-ask label { display: block; margin-bottom: 0.25rem; color: var(--sl-color-white); font-size: clamp(1.25rem, 3.6vw, 1.55rem); font-weight: 750; line-height: 1.2; }
   .fo-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .fo-row input { flex: 1 1 16rem; min-width: 0; min-height: 44px; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font: inherit; }
