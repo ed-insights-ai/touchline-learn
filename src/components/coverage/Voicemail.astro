@@ -1,0 +1,46 @@
+---
+import { clips } from "../../lib/cases";
+
+interface Props { who: keyof typeof clips; caller: string; time: string; line: string; small?: boolean }
+const { who, caller, time, line, small = false } = Astro.props;
+const [start, end] = clips[who];
+const film = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}film/publish-day.mp4`;
+---
+
+<div class:list={["cv-vm", { "is-small": small }]}>
+  <p class="cv-who">{caller} <span>voicemail, {time}</span></p>
+  <p class="cv-vm-line">“{line}”</p>
+  <button type="button" class="cv-vm-play" data-vm={film} data-vm-start={start} data-vm-end={end} aria-label={`Play the call from ${caller}, from the film's audio`} aria-pressed="false" hidden>Play the call</button>
+</div>
+
+<script>
+  let media: HTMLAudioElement | null = null;
+  let playing: HTMLButtonElement | null = null;
+  let end = 0;
+  const reset = () => {
+    playing?.setAttribute("aria-pressed", "false");
+    playing = null;
+  };
+  document.querySelectorAll<HTMLButtonElement>("[data-vm]").forEach((button) => {
+    button.hidden = false;
+    button.addEventListener("click", () => {
+      if (!media) {
+        media = new Audio();
+        media.preload = "none";
+        media.src = button.dataset.vm!;
+        media.addEventListener("timeupdate", () => { if (media!.currentTime >= end) media!.pause(); });
+        media.addEventListener("pause", () => { if (media!.paused) reset(); });
+        media.addEventListener("ended", reset);
+      }
+      const again = playing === button;
+      if (!media.paused) media.pause();
+      reset();
+      if (again) return;
+      end = Number(button.dataset.vmEnd);
+      media.currentTime = Number(button.dataset.vmStart);
+      playing = button;
+      button.setAttribute("aria-pressed", "true");
+      media.play().catch(() => { reset(); button.textContent = "Audio could not play here"; });
+    });
+  });
+</script>

@@ -1,0 +1,40 @@
+---
+import { pipeline } from "../../lib/cases";
+import { bounds, story } from "../../lib/coverage";
+
+type Step = "scrape" | "store" | "parse" | "build" | "report";
+interface Props { lit?: Step; small?: boolean; note?: string }
+const { lit, small = false, note } = Astro.props;
+
+const steps: { key: Step; name: string; what: string; out: string; loss?: string }[] = [
+  { key: "scrape", name: "Scrape", what: `ask for ${pipeline.asked} schedules`, out: `${pipeline.silent} site does not answer`, loss: `${pipeline.silent} page lost here` },
+  { key: "store", name: "Store", what: `${pipeline.saved} pages saved`, out: "plus a log of requests" },
+  { key: "parse", name: "Parse", what: "tables into rows", out: "date, opponent, score" },
+  { key: "build", name: "Build", what: "host's page per match", out: `${story.counted} matches, ${pipeline.rows} rows`, loss: `${bounds.unseen} matches lost here` },
+  { key: "report", name: "Report", what: "counts and errors", out: "“no errors”", loss: "neither loss is mentioned" },
+];
+const litName = steps.find((s) => s.key === lit)?.name;
+---
+
+{small ? (
+  <div class="cv-pipe is-small">
+    <ol aria-label={`Kick's pipeline${litName ? `. ${note ?? `This case happens at ${litName}`}.` : ""}`}>
+      {steps.map((s) => <li class:list={{ "is-lit": s.key === lit }} aria-current={s.key === lit ? "step" : undefined}>{s.name}</li>)}
+    </ol>
+    {note && <p aria-hidden="true">{note}</p>}
+  </div>
+) : (
+  <figure class="cv-pipe">
+    <ol>
+      {steps.map((s) => (
+        <li class:list={{ "is-lit": s.key === lit, "has-loss": !!s.loss }}>
+          <b>{s.name}</b>
+          <span>{s.what}</span>
+          <span>{s.out}</span>
+          {s.loss && <em>{s.loss}</em>}
+        </li>
+      ))}
+    </ol>
+    <figcaption>What Kick built from one sentence, with what left each step. The report comes from the last step and says nothing about the first or the fourth.</figcaption>
+  </figure>
+)}

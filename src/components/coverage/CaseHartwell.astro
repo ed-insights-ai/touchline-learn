@@ -1,0 +1,93 @@
+---
+import Bench from "./Bench.astro";
+import Pipeline from "./Pipeline.astro";
+import Voicemail from "./Voicemail.astro";
+import { bounds, pack, story } from "../../lib/coverage";
+import { dunmoreSplit, hartwell, pipeline, spell } from "../../lib/cases";
+
+const signed = (n: number) => (n > 0 ? `+${n}` : String(n));
+const dots = [
+  { label: "schedule pages saved", of: pipeline.asked, got: pipeline.saved, lost: pipeline.silent },
+  { label: "finished matches read", of: story.finals, got: story.counted, lost: bounds.unseen },
+];
+---
+
+<section id="case-hartwell">
+  <h2>Case 2. Hartwell: gaps arrive in blocks</h2>
+  <Pipeline small lit="build" note="This case happens at Build" />
+
+  <h3 class="cv-beat">The call</h3>
+  <Voicemail small who="dolan" caller="Coach Dolan, Hartwell" time="5:41" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
+  <p>Hartwell's own page arrived on time. Its row is wrong anyway.</p>
+
+  <h3 class="cv-beat">Look</h3>
+  <p>Kick read each match once, from the host's page, so that no match was counted twice. The {hartwell.seven} was played at Dunmore.</p>
+  <div class="cv-check" data-once="rows">
+    <div data-q data-type="number" data-answer={pipeline.rows} data-why={`All ${spell(pipeline.rows)}. Dunmore is missing its ${spell(bounds.unseen)} home matches, and each of the other ${spell(bounds.unseen)} schools is missing its trip to Dunmore.`}>
+      <label for="cv-rows">Predict first. One schedule page is missing. How many of the {spell(pipeline.rows)} table rows are wrong?</label>
+      <input id="cv-rows" inputmode="numeric" autocomplete="off" data-save="q-rows" />
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <p class="cv-once">One attempt, then the bench opens.</p>
+    <button type="button" data-submit>Check, and open the bench</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal">
+      <p>Take pages down and bring them back. Each page takes a whole row of matches with it, and rows whose own pages arrived go wrong.</p>
+      <Bench id="bench-pages" controls={["pages"]} caption="Friday as it happened. Press a school's page to take it down or bring it back." />
+      <p>Now keep Dunmore down and change how each match is read.</p>
+      <Bench id="bench-rule" controls={["rule"]} show={["counts", "matrix", "table"]} caption="Dunmore's page is still down. Switch the reading rule." />
+      <p>With both schools' pages read, the {spell(bounds.unseen)} come back from the visitors' pages and Hartwell Tech is second.</p>
+    </div>
+  </div>
+  <figure class="cv-split">
+    <table>
+      <caption>What the block does to one team's figures</caption>
+      <thead><tr><th scope="col">Dunmore</th><th scope="col">Matches</th><th scope="col">Conceded a match</th><th scope="col">Goal difference</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">In Kick's table</th><td>{dunmoreSplit.kick.p}</td><td>{dunmoreSplit.kick.perMatch}</td><td>{signed(dunmoreSplit.kick.gd)}</td></tr>
+        <tr><th scope="row">On all {dunmoreSplit.all.p}</th><td>{dunmoreSplit.all.p}</td><td>{dunmoreSplit.all.perMatch}</td><td>{signed(dunmoreSplit.all.gd)}</td></tr>
+      </tbody>
+    </table>
+    <figcaption>Kick's table held every Dunmore away match and no home match, so a defence that leaked at home looks sound.</figcaption>
+  </figure>
+
+  <h3 class="cv-beat">Name it</h3>
+  <p class="cv-lede">Gaps arrive in blocks. One cause removes related records together, and a block lands on the same teams again and again.</p>
+  <p>So count in the unit the claim is made in, the <strong>unit of analysis</strong>. Counted in pages, Kick lost one in {spell(pipeline.asked)}. A table makes claims about matches, and in matches that one page cost {bounds.unseen} of {story.finals} and touched every row.</p>
+  <div class="cv-dots">
+    {dots.map((d) => (
+      <>
+        <p><b>{d.got} of {d.of}</b> {d.label}</p>
+        <div role="img" aria-label={`${d.got} of ${d.of} ${d.label}, ${d.lost} lost with Dunmore's page${d.of - d.got - d.lost ? `, ${d.of - d.got - d.lost} with no score` : ""}`}>{Array.from({ length: d.of }, (_, i) => <i class={i < d.got ? "is-read" : i < d.got + d.lost ? "is-lost" : "is-noscore"}></i>)}</div>
+      </>
+    ))}
+    <ul class="cv-key">
+      <li><i class="is-read"></i>Arrived and read</li>
+      <li><i class="is-lost"></i>Lost with Dunmore's page</li>
+      <li><i class="is-noscore"></i>Final, no score</li>
+    </ul>
+  </div>
+  <p>Until a result is recovered, you can still limit its effect. Kick's table has Hartwell Tech on {hartwell.pts} points, and one Hartwell match was never read. A loss adds nothing and a win adds 3, so the true total lies between {hartwell.pts} and {hartwell.high}. That pair is a <strong>bound</strong>: you do not know the value, and you do know where it cannot be.</p>
+
+  <h3 class="cv-beat">What Touchline does</h3>
+  <p>Touchline reads both schools' pages and collapses the duplicate, so a match is lost only when both pages are. The cost is a matching step: one match, written two ways on two sites, has to be recognised as one. <a href="../05-identity/">Module 5</a> is about that step.</p>
+
+  <h3 class="cv-beat">Your claim</h3>
+  <div class="cv-check" data-once="claim-bounds">
+    <div data-q data-type="range" data-answer={`${bounds.points},${bounds.high}`} data-why={`${bounds.points} to ${bounds.high}. If Dunmore lost all ${spell(bounds.unseen)} it stays on ${bounds.points}. If it won all ${spell(bounds.unseen)} it gains ${3 * bounds.unseen}. Its real total turned out to be ${pack.dunmorePoints}, inside the range, as it had to be.`}>
+      <p class="cv-qlabel">Kick's table gives Dunmore {bounds.points} points from {spell(bounds.played)} matches, and {spell(bounds.unseen)} of its matches were never read. Write the line that belongs beside it.</p>
+      <p class="cv-row cv-fillin">
+        <span>Dunmore: {bounds.points} points so far, truly between</span>
+        <input inputmode="numeric" autocomplete="off" aria-label="Lowest possible total" data-save="q-low" />
+        <span>and</span>
+        <input inputmode="numeric" autocomplete="off" aria-label="Highest possible total" data-save="q-high" />
+      </p>
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <p class="cv-once">One attempt.</p>
+    <button type="button" data-submit>Check my bounds</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>The bounds name who is affected and how far each number can move, before a single score is recovered.</p></div>
+  </div>
+  <p class="cv-next">With every page answering, the table would hold {story.afterRepair} matches, one short of {story.finals}. Case 3 is about that one.</p>
+</section>

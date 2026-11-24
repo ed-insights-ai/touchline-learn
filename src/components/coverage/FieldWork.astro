@@ -1,0 +1,403 @@
+---
+import CoverageStyles from "./Styles.astro";
+import CoverageRuntime from "./Runtime.astro";
+import FirstRunTable from "../FirstRunTable.astro";
+import CoverageGrid from "../CoverageGrid.astro";
+import { repaired, reported, run } from "../../lib/first-run";
+import { LAYERS, bounds, harborDark, pack, packB, sampleCells, story, unseen } from "../../lib/coverage";
+
+const map = [
+  ["assistant", "Test your own assistant", "About 20 minutes. Give an AI the pages Kick got and see what it tells you"],
+  ["brief", "Your brief", "About 5 minutes. The clause you would give any AI before it collects for you"],
+  ["statistics", "Statistics of the gap", "About 10 minutes. Survey terms, denominators, bounds and their limits"],
+  ["platform", "How Touchline builds it", "About 10 minutes. Units of work, merge, atomic write, collecting again"],
+  ["lab", "The lab", "About 15 minutes. Write Friday's coverage record in Python"],
+];
+
+const states = [
+  { key: "complete", name: "Complete" },
+  { key: "empty", name: "Empty" },
+  { key: "unavailable", name: "Unavailable" },
+  { key: "no-collector", name: "No collector" },
+];
+const stateOptions = [...states.map((s) => [s.key, s.name]), ["none", "None of the four"]];
+
+const kickPlan = [
+  "For each of the eight school sites, download the schedule page.",
+  "Parse each results table into rows: date, opponent, score.",
+  "If a page fails to load, retry up to three times, then log a warning with the school's name and continue so the run finishes.",
+  "Read each match once, from the home team's page, to avoid counting it twice.",
+  "Compute played, goal difference and points, sort, and write the table.",
+  "Print a summary: pages fetched, matches found, errors.",
+];
+const planAudit = [
+  { key: "pages", q: "Says which pages the collector will ask for", answer: "1", why: "Step 1. Eight schedule pages. It lists the requests, and that is the only expectation the plan ever states." },
+  { key: "fail", q: "Says what the collector does when a site does not answer", answer: "3", why: "Step 3: retry, warn, continue. The plan does handle the failure." },
+  { key: "named", q: "Makes the finished summary name the site that failed", answer: "0", why: "No step does. Step 3 comes close: it writes the school's name to a log. The finished summary is step 6, and step 6 prints counts. Riley read the summary." },
+  { key: "empty", q: "Tells a page with nothing on it apart from a page that never arrived", answer: "0", why: "No step does. Both end as zero rows." },
+  { key: "total", q: "Says how many matches the finished table should hold", answer: "0", why: "No step does. Step 6 reports “matches found,” a count with nothing to compare it to." },
+  { key: "once", q: "Stops the same match being counted twice", answer: "4", why: "Step 4. It is a sensible rule, and it is the rule that turned one missing page into seven missing matches." },
+  { key: "keep", q: "Stops a later, partial run erasing what this run recorded", answer: "0", why: "No step does. Every run starts from nothing and writes over what was there." },
+];
+const members = `${pack.members.slice(0, -1).join(", ")} and ${pack.members.at(-1)}`;
+const packPrompt = `Here are this season's men's soccer schedule pages from the Prairie Lakes Conference school sites. The eight members are ${members}. Build the conference table I can publish.`;
+const volunteer = ["That Dunmore's own page is missing from what it was given", "That one finished match has no score", "How many matches the table counts, out of how many are finished"];
+const tutorPrompt = "Explain the difference between data that is missing completely at random, missing at random, and missing not at random. Give one example of each from collecting data off websites, not from surveys. Then tell me what I would need to observe to tell them apart.";
+
+const model = `Coverage. Before fetching, write the list of what this job expects: every school from the membership list, every kind of page, and the number of matches the table needs. Every expected item ends in exactly one state: complete, empty, unavailable, or no collector, with a reason for the last three. A named gap does not fail the run. A run that cannot write this record does. Every published figure says how many items it counted out of how many it expected, and names each gap.
+
+Acceptance example. Given the seven saved schedule pages with Dunmore's missing: the summary says no Dunmore page was supplied and where Dunmore's results came from, the table counts ${story.afterRepair} of ${story.finals} finished matches, and September 21 is named as final with no score.`;
+
+const terms = [
+  { term: "Undercoverage", def: "A unit the job needed that was never on the list.", friday: "the box score pages of every school but Alder Ridge. Kick's plan never listed them, so no log could show them missing. One of them, linked from Cedar Grove's schedule, may hold the September 21 score the table lacks." },
+  { term: "Unit nonresponse", def: "A unit on the list that did not answer.", friday: "Dunmore's schedule page." },
+  { term: "Item nonresponse", def: "A unit that answered with one item blank.", friday: "the September 21 score on Cedar Grove's schedule. The page arrived and the row is there, marked final, with no score." },
+  { term: "Overcoverage", def: "A list that holds too much.", friday: "the schedule pages also list non-conference and tournament matches the table must not count, and every conference match sits on two schools' pages, so reading both without collapsing them counts it twice." },
+];
+
+const sourceOptions = [["rule", "The membership list, and the rule that each school hosts every other"], ["file", "Counting the conference matches in the season file"], ["mixed", "The membership list, plus every match found on the collected schedules"], ["last", "The 2026 figure, since it is the same conference"]];
+
+const actions = [["retry", "Run the same collection again later"], ["reader", "Write new collecting code for that site"], ["inspect", "Have a person examine the site by hand"], ["upstream", "Fix something else first"], ["source", "Look to another school's site"], ["wait", "Nothing. It is not a gap"]];
+const stateName: Record<string, string> = { complete: "Complete", empty: "Empty", unavailable: "Unavailable", "no-collector": "No collector", "not-asked": "Not asked" };
+const square = (slug: string, layer: string) => {
+  const row = unseen.grid.find((r) => r.slug === slug)!;
+  const at = LAYERS.findIndex((l) => l.key === layer);
+  return { name: `${row.name}, ${LAYERS[at].label}`, ...row.cells[at] };
+};
+const gaps = [
+  { key: "dun", ...square("dunmore", "schedule"), answer: "reader", why: "No collector. The 2025 pages are in a form nothing can read, so asking again returns the same thing. The work is a new reader." },
+  { key: "hp-s", ...square("harbor-point", "schedule"), answer: "wait", why: "It is complete. Harbor Point's gap is in its box scores, and a gap in one layer says nothing about the others." },
+  { key: "eb-s", ...square("eastbrook-state", "schedule"), answer: "inspect", why: "A page did arrive and could not prove its season. Asking again will most likely be served the same page, so a person has to look at what the site sends for 2025 and decide whether it can be proved." },
+  { key: "eb-m", ...square("eastbrook-state", "matches"), answer: "upstream", why: "Its reason names the schedule. Box score links are discovered from a proved schedule, so this square cannot close until that one does." },
+  { key: "hp-m", ...square("harbor-point", "matches"), answer: "source", why: `The site no longer serves those pages, so no retry and no new reader brings them back from Harbor Point. The only place left is the other school in each match, if that school publishes its own copy. For ${harborDark} of the eight, the other school is Dunmore or Eastbrook State, where nothing could be collected either.` },
+];
+
+const pseudo = `expected = every (school, page kind) the job needs
+
+for cell in expected:
+    if no reader for cell:
+        record(cell, "no collector")
+        continue
+    page = fetch(cell)
+    if page never arrived:
+        record(cell, "unavailable", why)
+        continue
+    if cannot prove(page):
+        record(cell, "unavailable", why)
+    elif page holds no rows:
+        record(cell, "empty")
+    else:
+        record(cell, "complete", count)
+
+succeed if the record was written and is true,
+gaps and all`;
+
+const merge = [["Last week's record", "cccccccc"], ["Today's run", "cu......"], ["If today overwrites", "cu......"], ["If today merges", "cucccccc"]];
+const count = (row: string, x: string) => [...row].filter((c) => c === x).length;
+
+const ht = reported.find((r) => r.slug === "hartwell-tech")!;
+const bytes = (n: number) => n.toLocaleString("en-US");
+---
+
+<CoverageRuntime />
+
+<div class="cv not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
+  <div class="fw-intro">
+    <p>This page is optional. <a href="../01-collection/">The Module 1 lesson</a> teaches the idea on screen. Come here to test your own AI assistant on the pages Kick got, or to go further into the statistics, the platform and the lab.</p>
+    <p>Every section uses the same Friday. Riley asked Kick, an AI coding agent, to collect the season's results from eight school sites and build a conference table. Dunmore's schedule page never answered, Kick read each match only from the host's page, and the table it called done held {story.counted} of {story.finals} finished matches. Each section stands on its own, so start with the one you came for.</p>
+    <ol class="cv-map">
+      {map.map(([id, name, what]) => <li><a href={`#${id}`}><b>{name}</b><span>{what}</span></a></li>)}
+    </ol>
+  </div>
+
+  <section id="assistant">
+    <h2>Test your own assistant</h2>
+    <p class="fw-for">This section is for anyone who hands data collection or summaries to an AI. You give your assistant the pages Kick got on Friday, see whether it tells you what is missing, and then write a prompt that makes it tell you. It needs an assistant open in another tab. Step 1 works without one.</p>
+
+    <h3>Step 1. Audit Kick's plan</h3>
+    <p>Kick wrote this plan from Riley's one sentence and followed it for the schedule pages. You audit it, and the page checks you.</p>
+    <ol class="cv-plan">{kickPlan.map((x) => <li>{x}</li>)}</ol>
+    <div class="cv-check" data-once="plan">
+      <p class="cv-qlabel">For each requirement, pick the step that meets it, or “No step.”</p>
+      {planAudit.map((a) => (
+        <div class="cv-line" data-q data-type="select" data-answer={a.answer} data-why={a.why}>
+          <label><span>{a.q}</span>
+            <select data-save={`plan-${a.key}`}>
+              <option value="">Choose</option>
+              {kickPlan.map((_, i) => <option value={String(i + 1)}>Step {i + 1}</option>)}
+              <option value="0">No step</option>
+            </select>
+          </label>
+          <p class="cv-fb" role="status"></p>
+        </div>
+      ))}
+      <p class="cv-once">One attempt. Read the plan closely before you check.</p>
+      <button type="button" data-submit>Check my audit</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>Three of the four requirements with no step would have stopped Riley publishing. The fourth protects next week's run.</p>
+      </div>
+    </div>
+
+    <h3>Step 2. Give your assistant the pages Kick got</h3>
+    <p>Seven schedule pages came back on Friday. This is their text as the sample holds it: every regular-season row of every page, non-conference matches included. Dunmore's page is not in it, and nothing in it says so. The page you are reading holds the right table for these pages, and it will search your assistant's answer for it.</p>
+    <p>A summary that told the truth about these pages would volunteer three things:</p>
+    <ol class="cv-cases">{volunteer.map((v) => <li>{v}</li>)}</ol>
+    <label class="cv-inline">Before you paste: how many of the three will your assistant volunteer?
+      <select data-save="predict"><option value="">Choose</option>{[0, 1, 2, 3].map((n) => <option>{n}</option>)}</select>
+    </label>
+    <div class="cv-prompt">
+      <pre class="cv-pack" tabindex="0" data-copy-text>{`${packPrompt}\n\n${pack.text}`}</pre>
+      <button type="button" data-copy data-label="Copy the prompt and the seven pages">Copy the prompt and the seven pages</button>
+    </div>
+    <p>Paste it into a fresh chat and let it answer. Ask nothing further. Then paste its whole answer here, table and all.</p>
+    <div class="cv-evidence" data-evidence="first" data-absent="Dunmore" data-played={pack.dunmorePlayed} data-points={pack.dunmorePoints} data-host={bounds.played}>
+      <label class="cv-write" for="cv-first-answer">Your assistant's first answer</label>
+      <textarea id="cv-first-answer" rows="6" data-save="answer-first"></textarea>
+      <ul class="cv-found" data-found></ul>
+      <p class="cv-fb" role="status" data-evidence-note></p>
+      <div class="cv-reveal">
+        <p>This is the table those seven pages support: {pack.scored} of {story.finals} finished matches, with all {pack.dunmorePlayed} of Dunmore's results taken from its opponents' pages. P counts matches with a score, so Cedar Grove and St. Lambert have each played one more than it shows.</p>
+        <FirstRunTable rows={repaired} caption="What the seven pages support" />
+        <p>The search is plain text matching, so read the answer yourself as well. If the page says “not found” for something your assistant did say in other words, count it as found.</p>
+      </div>
+    </div>
+
+    <h3>Step 3. Rewrite, and test it on pages you have not seen</h3>
+    <p>Now make the coverage record a requirement. If you worked through the lesson, you already added one sentence to Riley's request. It is a good place to start.</p>
+    <div class="cv-mark"><div>
+      <p class="cv-who">The sentence you added to Riley's request in the lesson</p>
+      <p class="cv-yousaid"><span data-show="added">nothing yet</span></p>
+      <p>If this says “nothing yet,” this browser has no sentence from <a href="../01-collection/#rewind">the lesson's rewind</a>. Start from a blank box. That works too.</p>
+    </div></div>
+    <label class="cv-write" for="cv-rewrite">Rewrite the first paragraph of the prompt so that any answer has to carry its own coverage record. Write it to work on pages you have not read: it must not name a school, a date or a count.</label>
+    <textarea id="cv-rewrite" rows="5" data-save="rewrite"></textarea>
+    <p class="cv-fb" role="status" data-leak></p>
+    <p>Here is a second set of seven pages from the same season, with a different page missing. The page will not say which until your assistant has answered. Start a fresh chat and paste your paragraph, then these pages.</p>
+    <div class="cv-prompt">
+      <pre class="cv-pack" tabindex="0" data-copy-text>{`The eight members are ${members}.\n\n${packB.text}`}</pre>
+      <button type="button" data-copy data-label="Copy the second set of pages">Copy the second set of pages</button>
+    </div>
+    <div class="cv-evidence" data-evidence="second" data-absent={packB.absent} data-played={packB.played} data-points={packB.points}>
+      <label class="cv-write" for="cv-second-answer">The fresh chat's answer</label>
+      <textarea id="cv-second-answer" rows="6" data-save="answer-second"></textarea>
+      <ul class="cv-found" data-found></ul>
+      <p class="cv-fb" role="status" data-evidence-note></p>
+    </div>
+    <p>Five found, on pages your prompt had never seen, is a good sign that the prompt works beyond the one case it was written on. It is not proof. The page matches words and numbers, and an answer can contain the right words and a wrong table. Check the missing school's row and the count against what you read yourself. If something is missing, change the prompt and try a fresh chat. If it will not come after three tries, stop and keep that result. Some assistants miscount a table this size however they are asked, which is an arithmetic failure and a different one from hiding a gap.</p>
+    <p>If your assistant found everything on the first run, without help, it did what Kick did not. The second set tells you whether it does so reliably, and your prompt is what makes that a requirement instead of luck.</p>
+  </section>
+
+  <section id="brief">
+    <h2>Your brief</h2>
+    <p class="fw-for">This section is for leaving with something you can reuse: a standing clause you would give any AI before it collects anything for you, in any field, with one acceptance example. It takes about five minutes.</p>
+    <p>Riley handed over a job without knowing what to require. So finish by writing the requirement. A prompt written for one job is a start. Turn it into a standing clause, and add one acceptance example: a case with a known right answer that would catch a bad implementation.</p>
+    <div class="cv-mark">
+      <div>
+        <p class="cv-who">The sentence you added to Riley's request in the lesson</p>
+        <p class="cv-yousaid"><span data-show="added">nothing yet</span></p>
+      </div>
+      <div>
+        <p class="cv-who">The prompt you rewrote in <a href="#assistant">Test your own assistant</a></p>
+        <p class="cv-yousaid"><span data-show="rewrite">nothing yet</span></p>
+      </div>
+    </div>
+    <div class="cv-commit" data-commit>
+      <label class="cv-write" for="cv-brief">Your coverage clause, and one acceptance example</label>
+      <textarea id="cv-brief" rows="6" data-save="brief"></textarea>
+      <button type="button" disabled>Compare with a worked clause</button>
+      <p class="cv-once" data-needs-note>Write a full sentence to compare.</p>
+      <div class="cv-reveal">
+        <p class="cv-model cv-pre">{model}</p>
+        <fieldset class="cv-ticks">
+          <legend>Yours does not need these words. It needs five things. Mark the ones it has.</legend>
+          <label><input type="checkbox" data-save="brief-set" /><span>An expected set, with where it comes from</span></label>
+          <label><input type="checkbox" data-save="brief-state" /><span>A named state for every expected item</span></label>
+          <label><input type="checkbox" data-save="brief-success" /><span>Success defined as a true record</span></label>
+          <label><input type="checkbox" data-save="brief-denominator" /><span>A denominator on every published figure</span></label>
+          <label><input type="checkbox" data-save="brief-test" /><span>An acceptance example with a known right answer</span></label>
+        </fieldset>
+        <p>Anything unmarked is worth a second pass. Edit your clause above until all five hold.</p>
+      </div>
+    </div>
+    <div class="cv-row"><button type="button" data-copy-brief>Copy my clause</button><span class="cv-saved" role="status" data-saved-note></span></div>
+  </section>
+
+  <section id="statistics">
+    <h2>Statistics of the gap</h2>
+    <p class="fw-for">This section is for the data science student who wants the discipline's version of the lesson: the survey terms for each kind of hole, where a trustworthy denominator comes from, and how far a bound can be trusted. It takes about ten minutes.</p>
+
+    <h3>Four names for a hole</h3>
+    <p>On Friday Kick asked for {story.requests} pages: eight schedule pages, and {run.boxes} box scores from one school, Alder Ridge. A <strong>box score</strong> is the page for a single match. Survey statisticians have a name for each kind of hole in a run like that.</p>
+    <dl class="cv-sources">
+      {terms.map((t) => <div><dt><dfn>{t.term}</dfn></dt><dd>{t.def} On Friday, {t.friday}</dd></div>)}
+    </dl>
+    <p>The fetch log Kick kept could only ever show unit nonresponse. The other three need a list made outside the run, or a rule about what counts.</p>
+
+    <h3>Where an expected set comes from</h3>
+    <p>You cannot see a gap without a list of what should be there. That list is the <strong>expected set</strong>: every source, and every kind of page needed from each, written before the collector fetches anything. Touchline collects four kinds of page from each school, which makes a grid with one square per school and page kind. An expected set only works as a check if it does not depend on the run it is checking. It can come from three kinds of source.</p>
+    <dl class="cv-sources">
+      <div><dt>A reference you keep</dt><dd>Which schools belong to the conference this season comes from a membership list, kept by season, apart from any run. That gives the rows of the grid. If the rows came from the pages that arrived, a school that never answered would drop out of its own denominator. The list can be wrong too, so the fixture file has a flag for a list that was carried forward from the year before.</dd></div>
+      <div><dt>A rule</dt><dd>In this conference every school hosts every other once, so eight schools play 8 × 7 = {story.scheduled} conference matches. Nobody has to fetch anything to know that. The rule belongs to the competition: a conference that plays each pairing once would have 28.</dd></div>
+      <div><dt>Other pages</dt><dd>A schedule says which matches are finished, and links each box score. So what to expect from box scores is discovered from the schedule. When a schedule is unavailable, its box scores cannot even be listed, and that square is unavailable too, with the schedule as its reason.</dd></div>
+    </dl>
+    <p>Touchline uses the first and the third. The second is one you add yourself whenever you know how the competition is organised.</p>
+    <p>The third kind has a weakness the first two do not. A count discovered from collected pages can only be as complete as the pages. Without the rule, a season's denominator is “the matches we found,” and a match that appears on no collected page shrinks the denominator along with the numerator. The audit below is a season where exactly that happens.</p>
+
+    <h3>Audit the 2025 record</h3>
+    <p>This is the sample's real coverage record for the season before: Prairie Lakes men, 2025. Hartwell Tech had not joined yet, and the conference played to the same format as in 2026. Tap the squares that are not complete and read each reason.</p>
+    <CoverageGrid rows={unseen.grid} caption="Coverage record, Prairie Lakes men, 2025" id="fw-past" />
+    <p>Answer all four, then check them once. Nothing is marked until you submit.</p>
+    <div class="cv-check" data-once="past-audit">
+      <div data-q data-type="number" data-answer={unseen.expected} data-why={`${unseen.expected}. Seven schools each host the other six: 7 × 6. The membership list gives seven schools, and the format has each host every other once.`}>
+        <label for="fw-expected">How many conference matches should the 2025 season hold?</label>
+        <input id="fw-expected" inputmode="numeric" autocomplete="off" data-save="past-expected" />
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="select" data-answer="rule" data-why="The membership list and the rule. Neither depends on what this run collected. Counting the file uses the run to check itself. So does adding up the matches found on collected schedules: a match that no collected page lists never enters that count.">
+        <label for="fw-expected-how">Which source gives that number without depending on this run?</label>
+        <select id="fw-expected-how" data-save="past-source"><option value="">Choose</option>{sourceOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="number" data-answer={unseen.expected - unseen.held} data-why={`Two. With both schools' pages read for every match, a match is lost only when both of its schools are missing. One pair qualifies, and it met twice. The season file holds ${unseen.held} conference matches, which confirms it.`}>
+        <label for="fw-lost">Reading both schools' schedules, as Touchline does: how many of those matches can no collected schedule tell you about?</label>
+        <input id="fw-lost" inputmode="numeric" autocomplete="off" data-save="past-lost" />
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div data-q data-type="pair" data-answer={unseen.missingSchools.join(",")} data-why="Dunmore and Eastbrook State. Every other match was listed by at least one school whose schedule arrived.">
+        <p class="cv-qlabel">Name one of them.</p>
+        <div class="cv-row">
+          <label>Host <select data-save="past-host"><option value="">Choose</option>{unseen.schools.map((s) => <option value={s.slug}>{s.name}</option>)}</select></label>
+          <label>Visitor <select data-save="past-visitor"><option value="">Choose</option>{unseen.schools.map((s) => <option value={s.slug}>{s.name}</option>)}</select></label>
+        </div>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <p class="cv-once">One attempt. You can change anything until you check.</p>
+      <button type="button" data-submit>Check my audit</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>Two schedules were lost and only two matches with them, because every other match was listed by a school whose schedule arrived. A denominator counted from the season file would read {unseen.held}, and both missing matches would vanish from it along with their results.</p>
+      </div>
+    </div>
+
+    <h3>Bounds, and how far to trust them</h3>
+    <p>A missing result can still be limited before it is recovered. Kick's table gives Dunmore {bounds.points} points from {bounds.played} matches, and seven Dunmore matches were never read. A loss adds nothing and a win adds 3, so Dunmore's true total lies between {bounds.points} and {bounds.high}. That pair is a <strong>bound</strong>: you do not know the value, and you do know where it cannot be. Hartwell Tech, with one match unread, lies between {ht.pts} and {ht.pts + 3}.</p>
+    <p>Bounds like these are worst cases for one team at a time, and they are linked. If Dunmore won all seven, each visitor lost, so Dunmore's {bounds.high} and Hartwell's best case cannot both happen. Read a column of bounds as a set of separate statements, never as one possible table.</p>
+    <p>A bound also says nothing about where inside it the truth sits. The record names the cause of a gap and who it touches. Whether the results you are missing resemble the ones you hold is a separate question. Statisticians study it as the <strong>missingness mechanism</strong>, and Module 6 takes it up. To learn the vocabulary now, ask your assistant.</p>
+    <div class="cv-prompt">
+      <p data-copy-text>{tutorPrompt}</p>
+      <button type="button" data-copy>Copy the prompt</button>
+    </div>
+    <p>Bring back one answer: which of the three is “Dunmore's site was down on Friday afternoon”?</p>
+    <details class="cv-more">
+      <summary>Check what you brought back</summary>
+      <p>The best answer is <em>missing at random, given the host</em>. Whether a match is missing depends on who hosted it, which you can observe, and need not depend on the score. That last part is an assumption, and no table of observed results can test it. Even if it holds, the table alone cannot estimate Dunmore's home results, because none were observed. Statisticians call that a positivity failure, and getting past it takes a model of team strength, with its own assumptions. And it describes only the seven matches lost with the page. The September 21 match is missing for a different reason and needs its own answer. If your assistant said “completely at random,” check which unit it meant. Among pages, one outage on one Friday may well be random. Among matches it is not, because every missing match is a Dunmore home match. If it said “not at random,” ask what makes it think the outage depended on the results.</p>
+      <p>Even the mild case skews the table. Kick's table kept all of Dunmore's away matches and none of its home ones, so any figure where home and away differ is tilted. And a school that took its results page down after a bad run would be the severe case, where the values are the reason they are missing. The coverage record tells you the cause. Which case you are in cannot be settled from the record alone.</p>
+    </details>
+
+    <h3>The clinic network, continued</h3>
+    <p>The same ideas outside soccer. A health network has ten clinics that report patient visits each week, and in week 9 eight of them reported 100 visits in total. In World A the other two sent files with no rows and were closed that week, with closure notices on file, so 100 is the network's total; in World B the other two sent nothing at all, so 100 is only a lower bound.</p>
+    <p>One of World B's silent clinics then sends a late file on Thursday: 300 visits, after it took in patients from a hospital that flooded. “At least 100” stayed true. “100 visits” would have been low by at least a factor of four, and the flood that filled the clinic is also what delayed its report. The size of the number and its lateness had the same cause. Unless that cause is itself recorded, so that you can condition on it, this is the case statisticians call missing not at random.</p>
+    <p>The last two questions use the lesson's four states. A unit is <em>complete</em> when it arrived, proved what it is, and holds rows; <em>empty</em> when it arrived and proved, and holds nothing; <em>unavailable</em> when it could not be collected or could not prove what it is; and <em>no collector</em> when nothing you have can read it.</p>
+    <div class="cv-check" data-once="clinic">
+      <div data-q data-type="range" data-answer="400,520" data-why="400 to 520, from nine of ten clinics. The floor is what you hold. The ceiling adds the most the silent clinic could have seen: 5 days at 24. A documented limit on the missing unit turns a lower bound into an interval, as the points rule did for Dunmore.">
+        <p class="cv-qlabel">You now hold 400 visits from nine clinics. The tenth is still silent. It is the network's smallest clinic: its licence allows at most 24 visits a day, and it opens five days a week. What are the lowest and highest week 9 totals the network could have?</p>
+        <div class="cv-row"><label>Lowest <input inputmode="numeric" autocomplete="off" data-save="clinic-low" /></label><label>Highest <input inputmode="numeric" autocomplete="off" data-save="clinic-high" /></label></div>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <h4>World C</h4>
+      <p>Eight clinics reported, 100 visits in total. The other two each sent a file with a header and no rows. Nothing in either file says which week it covers, and there is no closure notice.</p>
+      <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file arrived, and it cannot prove it is week 9's file. The same rule as a schedule page that cannot prove its season. Having no reader would mean the file could not be opened at all.">
+        <label><span>What state are those two clinics in for week 9?</span>
+          <select data-save="clinic-state"><option value="">Choose</option>{stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
+        </label>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <div class="cv-line" data-q data-type="select" data-answer="floor" data-why="A lower bound, from eight of ten. Two zero-row files that cannot prove their week tell you nothing about week 9.">
+        <label><span>What is the number 100?</span>
+          <select data-save="clinic-claim"><option value="">Choose</option><option value="total">The network's total for week 9</option><option value="floor">A lower bound for week 9</option><option value="ceiling">An upper bound for week 9</option><option value="eight">The total for week 9, since the two files show zero</option><option value="nothing">Not usable at all</option></select>
+        </label>
+        <p class="cv-fb" role="status"></p>
+      </div>
+      <p class="cv-once">One attempt.</p>
+      <button type="button" data-submit>Check all three</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal"><p>World C holds the same files as World A and supports only World B's headline, because the files cannot prove their week.</p></div>
+    </div>
+  </section>
+
+  <section id="platform">
+    <h2>How Touchline builds it</h2>
+    <p class="fw-for">This section is for readers who want the engineering behind the idea: how the real platform splits its work, what closes each kind of gap, and how it keeps the record true from one run to the next. It takes about ten minutes.</p>
+
+    <h3>Units of work</h3>
+    <p>The real platform collects from about a thousand school sites, and on any day some of them are slow, redesigned or down. It splits the work into units of one conference, one gender and one season, so trouble in one unit cannot stop another. Within a unit, a collector that meets a site that does not answer records the gap and carries on. A named gap does not fail the run. A run succeeds when the coverage record was written and describes reality, gaps and all. <a href="../01-collection/#decision">The lesson's decision</a> shows why.</p>
+
+    <h3>What closes each gap</h3>
+    <p>Every square that was asked for ends in one of four states, and the reason recorded with it says what would close the gap. A timeout may clear on a retry. A page the site has stopped serving never will. A page that arrived and failed its proof will usually arrive the same way again. A site in a form nothing can read needs a reader. Here are five squares from the sample's 2025 record, with the state and reason each one carries.</p>
+    <div class="cv-check" data-once="close">
+      <p class="cv-qlabel">For each square, what would close the gap, if there is one? An action can be right more than once, or never.</p>
+      {gaps.map((g) => (
+        <div class="cv-line" data-q data-type="select" data-answer={g.answer} data-why={g.why}>
+          <label><span>{g.name}<span class="cv-sub">{stateName[g.state]}. {g.note}</span></span>
+            <select data-save={`gap-${g.key}`}><option value="">Choose</option>{actions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
+          </label>
+          <p class="cv-fb" role="status"></p>
+        </div>
+      ))}
+      <p class="cv-once">One attempt.</p>
+      <button type="button" data-submit>Check my five</button>
+      <p class="cv-fb" role="status" data-need></p>
+      <div class="cv-reveal">
+        <p>None of the five closes by running the same collection again. The state says there is a gap. The reason says what to do about it, which is why every state other than complete carries one.</p>
+      </div>
+    </div>
+
+    <h3>Merge, never overwrite</h3>
+    <p>A run writes only the squares it touched. Suppose last week's run collected all eight schedules, and today's reruns two schools and one fails.</p>
+    <div class="cv-merge">
+      {merge.map(([label, row], n) => (
+        <div class={n === 3 ? "is-kept" : undefined}><p>{label}</p><div role="img" aria-label={`${count(row, "c")} complete, ${count(row, "u")} unavailable, ${count(row, ".")} with no record`}>{[...row].map((x) => <i class={x === "c" ? "is-read" : x === "u" ? "is-lost" : "is-later"}></i>)}</div></div>
+      ))}
+    </div>
+    <ul class="cv-key fw-key">
+      <li><i class="is-read"></i>Complete</li>
+      <li><i class="is-lost"></i>Unavailable</li>
+      <li><i class="is-later"></i>No record</li>
+    </ul>
+    <p>Overwriting would leave six schools with no record at all, and the next reader would take them for never asked. Merging keeps seven complete and one named gap. The season's data files are a different matter: they are rewritten whole, so the platform widens a narrow rerun to the whole unit before it writes them. The merge records the latest attempt for each square it touched. So the school that failed today now reads unavailable, although last week it was complete.</p>
+
+    <h3>Replace in one step</h3>
+    <p>The record is replaced by an <strong>atomic write</strong>: the new file is written beside the old one and swapped in, so an interrupted run cannot leave half a record behind.</p>
+
+    <h3>What readers downstream do with the record</h3>
+    <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
+      <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record, and a gap list in each season file</div><i aria-hidden="true">→</i>
+      <ul><li>Season view: a notice for each gap</li><li>Figures: counted, out of played</li><li>Next run: what to ask for again</li></ul>
+    </div>
+    <p>Readers downstream use what the run wrote down. Besides the coverage record, each season file carries a list of what it is missing, and that list is what the season view reads: it shows a notice for each gap, and the reason sits with the match. The platform's match figures travel with two numbers, matches counted and matches played. By the same rule, Riley's table with Dunmore's seven results taken from the visitors' pages would go out as “{story.afterRepair} of {story.finals},” with September 21 named. And a claim that something is absent needs complete coverage behind it: a player is called new to a team only when the roster squares for the seasons before are complete.</p>
+    <details class="cv-more">
+      <summary>See the record on disk, and the collector in outline</summary>
+      <p>Two squares of the sample's record. The 2025 grid in <a href="#statistics">Statistics of the gap</a> is drawn from this file.</p>
+      <pre tabindex="0"><code>{sampleCells}</code></pre>
+      <p>The collector as a teaching outline. The platform's own code has more steps.</p>
+      <pre tabindex="0"><code>{pseudo}</code></pre>
+    </details>
+
+    <h3>Collecting again without starting over</h3>
+    <p>A daily run across a thousand sites cannot download everything every day. The collector keeps a short tag the site hands out with each page. On the next run it sends the tag back and asks whether the page has changed. The site answers “unchanged” or sends the new page. In the story, the next morning Dunmore answers again and St. Lambert has changed one entry, so the collector downloads two pages, {bytes(run.rerunBytes)} bytes, where a full run moves {bytes(run.allBytes)}.</p>
+    <p>The tag is an <strong>ETag</strong>, and the question is a <strong>conditional request</strong>: send the page only if it has changed. An “unchanged” answer confirms the square in the state it already had, without a new download.</p>
+    <p>A tag must never outlive the page it describes. If the collector held a tag for a page it had failed to save, the site would keep answering “unchanged” about a copy that does not exist, and nothing would ever flag it. So a tag whose page is not on disk is treated as no tag at all. Some sites send no ETag, so the collector also keeps a hash of each page's content. A hash cannot save the download. It saves reading an unchanged page a second time.</p>
+    <p>The second part of <a href="#lab">the lab</a> runs three days of conditional requests against a pretend web.</p>
+  </section>
+</div>
+
+<CoverageStyles />
+
+<style is:global>
+  .fw-intro { margin: 0 0 2.5rem; }
+  .fw-intro .cv-map { grid-template-columns: 1fr; gap: 0.1rem; margin-top: 0.75rem !important; }
+  .cv .fw-key i.is-read { background: var(--cv-green); }
+  .cv .fw-for { padding-left: 0.85rem; border-left: 3px solid var(--tl-line); font-size: 1.05rem; }
+  .cv .cv-line .cv-sub { margin: 0.2rem 0 0; font-weight: 400; }
+</style>

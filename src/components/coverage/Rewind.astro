@@ -1,0 +1,73 @@
+---
+import { bounds, story } from "../../lib/coverage";
+import { noScore, pipeline, rileyAsk, spell, toPlay } from "../../lib/cases";
+
+type Line = [who: "Riley" | "Kick", text: string];
+const chapters: { title: string; lines: Line[] }[] = [
+  { title: "The record", lines: [
+    ["Riley", "What did you expect to collect, and what happened to each one?"],
+    ["Kick", `${spell(pipeline.asked, true)} schedule pages expected. ${spell(pipeline.saved, true)} saved. Dunmore: no answer after three tries.`],
+  ] },
+  { title: "The total", lines: [
+    ["Riley", "How many matches should this table hold?"],
+    ["Kick", `${story.counted}.`],
+    ["Riley", `That is how many you found. How many should there be?`],
+    ["Kick", `${spell(story.schools, true)} schools, each hosting the other ${spell(story.schools - 1)}: ${story.scheduled}. ${spell(toPlay, true)} are still to play, so ${story.finals} are finished. The table has ${story.counted}.`],
+  ] },
+  { title: "The block", lines: [
+    ["Riley", `Which ${spell(story.finals - story.counted)} are missing, and does any page you saved have them?`],
+    ["Kick", `${spell(bounds.unseen, true)} are Dunmore's home matches. Each visitor's saved page lists its trip there, with the score. Counted, Hartwell Tech is second. The last is ${noScore.day}: final, no score.`],
+  ] },
+  { title: "The refusal", lines: [
+    ["Kick", `I can enter ${noScore.day} as 0-0 so the table is complete.`],
+    ["Riley", "No. Nil-nil is a result. We do not know this one. Say so."],
+  ] },
+];
+---
+
+<section id="rewind">
+  <h2>Rewind: the same Friday, asked properly</h2>
+  <p>Back to 4:12. Riley's sentence, again:</p>
+  <blockquote class="cv-ask">
+    <p class="cv-who">Riley, to Kick <span>4:12</span></p>
+    <p>{rileyAsk}</p>
+  </blockquote>
+  <div class="cv-commit" data-commit>
+    <label class="cv-write" for="cv-added">Add the one sentence it was missing.</label>
+    <textarea id="cv-added" rows="2" data-save="added"></textarea>
+    <button type="button" disabled>Compare, and replay Friday</button>
+    <p class="cv-once" data-needs-note>Write a full sentence to compare.</p>
+    <div class="cv-reveal">
+      <p class="cv-model">Before you collect, list every page and match the table should hold, and in your summary say what happened to each, naming any gap.</p>
+      <fieldset class="cv-ticks">
+        <legend>Mark what yours does.</legend>
+        <label><input type="checkbox" data-save="added-set" /><span>It asks what should be collected, before the run</span></label>
+        <label><input type="checkbox" data-save="added-each" /><span>It asks what happened to each item, gaps named</span></label>
+      </fieldset>
+
+      <h3>Friday, worked through</h3>
+      <p class="cv-label">A scripted example. Same agent, same outage.</p>
+      <ol class="cv-closer">
+        {chapters.map((c) => (
+          <li>
+            <p class="cv-chapter">{c.title}</p>
+            <div class="cv-chat">
+              {c.lines.map(([who, text]) => <p class={who === "Riley" ? "cv-riley" : "cv-kick"}><b>{who}</b>{text}</p>)}
+            </div>
+          </li>
+        ))}
+        <li>
+          <p class="cv-chapter">The calls returned</p>
+          <div class="cv-say">
+            <p class="cv-who">Riley, to the eight schools <span>Monday, 8:10</span></p>
+            <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. {noScore.home} against {noScore.away} on {noScore.day} is final with no score on either schedule, so both schools are one match short.</p>
+          </div>
+          <div class="cv-chat"><p class="cv-riley"><b>Riley, to Coach Dolan</b>You're second.</p></div>
+        </li>
+      </ol>
+      <p>The gap did not vanish. {spell(bounds.unseen, true)} results came back from saved pages, one stayed unknown and named, and the table went out as {story.afterRepair} of {story.finals}. Same Kick. Riley knew what to require.</p>
+      <p data-close-first hidden>Your question from the film: <q></q> Would its answer have named Dunmore's page?</p>
+    </div>
+  </div>
+  <p class="cv-next">On Friday the coaches found the gap. Next, nobody calls.</p>
+</section>

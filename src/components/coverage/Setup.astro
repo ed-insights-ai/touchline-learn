@@ -1,0 +1,121 @@
+---
+import FirstRunTable from "../FirstRunTable.astro";
+import Pipeline from "./Pipeline.astro";
+import Voicemail from "./Voicemail.astro";
+import { reported } from "../../lib/first-run";
+import { bounds, story } from "../../lib/coverage";
+import { noScore, pipeline, rileyAsk, spell } from "../../lib/cases";
+
+const kickPlan = [
+  `Download the schedule page from each of the ${spell(pipeline.asked)} school sites.`,
+  "Parse each results table into rows: date, opponent, score.",
+  "If a page fails, retry three times, log a warning, and continue so the run finishes.",
+  "Read each match once, from the home team's page, so none counts twice.",
+  "Compute played, goal difference and points, then sort and write the table.",
+  "Print a summary: pages fetched, matches found, errors.",
+];
+
+const openings = [
+  { gap: "How many matches to expect", kick: "Report the number found.", then: `${story.counted}, with nothing to compare it to.`, href: "#case-dunmore", where: "Case 1" },
+  { gap: "Which page to read each match from", kick: "The host's page, once.", then: `One lost page removed ${spell(bounds.unseen)} matches and bent all ${spell(pipeline.rows)} rows.`, href: "#case-hartwell", where: "Case 2" },
+  { gap: "What to do with a final that has no score", kick: "Leave the row out.", then: `${noScore.home} and ${noScore.away} are each one match short.`, href: "#case-cedar-grove", where: "Case 3" },
+  { gap: "What to do when a site is silent", kick: "Retry three times, log a warning, carry on.", then: "The run finishes without Dunmore.", href: "#decision", where: "The decision" },
+  { gap: "What the report must say", kick: "Pages fetched, matches found, errors.", then: "“All eight school sites, no errors.”", href: "#rewind", where: "Rewind" },
+];
+
+const choices = [
+  ["stop", "Stop the run"],
+  ["skip", "Skip it and carry on"],
+  ["fill", "Fill in 0-0"],
+  ["record", "Record the gap"],
+];
+---
+
+<section id="setup">
+  <h2>Setup: one sentence, one Friday</h2>
+  <p>Here is the film's Friday again, slowly, as a problem with a cause.</p>
+
+  <h3 class="cv-step"><span>1</span>The ask</h3>
+  <blockquote class="cv-ask">
+    <p class="cv-who">Riley, to Kick <span>4:12</span></p>
+    <p>{rileyAsk}</p>
+  </blockquote>
+  <p>It names the season, the sport, the sources and the product. It reads as complete.</p>
+
+  <h3 class="cv-step"><span>2</span>What Kick built</h3>
+  <p>Kick built a scraper, a program that downloads pages made for people and pulls rows out of them.</p>
+  <Pipeline />
+  <details class="cv-more">
+    <summary>Kick's plan, in its own words</summary>
+    <ol class="cv-plan">{kickPlan.map((x) => <li>{x}</li>)}</ol>
+  </details>
+  <p>A pipeline can be asked three questions.</p>
+  <ul class="cv-three">
+    <li class="is-here"><b>Is everything here?</b><span><strong>Completeness.</strong> This module.</span></li>
+    <li><b>Is each value in a usable form?</b><span>Cleansing. <a href="../04-parsing/">Modules 4</a> and <a href="../05-identity/">5</a>.</span></li>
+    <li><b>Does each record obey the rules?</b><span>Validation. <a href="../06-contracts/">Modules 6</a> and <a href="../07-gates/">7</a>.</span></li>
+  </ul>
+  <p>All {story.counted} of Kick's matches are real and correctly read, so cleansing and validation would both pass this table. A missing record has nothing to fail.</p>
+
+  <h3 class="cv-step"><span>3</span>What the ask left open</h3>
+  <p>Kick filled five openings in the sentence with reasonable choices, and mentioned none. Open them one at a time.</p>
+  <div class="cv-open">
+    {openings.map((o) => (
+      <details>
+        <summary>{o.gap}</summary>
+        <dl>
+          <div><dt>Kick chose</dt><dd>{o.kick}</dd></div>
+          <div><dt>Then</dt><dd>{o.then}</dd></div>
+          <div><dt>See</dt><dd><a href={o.href}>{o.where}</a></dd></div>
+        </dl>
+      </details>
+    ))}
+  </div>
+
+  <h3 class="cv-step"><span>4</span>What Riley saw</h3>
+  <p>At 4:52 this was everything on Riley's screen.</p>
+  <div class="cv-say">
+    <p class="cv-who">Kick, the coding agent</p>
+    <p>Done. All eight school sites, {story.counted} conference matches, no errors. Ready to publish.</p>
+  </div>
+  <FirstRunTable rows={reported} caption="The table Kick delivered" />
+  <div class="cv-commit" data-commit>
+    <label class="cv-write" for="cv-looks">What here looks wrong to you? Nothing is marked.</label>
+    <textarea id="cv-looks" rows="2" data-save="looks-wrong"></textarea>
+    <button type="button" disabled>Lock it in and read on</button>
+    <p class="cv-once" data-needs-note>Write at least one sentence.</p>
+    <div class="cv-reveal">
+      <p>Eight rows, sorted, plausible numbers, no blanks. Dunmore on {spell(bounds.played)} played looks wrong only to someone who already knows the season is longer.</p>
+    </div>
+  </div>
+
+  <h3 class="cv-step"><span>5</span>How it surfaced</h3>
+  <p>Riley published at 4:58. The table's readers found the problem. Riley had no way to.</p>
+  <div class="cv-calls">
+    <Voicemail who="dolan" caller="Coach Dolan, Hartwell" time="5:41" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
+    <Voicemail who="dunmore" caller="Dunmore athletics" time="5:44" line="You've got our men at six conference games. We've played thirteen." />
+    <Voicemail who="cedar" caller="Cedar Grove men's soccer" time="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
+  </div>
+
+  <h3 class="cv-step"><span>6</span>The problem, stated</h3>
+  <p class="cv-lede">Kick's report described its program. Riley needed a report on the data. The records are clean and valid, and some are missing.</p>
+  <div class="cv-say cv-yours" data-first hidden>
+    <p class="cv-who">Your question from the film</p>
+    <p data-first-text></p>
+  </div>
+  <fieldset class="cv-choice">
+    <legend>Dunmore's site does not answer. What should Kick do?</legend>
+    {choices.map(([value, label]) => (
+      <label><input type="radio" name="cv-decision" value={value} data-save="decision" /><span>{label}</span></label>
+    ))}
+  </fieldset>
+  <p class="cv-once">Nothing is marked. You come back to it in <a href="#decision">the decision</a>.</p>
+  <p class="cv-can">Three cases follow, one per call. Then you can:</p>
+  <ul>
+    <li>say how many items a collection should hold, before it runs</li>
+    <li>trace a gap to the block it removes, and bound what it touches</li>
+    <li>tell empty, unknown and never asked apart</li>
+    <li>choose what a collector does when a source is silent</li>
+  </ul>
+  <p class="cv-next">Start with the call that names the gap: Dunmore's.</p>
+</section>

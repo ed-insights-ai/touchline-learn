@@ -1,0 +1,113 @@
+---
+import Bench from "./Bench.astro";
+import Pipeline from "./Pipeline.astro";
+import Voicemail from "./Voicemail.astro";
+import CoverageGrid from "../CoverageGrid.astro";
+import { bounds, kickGrid, story } from "../../lib/coverage";
+import { hartwell, noScore, spell } from "../../lib/cases";
+
+const states = [
+  { key: "complete", name: "Complete", means: "Served, proved to be the page asked for, and it holds rows.", claim: "You may count what is on it." },
+  { key: "empty", name: "Empty", means: "Served and proved, and it really holds nothing.", claim: "You may say the source publishes nothing here." },
+  { key: "unavailable", name: "Unavailable", means: "Not collected, or collected and not proved. The reason is recorded.", claim: "You may say you do not know. You may not say zero." },
+  { key: "no-collector", name: "No collector", means: "Published in a form nothing you have can read.", claim: "You may say you cannot know yet." },
+];
+const stateOptions = [...states.map((s) => [s.key, s.name]), ["none", "None of the four"]];
+const nameOf = (key: string) => stateOptions.find(([k]) => k === key)![1];
+
+const sort = [
+  { evidence: "The request timed out on every try.", answer: "unavailable", worked: true, why: "Nothing arrived, and the reason is known: the site did not answer." },
+  { evidence: "The page arrived, shows it is the 2026 season, and lists 18 fixtures.", answer: "complete", worked: true, why: "Served, proved, and it holds rows." },
+  { evidence: "The page arrived and shows it is the right season. Its statistics table has a header row and no players.", answer: "empty", why: "Served and proved, with nothing in it. You know what the source says, and it says nothing.", wrong: { unavailable: "The page did arrive, and it proved which season it is.", complete: "Complete means it holds rows. This one holds none." } },
+  { evidence: "The page arrived with no rows, and nothing on it shows which season it belongs to.", answer: "unavailable", why: "A page that cannot prove what it is tells you nothing about the season you asked for, so the state is unavailable, with that reason.", wrong: { empty: "Empty for which season? Nothing on the page says. You cannot claim the 2026 page is empty when you cannot show this is the 2026 page.", complete: "It holds no rows, and you cannot show it is the page you asked for." } },
+  { evidence: "The school moved its site to a system the collector has no reader for.", answer: "no-collector", why: "Retrying changes nothing. This gap closes when someone builds a reader.", wrong: { unavailable: "Unavailable is for a page this collector could have read. This one it cannot read at all." } },
+  { evidence: "The roster address answers “page not found.”", answer: "unavailable", why: "Nothing was served, so nothing was proved. “Not found” is a fact about the address. It does not say the team has no players.", wrong: { empty: "No page was served, so nothing proves the roster is empty. The address may simply have moved.", "no-collector": "The collector can read this site. The page it asked for was not there." } },
+  { evidence: "The plan never listed this page.", answer: "none", why: "A state answers a question somebody asked. Nobody asked, so there is no record at all.", wrong: { unavailable: "Unavailable means you tried and failed. Nobody tried.", "no-collector": "Nothing says it could not be read. It was never requested.", empty: "Empty is a proved fact about a page you fetched. This page was never fetched." } },
+  { evidence: "The page arrived without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs proof that this is the page you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
+];
+
+const match = `${noScore.home} v ${noScore.away}, ${noScore.day}`;
+const shows = [
+  { key: "zero", text: "As 0-0, a draw" },
+  { key: "drop", text: "Left out, with nothing said" },
+  { key: "named", text: "Not counted, and named under the table: final, score unknown" },
+  { key: "win", text: `As a ${noScore.home} win, since its coach is sure` },
+];
+---
+
+<section id="case-cedar-grove">
+  <h2>Case 3. Cedar Grove: empty, unknown and never asked</h2>
+  <Pipeline small lit="parse" note="This case happens at Parse" />
+
+  <h3 class="cv-beat">The call</h3>
+  <Voicemail small who="cedar" caller="Cedar Grove men's soccer" time="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
+
+  <h3 class="cv-beat">Look</h3>
+  <p>Cedar Grove's page arrived. Here every page answers: {story.afterRepair} matches, no errors, and one cell still final with no score. A complete page can hold an incomplete row.</p>
+  <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." />
+  <p>That schedule links a box score page for the match. Here is Kick's run over every page it could have asked for. Tap a square.</p>
+  <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
+  <p>The blanks are pages nobody asked for, including the box score page that might hold this score.</p>
+  <p>Now the tempting fix. Back on Friday, press Fill in 0-0.</p>
+  <Bench id="bench-fill" controls={["design"]} designs={["skip", "fill"]} show={["says", "counts", "matrix", "table"]} caption="Friday: Dunmore's page is down." />
+  <p>Under fill: {story.counted + bounds.unseen} “matches”, {spell(bounds.unseen)} invented, and Hartwell's {hartwell.seven} entered as a draw. A zero looks like data.</p>
+
+  <h3 class="cv-beat">Name it</h3>
+  <p>Every page that was asked for ends in exactly one of four states.</p>
+  <div class="cv-states">
+    {states.map((s) => (
+      <div class={`cv-state is-${s.key}`}>
+        <h4><i aria-hidden="true"></i>{s.name}</h4>
+        <p>{s.means}</p>
+        <p><b>Claim:</b> {s.claim}</p>
+      </div>
+    ))}
+  </div>
+  <p>A blank has no state: nobody asked. The pair to learn is <strong>empty</strong> and <strong>unavailable</strong>. “The site lists no players” may be reported as zero. “We could not read the site” must be reported as unknown. Unknown is never zero.</p>
+  <p>A state describes a page. Cedar Grove's schedule is complete with one row unscored, so pages and items are counted separately. A blank item in a unit that answered is <strong>item nonresponse</strong>. A unit the job needed and never listed, like those box score pages, is <strong>undercoverage</strong>.</p>
+  <p>A page counts only once <strong>proved</strong> to be the school and season asked for. <a href="../03-provenance/">Module 3</a> covers the proof.</p>
+
+  <h4 class="cv-try">Try it: sort the evidence</h4>
+  <p>The first two are worked. Do the other six, then check them together.</p>
+  <div class="cv-check" data-once="sort">
+    <ol class="cv-sort">
+      {sort.map((c, i) => (
+        <li data-q={c.worked ? undefined : ""} data-type="select" data-answer={c.answer} data-why={`${nameOf(c.answer)}. ${c.why}`} data-wrong={JSON.stringify(c.wrong ?? {})}>
+          <p>{c.evidence}</p>
+          {c.worked ? (
+            <p class="cv-fb is-right"><b>{nameOf(c.answer)}.</b> {c.why}</p>
+          ) : (
+            <>
+              <select aria-label={`State for item ${i + 1}`} data-save={`sort-${i}`}>
+                <option value="">Choose a state</option>
+                {stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}
+              </select>
+              <p class="cv-fb" role="status"></p>
+            </>
+          )}
+        </li>
+      ))}
+    </ol>
+    <p class="cv-once">One attempt at the six.</p>
+    <button type="button" data-submit>Check my six</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>Remember items 3 and 4: the same blank page is empty when it proves its season, and unavailable when it cannot.</p></div>
+  </div>
+
+  <h3 class="cv-beat">What Touchline does</h3>
+  <p>Every expected page ends in one of the four states, with a reason for the last three. Scores are nullable: a score nobody saw is stored as no value, never as zero.</p>
+
+  <h3 class="cv-beat">Your claim</h3>
+  <div class="cv-check" data-once="claim-sept21">
+    <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened, so silence repeats Kick's report. Nil-nil is a real result nobody saw, and a coach's certainty that a match was played says nothing about its score.">
+      <legend>How should {match} appear in the published table?</legend>
+      {shows.map((s) => <label><input type="radio" name="cv-sept21" value={s.key} data-save="claim-sept21" /><span>{s.text}</span></label>)}
+      <p class="cv-fb" role="status"></p>
+    </fieldset>
+    <p class="cv-once">One attempt.</p>
+    <button type="button" data-submit>Check my claim</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet asked for.</p></div>
+  </div>
+  <p class="cv-next">Behind all three calls sits one choice Kick made without asking. You made it cold in the setup.</p>
+</section>

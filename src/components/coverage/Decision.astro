@@ -1,0 +1,51 @@
+---
+import Bench from "./Bench.astro";
+
+const said: Record<string, string> = {
+  stop: "Stop the run",
+  skip: "Skip it and carry on",
+  fill: "Fill in 0-0",
+  record: "Record the gap",
+};
+---
+
+<section id="decision">
+  <h2>The decision: what to do when a site is silent</h2>
+  <blockquote class="cv-ask">
+    <p class="cv-who">The film's narrator</p>
+    <p>Every check mark hid a decision Riley never knew was theirs to make.</p>
+  </blockquote>
+  <p>Here is the first one: what Kick should do when Dunmore does not answer. <span data-decision-said data-said={JSON.stringify(said)}>Run Friday under each of the four and compare.</span></p>
+  <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's page is down. Choose what the collector does about it." />
+  <p>Kick chose “Skip it and carry on”, a defensible default: the run finishes and seven schools get a table. Its cost is that the gap stays invisible until a coach calls. Stopping publishes nothing at all. Filling in 0-0 publishes results nobody saw. Recording the gap finishes and names it.</p>
+  <p>Touchline chose the fourth, and wrote it as a rule about what success means.</p>
+  <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record was written and describes reality, gaps and all.</p>
+  <p>A run that cannot write the record has failed, because nobody can know what it did. Publishing is a second decision, made by reading the record: Friday's run succeeds under this rule, and its table still should not go out.</p>
+  <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
+    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record, and a gap list in each season file</div><i aria-hidden="true">→</i>
+    <ul><li>Season view: a notice for each gap</li><li>Figures: counted, out of played</li><li>Next run: what to ask for again</li></ul>
+  </div>
+  <p>How the platform keeps that record true across reruns and interrupted runs is in <a href="../01-collection-field-work/#platform">How Touchline builds it</a>.</p>
+  <p class="cv-next">Kick would have kept a record if Riley had asked for one. Go back and ask.</p>
+</section>
+
+<script>
+  const KEY = "touchline-m1-coverage";
+  const bench = document.getElementById("bench-decision");
+  const out = document.querySelector<HTMLElement>("[data-decision-said]");
+  const said = JSON.parse(out?.dataset.said ?? "{}") as Record<string, string>;
+  const stored = () => { try { return (JSON.parse(localStorage.getItem(KEY) ?? "{}") as Record<string, string>).decision ?? ""; } catch { return ""; } };
+  const apply = (choice: string) => {
+    if (out) {
+      out.textContent = said[choice]
+        ? `In the setup you chose “${said[choice]}”, so the bench starts there. Run the other three too.`
+        : "You did not choose in the setup, so the bench starts on Kick's choice. Run Friday under each of the four.";
+    }
+    if (bench && said[choice]) bench.dispatchEvent(new CustomEvent("bench:set", { detail: { design: choice } }));
+  };
+  let started = false;
+  const start = () => { if (started) return; started = true; apply(stored()); };
+  if (document.readyState === "complete") start();
+  else { document.addEventListener("DOMContentLoaded", start); addEventListener("load", start); }
+  document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", () => { if (input.checked) apply(input.value); }));
+</script>

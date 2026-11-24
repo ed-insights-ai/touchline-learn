@@ -1,0 +1,53 @@
+---
+import { journey } from "../../data/journey";
+
+const ask = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01-collection")!.ask;
+const next = [
+  ["../01-collection-field-work/#assistant", "Test your own assistant", "on the pages Kick got, with a gap nothing mentions"],
+  ["../01-collection-field-work/#statistics", "Statistics of the gap", "missingness mechanisms, and bounds that depend on each other"],
+  ["../01-collection-field-work/#platform", "How Touchline builds it", "merge, atomic write and reruns"],
+  ["../01-collection-field-work/#lab", "The lab", "write Friday's coverage record in Python"],
+];
+---
+
+<section id="carry-it">
+  <h2>Carry it: the same number, twice</h2>
+  <p>A health network has ten clinics that report patient visits each week. For week 9 you hold the same spreadsheet in two worlds: eight rows, sum 100.</p>
+  <div class="cv-twins">
+    <div>
+      <h3>World A</h3>
+      <p>The other two clinics each sent a file with a header and no rows. Both were closed that week for refitting, and the closure notices are on file.</p>
+    </div>
+    <div>
+      <h3>World B</h3>
+      <p>The other two sent nothing. Nobody has heard from them.</p>
+    </div>
+  </div>
+  <div class="cv-commit" data-commit>
+    <label class="cv-write" for="cv-a">World A headline</label>
+    <textarea id="cv-a" rows="2" data-save="transfer-a"></textarea>
+    <label class="cv-write" for="cv-b">World B headline</label>
+    <textarea id="cv-b" rows="2" data-save="transfer-b"></textarea>
+    <button type="button" disabled>Compare with worked answers</button>
+    <p class="cv-once" data-needs-note>Write a full sentence in each box to compare.</p>
+    <div class="cv-reveal">
+      <p class="cv-model">A: 100 visits across all ten clinics. Two were closed.</p>
+      <p class="cv-model">B: At least 100 visits, from eight of ten clinics. Two have not reported.</p>
+      <p>World A's two clinics are empty. World B's are unavailable. The number 100 is a total in A and a lower bound in B.</p>
+    </div>
+  </div>
+
+  <h3>The one ask</h3>
+  <p>Take this to any AI that collects anything for you.</p>
+  <div class="cv-prompt">
+    <p data-copy-text>{ask}</p>
+    <button type="button" data-copy data-label="Copy the ask">Copy the ask</button>
+  </div>
+
+  <h3>Where to go next</h3>
+  <p>Each of these is optional and stands alone, on the <a href="../01-collection-field-work/">field work page</a>.</p>
+  <ul class="cv-next-links">
+    {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
+  </ul>
+  <button type="button" class="cv-quiet" data-reset>Clear my answers and start this module again</button>
+</section>

@@ -15,6 +15,9 @@ A module fits one 50-minute session. A three-week unit, three sessions a week:
 | 2 | Module 4 | Module 5 | Module 6, contract-writing lab |
 | 3 | Module 7 | Modules 8 and 9 | Module 10, closing discussion, capstone briefing |
 
+The Module 1 core path targets about 35 minutes, and its field work page suits
+homework.
+
 For a single guest lecture, use the platform in one view, then Modules 3 and 6.
 They carry the two ideas students are least likely to have met: proof before
 parse, and kinds of missing data.
@@ -45,10 +48,16 @@ cost them to leave out.
 These are the points a good answer should reach. They are not the only good
 answers.
 
-**Module 1.** An aggregator adds a second party's errors and removes the
-citation to the publisher. Incremental fetching also gives a cheap signal of
-what changed, and keeps you a tolerable guest. A source that cannot be
-collected belongs in the coverage record as a named gap.
+**Module 1.** A count needs an expected set written before the run and from
+outside it: a membership list kept by season gives the pages, and the
+competition's format gives the matches (8 schools, each hosting the other 7
+once, make 56). Each match was read only from the host's page, so one page down
+removed Dunmore's seven home matches as a block, and because each of them
+involved another school, all eight table rows went wrong. Unknown is not zero,
+and the states keep that apart: `empty` means the page was read, proved its
+season and listed nothing, while `unavailable` means nothing could be read. All
+46 rows are real and correctly read, so cleansing and validation pass the
+table, and completeness needs its own record.
 
 **Module 2.** Rebuilding from the archive is reproducible. Re-fetching samples
 a source that has moved. When the archive and the live site disagree, keep both

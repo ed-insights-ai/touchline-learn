@@ -1,0 +1,85 @@
+---
+import Pipeline from "./Pipeline.astro";
+import Voicemail from "./Voicemail.astro";
+import AskKick from "./AskKick.astro";
+import { run, scheduleLog } from "../../lib/first-run";
+import { bounds, story } from "../../lib/coverage";
+import { pipeline, spell, toPlay } from "../../lib/cases";
+
+const bar = (n: number) => `${(n / story.scheduled) * 100}%`;
+const chain = [
+  [story.scheduled, "scheduled, by the rule", ""],
+  [story.finals, "finished", `${toPlay} still to be played`],
+  [story.afterRepair, "with a score on a saved page", "1 final with no score"],
+  [story.counted, "read into Kick's table", `${story.afterRepair - story.counted} on the page that never arrived`],
+] as const;
+---
+
+<section id="case-dunmore">
+  <h2>Case 1. Dunmore: a count needs an expected set</h2>
+  <Pipeline small lit="scrape" note="This case happens at Scrape" />
+
+  <h3 class="cv-beat">The call</h3>
+  <Voicemail small who="dunmore" caller="Dunmore athletics" time="5:44" line="You've got our men at six conference games. We've played thirteen." />
+  <p>Riley's table had no way to say thirteen. Where did the other seven go?</p>
+
+  <h3 class="cv-beat">Look</h3>
+  <p>Besides the table, Kick kept a log of the {run.total} pages it asked for. Of those, {pipeline.boxes} were box scores from Alder Ridge. These are the other {spell(pipeline.asked)}.</p>
+  <table class="cv-log">
+    <caption>Kick's fetch log, schedule pages</caption>
+    <thead><tr><th scope="col">School</th><th scope="col">Result</th></tr></thead>
+    <tbody>{scheduleLog.map((l) => <tr class:list={{ "is-gap": l.result !== "saved" }}><th scope="row">{l.name}</th><td>{l.result}</td></tr>)}</tbody>
+  </table>
+  <p>The gap is one line of the log, and the summary never mentions it. So ask Kick.</p>
+  <AskKick />
+
+  <h4 class="cv-try">Build the denominator</h4>
+  <p>Kick's evidence names the missing page. It cannot say how many matches are missing, because nothing in the run says how many there should be.</p>
+  <div class="cv-check" data-once="scheduled">
+    <div data-q data-type="number" data-answer={story.scheduled} data-why={`${story.scheduled}. ${spell(story.schools, true)} hosts, each with ${spell(story.schools - 1)} visitors: ${story.schools} × ${story.schools - 1}. Nobody has to fetch anything to know it.`}>
+      <label for="cv-scheduled">Each of the {spell(story.schools)} schools hosts every other school once. How many conference matches does the season hold?</label>
+      <input id="cv-scheduled" inputmode="numeric" autocomplete="off" data-save="q-scheduled" />
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <p class="cv-once">One attempt.</p>
+    <button type="button" data-submit>Check, and build the chain</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal">
+      <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => `${n} ${what}${lost ? `, minus ${lost}` : ""}`).join(". ")}>
+        {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
+      </div>
+      <p>Riley could have known every line of this at 4:52.</p>
+    </div>
+  </div>
+
+  <h3 class="cv-beat">Name it</h3>
+  <div class="cv-define">
+    <p><dfn>Coverage</dfn> is the comparison between what a collection was expected to bring back and what it did bring back.</p>
+    <p>So a collector has two outputs: the data, and a <strong>coverage record</strong> of everything it expected and what happened to each item. Kick produced the first and skipped the second.</p>
+  </div>
+  <p>The list of what is expected is the <strong>expected set</strong>, written before fetching and from outside the run. Built from the pages that arrived, it would drop a silent school from its own denominator.</p>
+  <p>Survey statisticians call the list of units you set out to hear from the <strong>sampling frame</strong>, and a unit on it that did not answer <strong>unit nonresponse</strong>: Dunmore's page. Kick's log was a frame of pages. For matches, Kick had no frame at all.</p>
+
+  <h3 class="cv-beat">What Touchline does</h3>
+  <p>Its expected rows come from a membership list kept by season, apart from any run, and its totals from the competition's format. Counting what the collected pages list is a weaker third source, complete only as far as the pages are. <a href="../01-collection-field-work/#statistics">Statistics of the gap</a> explains.</p>
+
+  <h3 class="cv-beat">Your claim</h3>
+  <div class="cv-check" data-once="claim-count">
+    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. The table counted ${story.counted}. Of ${story.scheduled} scheduled, ${story.finals} are finished.`}>
+      <p class="cv-qlabel">Complete the caption Kick's table needed.</p>
+      <p class="cv-row cv-fillin">
+        <span>Built from</span>
+        <input inputmode="numeric" autocomplete="off" aria-label="Matches in the table" data-save="claim-count" />
+        <span>of</span>
+        <input inputmode="numeric" autocomplete="off" aria-label="Finished conference matches" data-save="claim-total" />
+        <span>finished conference matches.</span>
+      </p>
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <p class="cv-once">One attempt.</p>
+    <button type="button" data-submit>Check my caption</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>Now a reader knows the table is short. Which rows to distrust is the next case.</p></div>
+  </div>
+  <p class="cv-next">One page cost {spell(bounds.unseen)} matches. Case 2 asks why it cost all {spell(pipeline.rows)} rows.</p>
+</section>

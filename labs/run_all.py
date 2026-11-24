@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 # (command, expected exit code, text the output must contain)
 RUNS = [
     (["sample/generate.py", "--check"], 0, "0 differ from disk"),
-    (["labs/m01_collect.py"], 0, "RESULT: incremental collection behaves as expected"),
+    (["labs/m01_collect.py"], 0, "7 of 8 pages saved, 46 of 54 finished matches read host-only, 53 from both pages"),
+    (["labs/m01_collect.py", "--incremental"], 0, "RESULT: incremental collection behaves as expected"),
     (["labs/m02_archive.py"], 0, "RESULT: bug fixed by replay"),
     (["labs/m03_proof.py"], 0, "8 proven, 2 refused"),
     (["labs/m04_parse.py"], 0, "RESULT: only the caption parser matches"),

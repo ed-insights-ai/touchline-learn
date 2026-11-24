@@ -1,0 +1,49 @@
+---
+import { story } from "../../lib/coverage";
+import { pipeline, spell } from "../../lib/cases";
+
+const asks = [
+  { q: "Did the whole run work?", a: `Yes. All eight school sites, ${story.counted} conference matches, no errors.` },
+  { q: "Can you double-check the table?", a: `I ran it again. ${story.counted} conference matches, no errors. The table is unchanged.` },
+  { q: "Is every number in the table right?", a: "Yes. Every match was read from its host's page and added up correctly. No errors." },
+  { q: "What did you expect to collect, and what happened to each one?", a: `I expected ${spell(pipeline.asked)} schedule pages, one per school. ${spell(pipeline.saved, true)} were saved. Dunmore's did not answer after three tries, so I logged a warning and carried on.`, evidence: true },
+];
+---
+
+<div class="cv-askkick" data-askkick>
+  <p class="cv-label">A scripted example. Send Kick a question. You can try all four.</p>
+  <div class="cv-say cv-yours" data-first hidden>
+    <p class="cv-who">Your question from the film, for comparison</p>
+    <p data-first-text></p>
+  </div>
+  <div class="cv-askq" role="group" aria-label="Questions to send Kick" data-ask-buttons hidden>
+    {asks.map((x, i) => <button type="button" aria-pressed="false" data-ask-q={i}>{x.q}</button>)}
+  </div>
+  <div class="cv-chat" data-ask-log aria-live="polite">
+    {asks.map((x, i) => (
+      <div class="cv-exchange" data-ask-reply={i} data-evidence-reply={x.evidence ? "" : undefined}>
+        <p class="cv-riley"><b>You</b>{x.q}</p>
+        <p class="cv-kick"><b>Kick</b>{x.a}</p>
+      </div>
+    ))}
+  </div>
+  <div class="cv-reveal" data-ask-done>
+    <p>Three replies are true and describe the program. Only the question about what the run expected brings back evidence.</p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-askkick]").forEach((box) => {
+    const log = box.querySelector<HTMLElement>("[data-ask-log]")!;
+    const done = box.querySelector<HTMLElement>("[data-ask-done]")!;
+    box.querySelector<HTMLElement>("[data-ask-buttons]")!.hidden = false;
+    box.querySelectorAll<HTMLButtonElement>("[data-ask-q]").forEach((button) => button.addEventListener("click", () => {
+      const reply = box.querySelector<HTMLElement>(`[data-ask-reply="${button.dataset.askQ}"]`)!;
+      button.setAttribute("aria-pressed", "true");
+      if (reply.classList.contains("is-open")) return;
+      log.append(reply);
+      reply.classList.add("is-open");
+      if (reply.hasAttribute("data-evidence-reply")) done.classList.add("is-open");
+    }));
+  });
+</script>

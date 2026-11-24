@@ -1,0 +1,104 @@
+---
+title: "Module 1 field work, deep dive and lab"
+description: Test your own AI assistant on pages with a gap nothing mentions, then go further into the statistics, the platform and the lab.
+sidebar:
+  hidden: true
+prev: false
+next: false
+tableOfContents: false
+---
+
+import FieldWork from "../../../components/coverage/FieldWork.astro";
+
+<FieldWork />
+
+<h2 id="lab">The lab: Friday's run, with a record</h2>
+
+This section is for anyone who wants to see a coverage record written by code.
+The lab is plain Python with no network, and takes about fifteen minutes. To
+install it, follow [the setup page](../../start/setup/).
+
+```bash
+python labs/m01_collect.py
+```
+
+Part one replays Friday. Before it fetches anything, the lab writes down what
+the run expects, using the membership list and the conference's format. Then it
+collects through a pretend web where Dunmore's site does not answer, gives every
+expected page a state, and compares what arrived with what was expected, in
+pages and in matches.
+
+```
+Before fetching: what this run expects
+--------------------------------------
+schools  : 8 in the 2026 men's membership list
+pages    : 8, one schedule page for each school
+matches  : 56, each school hosts the other 7 once
+...
+unavailable  dunmore            site did not answer after 3 tries
+...
+pages             : 7 of 8 saved
+matches scheduled : 56 by the format, 56 listed on saved pages
+finished          : 54, and 2 still to play
+with a score      : 53 on a saved page
+host's page only  : 46 of 54 finished matches read
+both pages        : 53 of 54 finished matches read
+...
+dunmore schedule page: unavailable, site did not answer after 3 tries
+  read from the host's page only, its 7 finished home matches are missing
+2026-09-21 Cedar Grove v St. Lambert: final, no score on any saved page
+```
+
+The run finishes and says what it did not get. Kick's host-only rule reads 46
+of 54 finished matches. Reading both schools' pages recovers Dunmore's seven
+home results from the visitors' pages, which leaves 53, with September 21 named.
+The run writes its record to `labs/_work/m01/coverage.json`, keyed the same way
+as the sample's own record in `sample/data/coverage.json`. The named gap does
+not fail the run: it exits 0.
+
+```bash
+python labs/m01_collect.py --incremental
+```
+
+Part two runs three days of collection with conditional requests. Day 1
+downloads everything, day 2 downloads nothing because every page answers
+"unchanged", and on day 3 one page has changed while one site is down again.
+
+```
+Day 3: one page changed, one site unavailable
+---------------------------------------------
+registry entries : 20
+downloaded       : 1
+unchanged (304)  : 18
+unavailable      : 1
+...
+RESULT: incremental collection behaves as expected
+```
+
+**Your turn.**
+
+1. Take a second site down. In `labs/m01_collect.py`, change
+   `DOWN = ["dunmore"]` to `DOWN = ["dunmore", "hartwell-tech"]`. Before you
+   run it, predict how many finished matches the host-only rule reads. Then run
+   it. You should see `39 of 52` read host-only, `51 from both pages`, and a
+   new line saying 2 matches are on no saved page. The season still has 54 finished matches.
+   Why does the lab now count 52, and why does each school's named gap now say
+   6 home matches where Dunmore's said 7?
+2. Take a page out of the registry. In `friday()`, just after the line that
+   builds `url_of`, add `url_of.pop("eastbrook-state")` and run part one.
+   Eastbrook State's page ends as `no-collector`, with the reason
+   `no address is registered for this page`, and the record holds 6 complete,
+   1 unavailable and 1 no-collector. The run still exits 0. Which of the two
+   gaps could a retry tomorrow close, and what would close the other?
+3. Make the pretend web lie. In `FakeWeb.get`, build the tag from `url` in
+   place of `body`, so a changed page keeps its old tag, and run part two.
+   Day 3 now downloads nothing, reports 19 unchanged, and the lab ends
+   `RESULT: unexpected counts` with exit code 1. St. Lambert's new result never
+   arrives, and nothing on day 3 looked like an error. Ask your assistant how a
+   collector could notice a site that does this, and what each way of noticing
+   would cost.
+
+---
+
+Back to [the Module 1 lesson](../01-collection/), or on to
+[Module 2: the raw archive](../02-archive/).

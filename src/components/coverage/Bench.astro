@@ -1,0 +1,288 @@
+---
+import {
+  benchData, countTiles, DESIGNS, LABELS, matrixKey, matrixRows, normalise, PRESETS, RULES, simulate, tableRows,
+  type BenchState, type Control, type Design, type Output, type Preset,
+} from "../../lib/bench";
+
+interface Props {
+  id: string;
+  controls?: Control[];
+  designs?: Design[];
+  presets?: Preset[];
+  show?: Output[];
+  start?: Partial<BenchState>;
+  caption?: string;
+}
+
+const {
+  id,
+  controls = ["pages", "rule", "design"],
+  designs = DESIGNS,
+  presets = [],
+  show = ["says", "counts", "matrix", "table"],
+  start = {},
+  caption,
+} = Astro.props;
+
+if (!/^[A-Za-z][\w-]*$/.test(id)) throw new Error(`Bench id "${id}" must start with a letter and use letters, digits, - or _`);
+const slugs = benchData.schools.map((s) => s.slug);
+const unknown = (start.down ?? []).filter((s) => !slugs.includes(s));
+if (unknown.length) throw new Error(`Bench ${id}: no school called ${unknown.join(", ")}`);
+
+const state = normalise(benchData, { ...PRESETS.friday, ...start });
+const out = simulate(benchData, state);
+const withFill = state.design === "fill" || (controls.includes("design") && designs.includes("fill"));
+const same = (a: BenchState, b: BenchState) => a.rule === b.rule && a.design === b.design && a.down.join() === b.down.join();
+const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
+const config = JSON.stringify({ data: benchData, state, withFill });
+---
+
+<div class="bn not-content" id={id} data-bench={config} role="group" aria-label={caption ? undefined : "Friday bench"} aria-labelledby={caption ? `${id}-caption` : undefined}>
+  {caption && <p class="bn-caption" id={`${id}-caption`}>{caption}</p>}
+
+  {(presets.length > 0 || controls.length > 0) && (
+    <div class="bn-controls">
+      {presets.length > 0 && (
+        <div class="bn-group">
+          <p class="bn-label" id={`${id}-presets`}>Start from</p>
+          <div class="bn-btns" role="group" aria-labelledby={`${id}-presets`}>
+            {presets.map((p) => <button type="button" class="bn-btn" data-bn-preset={p} aria-pressed={pressed(same(PRESETS[p], state))}>{LABELS.preset[p]}</button>)}
+          </div>
+        </div>
+      )}
+      {controls.includes("pages") && (
+        <div class="bn-group">
+          <p class="bn-label" id={`${id}-pages`}>Schedule pages <span>Press one to take it down or bring it back.</span></p>
+          <div class="bn-btns bn-pages" role="group" aria-labelledby={`${id}-pages`}>
+            {benchData.schools.map((s) => {
+              const up = !state.down.includes(s.slug);
+              return (
+                <button type="button" class="bn-btn bn-page" data-bn-page={s.slug} aria-pressed={pressed(up)}>
+                  <span class="bn-name">{s.name}</span>
+                  <span class="bn-state">{up ? "answered" : "no answer"}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {controls.includes("rule") && (
+        <div class="bn-group">
+          <p class="bn-label" id={`${id}-rule`}>Read each match from</p>
+          <div class="bn-btns" role="group" aria-labelledby={`${id}-rule`}>
+            {RULES.map((r) => <button type="button" class="bn-btn" data-bn-rule={r} aria-pressed={pressed(state.rule === r)}>{LABELS.rule[r]}</button>)}
+          </div>
+        </div>
+      )}
+      {controls.includes("design") && designs.length > 0 && (
+        <div class="bn-group">
+          <p class="bn-label" id={`${id}-design`}>When a page does not answer</p>
+          <div class="bn-btns" role="group" aria-labelledby={`${id}-design`}>
+            {designs.map((d) => <button type="button" class="bn-btn" data-bn-design={d} aria-pressed={pressed(state.design === d)}>{LABELS.design[d]}</button>)}
+          </div>
+        </div>
+      )}
+    </div>
+  )}
+
+  {show.includes("says") && (
+    <div class="bn-say">
+      <p class="bn-who">Kick <span>what Riley reads at 4:52</span></p>
+      <p class="bn-says" role="status" data-bn-says>{out.says}</p>
+    </div>
+  )}
+
+  {show.includes("counts") && <dl class="bn-counts" data-bn-counts set:html={countTiles(benchData, out)} />}
+
+  {show.includes("matrix") && (
+    <div class="bn-matrix">
+      <div class="bn-scroll" tabindex="0" role="region" aria-labelledby={`${id}-matrix`}>
+        <table>
+          <caption id={`${id}-matrix`}>Every conference match. Rows are hosts, columns are visitors.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Host</th>
+              {benchData.schools.map((s) => <th scope="col" title={s.name}><span aria-hidden="true">{s.abbr}</span><span class="bn-sr">{s.name}</span></th>)}
+            </tr>
+          </thead>
+          <tbody data-bn-matrix set:html={matrixRows(benchData, out)} />
+        </table>
+      </div>
+      <ul class="bn-key" data-bn-key set:html={matrixKey(out, withFill)} />
+    </div>
+  )}
+
+  {show.includes("table") && (
+    <div class="bn-table">
+      <div class="bn-scroll" data-bn-standings hidden={out.stopped}>
+        <table>
+          <caption>The table Kick builds. P is played, GD is goal difference, Pts is points. The last column compares each row with the table on all {out.scored} finished matches that have a score.</caption>
+          <thead>
+            <tr>
+              <th scope="col"><abbr title="Place">#</abbr></th>
+              <th scope="col">Team</th>
+              <th scope="col"><abbr title="Played">P</abbr></th>
+              <th scope="col"><abbr title="Goal difference">GD</abbr></th>
+              <th scope="col"><abbr title="Points">Pts</abbr></th>
+              <th scope="col">Against all {out.scored}</th>
+            </tr>
+          </thead>
+          <tbody data-bn-table set:html={tableRows(out)} />
+        </table>
+      </div>
+      <p class="bn-none" data-bn-none hidden={!out.stopped}>No table. The run stopped at the first page that did not answer.</p>
+    </div>
+  )}
+</div>
+
+<style is:global>
+  .bn { min-width: 0; max-width: 100%; display: grid; gap: 1rem; margin: 1.25rem 0 1.75rem; padding: 1rem; border: 1px solid var(--tl-line); color: var(--tl-ink); line-height: 1.5; }
+  .bn [hidden] { display: none !important; }
+  .bn > *, .bn .bn-controls > *, .bn .bn-group { min-width: 0; }
+  .bn .bn-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .bn .bn-caption { margin: 0; color: var(--tl-muted); font-size: 0.9rem; }
+  .bn .bn-controls { display: grid; gap: 0.85rem; }
+  .bn .bn-label { margin: 0 0 0.35rem; color: var(--sl-color-white); font-size: 0.92rem; font-weight: 700; }
+  .bn .bn-label span { margin-left: 0.35rem; color: var(--tl-muted); font-weight: 400; }
+  .bn .bn-btns { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .bn .bn-pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.25rem, 1fr)); }
+
+  .bn .bn-btns > .bn-btn { display: inline-flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 44px; margin: 0; padding: 0.4rem 0.8rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: transparent; color: var(--tl-ink); font: inherit; font-size: 0.92rem; font-weight: 400; line-height: 1.25; text-align: left; cursor: pointer; }
+  .bn .bn-btns > .bn-btn[aria-pressed="true"] { border-color: var(--sl-color-accent); background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; }
+  .bn .bn-btns > .bn-page[aria-pressed="true"] { border-color: var(--tl-line); background: var(--tl-card); box-shadow: inset 4px 0 0 var(--sl-color-accent); color: var(--tl-ink); font-weight: 400; }
+  .bn .bn-btns > .bn-page[aria-pressed="false"] { border: 1px dashed var(--sl-color-red); box-shadow: inset 4px 0 0 var(--sl-color-red); }
+  :root[data-theme="light"] .bn .bn-btns > button.bn-btn:not([aria-pressed="true"]), :root[data-theme="light"] .bn .bn-btns > button.bn-page { color: var(--tl-ink); }
+  .bn .bn-page { justify-self: stretch; padding-left: 0.95rem; }
+  .bn .bn-name { font-weight: 700; }
+  .bn .bn-state { color: var(--tl-muted); font-size: 0.8rem; }
+  .bn .bn-page[aria-pressed="false"] .bn-state { color: var(--sl-color-red-high); font-weight: 700; }
+  .bn :is(button, [tabindex]):focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+
+  .bn .bn-say { padding: 0.8rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
+  .bn .bn-who { margin: 0 0 0.2rem; font-size: 0.85rem; font-weight: 700; }
+  .bn .bn-who span { margin-left: 0.4rem; color: var(--tl-muted); font-weight: 400; }
+  .bn .bn-says { margin: 0; color: var(--sl-color-white); font-family: var(--sl-font-mono); font-size: 0.9rem; line-height: 1.55; }
+
+  .bn .bn-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 0.4rem; margin: 0; }
+  .bn .bn-counts div { display: flex; flex-direction: column-reverse; justify-content: flex-end; padding: 0.5rem 0.75rem; border: 1px solid var(--tl-line); background: var(--tl-card); }
+  .bn .bn-counts dd { margin: 0; color: var(--sl-color-white); font-size: 1.3rem; font-weight: 750; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .bn .bn-counts dt { margin: 0; color: var(--tl-muted); font-size: 0.82rem; line-height: 1.3; }
+
+  .bn .bn-scroll { max-width: 100%; overflow-x: auto; }
+  .bn table { display: table; margin: 0; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .bn caption { padding-bottom: 0.35rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; caption-side: top; }
+  .bn th, .bn td { border: 0; background: none; }
+  .bn abbr { text-decoration: none; }
+
+  .bn-matrix th, .bn-matrix td { padding: 0; text-align: center; }
+  .bn-matrix thead th { color: var(--tl-muted); font-size: 0.66rem; font-weight: 600; vertical-align: bottom; }
+  .bn-matrix thead th:first-child { padding-right: 0.5rem; text-align: left; font-size: 0.8rem; }
+  .bn-matrix tbody th { padding: 0 0.5rem 0 0; font-size: 0.88rem; font-weight: 400; line-height: 1.15; text-align: left; white-space: nowrap; }
+  .bn-matrix tbody th.bn-down { color: var(--sl-color-red-high); font-weight: 700; }
+  .bn-matrix .bn-tag { display: block; color: var(--sl-color-red-high); font-size: 0.7rem; font-weight: 400; }
+  .bn-matrix td { width: 2rem; min-width: 2rem; height: 2rem; border: 2px solid var(--sl-color-bg); font-size: 0.8rem; font-weight: 700; line-height: 1; }
+  .bn-matrix td > span { display: grid; place-items: center; width: 100%; height: 100%; }
+  .bn .bn-read { background: var(--sl-color-green-low); color: var(--sl-color-green-high); }
+  .bn .bn-lost { background: var(--sl-color-red-low); box-shadow: inset 0 0 0 2px var(--sl-color-red); color: var(--sl-color-red-high); }
+  .bn .bn-fill { background: var(--sl-color-red-low); box-shadow: inset 0 0 0 2px var(--sl-color-red); color: var(--sl-color-red-high); font-size: 0.66rem; letter-spacing: -0.02em; }
+  .bn .bn-noscore { background: var(--sl-color-orange-low); box-shadow: inset 0 0 0 2px var(--sl-color-orange); color: var(--tl-ink); }
+  .bn .bn-later { box-shadow: inset 0 0 0 1px var(--tl-muted); }
+  .bn .bn-self { background: repeating-linear-gradient(45deg, var(--tl-line) 0 2px, transparent 2px 6px); }
+  .bn .bn-key { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin: 0.6rem 0 0; padding: 0; list-style: none; font-size: 0.86rem; }
+  .bn .bn-key li { display: flex; align-items: center; gap: 0.4rem; margin: 0; }
+  .bn .bn-key i { display: grid; place-items: center; min-width: 1.15rem; height: 1.15rem; padding: 0 0.1rem; flex: none; font-size: 0.68rem; font-style: normal; font-weight: 700; }
+  .bn .bn-key i.bn-fill { font-size: 0.6rem; }
+
+  .bn-table table { width: 100%; }
+  .bn-table th, .bn-table td { padding: 0.4rem 0.45rem; border-bottom: 1px solid var(--tl-line); text-align: right; }
+  .bn-table thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+  .bn-table td:first-child, .bn-table th:first-child { text-align: left; }
+  .bn-table tbody th, .bn-table thead th:nth-child(2) { color: var(--tl-ink); text-align: left; font-weight: 600; }
+  .bn-table thead th:nth-child(2) { color: var(--tl-muted); }
+  .bn-table .bn-vs, .bn-table thead th:last-child { min-width: 7.5rem; text-align: left; }
+  .bn-table .bn-vs { color: var(--tl-muted); font-size: 0.86rem; }
+  .bn-table .bn-wrong .bn-vs { color: var(--sl-color-red-high); }
+  .bn-table .bn-mark { display: inline-block; width: 1.1rem; font-weight: 700; }
+  .bn-table tr:not(.bn-wrong) .bn-mark { color: var(--sl-color-accent); }
+  .bn .bn-none { margin: 0; padding: 0.75rem 0.9rem; border-left: 3px solid var(--sl-color-red); background: var(--tl-card); }
+  @media (max-width: 30rem) {
+    .bn { padding: 0.75rem; }
+    .bn-matrix td { width: 1.65rem; min-width: 1.65rem; height: 1.75rem; }
+    .bn-matrix tbody th { font-size: 0.82rem; }
+    .bn-table th, .bn-table td { padding: 0.35rem 0.25rem; }
+    .bn-table .bn-vs, .bn-table thead th:last-child { min-width: 6.5rem; }
+  }
+</style>
+
+<script>
+  import {
+    countTiles, DESIGNS, matrixKey, matrixRows, normalise, PRESETS, RULES, simulate, tableRows,
+    type BenchData, type BenchState, type Design, type Preset, type Rule,
+  } from "../../lib/bench-core";
+
+  type Config = { data: BenchData; state: BenchState; withFill: boolean };
+  const same = (a: BenchState, b: BenchState) => a.rule === b.rule && a.design === b.design && a.down.join() === b.down.join();
+
+  document.querySelectorAll<HTMLElement>("[data-bench]").forEach((root) => {
+    const { data, withFill, state: start } = JSON.parse(root.dataset.bench!) as Config;
+    let state = start;
+    const part = (name: string) => root.querySelector<HTMLElement>(`[data-bn-${name}]`);
+    const press = (sel: string, on: (b: HTMLButtonElement) => boolean) =>
+      root.querySelectorAll<HTMLButtonElement>(sel).forEach((b) => b.setAttribute("aria-pressed", String(on(b))));
+
+    function draw() {
+      const out = simulate(data, state);
+      press("[data-bn-page]", (b) => !state.down.includes(b.dataset.bnPage!));
+      root.querySelectorAll<HTMLButtonElement>("[data-bn-page]").forEach((b) => {
+        b.querySelector(".bn-state")!.textContent = state.down.includes(b.dataset.bnPage!) ? "no answer" : "answered";
+      });
+      press("[data-bn-rule]", (b) => b.dataset.bnRule === state.rule);
+      press("[data-bn-design]", (b) => b.dataset.bnDesign === state.design);
+      press("[data-bn-preset]", (b) => same(PRESETS[b.dataset.bnPreset as Preset], state));
+      const says = part("says");
+      if (says && says.textContent !== out.says) says.textContent = out.says;
+      const fill = (name: string, html: string) => { const el = part(name); if (el) el.innerHTML = html; };
+      fill("counts", countTiles(data, out));
+      fill("matrix", matrixRows(data, out));
+      fill("key", matrixKey(out, withFill));
+      fill("table", tableRows(out));
+      part("standings")?.toggleAttribute("hidden", out.stopped);
+      part("none")?.toggleAttribute("hidden", !out.stopped);
+      return out;
+    }
+
+    function set(next: BenchState) {
+      next = normalise(data, next);
+      if (same(next, state)) return;
+      state = next;
+      const out = draw();
+      root.dispatchEvent(new CustomEvent("bench:change", {
+        bubbles: true,
+        detail: {
+          id: root.id, down: [...state.down], rule: state.rule, design: state.design,
+          read: out.read, unread: out.unread, noscore: out.noscore, inTable: out.inTable,
+          wrong: out.wrong, stopped: out.stopped, says: out.says,
+        },
+      }));
+    }
+
+    root.addEventListener("click", (e) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>("button");
+      if (!b || !root.contains(b)) return;
+      const { bnPage: page, bnRule: rule, bnDesign: design, bnPreset: preset } = b.dataset;
+      if (page) set({ ...state, down: state.down.includes(page) ? state.down.filter((s) => s !== page) : [...state.down, page] });
+      else if (rule) set({ ...state, rule: rule as Rule });
+      else if (design) set({ ...state, design: design as Design });
+      else if (preset) set(structuredClone(PRESETS[preset as Preset]));
+    });
+
+    root.addEventListener("bench:set", (e) => {
+      const d = ((e as CustomEvent).detail ?? {}) as Partial<BenchState>;
+      set({
+        down: Array.isArray(d.down) ? d.down : state.down,
+        rule: RULES.includes(d.rule as Rule) ? d.rule! : state.rule,
+        design: DESIGNS.includes(d.design as Design) ? d.design! : state.design,
+      });
+    });
+  });
+</script>
