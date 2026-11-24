@@ -76,12 +76,17 @@ export const run = {
   rerunBytes: sizeOf(schedules.find((p) => p.school === DOWN)!) + Buffer.byteLength(changed),
 };
 
+export const scheduleLog = schedules.map((p) => ({ name: nameOf(p.school), result: p.school === DOWN ? "no answer" : "saved" }));
+const before = new Map(reported.map((r, i) => [r.slug, { ...r, place: i + 1 }]));
+export const rowsChanged = repaired.filter((r) => { const b = before.get(r.slug)!; return b.p !== r.p || b.gf !== r.gf || b.ga !== r.ga || b.pts !== r.pts; }).length;
+export const teamsMoved = repaired.filter((r, i) => before.get(r.slug)!.place !== i + 1).length;
+
 export const dunmorePlayed = reported.find((r) => r.slug === DOWN)!.p;
 export const stillToPlay = fixtures.filter((f) => f.conference_game && f.status !== "final").length;
 export const noPublishedScore = fixtures.filter((f) => f.conference_game && f.status === "final" && f.home_score === undefined).length;
 
 if (run.total !== 20 || run.schedules !== 8 || recovered.length !== 7 || unseen.length !== 4
   || place(reported, "hartwell-tech") !== 4 || place(repaired, "hartwell-tech") !== 2
-  || stillToPlay !== 2 || noPublishedScore !== 1) {
+  || stillToPlay !== 2 || noPublishedScore !== 1 || rowsChanged !== 8 || teamsMoved !== 5) {
   throw new Error("the first-run story no longer matches the sample");
 }
