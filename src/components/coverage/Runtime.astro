@@ -132,17 +132,18 @@
       }));
     });
     root.querySelectorAll<HTMLElement>("[data-commit]").forEach((box) => {
-      const openKey = `open-${box.dataset.needs ?? ""}`;
+      const name = box.dataset.needs ?? box.querySelector<HTMLTextAreaElement>("textarea[data-save]")?.dataset.save ?? "";
+      const openKey = `open-${name}`;
       const open = () => {
         box.querySelector<HTMLElement>(".cv-reveal")!.classList.add("is-open");
         box.querySelector<HTMLButtonElement>(":scope > button")!.hidden = true;
         lockFor(box);
       };
-      if (box.dataset.needs && store[openKey]) open();
+      if (name && store[openKey]) open();
       commitState(box);
       box.querySelector<HTMLButtonElement>(":scope > button")!.addEventListener("click", (event) => {
         const reveal = box.querySelector<HTMLElement>(".cv-reveal")!;
-        if (box.dataset.needs) put(openKey, "1");
+        if (name) put(openKey, "1");
         open();
         commitState(box);
         reveal.tabIndex = -1;

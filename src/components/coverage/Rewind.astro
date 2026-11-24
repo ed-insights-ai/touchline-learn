@@ -16,7 +16,7 @@ const chapters: { title: string; lines: Line[] }[] = [
   ] },
   { title: "The block", lines: [
     ["Riley", `Which ${spell(story.finals - story.counted)} are missing, and does any page you saved have them?`],
-    ["Kick", `${spell(bounds.unseen, true)} are Dunmore's home matches. Each visitor's saved page lists its trip there, with the score. Counted, Hartwell Tech is second. The last is ${noScore.day}: final, no score.`],
+    ["Kick", `${spell(bounds.unseen, true)} are Dunmore's home matches. Each visitor's saved page lists its trip there, with the score. Counted from those, Hartwell Tech is second. The last is ${noScore.home} v ${noScore.away}, ${noScore.day}: final, no score on either schedule.`],
   ] },
   { title: "The refusal", lines: [
     ["Kick", `I can enter ${noScore.day} as 0-0 so the table is complete.`],
@@ -42,7 +42,8 @@ const chapters: { title: string; lines: Line[] }[] = [
       <fieldset class="cv-ticks">
         <legend>Mark what yours does.</legend>
         <label><input type="checkbox" data-save="added-set" /><span>It asks what should be collected, before the run</span></label>
-        <label><input type="checkbox" data-save="added-each" /><span>It asks what happened to each item, gaps named</span></label>
+        <label><input type="checkbox" data-save="added-each" /><span>It asks what happened to each item</span></label>
+        <label><input type="checkbox" data-save="added-gaps" /><span>It makes the summary name every gap</span></label>
       </fieldset>
 
       <h3>Friday, worked through</h3>
@@ -60,7 +61,7 @@ const chapters: { title: string; lines: Line[] }[] = [
           <p class="cv-chapter">The calls returned</p>
           <div class="cv-say">
             <p class="cv-who">Riley, to the eight schools <span>Monday, 8:10</span></p>
-            <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. {noScore.home} against {noScore.away} on {noScore.day} is final with no score on either schedule, so both schools are one match short.</p>
+            <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. Hartwell Tech is second. {noScore.home} against {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>
           </div>
           <div class="cv-chat"><p class="cv-riley"><b>Riley, to Coach Dolan</b>You're second.</p></div>
         </li>

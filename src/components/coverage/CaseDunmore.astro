@@ -34,7 +34,7 @@ const chain = [
   <AskKick />
 
   <h4 class="cv-try">Build the denominator</h4>
-  <p>Kick's evidence names the missing page. It cannot say how many matches are missing, because nothing in the run says how many there should be.</p>
+  <p>Kick's evidence names the missing page. It cannot say how many matches are missing, because nothing in the run says how many there should be. The competition can.</p>
   <div class="cv-check" data-once="scheduled">
     <div data-q data-type="number" data-answer={story.scheduled} data-why={`${story.scheduled}. ${spell(story.schools, true)} hosts, each with ${spell(story.schools - 1)} visitors: ${story.schools} × ${story.schools - 1}. Nobody has to fetch anything to know it.`}>
       <label for="cv-scheduled">Each of the {spell(story.schools)} schools hosts every other school once. How many conference matches does the season hold?</label>
@@ -58,7 +58,7 @@ const chain = [
     <p>So a collector has two outputs: the data, and a <strong>coverage record</strong> of everything it expected and what happened to each item. Kick produced the first and skipped the second.</p>
   </div>
   <p>The list of what is expected is the <strong>expected set</strong>, written before fetching and from outside the run. Built from the pages that arrived, it would drop a silent school from its own denominator.</p>
-  <p>Survey statisticians call the list of units you set out to hear from the <strong>sampling frame</strong>, and a unit on it that did not answer <strong>unit nonresponse</strong>: Dunmore's page. Kick's log was a frame of pages. For matches, Kick had no frame at all.</p>
+  <p>Survey statisticians call the list of units you set out to hear from the <strong>sampling frame</strong>, and a unit on it that did not answer <strong>unit nonresponse</strong>. Dunmore's page is unit nonresponse. Kick's log could show it because the log was a frame of pages. For matches, Kick had no frame at all.</p>
 
   <h3 class="cv-beat">What Touchline does</h3>
   <p>Its expected rows come from a membership list kept by season, apart from any run, and its totals from the competition's format. Counting what the collected pages list is a weaker third source, complete only as far as the pages are. <a href="../01-collection-field-work/#statistics">Statistics of the gap</a> explains.</p>

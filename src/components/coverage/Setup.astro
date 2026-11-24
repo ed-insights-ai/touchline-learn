@@ -9,7 +9,7 @@ import { noScore, pipeline, rileyAsk, spell } from "../../lib/cases";
 const kickPlan = [
   `Download the schedule page from each of the ${spell(pipeline.asked)} school sites.`,
   "Parse each results table into rows: date, opponent, score.",
-  "If a page fails, retry three times, log a warning, and continue so the run finishes.",
+  "If a page fails to load, retry up to three times, then log a warning with the school's name and continue so the run finishes.",
   "Read each match once, from the home team's page, so none counts twice.",
   "Compute played, goal difference and points, then sort and write the table.",
   "Print a summary: pages fetched, matches found, errors.",
@@ -17,8 +17,8 @@ const kickPlan = [
 
 const openings = [
   { gap: "How many matches to expect", kick: "Report the number found.", then: `${story.counted}, with nothing to compare it to.`, href: "#case-dunmore", where: "Case 1" },
-  { gap: "Which page to read each match from", kick: "The host's page, once.", then: `One lost page removed ${spell(bounds.unseen)} matches and bent all ${spell(pipeline.rows)} rows.`, href: "#case-hartwell", where: "Case 2" },
-  { gap: "What to do with a final that has no score", kick: "Leave the row out.", then: `${noScore.home} and ${noScore.away} are each one match short.`, href: "#case-cedar-grove", where: "Case 3" },
+  { gap: "Which page to read each match from", kick: "The host's page, once, so no match counts twice.", then: `One lost page removed ${spell(bounds.unseen)} matches and bent all ${spell(pipeline.rows)} rows.`, href: "#case-hartwell", where: "Case 2" },
+  { gap: "What to do with a final that has no score", kick: "Nothing was stated. A row without a score is not counted.", then: `${noScore.home} and ${noScore.away} are each one match short.`, href: "#case-cedar-grove", where: "Case 3" },
   { gap: "What to do when a site is silent", kick: "Retry three times, log a warning, carry on.", then: "The run finishes without Dunmore.", href: "#decision", where: "The decision" },
   { gap: "What the report must say", kick: "Pages fetched, matches found, errors.", then: "“All eight school sites, no errors.”", href: "#rewind", where: "Rewind" },
 ];
@@ -112,10 +112,10 @@ const choices = [
   <p class="cv-once">Nothing is marked. You come back to it in <a href="#decision">the decision</a>.</p>
   <p class="cv-can">Three cases follow, one per call. Then you can:</p>
   <ul>
-    <li>say how many items a collection should hold, before it runs</li>
+    <li>say how many items a collection should hold, before it runs and from outside it</li>
     <li>trace a gap to the block it removes, and bound what it touches</li>
-    <li>tell empty, unknown and never asked apart</li>
-    <li>choose what a collector does when a source is silent</li>
+    <li>tell empty, unknown and never asked apart, and say what each lets you claim</li>
+    <li>choose what a collector does when a source is silent, and say when a run has succeeded</li>
   </ul>
   <p class="cv-next">Start with the call that names the gap: Dunmore's.</p>
 </section>
