@@ -27,7 +27,7 @@ const transcript: [string, string][] = [
 ];
 ---
 
-<section class="fo not-content" data-film>
+<section class="fo not-content" id="film" data-film>
   <div class="fo-player">
     <video controls playsinline preload="metadata" poster={film("publish-day.jpg")} aria-label="Publish Day, a two-minute animated film">
       <source src={film("publish-day.mp4")} type="video/mp4" />
@@ -49,11 +49,12 @@ const transcript: [string, string][] = [
       <p>Done. All eight school sites, 46 conference matches, no errors. Ready to publish.</p>
     </div>
     <label for="fo-answer">Before you press Publish, what would you ask it?</label>
-    <p>Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It comes back in Module 1 and on the last page.</p>
+    <p>Optional. Pick one thing Kick claimed and name what you would ask to see. A rough line is fine. It comes back in Module 1 and on the last page.</p>
     <div class="fo-row">
       <input id="fo-answer" type="text" maxlength="240" autocomplete="off" data-answer />
     </div>
     <p class="fo-status" role="status" data-status></p>
+    <a class="fo-on" href="#one-match">Continue to the seven steps</a>
   </form>
 
 </section>
@@ -91,6 +92,8 @@ const transcript: [string, string][] = [
   .fo-row input { flex: 1 1 16rem; min-width: 0; min-height: 44px; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font: inherit; }
   .fo input:focus-visible, .fo button:focus-visible, .fo a:focus-visible, .fo summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
   .fo-status { margin: 0.5rem 0 0 !important; }
+  .fo-on { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0.4rem; font-weight: 700; }
+  .fo-on::after { content: " ↓"; white-space: pre; }
   .fo-status:empty { display: none; }
 </style>
 

@@ -33,16 +33,16 @@ date: ${fixture.date}`;
 
 export type Zone = "raw" | "clean" | "derived";
 
-const moduleFor = (n: number) => journeyModules.find((m) => m.n === n)!;
+const modulesFor = (...ns: number[]) => ns.map((n) => journeyModules.find((m) => m.n === n)!);
 
 export const stops = [
-  { name: "Fetch", zone: "raw", mark: "Collecting sites", module: moduleFor(1), title: "Ask for the page", body: "The collector works from a list of the sites it must ask and follows the links each schedule page publishes. It never guesses a URL, and it records which pages answered and which did not.", artifact: `asked: ${box.source_url}\nresult: answered, saved`, risk: "Without it: a page that never arrived leaves no trace, and a guessed URL quietly returns the wrong page." },
-  { name: "Archive", zone: "raw", mark: "Collecting sites", module: moduleFor(2), title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
-  { name: "Prove", zone: "clean", mark: "Reading pages", module: moduleFor(3), title: "Make the page prove itself", body: "The school's own schedule must list this match and link to this page. Then the page itself must name the match date and show exactly two teams.", artifact: `schedule lists this match and links here: yes\ntitle names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
-  { name: "Parse", zone: "clean", mark: "Reading pages", module: moduleFor(4), title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
-  { name: "Resolve", zone: "clean", mark: "Matching teams", module: moduleFor(5), title: "Give each team one identity", body: "Published names become stable ids, so every later join means the same school.", artifact: `${home.name} → ${fixture.home}\n${away.name} → ${fixture.away}`, risk: "Without it: one school splits into several, or two schools become one." },
-  { name: "Check", zone: "clean", mark: "Checking the table", module: moduleFor(7), title: "Let a gate stop the line", body: "Automatic checks compare the record against its contract, the written rules for its shape, and against itself.", artifact: `${home.name}: ${home.periods.join(" + ")} = ${home.score}\n${away.name}: ${away.periods.join(" + ")} = ${away.score}\nschedule and match page agree: yes`, risk: "Without it: a bad record reaches everything built on it." },
-  { name: "Build", zone: "derived", mark: "", module: moduleFor(8), title: "Publish from the clean files", body: "The website, the analytical database and the written season summaries, called journals, all read the same record.", artifact: `${home.name} ${home.score}, ${away.name} ${away.score}\nwebsite · database · journal`, risk: "Without it: each product tells its own version of the result." },
+  { name: "Fetch", zone: "raw", modules: modulesFor(1), title: "Ask for the page", body: "The collector works from a list of the sites it must ask and follows the links each schedule page publishes. It never guesses a URL, and it records which pages answered and which did not.", artifact: `asked: ${box.source_url}\nresult: answered, saved`, risk: "Without it: a page that never arrived leaves no trace, and a guessed URL quietly returns the wrong page." },
+  { name: "Archive", zone: "raw", modules: modulesFor(2), title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
+  { name: "Prove", zone: "clean", modules: modulesFor(3), title: "Make the page prove itself", body: "The school's own schedule must list this match and link to this page. Then the page itself must name the match date and show exactly two teams.", artifact: `schedule lists this match and links here: yes\ntitle names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
+  { name: "Parse", zone: "clean", modules: modulesFor(4), title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
+  { name: "Resolve", zone: "clean", modules: modulesFor(5, 6), title: "Give each team one identity", body: "Published names become stable ids, so every later join means the same school.", artifact: `${home.name} → ${fixture.home}\n${away.name} → ${fixture.away}`, risk: "Without it: one school splits into several, or two schools become one." },
+  { name: "Check", zone: "clean", modules: modulesFor(7), title: "Let a gate stop the line", body: "Automatic checks compare the record against its contract, the written rules for its shape, and against itself.", artifact: `${home.name}: ${home.periods.join(" + ")} = ${home.score}\n${away.name}: ${away.periods.join(" + ")} = ${away.score}\nschedule and match page agree: yes`, risk: "Without it: a bad record reaches everything built on it." },
+  { name: "Build", zone: "derived", modules: modulesFor(8, 9), title: "Publish from the clean files", body: "The website, the analytical database and the written season summaries, called journals, all read the same record.", artifact: `${home.name} ${home.score}, ${away.name} ${away.score}\nwebsite · database · journal`, risk: "Without it: each product tells its own version of the result." },
 ] as const satisfies readonly { zone: Zone; [key: string]: unknown }[];
 
 export const zones = [
@@ -59,3 +59,10 @@ export const ideas = [
 ] as const;
 
 export const matchLabel = `${away.name} at ${home.name}, September 8`;
+
+const homeRow = scoreRows.find((r) => r.includes(home.name))!;
+export const trail: Record<Zone, { what: string; text: string }> = {
+  raw: { what: "the saved page's score row", text: homeRow },
+  clean: { what: "the parsed record", text: `home: ${home.name}, ${home.score} (periods ${home.periods.join(", ")})` },
+  derived: { what: "every product", text: `${home.name} ${home.score}, ${away.name} ${away.score}` },
+};

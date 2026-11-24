@@ -1,0 +1,25 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+---
+
+<nav class="or not-content" aria-label="On this page">
+  <p>For anyone who uses AI with data. No soccer or pipeline background is needed, and a browser is enough.</p>
+  <ol>
+    <li><a href="#film">Watch the film <span>2 min</span></a></li>
+    <li><a href="#one-match">See the seven steps</a></li>
+    <li><a href="#the-journey">The ten modules</a></li>
+    <li><a class="or-go" href={`${base}modules/01-collection/`}>Start Module 1</a></li>
+  </ol>
+</nav>
+
+<style is:global>
+  .or { max-width: 52rem; margin: 0 auto 1rem; color: var(--tl-muted); font-size: 0.92rem; }
+  .or p { margin: 0 0 0.45rem; }
+  .or ol { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+  .or li { margin: 0; }
+  .or a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 40px; padding: 0.3rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); font-weight: 600; text-decoration: none; }
+  .or a:hover { border-color: var(--sl-color-accent); }
+  .or a span { color: var(--tl-muted); font-weight: 400; }
+  .or a.or-go { border-color: var(--sl-color-accent); color: var(--sl-color-accent-high); }
+  .or a:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+</style>
