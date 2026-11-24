@@ -46,8 +46,8 @@ const dots = [
   </div>
   <div class="cv-check" data-once="skew">
     <p class="cv-kind">Knowledge check</p>
-    <div class="cv-line" data-q data-type="select" data-answer="unknown" data-why="Can't tell from Kick's table. The skew depends on how Dunmore played at home, and Kick's table holds none of those matches. Home advantage is a guess about matches nobody saw." data-wrong={JSON.stringify({ high: "That assumes Dunmore conceded fewer at home, as home advantage would suggest. Kick's table has no Dunmore home match to check that against.", low: "That turns out to be true, but nothing in Kick's table could have told you so. It has no Dunmore home match to compare with." })}>
-      <label><span>Kick's table holds every Dunmore away match and no Dunmore home match. Before any home result is recovered, which way is Dunmore's goals conceded per match skewed?</span>
+    <div class="cv-line" data-q data-type="select" data-answer="unknown" data-why="Can't tell from Kick's table. The skew depends on how Dunmore played at home, and Kick's table holds none of those matches. Home advantage is a guess about matches nobody saw." data-wrong={JSON.stringify({ high: "That assumes Dunmore conceded fewer at home, as home advantage would suggest. Kick's table has no Dunmore home match to check that against.", low: "True, and Coach Dolan's 7-0 is enough to show it. But that came from a voicemail, from outside the table. Kick's table alone has no Dunmore home match to compare with." })}>
+      <label><span>Kick's original table holds every Dunmore away match and no Dunmore home match. Using that table alone, which way is Dunmore's goals conceded per match skewed?</span>
         <select data-save="bias-dir"><option value="">Choose</option><option value="low">Too low</option><option value="high">Too high</option><option value="unknown">Can't tell from Kick's table</option></select>
       </label>
       <p class="cv-fb" role="status"></p>
@@ -79,7 +79,7 @@ const dots = [
   <div class="cv-check" data-once="bias">
     <p class="cv-kind">Knowledge check</p>
     <div class="cv-line" data-q data-type="select" data-answer="mar" data-why="Missing at random, given the host. Whether a match was lost depends on who hosted it, which the record shows, and not on the score." data-wrong={JSON.stringify({ mcar: "A coin toss would scatter the lost matches across hosts. Here, every lost match had the same host.", mnar: "That would mean the outage happened because of the scores. Nothing in the record suggests that." })}>
-      <label><span>Which pattern describes Dunmore's seven lost matches?</span>
+      <label><span>Assume Dunmore's site went down for reasons that had nothing to do with the scores. Which pattern describes its seven lost matches?</span>
         <select data-save="bias-kind"><option value="">Choose</option><option value="mcar">Missing completely at random</option><option value="mar">Missing at random, given something recorded</option><option value="mnar">Missing not at random</option></select>
       </label>
       <p class="cv-fb" role="status"></p>

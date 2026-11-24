@@ -25,18 +25,19 @@ const key = (k: string) => `ev-${id}-${k}`;
     <div class="cv-line"><label><span>Did it say a finished match had no score?</span>
       <select data-save={key("blank")}><option value="">Choose</option><option value="sep21">Yes, September 21</option><option value="other">Yes, a different match</option><option value="none">No, or it gave that match a score</option></select>
     </label></div>
-    <div class="cv-line"><label><span>How many teams are in its table?</span>
-      <input inputmode="numeric" autocomplete="off" data-save={key("teams")} />
+    <div class="cv-line"><label><span>Does its table have exactly one row for each of the {members.length} members?</span>
+      <select data-save={key("teams")}><option value="">Choose</option><option value="yes">Yes</option><option value="short">No, a member is missing</option><option value="extra">No, a team is doubled or a non-member is in it</option></select>
     </label></div>
     <p class="cv-row cv-fillin">
-      <span>{hideAbsent ? "Find the school whose page is not in what you pasted. Its row in the table:" : `${absent}'s row in its table:`}</span>
+      <span>{hideAbsent ? "The missing school: each page you pasted starts with its school's name, so find the member with no page. Its row in the table:" : `${absent}'s row in its table:`}</span>
       <input inputmode="numeric" autocomplete="off" aria-label="Played" data-save={key("played")} /><span>played,</span>
       <input inputmode="numeric" autocomplete="off" aria-label="Points" data-save={key("points")} /><span>points</span>
+      <label class="cv-ev-none"><input type="checkbox" data-save={key("norow")} /><span>Not in its table</span></label>
     </p>
     <p class="cv-row cv-fillin">
       <span>It said the table counts</span>
       <input inputmode="numeric" autocomplete="off" aria-label="Matches counted" data-save={key("counted")} /><span>matches out of</span>
-      <input inputmode="numeric" autocomplete="off" aria-label="Matches finished" data-save={key("finished")} /><span>finished. Leave both blank if it gave no count.</span>
+      <input inputmode="numeric" autocomplete="off" aria-label="Matches finished" data-save={key("finished")} /><span>finished. Leave a box blank if it didn't give that number.</span>
     </p>
   </div>
   <button type="button" data-evidence-check>Compare with the pages</button>

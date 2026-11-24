@@ -50,7 +50,16 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
       </tbody>
     </table>
   </div>
-  <p>Kick chose “Skip it and carry on,” which is a reasonable default: the job finishes and seven schools get a table. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach, built around a clear rule for what counts as success:</p>
+  <p>Kick chose “Skip it and carry on,” which is a reasonable default: the job finishes and seven schools get a table. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach.</p>
+  <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
+    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record + gap list in each season file</div><i aria-hidden="true">→</i>
+    <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of played</li><li>Next run: knows what to retry</li></ul>
+  </div>
+    </div>
+  </div>
+
+  <h4 class="cv-try">The rule</h4>
+  <p>Touchline's rule for what counts as success:</p>
   <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record is written and accurately reflects reality, gaps and all.</p>
   <p>That rule turns Friday into two separate decisions:</p>
   <div class="cv-twins cv-two">
@@ -63,13 +72,6 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
       <p>Does that record support what the table claims? Hold the table back while a gap can still be closed from pages you already have. Once nothing more can be recovered, publish with every remaining gap named.</p>
     </div>
   </div>
-  <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
-    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record + gap list in each season file</div><i aria-hidden="true">→</i>
-    <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of played</li><li>Next run: knows what to retry</li></ul>
-  </div>
-    </div>
-  </div>
-
   <h4 class="cv-try">Apply the rule</h4>
   <p>Three runs end with the summaries below. For each one, did the run succeed, and should you publish the table?</p>
   <div class="cv-check" data-once="succeed">
@@ -127,7 +129,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
   if (gate) {
     const read = (): Record<string, string> => { try { return JSON.parse(localStorage.getItem(KEY) ?? "{}"); } catch { return {}; } };
     const write = (k: string, v: string) => { try { localStorage.setItem(KEY, JSON.stringify({ ...read(), [k]: v })); } catch {} };
-    const tried = new Set((read()["bench-tried"] ?? "").split(",").filter(Boolean));
+    const tried = new Set((read()["bench-clicked"] ?? "").split(",").filter(Boolean));
     const note = gate.querySelector<HTMLElement>("[data-chose-tried]")!;
     const button = gate.querySelector<HTMLButtonElement>("[data-chose-open]")!;
     const show = () => {
@@ -137,7 +139,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
     const record = (d: string | undefined) => {
       if (!d || tried.has(d)) return;
       tried.add(d);
-      write("bench-tried", [...tried].join());
+      write("bench-clicked", [...tried].join());
       show();
     };
     const open = (focus: boolean) => {
@@ -148,7 +150,11 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
       if (focus) { const r = gate.querySelector<HTMLElement>(".cv-reveal")!; r.tabIndex = -1; r.focus({ preventScroll: true }); }
       gate.dispatchEvent(new Event("rail:refresh", { bubbles: true }));
     };
-    bench?.addEventListener("click", (event) => record((event.target as HTMLElement).closest<HTMLElement>("[data-bn-design]")?.dataset.bnDesign));
+    const first = () => (said[stored()] ? stored() : "skip");
+    bench?.addEventListener("click", (event) => {
+      const clicked = (event.target as HTMLElement).closest<HTMLElement>("[data-bn-design]")?.dataset.bnDesign;
+      if (clicked) { record(first()); record(clicked); }
+    });
     button.addEventListener("click", (event) => { write("open-chose", "1"); open(event.detail === 0); });
     if (read()["open-chose"]) open(false);
     show();

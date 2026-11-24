@@ -42,9 +42,10 @@
       const need = box.querySelector<HTMLElement>("[data-evidence-need]")!;
       const list = box.querySelector<HTMLElement>("[data-found]")!;
       const note = box.querySelector<HTMLElement>("[data-evidence-note]")!;
-      const missing = !val("absent") || !val("blank") || num("teams") === null || num("played") === null || num("points") === null || (!!val("counted") !== !!val("finished"));
+      const norow = val("norow") === "1";
+      const missing = !val("absent") || !val("blank") || !val("teams") || (!norow && (num("played") === null || num("points") === null));
       if (missing) {
-        if (asked) need.textContent = "Answer each line from what your assistant wrote. Leave only the count blank, and only if it gave none.";
+        if (asked) need.textContent = "Answer each line from what your assistant wrote. For the row, enter both numbers or tick “Not in its table.” Only the count may be left blank.";
         return;
       }
       need.textContent = "";
@@ -52,11 +53,11 @@
       const absent = d.absent!;
       const host = d.host ? Number(d.host) : null;
       const checks: [boolean, string, string][] = [
-        [num("teams") === Number(d.teams), `All ${d.teams} teams in its table`, `It listed ${num("teams")}. A school with no page of its own can drop out of the table.`],
-        [num("played") === Number(d.played) && num("points") === Number(d.points), `${absent} on ${d.played} played and ${d.points} points`, num("played") === host ? `${num("played")} played is Kick's host-only count: it read none of ${absent}'s home matches from the visitors' pages.` : `The pages support ${d.played} played and ${d.points} points. A gap here is a counting slip, double counting, or non-conference rows.`],
+        [val("teams") === "yes", `One row for each of the ${d.teams} members`, val("teams") === "short" ? "A school with no page of its own can drop out of the table." : "Non-conference opponents or a school counted twice made it into the table."],
+        [!norow && num("played") === Number(d.played) && num("points") === Number(d.points), `${absent} on ${d.played} played and ${d.points} points`, norow ? `It dropped ${absent}, whose results are all on its opponents' pages.` : num("played") === host ? `${num("played")} played is Kick's host-only count: it read none of ${absent}'s home matches from the visitors' pages.` : `The pages support ${d.played} played and ${d.points} points. A gap here is a counting slip, double counting, or non-conference rows.`],
         [val("absent") === absent, `Said ${absent}'s own page was not there`, val("absent") === "none" ? "It never mentioned a missing page." : `It named ${val("absent")}, whose page was there. The missing one was ${absent}'s.`],
         [val("blank") === "sep21", "Named September 21 as a final without a score", val("blank") === "none" ? "It said nothing about a blank score, or filled one in." : "The blank is September 21, Cedar Grove v St. Lambert."],
-        [num("counted") === Number(d.scored) && num("finished") === Number(d.finals), `Gave ${d.scored} counted, out of ${d.finals} finished`, val("counted") ? `It said ${val("counted")} of ${val("finished")}. The pages support ${d.scored} of ${d.finals}.` : "It gave no count out of a total."],
+        [num("counted") === Number(d.scored) && num("finished") === Number(d.finals), `Gave ${d.scored} counted, out of ${d.finals} finished`, !val("counted") && !val("finished") ? "It gave no count out of a total." : !val("finished") ? `It gave a count, ${val("counted")}, with nothing to measure it against. The pages support ${d.scored} of ${d.finals}.` : `It said ${val("counted") || "nothing"} of ${val("finished")}. The pages support ${d.scored} of ${d.finals}.`],
       ];
       list.replaceChildren();
       checks.forEach(([ok, label, miss]) => {
@@ -70,7 +71,7 @@
       const found = checks.filter(([ok]) => ok).length;
       const told = checks.slice(2).filter(([ok]) => ok).length;
       put(`found-${id}`, String(found));
-      if (id === "first") note.textContent = `${found} of 5. It volunteered ${told} of the 3 gaps.${store.predict ? ` You predicted ${store.predict}.` : ""}`;
+      if (id === "first") note.textContent = `${found} of 5. It volunteered ${told} of the 3 things it should have told you.${store.predict ? ` You predicted ${store.predict}.` : ""}`;
       else note.textContent = `${found} of 5.${store["found-first"] ? ` The first answer had ${store["found-first"]}.` : ""}`;
       put(`checked-${id}`, "1");
       box.querySelector<HTMLElement>(".cv-reveal")?.classList.add("is-open");
