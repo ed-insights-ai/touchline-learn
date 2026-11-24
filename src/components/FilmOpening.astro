@@ -107,7 +107,12 @@ const transcript: [string, string][] = [
     const play = root.querySelector<HTMLButtonElement>("[data-play]")!;
     play.hidden = false;
     play.addEventListener("click", () => { video.play(); video.focus(); });
-    video.addEventListener("play", () => { play.hidden = true; });
+    video.addEventListener("play", () => {
+      play.hidden = true;
+      if (matchMedia("(max-height: 30rem) and (orientation: landscape)").matches) {
+        video.scrollIntoView({ block: "end", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      }
+    });
     video.addEventListener("ended", () => {
       const active = document.activeElement;
       const box = video.getBoundingClientRect();

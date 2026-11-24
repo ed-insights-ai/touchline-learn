@@ -34,7 +34,7 @@ away: ${away.name}, ${away.score} (periods ${away.periods.join(", ")})
 date: ${fixture.date}`;
 
 const stops = [
-  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector works from a list of the sites it must ask and follows the links each schedule page publishes. It never guesses a URL, and it records which pages answered and which did not.", artifact: box.source_url, risk: "Without it: a page that never arrived leaves no trace, and a guessed URL quietly returns the wrong page." },
+  { name: "Fetch", zone: "raw", title: "Ask for the page", body: "The collector works from a list of the sites it must ask and follows the links each schedule page publishes. It never guesses a URL, and it records which pages answered and which did not.", artifact: `asked: ${box.source_url}\nresult: answered, saved`, risk: "Without it: a page that never arrived leaves no trace, and a guessed URL quietly returns the wrong page." },
   { name: "Archive", zone: "raw", title: "Save it untouched", body: "The page is stored byte for byte before any code reads it.", artifact: rawSnippet, risk: "Without it: a parser bug means collecting everything again, if the page still exists." },
   { name: "Prove", zone: "clean", title: "Make the page prove itself", body: "The school's own schedule must list this match and link to this page. Then the page itself must name the match date and show exactly two teams.", artifact: `schedule lists this match and links here: yes\ntitle names 9/8/2026: yes\nteams in the score table: ${teamRows}\nresult: accepted`, risk: "Without it: a page from the wrong season parses perfectly." },
   { name: "Parse", zone: "clean", title: "Turn the page into a record", body: "Code reads the tables into typed fields. Pages are written for fans, so the parser expects layouts to vary.", artifact: parsed, risk: "Without it: the numbers stay trapped in page layout." },
@@ -132,7 +132,7 @@ const ideas = [
 
   <header class="pt-hero">
     <h2>It is 4:52, and the chair is yours</h2>
-    <p data-no-first>Skipped the film? <a href="../../">Watch the two minutes</a> first. This page picks up where it ends.</p>
+    <p data-no-first>Haven't seen the film? <a href="../../">Watch the two minutes</a> first. This page picks up where it ends.</p>
     <p>Go back to 4:52, before Riley's tap, and take the chair yourself. This is what Kick just sent you.</p>
     <div class="pt-ai">
       <p class="pt-who">Kick <span>scripted example</span></p>
@@ -204,6 +204,7 @@ const ideas = [
 
   <section class="pt-part" data-unlock="zones">
     <h2 tabindex="-1">What can you afford to lose?</h2>
+    <p>Before you open that record, one more question decides how much of Riley's table can be saved: what did Kick keep?</p>
     <p>Each zone is computed from the one before it, using versioned code and reference lists. Delete a zone and any rebuild happens right away. Try different orders.</p>
     <div class="pt-zones">
       {zones.map((z) => (
@@ -348,7 +349,6 @@ const ideas = [
 
   @media (max-height: 30rem) and (orientation: landscape) {
     .pt-stop { min-height: 44px; }
-    [data-unlock="tour"] .pt-nav { position: sticky; bottom: 0; z-index: 1; padding-block: 0.35rem; background: var(--tl-bg); }
   }
 
   @media (max-width: 30rem) {
@@ -467,16 +467,26 @@ const ideas = [
       });
       lookNote.classList.toggle("good", right);
       lookNote.textContent = look.dataset.look!;
+      answered = true;
+      syncLast();
+      forward.scrollIntoView({ behavior, block: "nearest" });
     }));
     let practicing = false;
+    let answered = false;
+    let continued = false;
     let closed = false;
     let current = 0;
+    const syncLast = () => {
+      const last = current === stops.length - 1;
+      forward.hidden = last && (!answered || continued || practicing);
+      practice.hidden = !last || !answered || continued || practicing;
+    };
     const show = (index: number) => {
       current = index;
       const last = index === stops.length - 1;
       dunmore.hidden = !last;
       remind.hidden = last;
-      practice.hidden = !last || practicing;
+      syncLast();
       skip.hidden = closed;
       stops.forEach((stop, i) => {
         stop.toggleAttribute("aria-current", false);
@@ -504,11 +514,13 @@ const ideas = [
         else root.querySelector(".pt-rail")!.scrollIntoView({ behavior, block: matchMedia("(max-height: 30rem)").matches ? "start" : "nearest" });
         return;
       }
+      continued = true;
+      syncLast();
       present(open("zones"), event.detail === 0);
     });
     practice.addEventListener("click", (event) => {
       practicing = true;
-      practice.hidden = true;
+      syncLast();
       present(open("cases"), event.detail === 0);
     });
     show(0);
