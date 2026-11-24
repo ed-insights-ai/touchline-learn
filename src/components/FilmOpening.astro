@@ -61,9 +61,11 @@ const transcript: [string, string][] = [
 
 <style is:global>
   .fo { max-width: 52rem; margin: 0 auto 1rem; color: var(--tl-ink); line-height: 1.55; }
-  :root:has(.fo) .hero { gap: 0.4rem; padding-block: 1rem 0.75rem; }
+  :root:has(.fo) .hero { display: block; max-width: 52rem; margin-inline: auto; padding-block: 1.5rem 0; }
+  :root:has(.fo) .hero .copy { align-items: flex-start; gap: 0.4rem; text-align: start; }
+  :root:has(.fo) .hero + .sl-markdown-content { margin-top: 1.25rem; }
   :root:has(.fo) .hero h1 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); }
-  :root:has(.fo) .hero .tagline { font-size: 1rem; }
+  :root:has(.fo) .hero .tagline { max-width: none; font-size: 1.1rem; }
   .fo-player { position: relative; max-width: min(100%, calc((100svh - 16.5rem) * 16 / 9)); margin-inline: auto; }
   .fo video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #06100b; }
   .fo-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-height: 52px; padding: 0.6rem 1.3rem 0.6rem 2.6rem; border: 2px solid #07120d; border-radius: 3px; background: #f4c62f; color: #1b1a0c; font: inherit; font-weight: 750; cursor: pointer; }
