@@ -65,7 +65,7 @@ import { parts, phases } from "../../lib/parts";
     const shorts = Object.fromEntries(items.map((li) => [li.dataset.railItem!, li.dataset.short!]));
     const phaseOf = Object.fromEntries(items.map((li) => [li.dataset.railItem!, li.dataset.phase!]));
     const narrow = matchMedia("(max-width: 30rem)");
-    const wide = matchMedia("(min-width: 80rem)");
+    const wide = matchMedia("(min-width: 64rem)");
     const sections = ids.map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
 
     let seen: Record<string, string> = {};

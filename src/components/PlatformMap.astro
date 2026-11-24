@@ -18,7 +18,7 @@ const icons = [
 <section class="pm not-content" id="one-match" aria-labelledby="pm-title" data-pm>
   <p class="pm-kicker">The mental model</p>
   <h2 id="pm-title">One match, seven steps</h2>
-  <p class="pm-lead">Kick said Riley's table was ready to publish. Its four green check marks named what the script was busy with, not what it proved. Touchline takes every result through seven steps and keeps its data in three zones. Follow one match from Riley's table through all seven.</p>
+  <p class="pm-lead">Kick said Riley's table was ready to publish. That message named what the script did, not what it proved. Touchline takes every result through seven steps and keeps its data in three zones. Follow one match from Riley's table through all seven.</p>
 
   <div class="pm-score" aria-label={`${home.name} ${home.score}, ${away.name} ${away.score}`}>
     <span>{home.name}</span>
@@ -181,7 +181,8 @@ const icons = [
     const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const reveal = (card: HTMLElement) => {
       const box = card.getBoundingClientRect();
-      if (box.top < 80 || box.top > innerHeight * 0.55) card.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      if (box.top < 80) card.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+      else if (box.top > innerHeight * 0.8) card.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "nearest" });
     };
     const show = (index: number, focus = false) => {
       current = index;

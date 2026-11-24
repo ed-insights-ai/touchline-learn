@@ -472,8 +472,9 @@
   :where(.cv-core, .cv-core > section, .cv-predict, .cv-predict > .cv-reveal) > * { max-width: var(--cv-read); }
   .cv-core :is(.cv-rail, section, .cv-predict, .cv-predict > .cv-reveal) { max-width: none; }
   .cv-core :is(.cv-film, .cv-pipe, .bn) { max-width: min(100%, var(--cv-wide)); }
-  @media (min-width: 80rem) {
+  @media (min-width: 64rem) {
     :root:has(.cv-core) { --sl-content-width: 70rem; }
+    .cv-core { --cv-read: 44rem; }
     .cv-core { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; column-gap: 2rem; align-items: start; }
     .cv-core > * { grid-column: 1; min-width: 0; }
     .cv-core > .cv-rail { grid-column: 2; grid-row: 1 / span 12; top: calc(var(--sl-nav-height) + 1.25rem); max-height: calc(100vh - var(--sl-nav-height) - 2.5rem); overflow-y: auto; margin: 0; padding: 0 0 0.5rem 1rem; border-bottom: 0; border-left: 1px solid var(--tl-line); background: transparent; scrollbar-width: thin; }

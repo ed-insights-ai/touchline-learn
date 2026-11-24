@@ -123,3 +123,13 @@
 
 /* Larger reading size on desktop; every rem on the site scales with it. */
 @media (min-width: 50rem) { html { font-size: 106.25%; } }
+
+/* Tablets (iPad landscape included) keep the course menu behind the menu button so lessons get the full width.
+   Pairs with src/components/overrides/PageFrame.astro, which moves Starlight's sidebar breakpoint to 87.5rem. */
+@media (min-width: 50rem) and (max-width: 87.49rem) {
+  :root[data-has-sidebar][data-has-sidebar] { --sl-content-inline-start: 0rem; }
+  .sl-menu-button.md\:sl-hidden { display: flex; }
+  body:has(#starlight__sidebar:popover-open) { overflow: hidden; }
+  #starlight__sidebar { width: min(22rem, 86vw); border-inline-end: 1px solid var(--sl-color-hairline-shade); background-color: var(--sl-color-bg-sidebar); box-shadow: 0 0 2.5rem rgb(0 0 0 / 0.35); }
+  #starlight__sidebar::backdrop { background: rgb(0 0 0 / 0.35); }
+}

@@ -16,7 +16,10 @@ export default defineConfig({
         "A teaching guide to a working data platform: collection, provenance, identity, contracts, gates, derived products and where AI fits, with runnable labs.",
       favicon: "/favicon.svg",
       customCss: ["./src/styles/theme.css"],
-      components: { MarkdownContent: "./src/components/JourneyContent.astro" },
+      components: {
+        MarkdownContent: "./src/components/JourneyContent.astro",
+        PageFrame: "./src/components/overrides/PageFrame.astro",
+      },
       social: [
         {
           icon: "github",
