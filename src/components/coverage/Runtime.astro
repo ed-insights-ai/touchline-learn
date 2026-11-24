@@ -189,6 +189,7 @@
       const questions = [...box.querySelectorAll<HTMLElement>("[data-q]")];
       const button = box.querySelector<HTMLButtonElement>("[data-submit]")!;
       const need = box.querySelector<HTMLElement>("[data-need]")!;
+      const predict = box.hasAttribute("data-predict");
       const settle = (focus: boolean) => {
         let right = 0;
         questions.forEach((q) => {
@@ -196,6 +197,7 @@
           right += Number(ok);
           const fb = q.querySelector<HTMLElement>(".cv-fb")!;
           fb.classList.remove("is-right", "is-wrong");
+          if (predict) { fb.textContent = "Prediction recorded. It isn't graded: the simulator shows what happened."; return; }
           fb.classList.add(ok ? "is-right" : "is-wrong");
           const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? q.querySelector<HTMLInputElement>("input[type=radio]:checked")?.value ?? "";
           const hint = !ok && q.dataset.wrong ? (JSON.parse(q.dataset.wrong) as Record<string, string>)[picked] ?? "" : "";
@@ -205,9 +207,9 @@
         button.hidden = true;
         box.querySelector<HTMLElement>(".cv-once")!.hidden = true;
         need.classList.remove("is-wrong");
-        need.textContent = `${right} of ${questions.length} correct.`;
+        need.textContent = predict ? "" : `${right} of ${questions.length} correct.`;
         let retry = box.querySelector<HTMLButtonElement>("[data-retry]");
-        if (!retry) {
+        if (!retry && !predict) {
           retry = document.createElement("button");
           retry.type = "button";
           retry.className = "cv-retry";

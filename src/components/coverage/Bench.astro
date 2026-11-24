@@ -1,6 +1,6 @@
 ---
 import {
-  benchData, countTiles, DESIGNS, LABELS, matrixKey, matrixRows, normalise, PRESETS, RULES, simulate, tableRows,
+  benchData, countTiles, DESIGNS, LABELS, matrixKey, matrixRows, normalise, PRESETS, reading, RULES, simulate, tableRows,
   type BenchState, type Control, type Design, type Output, type Preset,
 } from "../../lib/bench";
 
@@ -40,7 +40,12 @@ const config = JSON.stringify({ data: benchData, state, withFill });
 ---
 
 <div class="bn not-content" id={id} data-bench={config} role="group" aria-label={caption ? undefined : "Friday bench"} aria-labelledby={caption ? `${id}-caption` : undefined}>
-  {caption && <p class="bn-caption" id={`${id}-caption`}>{caption}</p>}
+  {(caption || controls.length > 0) && (
+    <div class="bn-head">
+      {caption && <p class="bn-caption" id={`${id}-caption`}>{caption}</p>}
+      {controls.length > 0 && <button type="button" class="bn-reset" data-bn-reset disabled>Reset</button>}
+    </div>
+  )}
 
   {(presets.length > 0 || controls.length > 0) && (
     <div class="bn-controls">
@@ -96,6 +101,14 @@ const config = JSON.stringify({ data: benchData, state, withFill });
 
   {show.includes("counts") && <dl class="bn-counts" data-bn-counts set:html={countTiles(benchData, out)} />}
 
+  {controls.length > 0 && (
+    <div class="bn-reading">
+      <p class="bn-who">What this shows</p>
+      <p role="status" data-bn-reading>{reading(benchData, state, out)}</p>
+    </div>
+  )}
+
+  <div class:list={["bn-views", { "is-pair": show.includes("matrix") && show.includes("table") }]}>
   {show.includes("matrix") && (
     <div class="bn-matrix">
       <div class="bn-scroll" tabindex="0" role="region" aria-labelledby={`${id}-matrix`}>
@@ -135,10 +148,26 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       <p class="bn-none" data-bn-none hidden={!out.stopped}>No table. The run stopped at the first page that did not answer.</p>
     </div>
   )}
+  </div>
 </div>
 
 <style is:global>
-  .bn { min-width: 0; max-width: 100%; display: grid; gap: 1rem; margin: 1.25rem 0 1.75rem; padding: 1rem; border: 1px solid var(--tl-line); color: var(--tl-ink); line-height: 1.5; }
+  .bn { container: bench / inline-size; min-width: 0; max-width: 100%; display: grid; gap: 1rem; margin: 1.25rem 0 1.75rem; padding: 1rem; border: 1px solid var(--tl-line); border-radius: 8px; color: var(--tl-ink); line-height: 1.5; }
+  .bn .bn-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .bn .bn-reset, :root[data-theme="light"] .bn .bn-reset { flex: none; min-height: 32px; margin: -0.2rem 0 0; padding: 0.15rem 0.7rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: transparent; color: var(--tl-ink); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .bn .bn-reset:disabled { border-color: var(--tl-line); color: var(--tl-muted); cursor: default; }
+  .bn .bn-reading { padding: 0.7rem 1rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
+  .bn .bn-reading p:last-child { margin: 0; }
+  .bn .bn-views { display: grid; gap: 1rem; min-width: 0; }
+  .bn .bn-views > * { min-width: 0; }
+  @container bench (min-width: 50rem) {
+    .bn .bn-views.is-pair { grid-template-columns: max-content minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+    .bn .bn-views.is-pair .bn-key { width: 0; min-width: 100%; }
+    .bn .bn-views.is-pair .bn-matrix caption { width: 0; min-width: 100%; }
+    .bn .bn-views.is-pair .bn-table { font-size: 0.9rem; }
+    .bn .bn-views.is-pair .bn-table :is(th, td) { padding-inline: 0.3rem; }
+    .bn .bn-views.is-pair .bn-table :is(.bn-vs, thead th:last-child) { min-width: 6rem; white-space: normal; }
+  }
   .bn [hidden] { display: none !important; }
   .bn > *, .bn .bn-controls > *, .bn .bn-group { min-width: 0; }
   .bn .bn-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -218,7 +247,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
 
 <script>
   import {
-    countTiles, DESIGNS, matrixKey, matrixRows, normalise, PRESETS, RULES, simulate, tableRows,
+    countTiles, DESIGNS, matrixKey, matrixRows, normalise, PRESETS, reading, RULES, simulate, tableRows,
     type BenchData, type BenchState, type Design, type Preset, type Rule,
   } from "../../lib/bench-core";
 
@@ -248,6 +277,10 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       fill("matrix", matrixRows(data, out));
       fill("key", matrixKey(out, withFill));
       fill("table", tableRows(out));
+      const reads = part("reading");
+      const text = reading(data, state, out);
+      if (reads && reads.textContent !== text) reads.textContent = text;
+      root.querySelector<HTMLButtonElement>("[data-bn-reset]")?.toggleAttribute("disabled", same(state, start));
       part("standings")?.toggleAttribute("hidden", out.stopped);
       part("none")?.toggleAttribute("hidden", !out.stopped);
       return out;
@@ -272,7 +305,8 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       const b = (e.target as Element).closest<HTMLButtonElement>("button");
       if (!b || !root.contains(b)) return;
       const { bnPage: page, bnRule: rule, bnDesign: design, bnPreset: preset } = b.dataset;
-      if (page) set({ ...state, down: state.down.includes(page) ? state.down.filter((s) => s !== page) : [...state.down, page] });
+      if ("bnReset" in b.dataset) set(structuredClone(start));
+      else if (page) set({ ...state, down: state.down.includes(page) ? state.down.filter((s) => s !== page) : [...state.down, page] });
       else if (rule) set({ ...state, rule: rule as Rule });
       else if (design) set({ ...state, design: design as Design });
       else if (preset) set(structuredClone(PRESETS[preset as Preset]));

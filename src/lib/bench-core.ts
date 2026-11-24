@@ -178,9 +178,32 @@ export function countTiles(data: BenchData, out: Outcome): string {
     [`${data.schools.length - out.down.length} of ${data.schools.length}`, "schedule pages answered"],
     [`${out.stopped ? 0 : out.read} of ${out.finished}`, "finished matches with a score in the table"],
     [String(out.unread), out.invented ? "finished matches never read, entered as 0-0" : "finished matches never read"],
-    [out.wrong === null ? "No table" : `${out.wrong} of ${data.schools.length}`, out.wrong === null ? "the run stopped" : "table rows that are wrong"],
+    [String(out.noscore), "finished matches read with no score on the page"],
+    [out.wrong === null ? "No table" : `${out.wrong} of ${data.schools.length}`, out.wrong === null ? "the run stopped" : `rows that differ from the table on all ${out.scored} scored matches`],
   ];
   return tiles.map(([v, l]) => `<div><dt>${esc(l)}</dt><dd>${esc(v)}</dd></div>`).join("");
+}
+
+export function reading(data: BenchData, st: BenchState, out: Outcome): string {
+  const n = data.schools.length;
+  const matches = (k: number) => `${number(k)} finished match${k === 1 ? "" : "es"}`;
+  const capital = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+  const blank = out.noscore ? ` ${capital(matches(out.noscore))} still ${out.noscore === 1 ? "has" : "have"} no score on any page that answered.` : "";
+  if (!out.down.length) {
+    return out.noscore
+      ? `Every page answered, and ${matches(out.noscore)} still ${out.noscore === 1 ? "has" : "have"} no score. A page that answers can still hold a row with a blank in it.`
+      : "Every page answered, and every finished match has a score.";
+  }
+  const one = out.down.length === 1;
+  const who = listed(out.down.map((i) => data.schools[i].name));
+  if (out.stopped) return `The run stopped at ${data.schools[out.down[0]].name}'s page. Nothing comes out, including the ${out.read} matches read from pages that did answer.`;
+  if (!out.unread) return `${who} did not answer, and no match is lost: each one was read from the visitor's page.${blank}`;
+  const lost = st.rule === "host"
+    ? `${who} did not answer, and ${matches(out.unread)} went with ${one ? "that page" : "those pages"}: every match ${one ? "that school" : "those schools"} hosted.`
+    : `With both pages read, only a match between two schools that did not answer is lost: ${matches(out.unread)}.`;
+  if (st.design === "fill") return `${lost} Each is in the table as 0-0. ${out.wrong} of ${n} rows differ from the real table, and nothing marks which scores were invented.`;
+  const rows = `${out.wrong} of ${n} rows are wrong, because each visitor is missing a match as well.`;
+  return `${lost} ${rows}${st.design === "record" ? " The table is the same as when Kick skips the page. What changed is the summary: it names the gap." : ""}`;
 }
 
 export function tableRows(out: Outcome): string {

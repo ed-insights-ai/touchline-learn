@@ -2,6 +2,8 @@
 import Bench from "./Bench.astro";
 import { bounds, story } from "../../lib/coverage";
 import { noScore } from "../../lib/cases";
+import PartHead from "./PartHead.astro";
+import NextPart from "./NextPart.astro";
 
 const said: Record<string, string> = {
   stop: "Stop the run",
@@ -18,11 +20,17 @@ const runs = [
   { key: "monday", who: "Collector with a record, Monday", text: `Both schools' pages read for every match. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' pages. Not counted: ${noScore.home} vs. ${noScore.away}, ${noScore.day}, final, score unknown.`, ok: "yes", publish: "yes",
     why: "Succeeded, and publish it with the gap noted under the table. A table doesn't need 100% coverage to be published; it just needs to be honest about what it includes." },
 ];
+const options = [
+  { name: said.skip, out: `A table on ${story.counted} matches, and “no errors”`, reader: "Nothing. The gap stays invisible until someone calls." },
+  { name: said.fill, out: `A table on ${story.counted + bounds.unseen} matches, ${bounds.unseen} of them invented`, reader: `Nothing, and ${bounds.unseen} scores nobody saw now look real.` },
+  { name: said.stop, out: "No table at all", reader: `That something failed. The ${story.counted} matches that were read go unused.` },
+  { name: said.record, out: `A table on ${story.counted} of ${story.finals}, with each gap named`, reader: "What is missing, and why.", here: true },
+];
 const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"], ["no", name === "ok" ? "Failed" : "Hold back"]];
 ---
 
 <section id="decision">
-  <h2>The decision: what to do when a site is silent</h2>
+  <PartHead id="decision">The decision: what to do when a site is silent</PartHead>
   <blockquote class="cv-quote">
     <p>“Every check mark hid a decision Riley never knew was theirs to make.”</p>
     <footer>From <em>Publish Day</em></footer>
@@ -33,10 +41,28 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
     <p class="cv-once">Try all four options above to unlock the comparison. <span data-chose-tried></span></p>
     <button type="button" data-chose-open disabled>Show comparison</button>
     <div class="cv-reveal">
-  <p>Kick chose “Skip it and carry on,” which is a reasonable default: the job finishes and seven schools get a table. The downside is that the gap stays invisible until someone calls. Stopping the run produces nothing at all. Filling in 0-0 invents scores nobody saw. Recording the gap lets the run finish <em>and</em> makes the gap visible.</p>
-  <p>Touchline uses that fourth approach, built around a clear rule for what counts as success:</p>
+  <div class="cv-scroll">
+    <table class="cv-stagemap cv-options">
+      <caption>Friday under each option</caption>
+      <thead><tr><th scope="col">When a page does not answer</th><th scope="col">What comes out</th><th scope="col">What a reader can tell</th></tr></thead>
+      <tbody>
+        {options.map((o) => <tr class:list={{ "is-here": o.here }}><th scope="row">{o.name}</th><td>{o.out}</td><td>{o.reader}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
+  <p>Kick chose “Skip it and carry on,” which is a reasonable default: the job finishes and seven schools get a table. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach, built around a clear rule for what counts as success:</p>
   <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record is written and accurately reflects reality, gaps and all.</p>
-  <p>A run that fails to write the coverage record has failed, because nobody can verify what happened. Deciding whether to publish is a separate step based on reading that record: Friday's run succeeds under this rule, yet its table still shouldn't be published as-is.</p>
+  <p>That rule turns Friday into two separate decisions:</p>
+  <div class="cv-twins cv-two">
+    <div>
+      <h4>1. Did the run succeed?</h4>
+      <p>Was the coverage record written, and does it match what happened? A run that fails to write its record has failed, because nobody can verify what it collected.</p>
+    </div>
+    <div>
+      <h4>2. Should we publish?</h4>
+      <p>Does that record support what the table claims? Friday's run succeeds under this rule, yet its table still shouldn't be published as-is.</p>
+    </div>
+  </div>
   <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
     <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record + gap list in each season file</div><i aria-hidden="true">→</i>
     <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of played</li><li>Next run: knows what to retry</li></ul>
@@ -47,6 +73,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
   <h4 class="cv-try">Apply the rule</h4>
   <p>Three runs end with the summaries below. For each one, did the run succeed, and should you publish the table?</p>
   <div class="cv-check" data-once="succeed">
+    <p class="cv-kind">Apply it</p>
     {runs.map((r) => (
       <div class="cv-run">
         <div class="cv-say"><p class="cv-who">{r.who}</p><p>{r.text}</p></div>
@@ -68,7 +95,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
     <div class="cv-reveal"><p>Run success is about whether the record is complete and accurate. Publishing is a separate judgment call made after reading that record.</p></div>
   </div>
   <p class="cv-further">Optional deep dive: <a href="../01-collection-field-work/?from=decision#platform">How Touchline builds it</a> explains how the coverage record stays accurate across reruns and interrupted jobs.</p>
-  <p class="cv-next">Next: rewind to Friday and give Kick a prompt that asks for a coverage record.</p>
+  <NextPart from="decision">Next, rewind to Friday and give Kick a prompt that asks for a coverage record.</NextPart>
 </section>
 
 <script>

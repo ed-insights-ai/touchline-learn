@@ -2,6 +2,8 @@
 import FirstRunTable from "../FirstRunTable.astro";
 import Pipeline from "./Pipeline.astro";
 import Voicemail from "./Voicemail.astro";
+import PartHead from "./PartHead.astro";
+import NextPart from "./NextPart.astro";
 import { reported } from "../../lib/first-run";
 import { bounds, story } from "../../lib/coverage";
 import { noScore, pipeline, rileyAsk, spell } from "../../lib/cases";
@@ -61,10 +63,10 @@ const choices = [
 ---
 
 <section id="setup">
-  <h2>Setup: one prompt, one Friday</h2>
+  <PartHead id="setup">Setup: one prompt, one Friday</PartHead>
   <p>Let's slow Friday down and walk through what actually went wrong behind the scenes.</p>
 
-  <h3 class="cv-step"><span>1</span>The prompt</h3>
+  <h3 class="cv-step" id="setup-prompt"><span>1</span>The prompt</h3>
   <div class="cv-user-prompt" role="region" aria-label="Riley's prompt to Kick">
     <div class="cv-chat-bar">
       <span class="cv-chat-badge">Prompt</span>
@@ -74,7 +76,7 @@ const choices = [
   </div>
   <p>It names the season, the sport, the sources, and the output. At a glance, it sounds complete.</p>
 
-  <h3 class="cv-step"><span>2</span>What Kick built</h3>
+  <h3 class="cv-step" id="setup-built"><span>2</span>What Kick built</h3>
   <p>Kick built a web scraper, a program that downloads pages meant for people and extracts structured rows from them. This 4-minute video builds one from a single loop and shows five ordinary ways it breaks.</p>
   <figure class="cv-film">
     <video controls playsinline preload="metadata" poster={film("one-loop-to-a-pipeline.jpg")} aria-label="One Loop to a Pipeline, an animated explainer under four minutes">
@@ -102,7 +104,7 @@ const choices = [
   </ul>
   <p>All {story.counted} of Kick's matches are real and accurately parsed, so both cleansing and validation would pass this table. A missing record gives those checks nothing to fail.</p>
   <details class="cv-learn-box">
-    <summary>New to web scrapers? Open an AI study prompt</summary>
+    <summary><span class="cv-optional">Optional · AI study prompt</span>New to web scrapers? Get a primer first.</summary>
     <div class="cv-prompt cv-learn">
       <p class="cv-prompt-note">Paste this into any AI assistant for a quick primer on scrapers and pipelines, then come back for the cases.</p>
       <p data-copy-text tabindex="0">{learnPrompt}</p>
@@ -110,7 +112,7 @@ const choices = [
     </div>
   </details>
 
-  <h3 class="cv-step"><span>3</span>What the prompt left open</h3>
+  <h3 class="cv-step" id="setup-left-open"><span>3</span>What the prompt left open</h3>
   <p>Riley's one-sentence prompt left five important details unspecified. Kick filled each one with a reasonable default and never mentioned any of them. Click each item to see what happened.</p>
   <div class="cv-open">
     {openings.map((o) => (
@@ -125,7 +127,7 @@ const choices = [
     ))}
   </div>
 
-  <h3 class="cv-step"><span>4</span>What Riley saw</h3>
+  <h3 class="cv-step" id="setup-riley-saw"><span>4</span>What Riley saw</h3>
   <p>When Kick finished, this was everything on Riley's screen.</p>
   <div class="cv-agent-reply" role="region" aria-label="Kick's completion summary">
     <div class="cv-chat-bar">
@@ -136,7 +138,8 @@ const choices = [
   </div>
   <FirstRunTable rows={reported} caption="The table Kick delivered" />
   <div class="cv-commit" data-commit>
-    <label class="cv-write" for="cv-looks">Take a look at the table above. Does anything look wrong to you? <span class="cv-ungraded">(Not graded)</span></label>
+    <p class="cv-kind">Observation <span>not graded</span></p>
+    <label class="cv-write" for="cv-looks">Take a look at the table above. Does anything look wrong to you?</label>
     <textarea id="cv-looks" rows="2" placeholder="Jot down a quick observation..." data-save="looks-wrong"></textarea>
     <div class="cv-actions">
       <button type="button" data-commit-btn disabled>Save note and continue</button>
@@ -148,7 +151,7 @@ const choices = [
     </div>
   </div>
 
-  <h3 class="cv-step"><span>5</span>How the problem surfaced</h3>
+  <h3 class="cv-step" id="setup-surfaced"><span>5</span>How the problem surfaced</h3>
   <p>Riley published the table on Friday afternoon. Within an hour, the coaches caught what Riley had no way to see.</p>
   <div class="cv-calls">
     <Voicemail who="dolan" caller="Coach Dolan, Hartwell" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
@@ -156,25 +159,18 @@ const choices = [
     <Voicemail who="cedar" caller="Cedar Grove men's soccer" note="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
   </div>
 
-  <h3 class="cv-step"><span>6</span>The core problem</h3>
+  <h3 class="cv-step" id="setup-core-problem"><span>6</span>The core problem</h3>
   <p class="cv-lede">Kick's summary reported on its code, not on the data. Every row in the table is clean and valid, yet key matches are missing.</p>
   <div class="cv-say cv-yours" data-first hidden>
     <p class="cv-who">Your question from Publish Day</p>
     <p data-first-text></p>
   </div>
   <fieldset class="cv-choice" data-gate>
-    <legend>Dunmore's site doesn't answer. What should Kick do?</legend>
+    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Dunmore's site doesn't answer. What should Kick do?</legend>
     {choices.map(([value, label]) => (
       <label><input type="radio" name="cv-decision" value={value} data-save="decision" /><span>{label}</span></label>
     ))}
   </fieldset>
-  <p class="cv-once">Not graded. We'll revisit your choice after the three cases.</p>
-  <p class="cv-can">Next, we'll introduce the core idea behind all three voicemails and walk through one case per call. By the end of this module, you'll be able to:</p>
-  <ul>
-    <li>define how many items a collection should find before it runs, using an outside source</li>
-    <li>trace a missing source to the block of records it drops, and calculate bounds on how much the numbers could shift</li>
-    <li>distinguish <em>empty</em>, <em>unknown</em>, and <em>never asked</em>, and know what each lets you claim</li>
-    <li>decide how a collector should handle a silent source, and what makes a run successful</li>
-  </ul>
-  <p class="cv-next">Up next: the concept behind all three calls, coverage.</p>
+  <p class="cv-once">We'll come back to your choice after the three cases.</p>
+  <NextPart from="setup">Next comes the one idea behind all three voicemails, then a case for each call.</NextPart>
 </section>

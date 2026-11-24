@@ -1,6 +1,8 @@
 ---
 import { journey } from "../../data/journey";
 import { stateOptions } from "../../lib/states";
+import { outcomes } from "../../lib/parts";
+import PartHead from "./PartHead.astro";
 
 const current = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01-collection")!;
 const nextModule = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "02-archive")!;
@@ -32,7 +34,7 @@ const next = [
 ---
 
 <section id="carry-it">
-  <h2>Carry it: same number, three worlds</h2>
+  <PartHead id="carry-it">Carry it: same number, three worlds</PartHead>
   <p>A health network has ten clinics that report patient visits each week. For week 9, you receive the exact same spreadsheet in three different scenarios: eight rows totaling 100 visits.</p>
   <div class="cv-twins">
     <div>
@@ -49,6 +51,7 @@ const next = [
     </div>
   </div>
   <div class="cv-check" data-once="transfer">
+    <p class="cv-kind">Transfer</p>
     {(["a", "b"] as const).map((w) => (
       <div class="cv-line" data-q data-type="select" data-answer={w === "a" ? "total" : "floor"}
         data-why={w === "a" ? "100 visits across the network. The two closed clinics answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two silent clinics are unavailable: unknown, not zero."}
@@ -76,14 +79,20 @@ const next = [
     <div class="cv-reveal"><p>World C has the same blank files as World A, yet only supports World B's headline because those files can't verify their week. Same number, three scenarios, and only the coverage record tells them apart.</p></div>
   </div>
 
-  <h3>The prompt to take with you</h3>
+  <h3 id="carry-it-recap">What you can now do</h3>
+  <ul class="cv-outcomes">
+    {outcomes.map((o) => <li>{o.can} <a href={o.href}>{o.where}</a></li>)}
+  </ul>
+  <p class="cv-done-note"><span data-progress-text></span> <a href="#setup" data-rail-resume="name" hidden></a></p>
+
+  <h3 id="carry-it-prompt">The question to take with you</h3>
   <p>Ask this whenever an AI collects or summarizes data for you:</p>
   <div class="cv-prompt">
     <p data-copy-text>{ask}</p>
     <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 
-  <h3>Then Tuesday</h3>
+  <h3 id="carry-it-tuesday">Then Tuesday</h3>
   <p>This 90-second closing video wraps up Monday's fix and introduces the bug that kicks off Module 2.</p>
   <figure class="cv-film">
     <video controls playsinline preload="metadata" poster={film("monday-then-tuesday.jpg")} aria-label="Monday, Then Tuesday, a 90-second closing video for Module 1">
@@ -97,7 +106,7 @@ const next = [
     {filmScript.map((x) => <p>{x}</p>)}
   </details>
 
-  <h3>Optional: go further</h3>
+  <h3 id="carry-it-further">Optional: go further</h3>
   <p>Each of these stands on its own on the <a href="../01-collection-field-work/?from=carry-it">Module 1 field work page</a>.</p>
   <ul class="cv-next-links">
     {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
@@ -109,6 +118,4 @@ const next = [
     <p>Riley's Tuesday question is where Module 2 begins.</p>
     <a class="cv-next-cta" href="../02-archive/">Continue to Module 2: {nextModule.name} →</a>
   </aside>
-
-  <button type="button" class="cv-quiet" data-reset>Reset my answers for this module</button>
 </section>

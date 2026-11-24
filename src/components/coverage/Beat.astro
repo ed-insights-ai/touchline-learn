@@ -1,0 +1,9 @@
+---
+import { partAt } from "../../lib/parts";
+
+interface Props { part: string; name: "Look" | "Name it" | "What Touchline does" | "Your claim" }
+const { part, name } = Astro.props;
+const slug = name.toLowerCase().replace(/[^a-z]+/g, "-");
+---
+
+<h3 class="cv-beat" id={`${part}-${slug}`}><span class="sr-only">{partAt(part).short}, </span>{name}</h3>

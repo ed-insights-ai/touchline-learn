@@ -1,6 +1,8 @@
 ---
 import CoverageGrid from "../CoverageGrid.astro";
 import { unseen } from "../../lib/coverage";
+import PartHead from "./PartHead.astro";
+import NextPart from "./NextPart.astro";
 
 const report = [
   { key: "rosters", text: "Rosters were collected for all seven schools.", answer: "strike", why: `Strike. Dunmore's roster is no collector. Rosters are held for ${unseen.rosters} of 7.` },
@@ -12,7 +14,7 @@ const report = [
 ---
 
 <section id="prove-it">
-  <h2>Prove it: the season nobody called about</h2>
+  <PartHead id="prove-it">Prove it: the season nobody called about</PartHead>
   <p>Here is the sample's coverage record for the previous season: Prairie Lakes men, 2025. Hartwell Tech hadn't joined yet, and the conference used the same format. Conference matches are missing from this season too, and no coach called about them.</p>
   <p>On Friday, Riley's readers acted as the monitoring system. A coverage record catches gaps <em>before</em> anything gets published. Click the incomplete squares below to see why each one failed.</p>
   <CoverageGrid rows={unseen.grid} caption="Coverage record, Prairie Lakes men, 2025" id="past" />
@@ -20,6 +22,7 @@ const report = [
   <h4 class="cv-try">Red-pen the report</h4>
   <p>The 2025 season file contains {unseen.held} conference matches, with box scores for {unseen.withBox} of them. Kick drafted five statements about the season. Answer the first question, then mark each statement <strong>Keep</strong> if the record supports it, or <strong>Strike</strong> if it doesn't.</p>
   <div class="cv-check" data-once="report">
+    <p class="cv-kind">Assessment</p>
     <div data-q data-type="number" data-answer={unseen.expected} data-why={`${unseen.expected}. Seven schools each host the other six: 7 × 6, from the membership list and competition format.`}>
       <label for="cv-expected">How many conference matches are in the 2025 season?</label>
       <input id="cv-expected" inputmode="numeric" autocomplete="off" data-save="q-expected" />
@@ -42,6 +45,7 @@ const report = [
   </div>
 
   <div class="cv-commit" data-commit>
+    <p class="cv-kind">Write it <span>you check your own</span></p>
     <label class="cv-write" for="cv-caption">Now write the caption that should go under the published 2025 standings table.</label>
     <textarea id="cv-caption" rows="3" placeholder="State the count, the denominator, and the missing matches..." data-save="caption"></textarea>
     <div class="cv-actions">
@@ -59,5 +63,5 @@ const report = [
       </fieldset>
     </div>
   </div>
-  <p class="cv-next">One last exercise: see how the exact same rules apply outside sports.</p>
+  <NextPart from="prove-it">One last exercise: the same rules outside sports.</NextPart>
 </section>

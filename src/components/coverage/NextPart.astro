@@ -1,0 +1,9 @@
+---
+import { partAt } from "../../lib/parts";
+
+interface Props { from: string }
+const { next } = partAt(Astro.props.from);
+if (!next) throw new Error(`${Astro.props.from} is the last part of Module 1`);
+---
+
+<p class="cv-next"><span><slot /></span><a href={`#${next.id}`}>{next.name}</a></p>

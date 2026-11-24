@@ -1,0 +1,11 @@
+---
+import { partAt } from "../../lib/parts";
+
+interface Props { id: string }
+const part = partAt(Astro.props.id);
+---
+
+<header class="cv-head">
+  <p class="cv-eyebrow"><b>{part.phaseName}</b><span>Part {part.n} of {part.of}</span></p>
+  <h2><slot /></h2>
+</header>

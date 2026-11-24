@@ -1,6 +1,10 @@
 ---
 import Bench from "./Bench.astro";
 import Pipeline from "./Pipeline.astro";
+import PartHead from "./PartHead.astro";
+import NextPart from "./NextPart.astro";
+import Beat from "./Beat.astro";
+import Touchline from "./Touchline.astro";
 import CoverageGrid from "../CoverageGrid.astro";
 import { kickGrid, story } from "../../lib/coverage";
 import { noScore } from "../../lib/cases";
@@ -34,19 +38,19 @@ const wrongs = {
 ---
 
 <section id="case-cedar-grove">
-  <h2>Case 3. Cedar Grove: empty, unknown, and never asked</h2>
+  <PartHead id="case-cedar-grove">Case 3. Cedar Grove: empty, unknown, and never asked</PartHead>
   <Pipeline small lit="build" note="Parse reads the row. Build drops it." />
 
   <p class="cv-callout">Cedar Grove men's soccer: “September twenty-first, us and St. Lambert. That game happened. It's not in the standings.”</p>
 
-  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Look</h3>
+  <Beat part="case-cedar-grove" name="Look" />
   <p>Cedar Grove's page loaded without a hitch. Even if every single schedule page answers, the table still only has {story.afterRepair} matches, because one completed match has no score listed. A complete page can still contain an incomplete row.</p>
   <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." when="if every page had answered" />
   <p>Cedar Grove's schedule links to a box score page for that match. Here is what Kick requested compared to every page available across the conference. Click any square to inspect it.</p>
   <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
   <p>The dashed blank squares are pages Kick never asked for, including the box score page that might have the missing score. A run's log has nothing to say about pages it never requested.</p>
 
-  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Name it</h3>
+  <Beat part="case-cedar-grove" name="Name it" />
   <p>Here is how the four coverage states show up on Friday's run. The blank squares have no state because Kick never asked for them. The distinction that matters most is <strong>empty</strong> vs. <strong>unavailable</strong>: “the site lists no players” can be reported as zero, whereas “we couldn't read the site” must be reported as unknown.</p>
   <p>A coverage state describes a whole page. Cedar Grove's schedule is complete even though one row has no score, which survey statisticians call <strong>item nonresponse</strong> (a blank field inside a unit that answered).</p>
   <p>A page only counts once it is <strong>verified</strong> as the school and season you requested, since sites sometimes serve last season's page without returning an error. <a href="../03-provenance/">Module 3</a> covers how to verify that.</p>
@@ -54,6 +58,7 @@ const wrongs = {
   <h4 class="cv-try">Practice: classify the evidence</h4>
   <p>The first two are filled in as examples. Classify the remaining six, then check your answers.</p>
   <div class="cv-check" data-once="sort">
+    <p class="cv-kind">Knowledge check</p>
     <ol class="cv-sort">
       {sort.map((c, i) => (
         <li data-q={c.worked ? undefined : ""} data-type="select" data-answer={c.answer} data-why={`${nameOf(c.answer)}. ${c.why}`} data-wrong={JSON.stringify(c.wrong ?? {})}>
@@ -78,11 +83,13 @@ const wrongs = {
     <div class="cv-reveal"><p>Notice items 3 and 4: the exact same blank page is <strong>empty</strong> when it proves its season, and <strong>unavailable</strong> when it can't.</p></div>
   </div>
 
-  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>What Touchline does</h3>
-  <p>Every expected page ends in one of the four states, with a recorded reason for the last three. Scores are nullable: a score nobody saw is stored as null (no value), never as zero.</p>
+  <Touchline part="case-cedar-grove" at={["Fetch", "Resolve"]} note="Fetch records each page's state. Resolve keeps a blank score blank.">
+    <p>Every expected page ends in one of the four states, with a recorded reason for the last three. Scores are nullable: a score nobody saw is stored as null (no value), never as zero. <a href="../06-contracts/">Module 6</a> covers what a blank is allowed to mean.</p>
+  </Touchline>
 
-  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Your claim</h3>
+  <Beat part="case-cedar-grove" name="Your claim" />
   <div class="cv-check" data-once="claim-sept21">
+    <p class="cv-kind">Apply it</p>
     <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened and its score is unknown, so the table counts only what saved pages show and explicitly notes what was left out." data-wrong={JSON.stringify(wrongs)}>
       <legend>How should {match} appear in the published standings?</legend>
       {shows.map((s) => <label><input type="radio" name="cv-sept21" value={s.key} data-save="claim-sept21" /><span>{s.text}</span></label>)}
@@ -93,5 +100,5 @@ const wrongs = {
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet collected.</p></div>
   </div>
-  <p class="cv-next">Next: revisiting the policy choice behind all three calls (<span data-decision-echo>the same one you picked earlier in the setup</span>).</p>
+  <NextPart from="case-cedar-grove">Next, the policy choice behind all three calls (<span data-decision-echo>the same one you picked earlier in the setup</span>).</NextPart>
 </section>

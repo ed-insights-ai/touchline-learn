@@ -1,22 +1,12 @@
 ---
-const parts = [
-  ["setup", "Setup", "Setup", "One prompt, one Friday"],
-  ["coverage", "The idea: coverage", "The idea", "What was expected vs. what arrived"],
-  ["case-dunmore", "Case 1. Dunmore", "Case 1", "A count needs an expected set"],
-  ["case-hartwell", "Case 2. Hartwell", "Case 2", "Gaps arrive in blocks"],
-  ["case-cedar-grove", "Case 3. Cedar Grove", "Case 3", "Empty, unknown, and never asked"],
-  ["decision", "The decision", "Decision", "What to do when a site is silent"],
-  ["rewind", "Rewind", "Rewind", "The same Friday, prompted properly"],
-  ["prove-it", "Prove it", "Prove it", "The season nobody called about"],
-  ["carry-it", "Carry it", "Carry it", "Same number, three worlds"],
-];
+import { parts, phases } from "../../lib/parts";
 ---
 
 <nav class="cv-rail" aria-label="This module" data-rail>
   <div class="cv-rail-bar">
     <button type="button" class="cv-rail-toggle" aria-expanded="false" aria-controls="cv-rail-list" data-rail-toggle>
-      <span class="cv-rail-where"><b data-rail-part>Setup</b><span data-rail-beat></span></span>
-      <span class="cv-rail-segs" aria-hidden="true">{parts.map(([id]) => <i data-rail-seg={id}></i>)}</span>
+      <span class="cv-rail-where"><i data-rail-phase></i><b data-rail-part>Setup</b><span data-rail-beat></span></span>
+      <span class="cv-rail-segs" aria-hidden="true">{parts.map((p, i) => <i data-rail-seg={p.id} class:list={{ "is-gap": i > 0 && parts[i - 1].phase !== p.phase }}></i>)}</span>
       <span class="cv-rail-count" data-rail-count></span>
       <span class="cv-rail-chev" aria-hidden="true"></span>
       <span class="sr-only">Show all {parts.length} parts</span>
@@ -24,30 +14,58 @@ const parts = [
     <a class="cv-rail-resume" href="#setup" data-rail-resume hidden>Resume</a>
   </div>
   <div class="cv-rail-panel" id="cv-rail-list" data-rail-panel hidden>
-    <p class="cv-rail-next" data-rail-next hidden></p>
-    <ol>
-      {parts.map(([id, name, short, what]) => (
-        <li data-rail-item={id} data-short={short}>
-          <a href={`#${id}`}><i aria-hidden="true"></i><b>{name}</b><span>{what}</span><em data-rail-tally></em></a>
+    <p class="cv-rail-title">This module</p>
+    <div class="cv-rail-progress">
+      <p><b data-rail-parts-done>0 of {parts.length}</b> parts done<span data-rail-count-long></span></p>
+      <span class="cv-rail-meter" aria-hidden="true"><i data-rail-meter></i></span>
+    </div>
+    <p class="cv-rail-next"><span data-rail-next></span> <a href="#setup" data-rail-resume="name" hidden></a></p>
+    <ol class="cv-rail-phases">
+      {phases.map((phase) => (
+        <li>
+          <p class="cv-rail-phase"><b>{phase.name}</b> <span>{phase.what}</span></p>
+          <ol>
+            {parts.filter((p) => p.phase === phase.key).map((p) => (
+              <li data-rail-item={p.id} data-short={p.short} data-phase={phase.name}>
+                <a href={`#${p.id}`}><i aria-hidden="true"></i><b>{p.name}</b><span>{p.what}</span><em data-rail-tally></em><span class="sr-only" data-rail-status></span></a>
+              </li>
+            ))}
+          </ol>
         </li>
       ))}
     </ol>
+    <div class="cv-rail-tools">
+      <a href="../01-collection-field-work/">Optional field work &amp; lab</a>
+      <label><input type="checkbox" data-rail-review /><span>Review mode: show every explanation without answering first</span></label>
+      <div data-reset-box>
+        <button type="button" class="cv-link-btn" data-reset-ask>Reset my answers</button>
+        <p class="cv-rail-confirm" data-reset-confirm hidden>
+          <span>This clears every answer saved for this module in this browser.</span>
+          <button type="button" class="cv-retry" data-reset>Yes, clear them</button>
+          <button type="button" class="cv-link-btn" data-reset-cancel>Keep them</button>
+        </p>
+      </div>
+    </div>
   </div>
 </nav>
 
 <script>
   const PROGRESS = "touchline-m1-progress";
+  const REVIEW = "touchline-m1-review";
   document.querySelectorAll<HTMLElement>("[data-rail]").forEach((rail) => {
     const root = rail.closest<HTMLElement>("[data-coverage]")!;
+    const bar = rail.querySelector<HTMLElement>(".cv-rail-bar")!;
     const toggle = rail.querySelector<HTMLButtonElement>("[data-rail-toggle]")!;
     const panel = rail.querySelector<HTMLElement>("[data-rail-panel]")!;
-    const resume = rail.querySelector<HTMLAnchorElement>("[data-rail-resume]")!;
+    const resumes = [...root.querySelectorAll<HTMLAnchorElement>("[data-rail-resume]")];
     const next = rail.querySelector<HTMLElement>("[data-rail-next]")!;
     const items = [...rail.querySelectorAll<HTMLElement>("[data-rail-item]")];
     const ids = items.map((li) => li.dataset.railItem!);
     const names = Object.fromEntries(items.map((li) => [li.dataset.railItem!, li.querySelector("b")!.textContent!]));
     const shorts = Object.fromEntries(items.map((li) => [li.dataset.railItem!, li.dataset.short!]));
+    const phaseOf = Object.fromEntries(items.map((li) => [li.dataset.railItem!, li.dataset.phase!]));
     const narrow = matchMedia("(max-width: 30rem)");
+    const wide = matchMedia("(min-width: 80rem)");
     const sections = ids.map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
 
     let seen: Record<string, string> = {};
@@ -76,8 +94,24 @@ const parts = [
       return copy.textContent!.trim();
     };
 
+    sections.forEach((section) => {
+      const beats = [...section.querySelectorAll<HTMLElement>("h3[id]")];
+      if (!beats.length) return;
+      const list = document.createElement("ol");
+      list.className = "cv-rail-beats";
+      beats.forEach((h) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = `#${h.id}`;
+        a.textContent = beatName(h);
+        li.append(a);
+        list.append(li);
+      });
+      items[ids.indexOf(section.id)].append(list);
+    });
+
     const refresh = () => {
-      let total = 0, done = 0;
+      let total = 0, done = 0, partsDone = 0;
       let target: { section: HTMLElement; gate: HTMLElement } | null = null;
       for (const section of sections) {
         const gates = gatesOf(section);
@@ -85,21 +119,30 @@ const parts = [
         total += gates.length; done += finished;
         if (!target) { const open = gates.find((g) => !isDone(g)); if (open) target = { section, gate: open }; }
         const complete = gates.length ? finished === gates.length : !!seen[`seen-${section.id}`];
+        const started = !complete && finished > 0;
+        partsDone += Number(complete);
         const li = items[ids.indexOf(section.id)];
         li.classList.toggle("is-done", complete);
-        rail.querySelector(`[data-rail-seg="${section.id}"]`)!.classList.toggle("is-done", complete);
+        li.classList.toggle("is-started", started);
+        const seg = rail.querySelector(`[data-rail-seg="${section.id}"]`)!;
+        seg.classList.toggle("is-done", complete);
+        seg.classList.toggle("is-started", started);
         li.querySelector("[data-rail-tally]")!.textContent = gates.length ? `${finished} of ${gates.length}` : "";
+        li.querySelector("[data-rail-status]")!.textContent = complete ? ", done" : started ? ", in progress" : ", not started";
       }
       rail.querySelector("[data-rail-count]")!.textContent = `${done} of ${total}`;
+      rail.querySelector("[data-rail-parts-done]")!.textContent = `${partsDone} of ${sections.length}`;
+      rail.querySelector("[data-rail-count-long]")!.textContent = ` · ${done} of ${total} activities`;
+      rail.querySelector<HTMLElement>("[data-rail-meter]")!.style.width = `${total ? (done / total) * 100 : 0}%`;
+      root.querySelectorAll<HTMLElement>("[data-progress-text]").forEach((el) => {
+        el.textContent = !target ? `All ${total} activities in this module are answered.` : `${done} of ${total} activities answered so far.${done > 0 ? " Next unanswered:" : ""}`;
+      });
       if (target && done > 0) {
         const { section, gate } = target;
         const head = headingBefore(gate, section);
         const beat = beatName(head);
-        resume.hidden = false;
-        resume.href = `#${section.id}`;
-        resume.title = `Resume at ${names[section.id]}${beat ? `, ${beat}` : ""}`;
-        resume.setAttribute("aria-label", resume.title);
-        resume.onclick = (event) => {
+        const label = `${names[section.id]}${beat ? `, ${beat}` : ""}`;
+        const go = (event: MouseEvent) => {
           event.preventDefault();
           close();
           history.pushState(null, "", `#${section.id}`);
@@ -109,11 +152,16 @@ const parts = [
           if (visible && visible.getBoundingClientRect().bottom > innerHeight - 24) visible.scrollIntoView({ block: "center" });
           visible?.focus({ preventScroll: true });
         };
-        next.hidden = false;
-        next.textContent = `Next unanswered: ${names[section.id]}${beat ? `, ${beat}` : ""}.`;
+        resumes.forEach((resume) => {
+          resume.hidden = false;
+          resume.href = `#${section.id}`;
+          if (resume.dataset.railResume === "name") resume.textContent = label;
+          else { resume.title = `Resume at ${label}`; resume.setAttribute("aria-label", resume.title); }
+          resume.onclick = go;
+        });
+        next.textContent = "Next unanswered:";
       } else {
-        resume.hidden = true;
-        next.hidden = false;
+        resumes.forEach((resume) => { resume.hidden = true; });
         next.textContent = target ? "Nothing answered yet. Start at the top." : "Every part of this module is done.";
       }
     };
@@ -121,11 +169,13 @@ const parts = [
     let ticking = false;
     const where = () => {
       ticking = false;
-      const line = rail.getBoundingClientRect().bottom + innerHeight * 0.2;
+      const top = wide.matches ? document.querySelector("header.header")?.getBoundingClientRect().bottom ?? 64 : bar.getBoundingClientRect().bottom;
+      const line = top + innerHeight * 0.2;
       let current = sections[0];
       for (const s of sections) if (s.getBoundingClientRect().top <= line) current = s;
-      let beat = "";
-      for (const h of current.querySelectorAll<HTMLElement>("h3")) if (h.getBoundingClientRect().top <= line) beat = beatName(h);
+      let beat = "", beatId = "";
+      for (const h of current.querySelectorAll<HTMLElement>("h3")) if (h.offsetParent !== null && h.getBoundingClientRect().top <= line) { beat = beatName(h); beatId = h.id; }
+      rail.querySelector("[data-rail-phase]")!.textContent = phaseOf[current.id];
       rail.querySelector("[data-rail-part]")!.textContent = narrow.matches ? shorts[current.id] : names[current.id];
       rail.querySelector("[data-rail-beat]")!.textContent = beat ? ` · ${beat}` : "";
       items.forEach((li) => {
@@ -134,6 +184,7 @@ const parts = [
         const link = li.querySelector("a")!;
         if (here) link.setAttribute("aria-current", "location");
         else link.removeAttribute("aria-current");
+        li.querySelectorAll<HTMLAnchorElement>(".cv-rail-beats a").forEach((a) => a.classList.toggle("is-here", here && !!beatId && a.hash === `#${beatId}`));
       });
       rail.querySelectorAll<HTMLElement>("[data-rail-seg]").forEach((seg) => seg.classList.toggle("is-here", seg.dataset.railSeg === current.id));
       if (current.getBoundingClientRect().bottom < innerHeight) markSeen(current.id);
@@ -141,31 +192,49 @@ const parts = [
     addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(where); } }, { passive: true });
     addEventListener("resize", where);
 
-    const close = () => { panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); };
+    const close = () => { if (wide.matches) return; panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); };
+    const layout = () => { panel.hidden = !wide.matches; toggle.setAttribute("aria-expanded", "false"); refresh(); where(); };
+    wide.addEventListener("change", layout);
     toggle.addEventListener("click", () => {
       const open = panel.hidden;
       panel.hidden = !open;
       toggle.setAttribute("aria-expanded", String(open));
       if (open) refresh();
     });
-    panel.addEventListener("click", (event) => { if ((event.target as HTMLElement).closest("a")) close(); });
-    document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !panel.hidden) { close(); toggle.focus(); } });
+    panel.addEventListener("click", (event) => { if ((event.target as HTMLElement).closest("ol a")) close(); });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !panel.hidden && !wide.matches) { close(); toggle.focus(); } });
     document.addEventListener("click", (event) => { if (!panel.hidden && !rail.contains(event.target as Node)) close(); });
+
+    const review = rail.querySelector<HTMLInputElement>("[data-rail-review]")!;
+    const setReview = (on: boolean) => {
+      root.classList.toggle("is-review", on);
+      review.checked = on;
+      try { if (on) sessionStorage.setItem(REVIEW, "1"); else sessionStorage.removeItem(REVIEW); } catch {}
+    };
+    try { if (sessionStorage.getItem(REVIEW)) setReview(true); } catch {}
+    review.addEventListener("change", () => setReview(review.checked));
+
+    const ask = rail.querySelector<HTMLButtonElement>("[data-reset-ask]")!;
+    const confirm = rail.querySelector<HTMLElement>("[data-reset-confirm]")!;
+    ask.addEventListener("click", () => { ask.hidden = true; confirm.hidden = false; confirm.querySelector<HTMLButtonElement>("[data-reset-cancel]")!.focus(); });
+    confirm.querySelector<HTMLButtonElement>("[data-reset-cancel]")!.addEventListener("click", () => { confirm.hidden = true; ask.hidden = false; ask.focus(); });
 
     root.addEventListener("toggle", (event) => {
       const details = event.target as HTMLElement;
       const hint = details.querySelector<HTMLElement>("[data-rail-hint]")?.dataset.railHint;
       if (!hint || !(details as HTMLDetailsElement).open) return;
-      const seg = rail.querySelector<HTMLElement>(`[data-rail-seg="${hint}"]`);
-      seg?.classList.remove("is-hint");
-      void seg?.offsetWidth;
-      seg?.classList.add("is-hint");
+      const marks = [rail.querySelector<HTMLElement>(`[data-rail-seg="${hint}"]`), rail.querySelector<HTMLElement>(`[data-rail-item="${hint}"]`)];
+      marks.forEach((mark) => {
+        mark?.classList.remove("is-hint");
+        void mark?.offsetWidth;
+        mark?.classList.add("is-hint");
+      });
     }, true);
 
     const later = () => setTimeout(refresh, 0);
     root.addEventListener("click", later);
     root.addEventListener("change", later);
     root.addEventListener("rail:refresh", later);
-    requestAnimationFrame(() => { refresh(); where(); });
+    requestAnimationFrame(layout);
   });
 </script>

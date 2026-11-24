@@ -1,6 +1,8 @@
 ---
 import { bounds, story } from "../../lib/coverage";
 import { noScore, pipeline, rileyAsk, spell, toPlay } from "../../lib/cases";
+import PartHead from "./PartHead.astro";
+import NextPart from "./NextPart.astro";
 
 const record = [
   ["Schedule pages", `${pipeline.asked} expected, ${pipeline.saved} saved. Dunmore: unavailable, no answer after three tries.`],
@@ -11,7 +13,7 @@ const record = [
 ---
 
 <section id="rewind">
-  <h2>Rewind: the same Friday, prompted properly</h2>
+  <PartHead id="rewind">Rewind: the same Friday, prompted properly</PartHead>
   <p>Here is Riley's original prompt again:</p>
   <div class="cv-user-prompt" role="region" aria-label="Riley's original prompt">
     <div class="cv-chat-bar">
@@ -21,6 +23,7 @@ const record = [
     <p class="cv-chat-text">{rileyAsk}</p>
   </div>
   <div class="cv-commit" data-commit>
+    <p class="cv-kind">Write it <span>you check your own</span></p>
     <label class="cv-write" for="cv-added">Add the one sentence that was missing.</label>
     <textarea id="cv-added" rows="2" placeholder="What would you require Kick to report?" data-save="added"></textarea>
     <div class="cv-actions">
@@ -51,5 +54,5 @@ const record = [
       <p data-close-first hidden>Your question from Publish Day: <q></q> Would its answer have surfaced Dunmore's missing page?</p>
     </div>
   </div>
-  <p class="cv-next">Next: apply the same thinking to a season where nobody called to complain.</p>
+  <NextPart from="rewind">Next, a season where nobody called to complain.</NextPart>
 </section>

@@ -12,6 +12,7 @@ import ProveIt from "./coverage/ProveIt.astro";
 import CarryIt from "./coverage/CarryIt.astro";
 import Rail from "./coverage/Rail.astro";
 import { bounds, pack, story } from "../lib/coverage";
+import { outcomes, parts } from "../lib/parts";
 
 ---
 
@@ -19,7 +20,11 @@ import { bounds, pack, story } from "../lib/coverage";
 
 <div class="cv cv-core not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
   <div class="cv-orient">
-    <p class="cv-facts"><span>~55 min</span><span>9 parts</span><span>2 short videos</span><a href="../01-collection-field-work/">Optional field work &amp; lab →</a></p>
+    <p class="cv-facts"><span>~55 min</span><span>{parts.length} parts</span><span>2 short videos</span><a href="../01-collection-field-work/">Optional field work &amp; lab →</a></p>
+    <div class="cv-goals">
+      <p>A collection can finish without an error and still hand you an incomplete table. By the end of this module you can:</p>
+      <ul>{outcomes.map((o) => <li>{o.can}</li>)}</ul>
+    </div>
     <p class="cv-prereq" data-no-first><strong>New here?</strong> Watch the 2-minute intro video, <a href="../../">Publish Day</a>, first. This module picks up right where it leaves off.</p>
   </div>
   <Rail />

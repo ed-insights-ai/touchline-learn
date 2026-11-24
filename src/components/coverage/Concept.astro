@@ -1,5 +1,7 @@
 ---
 import { states, stateOptions } from "../../lib/states";
+import PartHead from "./PartHead.astro";
+import NextPart from "./NextPart.astro";
 
 const stages = [
   ["Scrape", "Fetch", "Ask for each page, and write down which answered", "1, this one"],
@@ -34,7 +36,7 @@ const captions = [
 ---
 
 <section id="coverage">
-  <h2>The idea: coverage</h2>
+  <PartHead id="coverage">The idea: coverage</PartHead>
   <p>All three voicemails point back to one concept. Here it is up front so you can spot it in each case.</p>
 
   <div class="cv-define">
@@ -57,8 +59,13 @@ const captions = [
         <p><b>What you can claim:</b> {s.claim}</p>
       </div>
     ))}
+    <div class="cv-state is-not-asked">
+      <h4><i aria-hidden="true"></i>No state: never asked</h4>
+      <p>Anything left off your list has no state at all, so no log will ever mention it.</p>
+      <p><b>What you can claim:</b> Nothing, until an expected set written outside the run shows it is missing.</p>
+    </div>
   </div>
-  <p>Both <em>unavailable</em> and <em>no collector</em> mean the value is <strong>unknown</strong>: the first might clear on a retry, while the second requires new code. Anything left off your list has no state at all. It was <strong>never asked for</strong>, so no log will ever mention it. Unknown is never zero.</p>
+  <p>Both <em>unavailable</em> and <em>no collector</em> mean the value is <strong>unknown</strong>: the first might clear on a retry, while the second requires new code. Unknown is never zero.</p>
 
   <details class="cv-more">
     <summary>How Kick's 5 stages map to the Touchline pipeline</summary>
@@ -78,7 +85,7 @@ const captions = [
   </details>
 
   <details class="cv-learn-box">
-    <summary>Want another example? Open an AI study prompt</summary>
+    <summary><span class="cv-optional">Optional · AI study prompt</span>Want the same idea outside sports?</summary>
     <div class="cv-prompt cv-learn">
       <p class="cv-prompt-note">Paste this into any AI assistant for a short walkthrough outside sports, then come back to test yourself below.</p>
       <p data-copy-text tabindex="0">{learnPrompt}</p>
@@ -89,6 +96,7 @@ const captions = [
   <h4 class="cv-try">Check your understanding: a debate league</h4>
   <p>A school debate league has six schools, and each hosts every other school once. Three debates haven't happened yet. A collector fetches each school's results page and reads each debate from its host's page. Five pages arrive with 22 finished debates. Pinecrest's site times out, and Pinecrest has hosted five finished debates.</p>
   <div class="cv-check" data-once="idea">
+    <p class="cv-kind">Knowledge check</p>
     <div data-q data-type="number" data-answer="30" data-why="30. Six hosts, each with five visitors: 6 × 5, based on the league's format.">
       <label for="cv-idea-total">How many debates are scheduled for the full season?</label>
       <input id="cv-idea-total" inputmode="numeric" autocomplete="off" data-save="idea-total" />
@@ -113,5 +121,5 @@ const captions = [
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal"><p>That's the whole framework: an expected set defined outside the run, a count in the unit of your claim, and a state for every expected item. Next, let's see what broke when Kick skipped each one.</p></div>
   </div>
-  <p class="cv-next">Next: Case 1, the expected set Kick never wrote.</p>
+  <NextPart from="coverage">Next, the expected set Kick never wrote.</NextPart>
 </section>
