@@ -6,13 +6,13 @@ const ask = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 const filmScript = [
-  "Module 1 comes down to one idea.",
-  "No errors describes the program. Only a coverage record, written against what should exist, describes the data. And anything it can't see, it calls unknown. Never zero.",
-  "Tuesday. Kick adds a tidy rule. An \"St.\" in a name means State. The table now lists State Lambert.",
-  "St. Lambert (voicemail): Hi, this is St. Lambert soccer. Saint, as in the saint. Your table says State Lambert. We are not a state school. Please fix it.",
+  "Monday morning. No angry voicemails. Riley's table went out at 53 of 54, with the one missing game named.",
+  "That is what Friday taught. No errors describes only the program. A coverage record, checked against what should exist, describes the data. And anything it can't see is unknown. Never zero.",
+  "Tuesday. Kick adds a tidy rule to spell out school names on the published table. An \"St.\" becomes State. Great for Brightwater. Less great for State Lambert.",
+  "St. Lambert (voicemail): Hi, this is Saint Lambert soccer. Saint, as in the saint. Your table says State Lambert. We are not a state school. Please fix it.",
   "Kick: Fixed. Saint stays Saint. One line.",
-  "The code is fixed in a minute. Friday's table isn't. Ask the eight sites again and you get Tuesday's pages, not Friday's. Dunmore's might not answer at all.",
-  "So Riley asks Kick one more thing.",
+  "The code is fixed in a minute. Friday's table isn't. Ask the eight sites again, and you won't get Friday's standings. You'll get Tuesday's pages, with weekend updates mixed in. And Dunmore might not answer at all.",
+  "This time, Riley knows what to ask.",
   "Riley: Can you rebuild Friday's table from the pages you kept, without asking a single site again, and show me you did?",
 ];
 const heads = [
@@ -84,9 +84,9 @@ const next = [
   </div>
 
   <h3>Then Tuesday</h3>
-  <p>A minute to close the module: the idea in one breath, and the bug that opens the next one.</p>
+  <p>A minute and a half to close the module: Monday, the idea in one breath, and the bug that opens the next one.</p>
   <figure class="cv-film">
-    <video controls playsinline preload="metadata" poster={film("monday-then-tuesday.jpg")} aria-label="Monday, Then Tuesday, a one-minute closing film for Module 1">
+    <video controls playsinline preload="metadata" poster={film("monday-then-tuesday.jpg")} aria-label="Monday, Then Tuesday, a 90-second closing film for Module 1">
       <source src={film("monday-then-tuesday.mp4")} type="video/mp4" />
       <track kind="captions" src={film("monday-then-tuesday.vtt")} srclang="en" label="English" default />
     </video>
