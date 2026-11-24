@@ -2,6 +2,8 @@
 import { journey } from "../../data/journey";
 
 const ask = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01-collection")!.ask;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const film = (name: string) => `${base}film/${name}`;
 const next = [
   ["../01-collection-field-work/?from=carry-it#assistant", "Test your own assistant", "on the pages Kick got, with a gap nothing mentions"],
   ["../01-collection-field-work/?from=carry-it#statistics", "Statistics of the gap", "missingness mechanisms, and bounds that depend on each other"],
@@ -44,7 +46,18 @@ const next = [
     <button type="button" data-copy data-label="Copy the ask">Copy the ask</button>
   </div>
 
-  <h3>Where to go next</h3>
+  <h3>Then Tuesday</h3>
+  <p>Two minutes to close the module: what the three calls taught, and the bug that opens the next one.</p>
+  <figure class="cv-film">
+    <video controls playsinline preload="metadata" poster={film("monday-then-tuesday.jpg")} aria-label="Monday, Then Tuesday, a two-minute closing film for Module 1">
+      <source src={film("monday-then-tuesday.mp4")} type="video/mp4" />
+      <track kind="captions" src={film("monday-then-tuesday.vtt")} srclang="en" label="English" default />
+    </video>
+    <figcaption>Monday, Then Tuesday. Every count on screen is the sample's.</figcaption>
+  </figure>
+  <p class="cv-next">Riley's question is where Module 2 starts. <a href="../02-archive/">Module 2: The raw archive</a></p>
+
+  <h3>Go further first</h3>
   <p>Each of these is optional and stands alone, on the <a href="../01-collection-field-work/?from=carry-it">field work page</a>.</p>
   <ul class="cv-next-links">
     {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
