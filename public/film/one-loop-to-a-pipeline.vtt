@@ -1,0 +1,161 @@
+WEBVTT
+
+00:00:01.150 --> 00:00:03.790
+You want a league table for eight schools.
+
+00:00:03.990 --> 00:00:08.210
+The results are out there, spread across eight websites, on pages
+
+00:00:08.230 --> 00:00:09.870
+made for people to read.
+
+00:00:11.470 --> 00:00:15.850
+A scraper is a program that downloads those pages and pulls rows
+
+00:00:15.870 --> 00:00:18.950
+out of them. The simplest one is a single loop.
+
+00:00:20.598 --> 00:00:24.978
+For each site: download the page, find the results table, read each
+
+00:00:24.998 --> 00:00:27.438
+row, and add it to the standings.
+
+00:00:27.878 --> 00:00:30.078
+On a good day, it works.
+
+00:00:32.078 --> 00:00:33.718
+Then one site doesn't answer.
+
+00:00:33.918 --> 00:00:38.218
+The loop waits, gives up, and the whole run fails, taking the finished
+
+00:00:38.238 --> 00:00:39.398
+sites down with it.
+
+00:00:41.330 --> 00:00:43.850
+So downloading becomes its own part:
+
+00:00:43.970 --> 00:00:48.830
+scrape. It works from a list of addresses, checks the answer each
+
+00:00:48.850 --> 00:00:52.010
+site sends back, waits, and tries again.
+
+00:00:52.490 --> 00:00:56.430
+When a site stays silent, scrape has to do something about it, and
+
+00:00:56.450 --> 00:00:59.130
+what it should do is a real decision.
+
+00:00:59.570 --> 00:01:00.650
+Hold on to that.
+
+00:01:03.034 --> 00:01:04.834
+A month later you find a bug.
+
+00:01:04.954 --> 00:01:07.714
+The parser swapped home and away scores.
+
+00:01:07.994 --> 00:01:11.814
+You fix it and go back for the pages, but the sites have moved on,
+
+00:01:11.834 --> 00:01:14.434
+and some of last month's pages are gone.
+
+00:01:16.034 --> 00:01:17.674
+So the next part is store.
+
+00:01:17.874 --> 00:01:22.694
+Save every page exactly as it arrived, before any of your code reads
+
+00:01:22.714 --> 00:01:25.194
+it. Now a bug is cheap.
+
+00:01:25.314 --> 00:01:29.214
+Fix the parser and run it again on the saved pages, without asking
+
+00:01:29.234 --> 00:01:30.474
+the web for anything.
+
+00:01:33.390 --> 00:01:34.790
+The third break is quieter.
+
+00:01:34.990 --> 00:01:38.730
+A site is redesigned, and the results are no longer the first table
+
+00:01:38.750 --> 00:01:42.790
+on the page. The loop reads the wrong table, and nothing complains.
+
+00:01:44.422 --> 00:01:46.542
+So parse becomes a part of its own.
+
+00:01:46.822 --> 00:01:51.042
+It finds a table by what the table says it is, and hands on rows
+
+00:01:51.062 --> 00:01:52.702
+in one fixed shape:
+
+00:01:52.982 --> 00:01:56.462
+date, opponent, result.
+
+00:01:59.532 --> 00:02:00.932
+Now put the rows together.
+
+00:02:01.292 --> 00:02:05.572
+A match between two schools is listed on both schools' pages.
+
+00:02:06.012 --> 00:02:09.972
+Add up every row, and every match counts twice.
+
+00:02:11.668 --> 00:02:14.428
+So build is where rows become matches.
+
+00:02:14.788 --> 00:02:18.688
+It decides which copy of each match to keep, and only then works
+
+00:02:18.708 --> 00:02:19.788
+out the standings.
+
+00:02:21.594 --> 00:02:24.354
+Last, the run ends and hands you a table.
+
+00:02:24.714 --> 00:02:26.114
+Did every site answer?
+
+00:02:26.394 --> 00:02:27.954
+How many rows came in?
+
+00:02:28.154 --> 00:02:29.394
+Were there errors?
+
+00:02:29.674 --> 00:02:31.314
+The table can't say.
+
+00:02:32.740 --> 00:02:35.260
+So report writes down what the run did:
+
+00:02:35.540 --> 00:02:39.900
+the pages it fetched, the rows it found, and the errors it hit.
+
+00:02:41.864 --> 00:02:44.144
+Line the parts up, and you have a pipeline.
+
+00:02:44.584 --> 00:02:48.384
+Each stage takes what the last one made and hands on something new.
+
+00:02:48.744 --> 00:02:52.864
+Each can be checked on its own, and run again without starting over.
+
+00:02:55.844 --> 00:02:57.884
+Now look at what that report counts.
+
+00:02:58.164 --> 00:03:00.764
+Every line in it is about what the run did.
+
+00:03:00.964 --> 00:03:03.404
+None of it says what the run should have found.
+
+00:03:03.684 --> 00:03:05.964
+That is the question this module is about.
+

@@ -23,6 +23,35 @@ const openings = [
   { gap: "What the report must say", kick: "Pages fetched, matches found, errors.", then: "“All eight school sites, no errors.”", href: "#rewind", where: "Rewind" },
 ];
 
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const film = (name: string) => `${base}film/${name}`;
+
+const filmScript = [
+  "You want a league table for eight schools. The results are out there, spread across eight websites, on pages made for people to read.",
+  "A scraper is a program that downloads those pages and pulls rows out of them. The simplest one is a single loop.",
+  "For each site: download the page, find the results table, read each row, and add it to the standings. On a good day, it works.",
+  "Then one site doesn't answer. The loop waits, gives up, and the whole run fails, taking the finished sites down with it.",
+  "So downloading becomes its own part: scrape. It works from a list of addresses, checks the answer each site sends back, waits, and tries again. When a site stays silent, scrape has to do something about it, and what it should do is a real decision. Hold on to that.",
+  "A month later you find a bug. The parser swapped home and away scores. You fix it and go back for the pages, but the sites have moved on, and some of last month's pages are gone.",
+  "So the next part is store. Save every page exactly as it arrived, before any of your code reads it. Now a bug is cheap. Fix the parser and run it again on the saved pages, without asking the web for anything.",
+  "The third break is quieter. A site is redesigned, and the results are no longer the first table on the page. The loop reads the wrong table, and nothing complains.",
+  "So parse becomes a part of its own. It finds a table by what the table says it is, and hands on rows in one fixed shape: date, opponent, result.",
+  "Now put the rows together. A match between two schools is listed on both schools' pages. Add up every row, and every match counts twice.",
+  "So build is where rows become matches. It decides which copy of each match to keep, and only then works out the standings.",
+  "Last, the run ends and hands you a table. Did every site answer? How many rows came in? Were there errors? The table can't say.",
+  "So report writes down what the run did: the pages it fetched, the rows it found, and the errors it hit.",
+  "Line the parts up, and you have a pipeline. Each stage takes what the last one made and hands on something new. Each can be checked on its own, and run again without starting over.",
+  "Now look at what that report counts. Every line in it is about what the run did. None of it says what the run should have found. That is the question this module is about.",
+];
+
+const learnPrompt =`I'm a data science student learning how data is collected from websites. Teach me what a web scraper is and how it becomes a data pipeline. Use one running example throughout: collecting a season of match results from eight school athletics sites to build a league table.
+
+1. Walk me through the parts a scraper needs: a list of what to fetch, fetching (requests, status codes, retries, rate limits, robots.txt), storing the raw pages before parsing them, parsing HTML tables into rows, building the output, and reporting on the run. For each part, tell me why it exists and what goes wrong without it.
+2. Show how those parts chain into a pipeline: what each stage takes in and what it hands to the next.
+3. For each stage, name one way it can lose data without raising an error.
+4. Sketch the stages as separate Python functions, working on a saved HTML string, not a live site.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
 const choices = [
   ["stop", "Stop the run"],
   ["skip", "Skip it and carry on"],
@@ -43,7 +72,20 @@ const choices = [
   <p>It names the season, the sport, the sources and the product. It reads as complete.</p>
 
   <h3 class="cv-step"><span>2</span>What Kick built</h3>
-  <p>Kick built a scraper, a program that downloads pages made for people and pulls rows out of them.</p>
+  <p>Kick built a scraper, a program that downloads pages made for people and pulls rows out of them. This three-minute film builds one from a single loop, breaking it five times on the way.</p>
+  <figure class="cv-film">
+    <video controls playsinline preload="metadata" poster={film("one-loop-to-a-pipeline.jpg")} aria-label="One Loop to a Pipeline, a three-minute animated explainer">
+      <source src={film("one-loop-to-a-pipeline.mp4")} type="video/mp4" />
+      <track kind="captions" src={film("one-loop-to-a-pipeline.vtt")} srclang="en" label="English" default />
+      <track kind="chapters" src={film("one-loop-to-a-pipeline-chapters.vtt")} srclang="en" label="Chapters" />
+    </video>
+    <figcaption>One Loop to a Pipeline. Schools are lettered and the numbers are illustrative.</figcaption>
+  </figure>
+  <details class="cv-more">
+    <summary>Read the film's narration</summary>
+    {filmScript.map((x) => <p>{x}</p>)}
+  </details>
+  <p>Kick's pipeline has the same five stages. Here they are on Friday, with what left each one.</p>
   <Pipeline />
   <details class="cv-more">
     <summary>Kick's plan, in its own words</summary>
@@ -56,6 +98,12 @@ const choices = [
     <li><b>Does each record obey the rules?</b><span>Validation. <a href="../06-contracts/">Modules 6</a> and <a href="../07-gates/">7</a>.</span></li>
   </ul>
   <p>All {story.counted} of Kick's matches are real and correctly read, so cleansing and validation would both pass this table. A missing record has nothing to fail.</p>
+  <div class="cv-prompt cv-learn">
+    <p class="cv-prompt-head">Learn more with AI</p>
+    <p class="cv-prompt-note">New to scrapers? Paste this into any AI assistant for a short tutorial, then come back for the cases.</p>
+    <p data-copy-text tabindex="0">{learnPrompt}</p>
+    <button type="button" data-copy>Copy the prompt</button>
+  </div>
 
   <h3 class="cv-step"><span>3</span>What the ask left open</h3>
   <p>Kick filled five openings in the sentence with reasonable choices, and mentioned none. Open them one at a time.</p>

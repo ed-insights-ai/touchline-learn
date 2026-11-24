@@ -143,6 +143,10 @@
   .cv-quotes input { width: 100%; }
   .cv-prompt { display: grid; margin: 0 0 1rem; padding: 0.85rem 1rem; border: 1px dashed var(--tl-muted); background: var(--tl-card); }
   .cv-prompt p { font-family: var(--sl-font-mono); font-size: 0.9rem; }
+  .cv-prompt .cv-prompt-head { margin: 0; font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--sl-color-white); }
+  .cv-prompt .cv-prompt-note { font-family: inherit; font-size: 0.95rem; }
+  .cv-learn [data-copy-text] { white-space: pre-wrap; max-height: 14rem; overflow-y: auto; }
+  .cv-learn button { justify-self: start; margin-top: 0.75rem; }
   .cv-pre { white-space: pre-wrap; }
   .cv-cases li { margin-bottom: 0.4rem; }
   .cv-more { margin: 0 0 0.75rem; border-top: 1px solid var(--tl-line); }
@@ -217,6 +221,11 @@
   .cv-next { margin-top: 1.5rem !important; padding-top: 0.75rem; border-top: 1px dashed var(--tl-line); color: var(--sl-color-white); font-weight: 600; }
 
   .cv-pipe { margin: 0 0 1rem; }
+  .cv-film { margin: 0 0 1rem; }
+  .cv-film video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--tl-line); background: #101612; }
+  .cv-film figcaption { margin-top: 0.4rem; color: var(--tl-muted); font-size: 0.85rem; }
+  .cv-film video::cue { background: rgba(0, 0, 0, 0.88); color: #fff; }
+  @media (max-width: 30rem) { .cv-film video::cue { font-size: 13px; } }
   .cv-pipe ol { display: grid; gap: 0.5rem; margin: 0 !important; padding: 0 !important; list-style: none; }
   .cv-pipe li { position: relative; display: grid; align-content: start; gap: 0.1rem; margin: 0; padding: 0.55rem 0.7rem; border: 1px solid var(--tl-line); background: var(--tl-card); font-size: 0.88rem; line-height: 1.35; }
   .cv-pipe li b { color: var(--sl-color-white); font-size: 0.98rem; }
