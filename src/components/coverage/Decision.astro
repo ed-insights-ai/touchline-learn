@@ -1,5 +1,7 @@
 ---
 import Bench from "./Bench.astro";
+import { bounds, story } from "../../lib/coverage";
+import { noScore } from "../../lib/cases";
 
 const said: Record<string, string> = {
   stop: "Stop the run",
@@ -7,6 +9,16 @@ const said: Record<string, string> = {
   fill: "Fill in 0-0",
   record: "Record the gap",
 };
+
+const runs = [
+  { key: "kick", who: "Kick, Friday", text: `Done. All eight school sites, ${story.counted} conference matches, no errors.`, ok: "no", publish: "no",
+    why: "Failed, and it stays in. Dunmore never answered and nothing written down says so, so nobody can tell what this run did. “No errors” describes the program." },
+  { key: "record", who: "Collector with a record, Friday", text: `8 schedule pages expected, 7 saved. Dunmore: unavailable, no answer after three tries. ${story.counted} of ${story.finals} finished matches read; ${bounds.unseen} Dunmore home matches not read; ${noScore.day} final, no score on either schedule.`, ok: "yes", publish: "no",
+    why: `Succeeded, and it stays in. The record is written and true, gaps and all. Reading it, ${bounds.unseen} matches are recoverable from pages already saved, so a table built without them should not go out yet.` },
+  { key: "monday", who: "Collector with a record, Monday", text: `Both schools' pages read for every match. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' pages. Not counted: ${noScore.home} v ${noScore.away}, ${noScore.day}, final, score unknown.`, ok: "yes", publish: "yes",
+    why: "Succeeded, and it goes out with the gap named under the table. A table does not have to be whole to be published. It has to say what it holds." },
+];
+const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Goes out"], ["no", name === "ok" ? "Failed" : "Stays in"]];
 ---
 
 <section id="decision">
@@ -19,7 +31,7 @@ const said: Record<string, string> = {
   <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's page is down. Choose what the collector does about it." />
   <div class="cv-chose" data-gate data-chose>
     <p class="cv-once">Run Friday under all four before you read on. <span data-chose-tried></span></p>
-    <button type="button" data-chose-open>I have tried them. Show the comparison</button>
+    <button type="button" data-chose-open disabled>Show the comparison</button>
     <div class="cv-reveal">
   <p>Kick chose “Skip it and carry on”, a defensible default: the run finishes and seven schools get a table. Its cost is that the gap stays invisible until a coach calls. Stopping publishes nothing at all. Filling in 0-0 publishes results nobody saw. Recording the gap finishes and names it.</p>
   <p>Touchline chose the fourth, and wrote it as a rule about what success means.</p>
@@ -30,6 +42,30 @@ const said: Record<string, string> = {
     <ul><li>Season view: a notice for each gap</li><li>Figures: counted, out of played</li><li>Next run: what to ask for again</li></ul>
   </div>
     </div>
+  </div>
+
+  <h4 class="cv-try">Use the rule</h4>
+  <p>Three runs end with these summaries. For each, did the run succeed, and should its table go out?</p>
+  <div class="cv-check" data-once="succeed">
+    {runs.map((r) => (
+      <div class="cv-run">
+        <div class="cv-say"><p class="cv-who">{r.who}</p><p>{r.text}</p></div>
+        <div class="cv-row">
+          {(["ok", "publish"] as const).map((q) => (
+            <div data-q data-type="select" data-answer={r[q]} data-why={q === "ok" ? r.why : (r.publish === "yes" ? "Goes out, with its gap named." : "Stays in until the recoverable matches are read.")}>
+              <label><span>{q === "ok" ? "The run" : "The table"}</span>
+                <select data-save={`run-${r.key}-${q}`}><option value="">Choose</option>{yesNo(q).map(([v, t]) => <option value={v}>{t}</option>)}</select>
+              </label>
+              <p class="cv-fb" role="status"></p>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+    <p class="cv-once">One attempt at all six.</p>
+    <button type="button" data-submit>Check my six</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>Success is a fact about the record. Publishing is a decision made by reading it.</p></div>
   </div>
   <p class="cv-further">Go further, on a separate page: <a href="../01-collection-field-work/?from=decision#platform">How Touchline builds it</a>, which keeps that record true across reruns and interrupted runs.</p>
   <p class="cv-next">Kick would have kept a record if Riley had asked for one. Go back and ask.</p>
@@ -67,7 +103,20 @@ const said: Record<string, string> = {
     const tried = new Set((read()["bench-tried"] ?? "").split(",").filter(Boolean));
     const note = gate.querySelector<HTMLElement>("[data-chose-tried]")!;
     const button = gate.querySelector<HTMLButtonElement>("[data-chose-open]")!;
-    const show = () => { note.textContent = tried.size ? `You have run ${tried.size} of 4.` : ""; };
+    const show = () => {
+      note.textContent = `You have run ${tried.size} of 4.`;
+      button.disabled = tried.size < 4;
+    };
+    const record = (d: string | undefined) => {
+      if (!d || tried.has(d)) return;
+      tried.add(d);
+      write("bench-tried", [...tried].join());
+      show();
+    };
+    const pressed = () => bench?.querySelector<HTMLElement>('[data-bn-design][aria-pressed="true"]')?.dataset.bnDesign;
+    const seenStart = () => record(pressed());
+    if (document.readyState === "complete") setTimeout(seenStart, 0);
+    else addEventListener("load", () => setTimeout(seenStart, 0));
     const open = (focus: boolean) => {
       gate.classList.add("is-open");
       gate.querySelector<HTMLElement>(".cv-reveal")!.classList.add("is-open");
@@ -76,13 +125,7 @@ const said: Record<string, string> = {
       if (focus) { const r = gate.querySelector<HTMLElement>(".cv-reveal")!; r.tabIndex = -1; r.focus({ preventScroll: true }); }
       gate.dispatchEvent(new Event("rail:refresh", { bubbles: true }));
     };
-    bench?.addEventListener("click", (event) => {
-      const d = (event.target as HTMLElement).closest<HTMLElement>("[data-bn-design]")?.dataset.bnDesign;
-      if (!d) return;
-      tried.add(d);
-      write("bench-tried", [...tried].join());
-      show();
-    });
+    bench?.addEventListener("click", (event) => record((event.target as HTMLElement).closest<HTMLElement>("[data-bn-design]")?.dataset.bnDesign));
     button.addEventListener("click", (event) => { write("open-chose", "1"); open(event.detail === 0); });
     if (read()["open-chose"]) open(false);
     show();

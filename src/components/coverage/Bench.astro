@@ -12,6 +12,7 @@ interface Props {
   show?: Output[];
   start?: Partial<BenchState>;
   caption?: string;
+  when?: string;
 }
 
 const {
@@ -22,6 +23,7 @@ const {
   show = ["says", "counts", "matrix", "table"],
   start = {},
   caption,
+  when = "what Riley reads at 4:52",
 } = Astro.props;
 
 if (!/^[A-Za-z][\w-]*$/.test(id)) throw new Error(`Bench id "${id}" must start with a letter and use letters, digits, - or _`);
@@ -87,7 +89,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
 
   {show.includes("says") && (
     <div class="bn-say">
-      <p class="bn-who">Kick <span>what Riley reads at 4:52</span></p>
+      <p class="bn-who">Kick <span>{when}</span></p>
       <p class="bn-says" role="status" data-bn-says>{out.says}</p>
     </div>
   )}

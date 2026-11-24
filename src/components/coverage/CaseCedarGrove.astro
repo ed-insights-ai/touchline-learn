@@ -1,19 +1,10 @@
 ---
 import Bench from "./Bench.astro";
 import Pipeline from "./Pipeline.astro";
-import Voicemail from "./Voicemail.astro";
 import CoverageGrid from "../CoverageGrid.astro";
-import { bounds, kickGrid, story } from "../../lib/coverage";
-import { hartwell, noScore, spell } from "../../lib/cases";
-
-const states = [
-  { key: "complete", name: "Complete", means: "Served, proved to be the page asked for, and it holds rows.", claim: "You may count what is on it." },
-  { key: "empty", name: "Empty", means: "Served and proved, and it really holds nothing.", claim: "You may say the source publishes nothing here." },
-  { key: "unavailable", name: "Unavailable", means: "Not collected, or collected and not proved. The reason is recorded.", claim: "You may say you do not know. You may not say zero." },
-  { key: "no-collector", name: "No collector", means: "Published in a form nothing you have can read.", claim: "You may say you cannot know yet." },
-];
-const stateOptions = [...states.map((s) => [s.key, s.name]), ["none", "None of the four"]];
-const nameOf = (key: string) => stateOptions.find(([k]) => k === key)![1];
+import { kickGrid, story } from "../../lib/coverage";
+import { noScore } from "../../lib/cases";
+import { stateOptions, stateName as nameOf } from "../../lib/states";
 
 const sort = [
   { evidence: "The request timed out on every try.", answer: "unavailable", worked: true, why: "Nothing arrived, and the reason is known: the site did not answer." },
@@ -28,43 +19,36 @@ const sort = [
 
 const match = `${noScore.home} v ${noScore.away}, ${noScore.day}`;
 const shows = [
-  { key: "zero", text: `${noScore.home} 0-0 ${noScore.away}, counted as a draw` },
+  { key: "post", text: `${noScore.home} 2-1 ${noScore.away}, the score a fan posted that evening` },
+  { key: "played", text: "Counted as played by both schools, with no points to either" },
   { key: "drop", text: "Left out, with nothing said" },
   { key: "named", text: "Not counted, and named under the table: final, score unknown" },
-  { key: "win", text: `As a ${noScore.home} win, since its coach is sure` },
+  { key: "zero", text: `${noScore.home} 0-0 ${noScore.away}, counted as a draw` },
 ];
+const wrongs = {
+  post: "A post is a claim nobody checked against either school's page. Printing it makes the table say more than its sources do.",
+  played: "Counting it as played adds a match to both schools and spreads their goals over one match more. It is a zero in disguise.",
+  drop: "Saying nothing repeats Kick's report: the reader cannot tell the table is short.",
+  zero: "Nil-nil is a real result. Nobody saw this one.",
+};
 ---
 
 <section id="case-cedar-grove">
   <h2>Case 3. Cedar Grove: empty, unknown and never asked</h2>
-  <Pipeline small lit="parse" note="This case happens at Parse" />
+  <Pipeline small lit="build" note="Parse reads the row. Build drops it." />
 
-  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>The call</h3>
-  <Voicemail small who="cedar" caller="Cedar Grove men's soccer" time="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
+  <p class="cv-callout">Cedar Grove men's soccer, from the bus: “September twenty-first, us and St. Lambert. That game happened. It's not in the standings.”</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Look</h3>
   <p>Cedar Grove's page arrived. Here every page answers: {story.afterRepair} matches, no errors, and one cell still final with no score. A complete page can hold an incomplete row.</p>
-  <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." />
+  <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." when="if every page had answered" />
   <p>That schedule links a box score page for the match. Here is Kick's run over every page it could have asked for. Tap a square.</p>
   <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
   <p>The blanks are pages nobody asked for, including the box score page that might hold this score. A run's log has nothing to say about a page it never requested.</p>
-  <p>Now the tempting fix. Back on Friday, press Fill in 0-0.</p>
-  <Bench id="bench-fill" controls={["design"]} designs={["skip", "fill"]} show={["says", "counts", "matrix", "table"]} caption="Friday: Dunmore's page is down." />
-  <p>Under fill: {story.counted + bounds.unseen} “matches”, {spell(bounds.unseen)} invented, and Hartwell's {hartwell.seven} entered as a draw. A zero looks like data.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Name it</h3>
-  <p>Every page that was asked for ends in exactly one of four states.</p>
-  <div class="cv-states">
-    {states.map((s) => (
-      <div class={`cv-state is-${s.key}`}>
-        <h4><i aria-hidden="true"></i>{s.name}</h4>
-        <p>{s.means}</p>
-        <p><b>Claim:</b> {s.claim}</p>
-      </div>
-    ))}
-  </div>
-  <p>A blank has no state: nobody asked. The pair to learn is <strong>empty</strong> and <strong>unavailable</strong>. “The site lists no players” may be reported as zero. “We could not read the site” must be reported as unknown. Unknown is never zero.</p>
-  <p>A state describes a page. Cedar Grove's schedule is complete with one row unscored, so page-level and item-level coverage are separate counts. A blank item in a unit that answered is <strong>item nonresponse</strong>. A unit the job needed and never listed, like those box score pages, is <strong>undercoverage</strong>.</p>
+  <p>The four states from the idea section, at work. The blanks in that grid have no state, because nobody asked. The pair that matters most is <strong>empty</strong> and <strong>unavailable</strong>. “The site lists no players” may be reported as zero. “We could not read the site” must be reported as unknown.</p>
+  <p>A state describes a page. Cedar Grove's schedule is complete with one row unscored, so a page can be complete while an item on it is not. Survey statisticians call a blank item in a unit that answered <strong>item nonresponse</strong>.</p>
   <p>A page counts only once it is <strong>proved</strong> to be the school and season asked for, since a site will sometimes serve last season's page with no error. <a href="../03-provenance/">Module 3</a> covers the proof.</p>
 
   <h4 class="cv-try">Try it: sort the evidence</h4>
@@ -99,7 +83,7 @@ const shows = [
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Your claim</h3>
   <div class="cv-check" data-once="claim-sept21">
-    <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened, so silence repeats Kick's report. Nil-nil is a real result nobody saw, and a coach's certainty that a match was played says nothing about its score.">
+    <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened and its score is unknown, so the table counts only what a saved page shows and says what it left out." data-wrong={JSON.stringify(wrongs)}>
       <legend>How should {match} appear in the published table?</legend>
       {shows.map((s) => <label><input type="radio" name="cv-sept21" value={s.key} data-save="claim-sept21" /><span>{s.text}</span></label>)}
       <p class="cv-fb" role="status"></p>

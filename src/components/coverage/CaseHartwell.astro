@@ -1,7 +1,6 @@
 ---
 import Bench from "./Bench.astro";
 import Pipeline from "./Pipeline.astro";
-import Voicemail from "./Voicemail.astro";
 import { bounds, pack, story } from "../../lib/coverage";
 import { dunmoreSplit, hartwell, pipeline, spell } from "../../lib/cases";
 
@@ -16,9 +15,7 @@ const dots = [
   <h2>Case 2. Hartwell: gaps arrive in blocks</h2>
   <Pipeline small lit="build" note="This case happens at Build" />
 
-  <h3 class="cv-beat"><span class="sr-only">Case 2, </span>The call</h3>
-  <Voicemail small who="dolan" caller="Coach Dolan, Hartwell" time="5:41" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
-  <p>Hartwell's own page arrived on time. Its row is wrong anyway.</p>
+  <p class="cv-callout">Coach Dolan, Hartwell, 5:41: “We went into Dunmore October fifteenth and put seven on 'em. You've got us fourth.” Hartwell's own page arrived on time. Its row is wrong anyway.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 2, </span>Look</h3>
   <p>Kick read each match once, from the host's page, so that no match was counted twice. The {hartwell.seven} was played at Dunmore.</p>
@@ -48,8 +45,38 @@ const dots = [
         <tr><th scope="row">On all {dunmoreSplit.all.p}</th><td>{dunmoreSplit.all.p}</td><td>{dunmoreSplit.all.perMatch}</td><td>{signed(dunmoreSplit.all.gd)}</td></tr>
       </tbody>
     </table>
-    <figcaption>Kick's table held every Dunmore away match and no home match, so a defence that leaked at home looks sound.</figcaption>
+    <figcaption>Kick's table held every finished Dunmore away match and no home match, so a defence that leaked at home looks sound.</figcaption>
   </figure>
+  <p>That tilt is <strong>selection bias</strong>: which matches went missing was decided by something other than chance, so the ones you hold are not a fair sample of the season. Statisticians sort missing data by what decided it.</p>
+  <ul class="cv-three">
+    <li><b>Missing completely at random</b><span>Nothing about the item decided it, like a coin toss. What you hold is a fair sample, only smaller.</span></li>
+    <li><b>Missing at random, given something you can see</b><span>Something you recorded decided it. Here, the venue: every lost match was a Dunmore home match. Figures that do not depend on venue are fair. Figures that do are tilted.</span></li>
+    <li><b>Missing not at random</b><span>The missing values themselves decided it, like a school that takes its page down after a bad run. The record alone cannot show it.</span></li>
+  </ul>
+  <div class="cv-check" data-once="bias">
+    <div class="cv-line" data-q data-type="select" data-answer="mar" data-why="Missing at random, given the venue. Whether a match was lost depends on who hosted it, which you can see. Nothing suggests it depended on the score." data-wrong={JSON.stringify({ mcar: "A coin toss would lose matches from every school's home and away games. These are all Dunmore home matches.", mnar: "That would need the outage to depend on the results. Nothing in the record suggests it did." })}>
+      <label><span>Why were the seven missing?</span>
+        <select data-save="bias-kind"><option value="">Choose</option><option value="mcar">Missing completely at random</option><option value="mar">Missing at random, given the venue</option><option value="mnar">Missing not at random</option></select>
+      </label>
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <div class="cv-line" data-q data-type="select" data-answer="venue" data-why="Every Dunmore figure where home and away differ. Matches played are only short. Goals conceded per match is tilted, because only away matches were kept." data-wrong={JSON.stringify({ none: "Each match held was read correctly. The set of matches is what is tilted.", points: "Points are short, and the bound handles that. The tilt reaches any figure where home and away differ." })}>
+      <label><span>Which of Kick's Dunmore figures does the block tilt?</span>
+        <select data-save="bias-which"><option value="">Choose</option><option value="none">None, since every match it holds was read correctly</option><option value="points">Only its points</option><option value="venue">Any figure where home and away differ</option></select>
+      </label>
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <div class="cv-line" data-q data-type="select" data-answer="low" data-why={`Too low. Dunmore conceded more at home, and every home match was the part that went missing, so ${dunmoreSplit.kick.perMatch} became ${dunmoreSplit.all.perMatch} once all ${dunmoreSplit.all.p} were read.`}>
+      <label><span>Which way did it tilt goals conceded per match?</span>
+        <select data-save="bias-way"><option value="">Choose</option><option value="low">Too low</option><option value="high">Too high</option><option value="none">Not at all</option></select>
+      </label>
+      <p class="cv-fb" role="status"></p>
+    </div>
+    <p class="cv-once">One attempt at all three.</p>
+    <button type="button" data-submit>Check my three</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>Before the home results came back, the direction could not be known. The record can name the cause of a gap and the figures it tilts. It cannot say which way.</p></div>
+  </div>
 
   <h3 class="cv-beat"><span class="sr-only">Case 2, </span>Name it</h3>
   <p class="cv-lede">Gaps arrive in blocks. One cause removes related records together, and a block lands on the same teams again and again.</p>

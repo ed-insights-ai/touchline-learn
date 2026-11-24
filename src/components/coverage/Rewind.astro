@@ -2,26 +2,11 @@
 import { bounds, story } from "../../lib/coverage";
 import { noScore, pipeline, rileyAsk, spell, toPlay } from "../../lib/cases";
 
-type Line = [who: "Riley" | "Kick", text: string];
-const chapters: { title: string; lines: Line[] }[] = [
-  { title: "The record", lines: [
-    ["Riley", "What did you expect to collect, and what happened to each one?"],
-    ["Kick", `${spell(pipeline.asked, true)} schedule pages expected. ${spell(pipeline.saved, true)} saved. Dunmore: no answer after three tries.`],
-  ] },
-  { title: "The total", lines: [
-    ["Riley", "How many matches should this table hold?"],
-    ["Kick", `${story.counted}.`],
-    ["Riley", `That is how many you found. How many should there be?`],
-    ["Kick", `${spell(story.schools, true)} schools, each hosting the other ${spell(story.schools - 1)}: ${story.scheduled}. ${spell(toPlay, true)} are still to play, so ${story.finals} are finished. The table has ${story.counted}.`],
-  ] },
-  { title: "The block", lines: [
-    ["Riley", `Which ${spell(story.finals - story.counted)} are missing, and does any page you saved have them?`],
-    ["Kick", `${spell(bounds.unseen, true)} are Dunmore's home matches. Each visitor's saved page lists its trip there, with the score. Counted from those, Hartwell Tech is second. The last is ${noScore.home} v ${noScore.away}, ${noScore.day}: final, no score on either schedule.`],
-  ] },
-  { title: "The refusal", lines: [
-    ["Kick", `I can enter ${noScore.day} as 0-0 so the table is complete.`],
-    ["Riley", "No. Nil-nil is a result. We do not know this one. Say so."],
-  ] },
+const record = [
+  ["Schedule pages", `${pipeline.asked} expected, ${pipeline.saved} saved. Dunmore: unavailable, no answer after three tries.`],
+  ["Matches", `${story.scheduled} scheduled by the format, ${toPlay} still to play, ${story.finals} finished.`],
+  ["Read", `${story.counted} from the hosts' pages. ${spell(bounds.unseen, true)} Dunmore home matches from the visitors' saved pages.`],
+  ["Not counted", `${noScore.home} v ${noScore.away}, ${noScore.day}: final, no score on either schedule. Box score page not asked for yet.`],
 ];
 ---
 
@@ -46,26 +31,16 @@ const chapters: { title: string; lines: Line[] }[] = [
         <label><input type="checkbox" data-save="added-gaps" /><span>It makes the summary name every gap</span></label>
       </fieldset>
 
-      <h3>Friday, worked through</h3>
+      <h3>What Kick returns when asked</h3>
       <p class="cv-label">A scripted example. Same agent, same outage.</p>
-      <ol class="cv-closer">
-        {chapters.map((c) => (
-          <li>
-            <p class="cv-chapter">{c.title}</p>
-            <div class="cv-chat">
-              {c.lines.map(([who, text]) => <p class={who === "Riley" ? "cv-riley" : "cv-kick"}><b>{who}</b>{text}</p>)}
-            </div>
-          </li>
-        ))}
-        <li>
-          <p class="cv-chapter">The calls returned</p>
-          <div class="cv-say">
-            <p class="cv-who">Riley, to the eight schools <span>Monday, 8:10</span></p>
-            <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. Hartwell Tech is second. {noScore.home} against {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>
-          </div>
-          <div class="cv-chat"><p class="cv-riley"><b>Riley, to Coach Dolan</b>You're second.</p></div>
-        </li>
-      </ol>
+      <table class="cv-log cv-record">
+        <caption>Kick's coverage record, Friday</caption>
+        <tbody>{record.map(([what, said]) => <tr><th scope="row">{what}</th><td>{said}</td></tr>)}</tbody>
+      </table>
+      <div class="cv-say">
+        <p class="cv-who">Riley, to the eight schools <span>Monday, 8:10</span></p>
+        <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. Hartwell Tech is second. {noScore.home} against {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>
+      </div>
       <p>The gap did not vanish. {spell(bounds.unseen, true)} results came back from saved pages, one stayed unknown and named, and the table went out as {story.afterRepair} of {story.finals}. Same Kick. Riley knew what to require.</p>
       <p data-close-first hidden>Your question from the film: <q></q> Would its answer have named Dunmore's page?</p>
     </div>

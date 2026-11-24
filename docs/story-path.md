@@ -45,7 +45,10 @@ from the invented sample in `sample/`.
 ## Rules for writing a beat
 
 - A module opens with three lines of story and closes with one line that
-  raises the next module's question. The teaching stays as it is.
+  raises the next module's question.
+- Teach the concept before any graded story decision. A case applies an idea
+  the learner has already met; it never introduces it by testing it.
+- Tell each scene once. A later part may quote a line of it, never replay it.
 - The story uses only sample facts a lab or page already shows. A number in a
   scene must be one the module computes.
 - Public-repo rules hold: no real sites, hosts, buckets or keys; private
@@ -67,5 +70,15 @@ Agreed on 24 November 2026:
 
 Deferred: re-scoping Module 6 toward "what one repository promises another".
 Take it up when the Module 2 to 9 openers are written.
+
+## Risks to settle before the later beats are written
+
+- Module 5's plan has the lesson's AI assistant become Kick. That can blur the
+  line between Kick, the agent being audited, and the learner's own assistant
+  used as a tutor. Keep the two roles distinct.
+- "St." carries two meanings across the arc: the Module 1 closer's "St. means
+  State" bug and Module 5's "Brightwater St." name variants. Pick which module
+  owns it, or make the second use call back to the first on purpose.
+- Do not write the Module 2 to 9 openers until Module 1 follows the rules above.
 
 Source: the navigation and learning-path reviews of 24 November 2026.

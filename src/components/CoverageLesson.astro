@@ -2,6 +2,7 @@
 import CoverageStyles from "./coverage/Styles.astro";
 import CoverageRuntime from "./coverage/Runtime.astro";
 import Setup from "./coverage/Setup.astro";
+import Concept from "./coverage/Concept.astro";
 import CaseDunmore from "./coverage/CaseDunmore.astro";
 import CaseHartwell from "./coverage/CaseHartwell.astro";
 import CaseCedarGrove from "./coverage/CaseCedarGrove.astro";
@@ -18,11 +19,12 @@ import { bounds, pack, story } from "../lib/coverage";
 
 <div class="cv cv-core not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
   <div class="cv-orient">
-    <p>About 35 minutes, in eight parts. The bar below stays with you: it shows where you are, ticks off each part as you answer it, and opens to the full list. Field work with your own assistant is on <a href="../01-collection-field-work/">a separate, optional page</a>.</p>
+    <p>About 55 minutes, in nine parts, including two short films. The bar below stays with you: it shows where you are, ticks off each part as you answer it, and opens to the full list. Field work with your own assistant is on <a href="../01-collection-field-work/">a separate, optional page</a>.</p>
     <p data-no-first>Came here directly? <a href="../../">The film is two minutes</a>, and this module picks up where it ends.</p>
   </div>
   <Rail />
   <Setup />
+  <Concept />
   <CaseDunmore />
   <CaseHartwell />
   <CaseCedarGrove />

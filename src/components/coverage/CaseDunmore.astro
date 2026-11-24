@@ -1,11 +1,15 @@
 ---
 import Pipeline from "./Pipeline.astro";
-import Voicemail from "./Voicemail.astro";
 import AskKick from "./AskKick.astro";
 import { run, scheduleLog } from "../../lib/first-run";
 import { bounds, story } from "../../lib/coverage";
 import { pipeline, spell, toPlay } from "../../lib/cases";
 
+const sources = [
+  ["pages", "Count the matches listed on the pages Kick saved"],
+  ["log", "Count the lines in Kick's fetch log"],
+  ["rule", "The membership list and the competition's format"],
+];
 const bar = (n: number) => `${(n / story.scheduled) * 100}%`;
 const chain = [
   [story.scheduled, "scheduled, by the rule", ""],
@@ -19,9 +23,7 @@ const chain = [
   <h2>Case 1. Dunmore: a count needs an expected set</h2>
   <Pipeline small lit="scrape" note="This case happens at Scrape" />
 
-  <h3 class="cv-beat"><span class="sr-only">Case 1, </span>The call</h3>
-  <Voicemail small who="dunmore" caller="Dunmore athletics" time="5:44" line="You've got our men at six conference games. We've played thirteen." />
-  <p>Riley's table had no way to say thirteen. Where did the other seven go?</p>
+  <p class="cv-callout">Dunmore athletics, 5:44: “You've got our men at six conference games. We've played thirteen.” Riley's table had no way to say thirteen.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 1, </span>Look</h3>
   <p>Besides the table, Kick kept a log of the {run.total} pages it asked for. Of those, {pipeline.boxes} were box scores from Alder Ridge. These are the other {spell(pipeline.asked)}.</p>
@@ -36,37 +38,34 @@ const chain = [
   <h4 class="cv-try">Build the denominator</h4>
   <p>Kick's evidence names the missing page. It cannot say how many matches are missing, because nothing in the run says how many there should be. The competition can.</p>
   <div class="cv-check" data-once="scheduled">
+    <div class="cv-line" data-q data-type="select" data-answer="rule" data-why="The membership list and the format. Both exist before the run and apart from it, so a silent school stays in the count." data-wrong={JSON.stringify({ pages: "A school whose page never arrived lists nothing, so it drops out of its own count.", log: "The log counts pages asked for, and only the pages Kick thought to ask for. It holds no matches." })}>
+      <label><span>Where can the number of matches come from, before the run?</span>
+        <select data-save="q-source"><option value="">Choose</option>{sources.map(([k, t]) => <option value={k}>{t}</option>)}</select>
+      </label>
+      <p class="cv-fb" role="status"></p>
+    </div>
     <div data-q data-type="number" data-answer={story.scheduled} data-why={`${story.scheduled}. ${spell(story.schools, true)} hosts, each with ${spell(story.schools - 1)} visitors: ${story.schools} × ${story.schools - 1}. Nobody has to fetch anything to know it.`}>
       <label for="cv-scheduled">Each of the {spell(story.schools)} schools hosts every other school once. How many conference matches does the season hold?</label>
       <input id="cv-scheduled" inputmode="numeric" autocomplete="off" data-save="q-scheduled" />
       <p class="cv-fb" role="status"></p>
     </div>
-    <p class="cv-once">One attempt.</p>
-    <button type="button" data-submit>Check, and build the chain</button>
+    <p class="cv-once">One attempt at both.</p>
+    <button type="button" data-submit>Check both</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal">
-      <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => `${n} ${what}${lost ? `, minus ${lost}` : ""}`).join(". ")}>
-        {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
-      </div>
-      <p>Riley could have known every line of this at 4:52.</p>
-    </div>
+    <div class="cv-reveal"><p>Of the {story.scheduled}, {spell(toPlay)} are still to be played on Friday.</p></div>
   </div>
 
   <h3 class="cv-beat"><span class="sr-only">Case 1, </span>Name it</h3>
-  <div class="cv-define">
-    <p><dfn>Coverage</dfn> is the comparison between what a collection was expected to bring back and what it did bring back.</p>
-    <p>So a collector has two outputs: the data, and a <strong>coverage record</strong> of everything it expected and what happened to each item. Kick produced the first and skipped the second.</p>
-  </div>
-  <p>The list of what is expected is the <strong>expected set</strong>, written before fetching and from outside the run. Built from the pages that arrived, it would drop a silent school from its own denominator.</p>
-  <p>Survey statisticians call the list of units you set out to hear from the <strong>sampling frame</strong>, and a unit on it that did not answer <strong>unit nonresponse</strong>. Dunmore's page is unit nonresponse. Kick's log could show it because the log was a frame of pages. For matches, Kick had no frame at all.</p>
+  <p>Kick never wrote an expected set, so its coverage could not be worked out: {story.counted} found, against nothing. Its log could name the silent page because the log was a list of pages. For matches it had no list at all.</p>
+  <p>Survey statisticians call the list of units you set out to hear from the <strong>sampling frame</strong>, and a unit on it that did not answer <strong>unit nonresponse</strong>. Dunmore's page is unit nonresponse.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 1, </span>What Touchline does</h3>
   <p>Its expected rows come from a membership list kept by season, apart from any run, and its totals from the competition's format. Counting what the collected pages list is a weaker third source, complete only as far as the pages are.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 1, </span>Your claim</h3>
   <div class="cv-check" data-once="claim-count">
-    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. The table counted ${story.counted}. Of ${story.scheduled} scheduled, ${story.finals} are finished.`}>
-      <p class="cv-qlabel">Complete the caption Kick's table needed.</p>
+    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's message said ${story.counted}. The denominator is what should exist by now: ${story.scheduled} scheduled, less ${spell(toPlay)} still to play. Not ${story.scheduled}, because unplayed matches cannot be missing, and not ${story.counted}, because a count of what arrived cannot show what did not.`}>
+      <p class="cv-qlabel">Write the caption Kick's table needed. Kick's 4:52 message said how many it found.</p>
       <p class="cv-row cv-fillin">
         <span>Built from</span>
         <input inputmode="numeric" autocomplete="off" aria-label="Matches in the table" data-save="claim-count" />
@@ -77,10 +76,16 @@ const chain = [
       <p class="cv-fb" role="status"></p>
     </div>
     <p class="cv-once">One attempt.</p>
-    <button type="button" data-submit>Check my caption</button>
+    <button type="button" data-submit>Check my caption, and build the chain</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Now a reader knows the table is short. Which rows to distrust is the next case.</p></div>
+    <div class="cv-reveal">
+      <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => `${n} ${what}${lost ? `, minus ${lost}` : ""}`).join(". ")}>
+        {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
+      </div>
+      <p>Riley could have known every line of this at 4:52. Now a reader knows the table is short. Which rows to distrust is the next case.</p>
+    </div>
   </div>
+
   <p class="cv-further">Go further, on a separate page: <a href="../01-collection-field-work/?from=case-dunmore#statistics">Statistics of the gap</a>, where an expected set comes from and what survey statisticians call each kind of gap.</p>
-  <p class="cv-next">One page cost {spell(bounds.unseen)} matches. Case 2 asks why it cost all {spell(pipeline.rows)} rows.</p>
+  <p class="cv-next">One page cost {spell(bounds.unseen)} matches. Case 2 asks how far that one page reaches.</p>
 </section>

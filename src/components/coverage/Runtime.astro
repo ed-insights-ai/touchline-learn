@@ -9,7 +9,7 @@
     let canSave = true;
     try { store = JSON.parse(localStorage.getItem(KEY) ?? "{}"); } catch { canSave = false; }
     const put = (key: string, value: string) => {
-      store[key] = value;
+      try { store = { ...JSON.parse(localStorage.getItem(KEY) ?? "{}"), [key]: value }; } catch { store[key] = value; }
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch { canSave = false; }
     };
     type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -24,7 +24,8 @@
     const commitState = (box: HTMLElement) => {
       const areas = [...box.querySelectorAll<HTMLTextAreaElement>("textarea")];
       const needs = box.dataset.needs?.split(",") ?? [];
-      const short = areas.some((a) => a.value.trim().length < 25) || needs.some((k) => (k === "read-ask" ? (store[k] ?? "").trim().length < 25 : !store[k]));
+      const words = (t: string) => (t.match(/[A-Za-z]{2,}/g) ?? []).length;
+      const short = areas.some((a) => a.value.trim().length < 25 || words(a.value) < 5) || needs.some((k) => (k === "read-ask" ? (store[k] ?? "").trim().length < 25 : !store[k]));
       box.querySelector<HTMLButtonElement>(":scope > button")!.disabled = short;
       const note = box.querySelector<HTMLElement>("[data-needs-note]");
       if (note) note.hidden = !short || !!store[`open-${needs.join()}`];
@@ -162,8 +163,12 @@
         return picked ? picked.value === answer : null;
       }
       if (values.some((f) => !f.value.trim())) return null;
-      if (type === "number") return String(Number(values[0].value)) === answer;
-      if (type === "range") return values.map((f) => Number(f.value)).join() === answer;
+      const num = (v: string) => { const m = v.replace(/(\d),(\d{3})/g, "$1$2").match(/-?\d+/); return m ? Number(m[0]) : null; };
+      if (type === "number" || type === "range") {
+        const nums = values.map((f) => num(f.value));
+        if (nums.some((n) => n === null)) return null;
+        return (type === "range" ? [...(nums as number[])].sort((a, b) => a - b) : nums).join() === answer;
+      }
       if (type === "pair") return values.map((f) => f.value).sort().join() === answer;
       return values[0].value === answer;
     };
@@ -180,7 +185,7 @@
           right += Number(ok);
           const fb = q.querySelector<HTMLElement>(".cv-fb")!;
           fb.classList.add(ok ? "is-right" : "is-wrong");
-          const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? "";
+          const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? q.querySelector<HTMLInputElement>("input[type=radio]:checked")?.value ?? "";
           const hint = !ok && q.dataset.wrong ? (JSON.parse(q.dataset.wrong) as Record<string, string>)[picked] ?? "" : "";
           fb.textContent = `${ok ? "Right." : "Not right."} ${hint ? `${hint} The answer is ` : ""}${q.dataset.why}`;
         });
@@ -196,7 +201,7 @@
       button.addEventListener("click", (event) => {
         if (questions.some((q) => grade(q) === null)) {
           need.classList.add("is-wrong");
-          need.textContent = "Answer every part first.";
+          need.textContent = "Answer every part first, with digits where a number is asked.";
           return;
         }
         put(flag, "1");
