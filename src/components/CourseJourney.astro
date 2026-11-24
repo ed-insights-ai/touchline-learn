@@ -19,6 +19,13 @@ import { journey } from "../data/journey";
       </ol>
     </section>
   ))}
+  <section class="cj-part cj-finish">
+    <h3><span>Finish</span> Back to the agent</h3>
+    <a href="./finish/back-to-the-agent/">
+      <b aria-hidden="true">✓</b>
+      <span><strong>Return to the publishing decision</strong>Bring back your question to Kick. What would you need to see before you trust the table now?</span>
+    </a>
+  </section>
 </div>
 
 <style is:global>
@@ -35,5 +42,6 @@ import { journey } from "../data/journey";
   .cj-part b { flex: none; width: 1.6rem; color: var(--sl-color-accent); font-size: 1.05rem; text-align: center; font-variant-numeric: tabular-nums; }
   .cj-part a span { display: grid; font-size: 0.92rem; color: var(--tl-muted); }
   .cj-part a small { margin-top: 0.1rem; font-size: 0.78rem; }
+  .cj-finish { border-left-color: #f4c62f; }
   .cj-part a strong { color: var(--tl-ink); font-size: 1rem; font-weight: 650; }
 </style>

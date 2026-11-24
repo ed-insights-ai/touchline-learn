@@ -3,7 +3,8 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 ---
 
 <nav class="or not-content" aria-label="On this page">
-  <p>No soccer or pipeline background needed. A browser is enough.</p>
+  <p class="or-about">A course in how a trustworthy data pipeline fits together, built around Touchline, a working platform that collects results from about a thousand college soccer websites.</p>
+  <p class="or-meta"><span>10 modules</span><span>Self-paced</span><span>Labs optional, a browser is enough</span><span>No soccer or pipeline background needed</span></p>
   <ol>
     <li><a href="#film">Watch the film <span>2 min</span></a></li>
     <li><a href="#one-match">See the seven steps</a></li>
@@ -15,6 +16,9 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 <style is:global>
   .or { max-width: 52rem; margin: 0 auto 1rem; color: var(--tl-muted); font-size: 0.92rem; }
   .or p { margin: 0 0 0.45rem; }
+  .or .or-about { max-width: 44rem; color: var(--tl-ink); font-size: 1rem; }
+  .or .or-meta { display: flex; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .or-meta span + span::before { content: "·"; margin: 0 0.5rem; }
   .or ol { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
   .or li { margin: 0; }
   .or a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 40px; padding: 0.3rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); font-weight: 600; text-decoration: none; }
