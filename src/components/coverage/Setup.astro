@@ -114,7 +114,7 @@ const choices = [
         <dl>
           <div><dt>Kick chose</dt><dd>{o.kick}</dd></div>
           <div><dt>Then</dt><dd>{o.then}</dd></div>
-          <div><dt>See</dt><dd><a href={o.href}>{o.where}</a></dd></div>
+          <div><dt>Covered in</dt><dd data-rail-hint={o.href.slice(1)}>{o.where}</dd></div>
         </dl>
       </details>
     ))}
@@ -151,13 +151,13 @@ const choices = [
     <p class="cv-who">Your question from the film</p>
     <p data-first-text></p>
   </div>
-  <fieldset class="cv-choice">
+  <fieldset class="cv-choice" data-gate>
     <legend>Dunmore's site does not answer. What should Kick do?</legend>
     {choices.map(([value, label]) => (
       <label><input type="radio" name="cv-decision" value={value} data-save="decision" /><span>{label}</span></label>
     ))}
   </fieldset>
-  <p class="cv-once">Nothing is marked. You come back to it in <a href="#decision">the decision</a>.</p>
+  <p class="cv-once">Nothing is marked. You come back to it after the three cases.</p>
   <p class="cv-can">Three cases follow, one per call. Then you can:</p>
   <ul>
     <li>say how many items a collection should hold, before it runs and from outside it</li>

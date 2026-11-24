@@ -9,33 +9,19 @@ import Decision from "./coverage/Decision.astro";
 import Rewind from "./coverage/Rewind.astro";
 import ProveIt from "./coverage/ProveIt.astro";
 import CarryIt from "./coverage/CarryIt.astro";
+import Rail from "./coverage/Rail.astro";
 import { bounds, pack, story } from "../lib/coverage";
 
-const parts = [
-  ["setup", "Setup", "One sentence, one Friday"],
-  ["case-dunmore", "Case 1. Dunmore", "A count needs an expected set"],
-  ["case-hartwell", "Case 2. Hartwell", "Gaps arrive in blocks"],
-  ["case-cedar-grove", "Case 3. Cedar Grove", "Empty, unknown and never asked"],
-  ["decision", "The decision", "What to do when a site is silent"],
-  ["rewind", "Rewind", "The same Friday, asked properly"],
-  ["prove-it", "Prove it", "The season nobody called about"],
-  ["carry-it", "Carry it", "The idea outside soccer"],
-];
 ---
 
 <CoverageRuntime />
 
 <div class="cv cv-core not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
   <div class="cv-orient">
-    <p>About 35 minutes. Field work with your own assistant is on <a href="../01-collection-field-work/">a separate, optional page</a>.</p>
+    <p>About 35 minutes, in eight parts. The bar below stays with you: it shows where you are, ticks off each part as you answer it, and opens to the full list. Field work with your own assistant is on <a href="../01-collection-field-work/">a separate, optional page</a>.</p>
     <p data-no-first>Came here directly? <a href="../../">The film is two minutes</a>, and this module picks up where it ends.</p>
-    <details class="cv-more">
-      <summary>The eight parts of this module</summary>
-      <ol class="cv-map">
-        {parts.map(([id, name, what]) => <li><a href={`#${id}`}><b>{name}</b><span>{what}</span></a></li>)}
-      </ol>
-    </details>
   </div>
+  <Rail />
   <Setup />
   <CaseDunmore />
   <CaseHartwell />

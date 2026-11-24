@@ -1,0 +1,166 @@
+---
+const parts = [
+  ["setup", "Setup", "One sentence, one Friday"],
+  ["case-dunmore", "Case 1. Dunmore", "A count needs an expected set"],
+  ["case-hartwell", "Case 2. Hartwell", "Gaps arrive in blocks"],
+  ["case-cedar-grove", "Case 3. Cedar Grove", "Empty, unknown and never asked"],
+  ["decision", "The decision", "What to do when a site is silent"],
+  ["rewind", "Rewind", "The same Friday, asked properly"],
+  ["prove-it", "Prove it", "The season nobody called about"],
+  ["carry-it", "Carry it", "The idea outside soccer"],
+];
+---
+
+<nav class="cv-rail" aria-label="This module" data-rail>
+  <div class="cv-rail-bar">
+    <button type="button" class="cv-rail-toggle" aria-expanded="false" aria-controls="cv-rail-list" data-rail-toggle>
+      <span class="cv-rail-where"><b data-rail-part>Setup</b><span data-rail-beat></span></span>
+      <span class="cv-rail-segs" aria-hidden="true">{parts.map(([id]) => <i data-rail-seg={id}></i>)}</span>
+      <span class="cv-rail-count" data-rail-count></span>
+      <span class="cv-rail-chev" aria-hidden="true"></span>
+      <span class="sr-only">Show all eight parts</span>
+    </button>
+    <a class="cv-rail-resume" href="#setup" data-rail-resume hidden>Resume</a>
+  </div>
+  <div class="cv-rail-panel" id="cv-rail-list" data-rail-panel hidden>
+    <p class="cv-rail-next" data-rail-next hidden></p>
+    <ol>
+      {parts.map(([id, name, what]) => (
+        <li data-rail-item={id}>
+          <a href={`#${id}`}><i aria-hidden="true"></i><b>{name}</b><span>{what}</span><em data-rail-tally></em></a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</nav>
+
+<script>
+  const PROGRESS = "touchline-m1-progress";
+  document.querySelectorAll<HTMLElement>("[data-rail]").forEach((rail) => {
+    const root = rail.closest<HTMLElement>("[data-coverage]")!;
+    const toggle = rail.querySelector<HTMLButtonElement>("[data-rail-toggle]")!;
+    const panel = rail.querySelector<HTMLElement>("[data-rail-panel]")!;
+    const resume = rail.querySelector<HTMLAnchorElement>("[data-rail-resume]")!;
+    const next = rail.querySelector<HTMLElement>("[data-rail-next]")!;
+    const items = [...rail.querySelectorAll<HTMLElement>("[data-rail-item]")];
+    const ids = items.map((li) => li.dataset.railItem!);
+    const names = Object.fromEntries(items.map((li) => [li.dataset.railItem!, li.querySelector("b")!.textContent!]));
+    const sections = ids.map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
+
+    let seen: Record<string, string> = {};
+    try { seen = JSON.parse(localStorage.getItem(PROGRESS) ?? "{}"); } catch {}
+    const markSeen = (id: string) => {
+      if (seen[`seen-${id}`]) return;
+      seen[`seen-${id}`] = "1";
+      try { localStorage.setItem(PROGRESS, JSON.stringify({ ...JSON.parse(localStorage.getItem(PROGRESS) ?? "{}"), [`seen-${id}`]: "1" })); } catch {}
+    };
+
+    const gatesOf = (section: HTMLElement) => [...section.querySelectorAll<HTMLElement>("[data-once], [data-commit], [data-gate]")];
+    const isDone = (gate: HTMLElement) => {
+      if (gate.matches("[data-gate]")) return gate.classList.contains("is-open") || !!gate.querySelector("input:checked");
+      const reveal = gate.matches("[data-commit]") ? gate.querySelector(":scope > .cv-reveal") : gate.querySelector(".cv-reveal");
+      return !!reveal?.classList.contains("is-open");
+    };
+    const headingBefore = (el: HTMLElement, section: HTMLElement) => {
+      const heads = [...section.querySelectorAll<HTMLElement>("h3")].filter((h) => h.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return heads.at(-1) ?? section.querySelector<HTMLElement>("h2")!;
+    };
+    const beatName = (h: HTMLElement) => {
+      if (h.matches("h2")) return "";
+      const copy = h.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll(".sr-only").forEach((n) => n.remove());
+      if (h.classList.contains("cv-step")) copy.querySelector("span")?.remove();
+      return copy.textContent!.trim();
+    };
+
+    const refresh = () => {
+      let total = 0, done = 0, firstOpen: { section: HTMLElement; gate: HTMLElement } | null = null;
+      sections.forEach((section) => {
+        const gates = gatesOf(section);
+        const finished = gates.filter(isDone).length;
+        total += gates.length; done += finished;
+        if (!firstOpen) { const open = gates.find((g) => !isDone(g)); if (open) firstOpen = { section, gate: open }; }
+        const complete = gates.length ? finished === gates.length : !!seen[`seen-${section.id}`];
+        const li = items[ids.indexOf(section.id)];
+        li.classList.toggle("is-done", complete);
+        rail.querySelector(`[data-rail-seg="${section.id}"]`)!.classList.toggle("is-done", complete);
+        li.querySelector("[data-rail-tally]")!.textContent = gates.length ? `${finished} of ${gates.length}` : "";
+      });
+      rail.querySelector("[data-rail-count]")!.textContent = `${done} of ${total}`;
+      const target = firstOpen as { section: HTMLElement; gate: HTMLElement } | null;
+      if (target && done > 0) {
+        const head = headingBefore(target.gate, target.section);
+        const beat = beatName(head);
+        resume.hidden = false;
+        resume.href = `#${target.section.id}`;
+        resume.dataset.target = head.id || "";
+        resume.title = `Resume at ${names[target.section.id]}${beat ? `, ${beat}` : ""}`;
+        resume.setAttribute("aria-label", resume.title);
+        resume.onclick = (event) => {
+          event.preventDefault();
+          close();
+          history.pushState(null, "", `#${target.section.id}`);
+          head.scrollIntoView({ block: "start" });
+          const focusable = target.gate.querySelector<HTMLElement>("input:not(:disabled), select:not(:disabled), textarea:not(:disabled), button:not(:disabled)");
+          focusable?.focus({ preventScroll: true });
+        };
+        next.hidden = false;
+        next.textContent = `Next unanswered: ${names[target.section.id]}${beat ? `, ${beat}` : ""}.`;
+      } else {
+        resume.hidden = true;
+        next.hidden = false;
+        next.textContent = target ? "Nothing answered yet. Start at the top." : "Every question in this module is answered.";
+      }
+    };
+
+    let ticking = false;
+    const where = () => {
+      ticking = false;
+      const line = rail.getBoundingClientRect().bottom + innerHeight * 0.2;
+      let current = sections[0];
+      for (const s of sections) if (s.getBoundingClientRect().top <= line) current = s;
+      let beat = "";
+      for (const h of current.querySelectorAll<HTMLElement>("h3")) if (h.getBoundingClientRect().top <= line) beat = beatName(h);
+      rail.querySelector("[data-rail-part]")!.textContent = names[current.id];
+      rail.querySelector("[data-rail-beat]")!.textContent = beat ? ` · ${beat}` : "";
+      items.forEach((li) => {
+        const here = li.dataset.railItem === current.id;
+        li.classList.toggle("is-here", here);
+        const link = li.querySelector("a")!;
+        if (here) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      });
+      rail.querySelectorAll<HTMLElement>("[data-rail-seg]").forEach((seg) => seg.classList.toggle("is-here", seg.dataset.railSeg === current.id));
+      if (current.getBoundingClientRect().bottom < innerHeight) markSeen(current.id);
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(where); } }, { passive: true });
+    addEventListener("resize", where);
+
+    const close = () => { panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); };
+    toggle.addEventListener("click", () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+      if (open) refresh();
+    });
+    panel.addEventListener("click", (event) => { if ((event.target as HTMLElement).closest("a")) close(); });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !panel.hidden) { close(); toggle.focus(); } });
+    document.addEventListener("click", (event) => { if (!panel.hidden && !rail.contains(event.target as Node)) close(); });
+
+    root.addEventListener("toggle", (event) => {
+      const details = event.target as HTMLElement;
+      const hint = details.querySelector<HTMLElement>("[data-rail-hint]")?.dataset.railHint;
+      if (!hint || !(details as HTMLDetailsElement).open) return;
+      const seg = rail.querySelector<HTMLElement>(`[data-rail-seg="${hint}"]`);
+      seg?.classList.remove("is-hint");
+      void seg?.offsetWidth;
+      seg?.classList.add("is-hint");
+    }, true);
+
+    const later = () => setTimeout(refresh, 0);
+    root.addEventListener("click", later);
+    root.addEventListener("change", later);
+    root.addEventListener("rail:refresh", later);
+    requestAnimationFrame(() => { refresh(); where(); });
+  });
+</script>

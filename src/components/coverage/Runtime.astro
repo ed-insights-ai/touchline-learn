@@ -217,7 +217,7 @@
     briefButton?.addEventListener("click", () => copy(briefButton, root.querySelector<HTMLTextAreaElement>("#cv-brief")?.value ?? "", "Copy my clause"));
 
     root.querySelector<HTMLButtonElement>("[data-reset]")?.addEventListener("click", () => {
-      try { localStorage.removeItem(KEY); } catch {}
+      try { localStorage.removeItem(KEY); localStorage.removeItem("touchline-m1-progress"); } catch {}
       history.scrollRestoration = "manual";
       scrollTo(0, 0);
       location.reload();

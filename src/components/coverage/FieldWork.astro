@@ -102,6 +102,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
 <CoverageRuntime />
 
 <div class="cv not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
+  <p class="cv-backto" data-backto hidden><a href="../01-collection/">Back to the lesson</a></p>
   <div class="fw-intro">
     <p>This page is optional. <a href="../01-collection/">The Module 1 lesson</a> teaches the idea on screen. Come here to test your own AI assistant on the pages Kick got, or to go further into the statistics, the platform and the lab.</p>
     <p>Every section uses the same Friday. Riley asked Kick, an AI coding agent, to collect the season's results from eight school sites and build a conference table. Dunmore's schedule page never answered, Kick read each match only from the host's page, and the table it called done held {story.counted} of {story.finals} finished matches. Each section stands on its own, so start with the one you came for.</p>
@@ -401,3 +402,15 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   .cv .fw-for { padding-left: 0.85rem; border-left: 3px solid var(--tl-line); font-size: 1.05rem; }
   .cv .cv-line .cv-sub { margin: 0.2rem 0 0; font-weight: 400; }
 </style>
+
+<script>
+  const names: Record<string, string> = { "case-dunmore": "Case 1", decision: "the decision", rewind: "Rewind", "carry-it": "Carry it" };
+  const from = new URLSearchParams(location.search).get("from") ?? "";
+  const back = document.querySelector<HTMLElement>("[data-backto]");
+  if (back && names[from]) {
+    const link = back.querySelector("a")!;
+    link.href = `../01-collection/#${from}`;
+    link.textContent = `Back to ${names[from]} in the lesson`;
+    back.hidden = false;
+  }
+</script>

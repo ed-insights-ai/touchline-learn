@@ -39,10 +39,10 @@ const shows = [
   <h2>Case 3. Cedar Grove: empty, unknown and never asked</h2>
   <Pipeline small lit="parse" note="This case happens at Parse" />
 
-  <h3 class="cv-beat">The call</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>The call</h3>
   <Voicemail small who="cedar" caller="Cedar Grove men's soccer" time="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
 
-  <h3 class="cv-beat">Look</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Look</h3>
   <p>Cedar Grove's page arrived. Here every page answers: {story.afterRepair} matches, no errors, and one cell still final with no score. A complete page can hold an incomplete row.</p>
   <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." />
   <p>That schedule links a box score page for the match. Here is Kick's run over every page it could have asked for. Tap a square.</p>
@@ -52,7 +52,7 @@ const shows = [
   <Bench id="bench-fill" controls={["design"]} designs={["skip", "fill"]} show={["says", "counts", "matrix", "table"]} caption="Friday: Dunmore's page is down." />
   <p>Under fill: {story.counted + bounds.unseen} “matches”, {spell(bounds.unseen)} invented, and Hartwell's {hartwell.seven} entered as a draw. A zero looks like data.</p>
 
-  <h3 class="cv-beat">Name it</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Name it</h3>
   <p>Every page that was asked for ends in exactly one of four states.</p>
   <div class="cv-states">
     {states.map((s) => (
@@ -94,10 +94,10 @@ const shows = [
     <div class="cv-reveal"><p>Remember items 3 and 4: the same blank page is empty when it proves its season, and unavailable when it cannot.</p></div>
   </div>
 
-  <h3 class="cv-beat">What Touchline does</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>What Touchline does</h3>
   <p>Every expected page ends in one of the four states, with a reason for the last three. Scores are nullable: a score nobody saw is stored as no value, never as zero.</p>
 
-  <h3 class="cv-beat">Your claim</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Your claim</h3>
   <div class="cv-check" data-once="claim-sept21">
     <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened, so silence repeats Kick's report. Nil-nil is a real result nobody saw, and a coach's certainty that a match was played says nothing about its score.">
       <legend>How should {match} appear in the published table?</legend>
@@ -109,5 +109,5 @@ const shows = [
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet asked for.</p></div>
   </div>
-  <p class="cv-next">Behind all three calls sits one choice Kick made without asking. You made it cold in the setup.</p>
+  <p class="cv-next">Behind all three calls sits one choice Kick made without asking. <span data-decision-echo>You made it cold in the setup.</span></p>
 </section>

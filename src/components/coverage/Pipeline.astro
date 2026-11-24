@@ -19,7 +19,7 @@ const litName = steps.find((s) => s.key === lit)?.name;
 {small ? (
   <div class="cv-pipe is-small">
     <ol aria-label={`Kick's pipeline${litName ? `. ${note ?? `This case happens at ${litName}`}.` : ""}`}>
-      {steps.map((s) => <li class:list={{ "is-lit": s.key === lit }} aria-current={s.key === lit ? "step" : undefined}>{s.name}</li>)}
+      {steps.map((s) => <li class:list={{ "is-lit": s.key === lit }}>{s.name}</li>)}
     </ol>
     {note && <p aria-hidden="true">{note}</p>}
   </div>

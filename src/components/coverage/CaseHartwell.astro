@@ -16,11 +16,11 @@ const dots = [
   <h2>Case 2. Hartwell: gaps arrive in blocks</h2>
   <Pipeline small lit="build" note="This case happens at Build" />
 
-  <h3 class="cv-beat">The call</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 2, </span>The call</h3>
   <Voicemail small who="dolan" caller="Coach Dolan, Hartwell" time="5:41" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
   <p>Hartwell's own page arrived on time. Its row is wrong anyway.</p>
 
-  <h3 class="cv-beat">Look</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 2, </span>Look</h3>
   <p>Kick read each match once, from the host's page, so that no match was counted twice. The {hartwell.seven} was played at Dunmore.</p>
   <div class="cv-check" data-once="rows">
     <div data-q data-type="number" data-answer={pipeline.rows} data-why={`All ${spell(pipeline.rows)}. Dunmore is missing its ${spell(bounds.unseen)} home matches, and each of the other ${spell(bounds.unseen)} schools is missing its trip to Dunmore.`}>
@@ -51,7 +51,7 @@ const dots = [
     <figcaption>Kick's table held every Dunmore away match and no home match, so a defence that leaked at home looks sound.</figcaption>
   </figure>
 
-  <h3 class="cv-beat">Name it</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 2, </span>Name it</h3>
   <p class="cv-lede">Gaps arrive in blocks. One cause removes related records together, and a block lands on the same teams again and again.</p>
   <p>So count in the unit the claim is made in, the <strong>unit of analysis</strong>. Counted in pages, Kick lost one in {spell(pipeline.asked)}. A table makes claims about matches, and in matches that one page cost {bounds.unseen} of {story.finals} and touched every row.</p>
   <div class="cv-dots">
@@ -69,10 +69,10 @@ const dots = [
   </div>
   <p>Until a result is recovered, you can still limit its effect. Kick's table has Hartwell Tech on {hartwell.pts} points, and one Hartwell match was never read. A loss adds nothing and a win adds 3, so the true total lies between {hartwell.pts} and {hartwell.high}. That pair is a <strong>bound</strong>: you do not know the value, and you do know where it cannot be.</p>
 
-  <h3 class="cv-beat">What Touchline does</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 2, </span>What Touchline does</h3>
   <p>Touchline reads both schools' pages and collapses the duplicate, so a match is lost only when both pages are. The cost is a matching step: one match, written two ways on two sites, has to be recognised as one. <a href="../05-identity/">Module 5</a> is about that step.</p>
 
-  <h3 class="cv-beat">Your claim</h3>
+  <h3 class="cv-beat"><span class="sr-only">Case 2, </span>Your claim</h3>
   <div class="cv-check" data-once="claim-bounds">
     <div data-q data-type="range" data-answer={`${bounds.points},${bounds.high}`} data-why={`${bounds.points} to ${bounds.high}. If Dunmore lost all ${spell(bounds.unseen)} it stays on ${bounds.points}. If it won all ${spell(bounds.unseen)} it gains ${3 * bounds.unseen}. Its real total turned out to be ${pack.dunmorePoints}, inside the range, as it had to be.`}>
       <p class="cv-qlabel">Kick's table gives Dunmore {bounds.points} points from {spell(bounds.played)} matches, and {spell(bounds.unseen)} of its matches were never read. Write the line that belongs beside it.</p>

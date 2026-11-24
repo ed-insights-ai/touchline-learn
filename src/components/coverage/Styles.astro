@@ -319,4 +319,44 @@
     .il-js .cv-reveal.is-open .cv-track > span { animation: cv-grow 0.9s ease-out both; }
   }
   @keyframes cv-grow { from { width: 0; } }
+  .cv-rail { position: sticky; top: var(--sl-nav-height); z-index: 5; margin: 0 0 1.5rem; background: var(--tl-bg); border-bottom: 1px solid var(--tl-line); }
+  .cv-rail-bar { display: flex; align-items: stretch; gap: 0.5rem; }
+  .cv-rail-toggle { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 0.75rem; min-height: 44px; padding: 0.35rem 0.25rem; border: 0; background: transparent; color: var(--tl-ink); font: inherit; text-align: left; cursor: pointer; }
+  .cv .cv-rail-toggle, :root[data-theme="light"] .cv .cv-rail-toggle { justify-self: stretch; border: 0; border-radius: 0; background: transparent; color: var(--tl-ink); font-weight: 400; }
+  .cv-rail-where { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.9rem; }
+  .cv-rail-where b { color: var(--sl-color-white); }
+  .cv-rail-where span { color: var(--tl-muted); }
+  .cv-rail-segs { display: flex; gap: 3px; }
+  .cv-rail-segs i { width: 1.1rem; height: 6px; border-radius: 3px; background: var(--tl-line); }
+  .cv-rail-segs i.is-done { background: var(--cv-green); }
+  .cv-rail-segs i.is-here { outline: 2px solid var(--sl-color-accent-high); outline-offset: 1px; }
+  .cv-rail-segs i.is-hint { animation: cv-hint 1.2s ease-out 2; }
+  @keyframes cv-hint { 50% { background: var(--sl-color-accent-high); } }
+  .cv-rail-count { color: var(--tl-muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cv-rail-chev::before { content: "▾"; color: var(--tl-muted); }
+  .cv-rail-toggle[aria-expanded="true"] .cv-rail-chev::before { content: "▴"; }
+  .cv-rail-resume { align-self: center; padding: 0.35rem 0.75rem; border: 1px solid var(--sl-color-accent); border-radius: 4px; color: var(--sl-color-white); font-size: 0.85rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+  .cv-rail-resume:hover { background: var(--sl-color-accent-low); }
+  .cv-rail-panel { position: absolute; left: 0; right: 0; top: 100%; max-height: calc(100vh - var(--sl-nav-height) - 4rem); overflow-y: auto; padding: 0.5rem 0.75rem 0.75rem; background: var(--tl-bg); border: 1px solid var(--tl-line); border-top: 0; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35); }
+  .cv-rail-next { margin: 0.25rem 0 0.5rem !important; color: var(--tl-muted); font-size: 0.85rem; }
+  .cv-rail-panel ol { margin: 0 !important; padding: 0 !important; list-style: none; }
+  .cv-rail-panel li { margin: 0; }
+  .cv-rail-panel a { display: grid; grid-template-columns: 1rem minmax(0, 1fr) auto; column-gap: 0.6rem; align-items: baseline; min-height: 44px; padding: 0.35rem 0.25rem; color: var(--tl-ink); text-decoration: none; border-left: 3px solid transparent; }
+  .cv-rail-panel a:hover { background: var(--tl-card); }
+  .cv-rail-panel a i::before { content: "○"; color: var(--tl-muted); }
+  .cv-rail-panel .is-done a i::before { content: "✓"; color: var(--cv-green); font-style: normal; font-weight: 700; }
+  .cv-rail-panel .is-here a { border-left-color: var(--sl-color-accent-high); background: var(--tl-card); }
+  .cv-rail-panel b { color: var(--sl-color-white); }
+  .cv-rail-panel span { grid-column: 2; color: var(--tl-muted); font-size: 0.85rem; }
+  .cv-rail-panel em { grid-column: 3; grid-row: 1; color: var(--tl-muted); font-size: 0.8rem; font-style: normal; font-variant-numeric: tabular-nums; }
+  @media (max-width: 30rem) { .cv-rail-segs i { width: 0.6rem; } .cv-rail-where span { display: none; } }
+  .cv section { scroll-margin-top: calc(var(--sl-nav-height) + 3.25rem); }
+  .cv h3 { scroll-margin-top: calc(var(--sl-nav-height) + 3.25rem); }
+  .cv-further { margin-top: 1.25rem !important; color: var(--tl-muted); font-size: 0.92rem; }
+  .cv-chose { margin: 1rem 0; }
+  .cv-chose > button { margin-top: 0.25rem; }
+  .cv-chose .cv-reveal { margin-top: 0.75rem; }
+  .cv-backto { position: sticky; top: var(--sl-nav-height); z-index: 5; margin: 0 0 1rem !important; padding: 0.5rem 0; background: var(--tl-bg); border-bottom: 1px solid var(--tl-line); }
+  .cv-backto a { font-weight: 700; }
+  .cv-backto a::before { content: "← "; }
 </style>

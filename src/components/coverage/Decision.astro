@@ -17,6 +17,10 @@ const said: Record<string, string> = {
   </blockquote>
   <p>Here is the first one: what Kick should do when Dunmore does not answer. <span data-decision-said data-said={JSON.stringify(said)}>Run Friday under each of the four and compare.</span></p>
   <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's page is down. Choose what the collector does about it." />
+  <div class="cv-chose" data-gate data-chose>
+    <p class="cv-once">Run Friday under all four before you read on. <span data-chose-tried></span></p>
+    <button type="button" data-chose-open>I have tried them. Show the comparison</button>
+    <div class="cv-reveal">
   <p>Kick chose “Skip it and carry on”, a defensible default: the run finishes and seven schools get a table. Its cost is that the gap stays invisible until a coach calls. Stopping publishes nothing at all. Filling in 0-0 publishes results nobody saw. Recording the gap finishes and names it.</p>
   <p>Touchline chose the fourth, and wrote it as a rule about what success means.</p>
   <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record was written and describes reality, gaps and all.</p>
@@ -25,7 +29,9 @@ const said: Record<string, string> = {
     <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record, and a gap list in each season file</div><i aria-hidden="true">→</i>
     <ul><li>Season view: a notice for each gap</li><li>Figures: counted, out of played</li><li>Next run: what to ask for again</li></ul>
   </div>
-  <p>How the platform keeps that record true across reruns and interrupted runs is in <a href="../01-collection-field-work/#platform">How Touchline builds it</a>.</p>
+    </div>
+  </div>
+  <p class="cv-further">Go further, on a separate page: <a href="../01-collection-field-work/?from=decision#platform">How Touchline builds it</a>, which keeps that record true across reruns and interrupted runs.</p>
   <p class="cv-next">Kick would have kept a record if Riley had asked for one. Go back and ask.</p>
 </section>
 
@@ -48,4 +54,37 @@ const said: Record<string, string> = {
   if (document.readyState === "complete") start();
   else { document.addEventListener("DOMContentLoaded", start); addEventListener("load", start); }
   document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", () => { if (input.checked) apply(input.value); }));
+
+  const echo = document.querySelector<HTMLElement>("[data-decision-echo]");
+  const echoChoice = () => { if (echo && said[stored()]) echo.textContent = `In the setup you chose “${said[stored()]}”, cold.`; };
+  echoChoice();
+  document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", echoChoice));
+
+  const gate = document.querySelector<HTMLElement>("[data-chose]");
+  if (gate) {
+    const read = (): Record<string, string> => { try { return JSON.parse(localStorage.getItem(KEY) ?? "{}"); } catch { return {}; } };
+    const write = (k: string, v: string) => { try { localStorage.setItem(KEY, JSON.stringify({ ...read(), [k]: v })); } catch {} };
+    const tried = new Set((read()["bench-tried"] ?? "").split(",").filter(Boolean));
+    const note = gate.querySelector<HTMLElement>("[data-chose-tried]")!;
+    const button = gate.querySelector<HTMLButtonElement>("[data-chose-open]")!;
+    const show = () => { note.textContent = tried.size ? `You have run ${tried.size} of 4.` : ""; };
+    const open = (focus: boolean) => {
+      gate.classList.add("is-open");
+      gate.querySelector<HTMLElement>(".cv-reveal")!.classList.add("is-open");
+      button.hidden = true;
+      gate.querySelector<HTMLElement>(".cv-once")!.hidden = true;
+      if (focus) { const r = gate.querySelector<HTMLElement>(".cv-reveal")!; r.tabIndex = -1; r.focus({ preventScroll: true }); }
+      gate.dispatchEvent(new Event("rail:refresh", { bubbles: true }));
+    };
+    bench?.addEventListener("click", (event) => {
+      const d = (event.target as HTMLElement).closest<HTMLElement>("[data-bn-design]")?.dataset.bnDesign;
+      if (!d) return;
+      tried.add(d);
+      write("bench-tried", [...tried].join());
+      show();
+    });
+    button.addEventListener("click", (event) => { write("open-chose", "1"); open(event.detail === 0); });
+    if (read()["open-chose"]) open(false);
+    show();
+  }
 </script>

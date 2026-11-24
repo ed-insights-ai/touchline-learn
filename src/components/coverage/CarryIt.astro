@@ -3,10 +3,10 @@ import { journey } from "../../data/journey";
 
 const ask = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01-collection")!.ask;
 const next = [
-  ["../01-collection-field-work/#assistant", "Test your own assistant", "on the pages Kick got, with a gap nothing mentions"],
-  ["../01-collection-field-work/#statistics", "Statistics of the gap", "missingness mechanisms, and bounds that depend on each other"],
-  ["../01-collection-field-work/#platform", "How Touchline builds it", "merge, atomic write and reruns"],
-  ["../01-collection-field-work/#lab", "The lab", "write Friday's coverage record in Python"],
+  ["../01-collection-field-work/?from=carry-it#assistant", "Test your own assistant", "on the pages Kick got, with a gap nothing mentions"],
+  ["../01-collection-field-work/?from=carry-it#statistics", "Statistics of the gap", "missingness mechanisms, and bounds that depend on each other"],
+  ["../01-collection-field-work/?from=carry-it#platform", "How Touchline builds it", "merge, atomic write and reruns"],
+  ["../01-collection-field-work/?from=carry-it#lab", "The lab", "write Friday's coverage record in Python"],
 ];
 ---
 
@@ -45,7 +45,7 @@ const next = [
   </div>
 
   <h3>Where to go next</h3>
-  <p>Each of these is optional and stands alone, on the <a href="../01-collection-field-work/">field work page</a>.</p>
+  <p>Each of these is optional and stands alone, on the <a href="../01-collection-field-work/?from=carry-it">field work page</a>.</p>
   <ul class="cv-next-links">
     {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
   </ul>
