@@ -13,15 +13,15 @@ const report = [
 
 <section id="prove-it">
   <h2>Prove it: the season nobody called about</h2>
-  <p>This is the sample's real coverage record for the season before: Prairie Lakes men, 2025. Hartwell Tech had not joined, and the format was the same. Conference matches are missing from this season too, and no coach phoned about them.</p>
-  <p>On Friday, Riley's readers were the monitoring. A coverage record does that job before anyone publishes. Tap the squares that are not complete and read each reason.</p>
+  <p>Here is the sample's coverage record for the previous season: Prairie Lakes men, 2025. Hartwell Tech hadn't joined yet, and the conference used the same format. Conference matches are missing from this season too, and no coach called about them.</p>
+  <p>On Friday, Riley's readers acted as the monitoring system. A coverage record catches gaps <em>before</em> anything gets published. Click the incomplete squares below to see why each one failed.</p>
   <CoverageGrid rows={unseen.grid} caption="Coverage record, Prairie Lakes men, 2025" id="past" />
 
   <h4 class="cv-try">Red-pen the report</h4>
-  <p>The season file holds {unseen.held} conference matches, and box scores for {unseen.withBox} of them. Kick wrote five sentences about the season. Answer the question first, then keep each sentence the record supports and strike the rest.</p>
+  <p>The 2025 season file contains {unseen.held} conference matches, with box scores for {unseen.withBox} of them. Kick drafted five statements about the season. Answer the first question, then mark each statement <strong>Keep</strong> if the record supports it, or <strong>Strike</strong> if it doesn't.</p>
   <div class="cv-check" data-once="report">
-    <div data-q data-type="number" data-answer={unseen.expected} data-why={`${unseen.expected}. Seven schools each host the other six: 7 × 6, from the membership list and the format.`}>
-      <label for="cv-expected">How many conference matches should the 2025 season hold?</label>
+    <div data-q data-type="number" data-answer={unseen.expected} data-why={`${unseen.expected}. Seven schools each host the other six: 7 × 6, from the membership list and competition format.`}>
+      <label for="cv-expected">How many conference matches are in the 2025 season?</label>
       <input id="cv-expected" inputmode="numeric" autocomplete="off" data-save="q-expected" />
       <p class="cv-fb" role="status"></p>
     </div>
@@ -33,28 +33,31 @@ const report = [
         <p class="cv-fb" role="status"></p>
       </fieldset>
     ))}
-    <p class="cv-once">One attempt at all six.</p>
-    <button type="button" data-submit>Check my marks</button>
+    <p class="cv-once">Answer all six, then check.</p>
+    <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>Three counts describe this season, and all three are true: {unseen.schedules} of 7 schedules, {unseen.held} of {unseen.expected} matches, and box scores for {unseen.withBox} of {unseen.expected}. Each counts a different unit. “{unseen.withBox} of {unseen.held}” is true of the file, and becomes false when someone reads it as the season. A count taken from the run belongs only beside the count against the expected set, with the gaps named.</p>
+      <p>Three different counts describe this season, and all three are true: {unseen.schedules} of 7 schedules, {unseen.held} of {unseen.expected} matches, and box scores for {unseen.withBox} of {unseen.expected}. Each measures a different unit. “{unseen.withBox} of {unseen.held}” is true of the file, yet misleading if read as the whole season. Any count derived from collected data only belongs alongside the count against the expected set, with gaps named.</p>
     </div>
   </div>
 
   <div class="cv-commit" data-commit>
-    <label class="cv-write" for="cv-caption">Now write the line that goes under the 2025 conference table when it is published.</label>
-    <textarea id="cv-caption" rows="3" data-save="caption"></textarea>
-    <button type="button" disabled>Compare with a worked answer</button>
-    <p class="cv-once" data-needs-note>Write a full sentence to compare.</p>
+    <label class="cv-write" for="cv-caption">Now write the caption that should go under the published 2025 standings table.</label>
+    <textarea id="cv-caption" rows="3" placeholder="State the count, the denominator, and the missing matches..." data-save="caption"></textarea>
+    <div class="cv-actions">
+      <button type="button" data-commit-btn disabled>Compare with example</button>
+      <button type="button" class="cv-link-btn" data-commit-skip>Skip and show example</button>
+    </div>
+    <p class="cv-once" data-needs-note>Write a short sentence to compare, or skip ahead.</p>
     <div class="cv-reveal">
       <p class="cv-model">Built from {unseen.held} of {unseen.expected} conference matches. Not collected: both meetings of Dunmore and Eastbrook State. Each of those two schools has two more scheduled matches than this table shows.</p>
       <fieldset class="cv-ticks">
-        <legend>Read your line again and mark it honestly.</legend>
-        <label><input type="checkbox" data-save="cap-count" /><span>It gives the count and the total</span></label>
-        <label><input type="checkbox" data-save="cap-gap" /><span>It names the gap, so a reader can tell which rows to distrust</span></label>
-        <label><input type="checkbox" data-save="cap-true" /><span>It states nothing about two results nobody has seen</span></label>
+        <legend>Review your caption against these three criteria:</legend>
+        <label><input type="checkbox" data-save="cap-count" /><span>Gives both the count and the expected total</span></label>
+        <label><input type="checkbox" data-save="cap-gap" /><span>Names the gap so readers know which rows are incomplete</span></label>
+        <label><input type="checkbox" data-save="cap-true" /><span>Makes no claims about the two unseen results</span></label>
       </fieldset>
     </div>
   </div>
-  <p class="cv-next">One idea is left: none of this was ever about soccer.</p>
+  <p class="cv-next">One last exercise: see how the exact same rules apply outside sports.</p>
 </section>

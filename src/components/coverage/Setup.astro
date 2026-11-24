@@ -16,11 +16,11 @@ const kickPlan = [
 ];
 
 const openings = [
-  { gap: "How many matches to expect", kick: "Report the number found.", then: `${story.counted}, with nothing to compare it to.`, href: "#case-dunmore", where: "Case 1" },
-  { gap: "Which page to read each match from", kick: "The host's page, once, so no match counts twice.", then: `One lost page removed ${spell(bounds.unseen)} matches. Case 2 counts what else it bent.`, href: "#case-hartwell", where: "Case 2" },
-  { gap: "What to do with a final that has no score", kick: "Nothing was stated. A row without a score is not counted.", then: `${noScore.home} and ${noScore.away} are each one match short.`, href: "#case-cedar-grove", where: "Case 3" },
-  { gap: "What to do when a site is silent", kick: "Retry three times, log a warning, carry on.", then: "The run finishes without Dunmore.", href: "#decision", where: "The decision" },
-  { gap: "What the report must say", kick: "Pages fetched, matches found, errors.", then: "“All eight school sites, no errors.”", href: "#rewind", where: "Rewind" },
+  { gap: "How many matches to expect", kick: "Report the number found.", then: `${story.counted}, with nothing to compare it against.`, href: "#case-dunmore", where: "Case 1" },
+  { gap: "Which page to read each match from", kick: "The home team's page, once, so no match counts twice.", then: `One lost page wiped out ${spell(bounds.unseen)} matches. Case 2 shows what else it skewed.`, href: "#case-hartwell", where: "Case 2" },
+  { gap: "What to do with a final that has no score", kick: "Unspecified. Any row without a score was quietly dropped.", then: `${noScore.home} and ${noScore.away} are each one match short.`, href: "#case-cedar-grove", where: "Case 3" },
+  { gap: "What to do when a site doesn't answer", kick: "Retry three times, log a warning, and keep going.", then: "The run finished without Dunmore.", href: "#decision", where: "The decision" },
+  { gap: "What the final summary should report", kick: "Pages fetched, matches found, and errors.", then: "“All eight school sites, no errors.”", href: "#rewind", where: "Rewind" },
 ];
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
@@ -61,59 +61,64 @@ const choices = [
 ---
 
 <section id="setup">
-  <h2>Setup: one sentence, one Friday</h2>
-  <p>Here is the film's Friday again, slowly, as a problem with a cause.</p>
+  <h2>Setup: one prompt, one Friday</h2>
+  <p>Let's slow Friday down and walk through what actually went wrong behind the scenes.</p>
 
-  <h3 class="cv-step"><span>1</span>The ask</h3>
-  <blockquote class="cv-ask">
-    <p class="cv-who">Riley, to Kick <span>4:12</span></p>
-    <p>{rileyAsk}</p>
-  </blockquote>
-  <p>It names the season, the sport, the sources and the product. It reads as complete.</p>
+  <h3 class="cv-step"><span>1</span>The prompt</h3>
+  <div class="cv-user-prompt" role="region" aria-label="Riley's prompt to Kick">
+    <div class="cv-chat-bar">
+      <span class="cv-chat-badge">Prompt</span>
+      <span class="cv-chat-meta">Riley → Kick</span>
+    </div>
+    <p class="cv-chat-text">{rileyAsk}</p>
+  </div>
+  <p>It names the season, the sport, the sources, and the output. At a glance, it sounds complete.</p>
 
   <h3 class="cv-step"><span>2</span>What Kick built</h3>
-  <p>Kick built a scraper, a program that downloads pages made for people and pulls rows out of them. This film, under four minutes, builds one from a single loop, breaking it five times on the way.</p>
+  <p>Kick built a web scraper, a program that downloads pages meant for people and extracts structured rows from them. This 4-minute video builds one from a single loop and shows five ordinary ways it breaks.</p>
   <figure class="cv-film">
-    <video controls playsinline preload="metadata" poster={film("one-loop-to-a-pipeline.jpg")} aria-label="One Loop to a Pipeline, an animated explainer of under four minutes">
+    <video controls playsinline preload="metadata" poster={film("one-loop-to-a-pipeline.jpg")} aria-label="One Loop to a Pipeline, an animated explainer under four minutes">
       <source src={film("one-loop-to-a-pipeline.mp4")} type="video/mp4" />
       <track kind="captions" src={film("one-loop-to-a-pipeline.vtt")} srclang="en" label="English" default />
       <track kind="chapters" src={film("one-loop-to-a-pipeline-chapters.vtt")} srclang="en" label="Chapters" />
     </video>
-    <figcaption>One Loop to a Pipeline. Schools are lettered and the numbers are illustrative.</figcaption>
+    <figcaption>One Loop to a Pipeline. Schools are lettered and the counts are illustrative.</figcaption>
   </figure>
   <details class="cv-more">
-    <summary>Read the film's narration</summary>
+    <summary>Read the video narration</summary>
     {filmScript.map((x) => <p>{x}</p>)}
   </details>
-  <p>Kick's pipeline has the same five stages. Here they are on Friday, with what left each one.</p>
+  <p>Kick's pipeline followed those same five stages. Here is what happened at each step on Friday.</p>
   <Pipeline />
   <details class="cv-more">
     <summary>Kick's plan, in its own words</summary>
     <ol class="cv-plan">{kickPlan.map((x) => <li>{x}</li>)}</ol>
   </details>
-  <p>A pipeline can be asked three questions.</p>
+  <p>Whenever you check a data pipeline, there are three main questions to ask:</p>
   <ul class="cv-three">
     <li class="is-here"><b>Is everything here?</b><span><strong>Completeness</strong>, measured as coverage. This module.</span></li>
     <li><b>Is each value in a usable form?</b><span>Cleansing. <a href="../04-parsing/">Modules 4</a> and <a href="../05-identity/">5</a>.</span></li>
     <li><b>Does each record obey the rules?</b><span>Validation. <a href="../06-contracts/">Modules 6</a> and <a href="../07-gates/">7</a>.</span></li>
   </ul>
-  <p>All {story.counted} of Kick's matches are real and correctly read, so cleansing and validation would both pass this table. A missing record has nothing to fail.</p>
-  <div class="cv-prompt cv-learn">
-    <p class="cv-prompt-head">Learn more with AI</p>
-    <p class="cv-prompt-note">New to scrapers? Paste this into any AI assistant for a short tutorial, then come back for the cases.</p>
-    <p data-copy-text tabindex="0">{learnPrompt}</p>
-    <button type="button" data-copy>Copy the prompt</button>
-  </div>
+  <p>All {story.counted} of Kick's matches are real and accurately parsed, so both cleansing and validation would pass this table. A missing record gives those checks nothing to fail.</p>
+  <details class="cv-learn-box">
+    <summary>New to web scrapers? Open an AI study prompt</summary>
+    <div class="cv-prompt cv-learn">
+      <p class="cv-prompt-note">Paste this into any AI assistant for a quick primer on scrapers and pipelines, then come back for the cases.</p>
+      <p data-copy-text tabindex="0">{learnPrompt}</p>
+      <button type="button" data-copy>Copy prompt</button>
+    </div>
+  </details>
 
-  <h3 class="cv-step"><span>3</span>What the ask left open</h3>
-  <p>Kick filled five openings in the sentence with reasonable choices, and mentioned none. Open them one at a time.</p>
+  <h3 class="cv-step"><span>3</span>What the prompt left open</h3>
+  <p>Riley's one-sentence prompt left five important details unspecified. Kick filled each one with a reasonable default and never mentioned any of them. Click each item to see what happened.</p>
   <div class="cv-open">
     {openings.map((o) => (
       <details>
         <summary>{o.gap}</summary>
         <dl>
           <div><dt>Kick chose</dt><dd>{o.kick}</dd></div>
-          <div><dt>Then</dt><dd>{o.then}</dd></div>
+          <div><dt>Result</dt><dd>{o.then}</dd></div>
           <div><dt>Covered in</dt><dd data-rail-hint={o.href.slice(1)}>{o.where}</dd></div>
         </dl>
       </details>
@@ -121,49 +126,55 @@ const choices = [
   </div>
 
   <h3 class="cv-step"><span>4</span>What Riley saw</h3>
-  <p>At 4:52 this was everything on Riley's screen.</p>
-  <div class="cv-say">
-    <p class="cv-who">Kick, the coding agent</p>
-    <p>Done. All eight school sites, {story.counted} conference matches, no errors. Ready to publish.</p>
+  <p>When Kick finished, this was everything on Riley's screen.</p>
+  <div class="cv-agent-reply" role="region" aria-label="Kick's completion summary">
+    <div class="cv-chat-bar">
+      <span class="cv-agent-badge">Kick · Coding agent</span>
+      <span class="cv-status-ok">Done</span>
+    </div>
+    <p class="cv-agent-text">Done. All eight school sites, {story.counted} conference matches, no errors. Ready to publish.</p>
   </div>
   <FirstRunTable rows={reported} caption="The table Kick delivered" />
   <div class="cv-commit" data-commit>
-    <label class="cv-write" for="cv-looks">What here looks wrong to you? Nothing is marked.</label>
-    <textarea id="cv-looks" rows="2" data-save="looks-wrong"></textarea>
-    <button type="button" disabled>Lock it in and read on</button>
-    <p class="cv-once" data-needs-note>Write at least one sentence.</p>
+    <label class="cv-write" for="cv-looks">Take a look at the table above. Does anything look wrong to you? <span class="cv-ungraded">(Not graded)</span></label>
+    <textarea id="cv-looks" rows="2" placeholder="Jot down a quick observation..." data-save="looks-wrong"></textarea>
+    <div class="cv-actions">
+      <button type="button" data-commit-btn disabled>Save note and continue</button>
+      <button type="button" class="cv-link-btn" data-commit-skip>Skip and show takeaway</button>
+    </div>
+    <p class="cv-once" data-needs-note>Write a short sentence to unlock, or skip ahead.</p>
     <div class="cv-reveal">
-      <p>Eight rows, sorted, plausible numbers, no blanks. Dunmore on {spell(bounds.played)} played looks wrong only to someone who already knows the season is longer.</p>
+      <p>Eight rows, neatly sorted, plausible numbers, no blanks. Dunmore sitting at {spell(bounds.played)} games played only looks suspicious if you already know how long the season is.</p>
     </div>
   </div>
 
-  <h3 class="cv-step"><span>5</span>How it surfaced</h3>
-  <p>Riley published at 4:58. The table's readers found the problem. Riley had no way to.</p>
+  <h3 class="cv-step"><span>5</span>How the problem surfaced</h3>
+  <p>Riley published the table on Friday afternoon. Within an hour, the coaches caught what Riley had no way to see.</p>
   <div class="cv-calls">
-    <Voicemail who="dolan" caller="Coach Dolan, Hartwell" time="5:41" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
-    <Voicemail who="dunmore" caller="Dunmore athletics" time="5:44" line="You've got our men at six conference games. We've played thirteen." />
-    <Voicemail who="cedar" caller="Cedar Grove men's soccer" time="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
+    <Voicemail who="dolan" caller="Coach Dolan, Hartwell" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
+    <Voicemail who="dunmore" caller="Dunmore athletics" line="You've got our men at six conference games. We've played thirteen." />
+    <Voicemail who="cedar" caller="Cedar Grove men's soccer" note="from the bus" line="September twenty-first, us and St. Lambert. That game happened. It's not in the standings." />
   </div>
 
-  <h3 class="cv-step"><span>6</span>The problem, stated</h3>
-  <p class="cv-lede">Kick's report described its program. Riley needed a report on the data. The records are clean and valid, and some are missing.</p>
+  <h3 class="cv-step"><span>6</span>The core problem</h3>
+  <p class="cv-lede">Kick's summary reported on its code, not on the data. Every row in the table is clean and valid, yet key matches are missing.</p>
   <div class="cv-say cv-yours" data-first hidden>
-    <p class="cv-who">Your question from the film</p>
+    <p class="cv-who">Your question from Publish Day</p>
     <p data-first-text></p>
   </div>
   <fieldset class="cv-choice" data-gate>
-    <legend>Dunmore's site does not answer. What should Kick do?</legend>
+    <legend>Dunmore's site doesn't answer. What should Kick do?</legend>
     {choices.map(([value, label]) => (
       <label><input type="radio" name="cv-decision" value={value} data-save="decision" /><span>{label}</span></label>
     ))}
   </fieldset>
-  <p class="cv-once">Nothing is marked. You come back to it after the three cases.</p>
-  <p class="cv-can">Next comes the idea behind all three calls, then one case per call. Then you can:</p>
+  <p class="cv-once">Not graded. We'll revisit your choice after the three cases.</p>
+  <p class="cv-can">Next, we'll introduce the core idea behind all three voicemails and walk through one case per call. By the end of this module, you'll be able to:</p>
   <ul>
-    <li>say how many items a collection should hold, before it runs and from outside it</li>
-    <li>trace a gap to the block it removes, and bound what it touches</li>
-    <li>tell empty, unknown and never asked apart, and say what each lets you claim</li>
-    <li>choose what a collector does when a source is silent, and say when a run has succeeded</li>
+    <li>define how many items a collection should find before it runs, using an outside source</li>
+    <li>trace a missing source to the block of records it drops, and calculate bounds on how much the numbers could shift</li>
+    <li>distinguish <em>empty</em>, <em>unknown</em>, and <em>never asked</em>, and know what each lets you claim</li>
+    <li>decide how a collector should handle a silent source, and what makes a run successful</li>
   </ul>
-  <p class="cv-next">First, the idea all three calls share.</p>
+  <p class="cv-next">Up next: the concept behind all three calls, coverage.</p>
 </section>

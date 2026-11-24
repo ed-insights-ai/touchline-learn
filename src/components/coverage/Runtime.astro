@@ -26,9 +26,11 @@
       const needs = box.dataset.needs?.split(",") ?? [];
       const words = (t: string) => (t.match(/[A-Za-z]{2,}/g) ?? []).length;
       const short = areas.some((a) => a.value.trim().length < 25 || words(a.value) < 5) || needs.some((k) => (k === "read-ask" ? (store[k] ?? "").trim().length < 25 : !store[k]));
-      box.querySelector<HTMLButtonElement>(":scope > button")!.disabled = short;
+      const btn = box.querySelector<HTMLButtonElement>("[data-commit-btn], :scope > button");
+      if (btn) btn.disabled = short;
       const note = box.querySelector<HTMLElement>("[data-needs-note]");
-      if (note) note.hidden = !short || !!store[`open-${needs.join()}`];
+      const name = box.dataset.needs ?? box.querySelector<HTMLTextAreaElement>("textarea[data-save]")?.dataset.save ?? "";
+      if (note) note.hidden = !short || !!store[`open-${name}`];
     };
     const lockFor = (box: HTMLElement) => {
       if (box.dataset.locks) root.querySelectorAll<Field>(`#${box.dataset.locks} [data-save]`).forEach((f) => { f.disabled = true; });
@@ -135,22 +137,31 @@
     root.querySelectorAll<HTMLElement>("[data-commit]").forEach((box) => {
       const name = box.dataset.needs ?? box.querySelector<HTMLTextAreaElement>("textarea[data-save]")?.dataset.save ?? "";
       const openKey = `open-${name}`;
+      const btn = box.querySelector<HTMLButtonElement>("[data-commit-btn], :scope > button")!;
+      const skip = box.querySelector<HTMLButtonElement>("[data-commit-skip]");
+      const actions = box.querySelector<HTMLElement>(".cv-actions");
+      const note = box.querySelector<HTMLElement>("[data-needs-note]");
       const open = () => {
         box.querySelector<HTMLElement>(".cv-reveal")!.classList.add("is-open");
-        box.querySelector<HTMLButtonElement>(":scope > button")!.hidden = true;
+        btn.hidden = true;
+        if (skip) skip.hidden = true;
+        if (actions) actions.hidden = true;
+        if (note) note.hidden = true;
         lockFor(box);
       };
       if (name && store[openKey]) open();
       commitState(box);
-      box.querySelector<HTMLButtonElement>(":scope > button")!.addEventListener("click", (event) => {
+      const handleOpen = (event: MouseEvent) => {
         const reveal = box.querySelector<HTMLElement>(".cv-reveal")!;
         if (name) put(openKey, "1");
         open();
         commitState(box);
         reveal.tabIndex = -1;
-        (event.currentTarget as HTMLButtonElement).hidden = true;
         if (event.detail === 0) reveal.focus({ preventScroll: true });
-      });
+        box.dispatchEvent(new Event("rail:refresh", { bubbles: true }));
+      };
+      btn.addEventListener("click", handleOpen);
+      skip?.addEventListener("click", handleOpen);
     });
 
     const grade = (q: HTMLElement): boolean | null => {
@@ -184,16 +195,41 @@
           const ok = grade(q) === true;
           right += Number(ok);
           const fb = q.querySelector<HTMLElement>(".cv-fb")!;
+          fb.classList.remove("is-right", "is-wrong");
           fb.classList.add(ok ? "is-right" : "is-wrong");
           const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? q.querySelector<HTMLInputElement>("input[type=radio]:checked")?.value ?? "";
           const hint = !ok && q.dataset.wrong ? (JSON.parse(q.dataset.wrong) as Record<string, string>)[picked] ?? "" : "";
-          fb.textContent = `${ok ? "Right." : "Not right."} ${hint ? `${hint} The answer is ` : ""}${q.dataset.why}`;
+          fb.textContent = `${ok ? "Correct." : "Not quite."} ${hint ? `${hint} The answer is ` : ""}${q.dataset.why}`;
         });
         box.querySelectorAll<Field>("input, select").forEach((f) => { f.disabled = true; });
         button.hidden = true;
         box.querySelector<HTMLElement>(".cv-once")!.hidden = true;
         need.classList.remove("is-wrong");
-        need.textContent = `${right} of ${questions.length} right on your one attempt.`;
+        need.textContent = `${right} of ${questions.length} correct.`;
+        let retry = box.querySelector<HTMLButtonElement>("[data-retry]");
+        if (!retry) {
+          retry = document.createElement("button");
+          retry.type = "button";
+          retry.className = "cv-retry";
+          retry.dataset.retry = "";
+          retry.textContent = "Try again";
+          need.insertAdjacentElement("afterend", retry);
+          retry.addEventListener("click", () => {
+            put(flag, "");
+            box.querySelectorAll<Field>("input, select").forEach((f) => { f.disabled = false; });
+            questions.forEach((q) => {
+              const fb = q.querySelector<HTMLElement>(".cv-fb")!;
+              fb.classList.remove("is-right", "is-wrong");
+              fb.textContent = "";
+            });
+            button.hidden = false;
+            box.querySelector<HTMLElement>(".cv-once")!.hidden = false;
+            need.textContent = "";
+            box.querySelector<HTMLElement>(".cv-reveal")!.classList.remove("is-open");
+            retry?.remove();
+            box.dispatchEvent(new Event("rail:refresh", { bubbles: true }));
+          });
+        }
         const reveal = box.querySelector<HTMLElement>(".cv-reveal")!;
         reveal.classList.add("is-open");
         if (focus) { need.tabIndex = -1; need.focus({ preventScroll: true }); }

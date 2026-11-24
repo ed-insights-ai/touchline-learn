@@ -23,7 +23,7 @@ const {
   show = ["says", "counts", "matrix", "table"],
   start = {},
   caption,
-  when = "what Riley reads at 4:52",
+  when = "summary shown to Riley",
 } = Astro.props;
 
 if (!/^[A-Za-z][\w-]*$/.test(id)) throw new Error(`Bench id "${id}" must start with a letter and use letters, digits, - or _`);
@@ -54,7 +54,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       )}
       {controls.includes("pages") && (
         <div class="bn-group">
-          <p class="bn-label" id={`${id}-pages`}>Schedule pages <span>Press one to take it down or bring it back.</span></p>
+          <p class="bn-label" id={`${id}-pages`}>Schedule pages <span>Click any school to toggle its site offline or online.</span></p>
           <div class="bn-btns bn-pages" role="group" aria-labelledby={`${id}-pages`}>
             {benchData.schools.map((s) => {
               const up = !state.down.includes(s.slug);
@@ -126,7 +126,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
               <th scope="col"><abbr title="Played">P</abbr></th>
               <th scope="col"><abbr title="Goal difference">GD</abbr></th>
               <th scope="col"><abbr title="Points">Pts</abbr></th>
-              <th scope="col">Against all {out.scored}</th>
+              <th scope="col">vs. complete table ({out.scored})</th>
             </tr>
           </thead>
           <tbody data-bn-table set:html={tableRows(out)} />

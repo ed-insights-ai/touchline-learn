@@ -1,8 +1,8 @@
 export const states = [
-  { key: "complete", name: "Complete", means: "Served, proved to be the page asked for, and it holds rows.", claim: "You may count what is on it." },
-  { key: "empty", name: "Empty", means: "Served and proved, and it really holds nothing.", claim: "You may say the source publishes nothing here." },
-  { key: "unavailable", name: "Unavailable", means: "Not collected, or collected and not proved. The reason is recorded.", claim: "You may say you do not know. You may not say zero." },
-  { key: "no-collector", name: "No collector", means: "Published in a form nothing you have can read.", claim: "You may say you cannot know yet." },
+  { key: "complete", name: "Complete", means: "Fetched, verified as the requested page, and contains rows.", claim: "You can count what is on it." },
+  { key: "empty", name: "Empty", means: "Fetched and verified, and it genuinely contains no rows.", claim: "You can report that the source has nothing here (zero)." },
+  { key: "unavailable", name: "Unavailable", means: "Could not be fetched, or could not be verified as the right page. The reason is recorded.", claim: "Report it as unknown, never as zero." },
+  { key: "no-collector", name: "No collector", means: "Published in a format your collector cannot read.", claim: "Report that you cannot read it yet." },
 ];
 
 export const stateOptions = [...states.map((s) => [s.key, s.name]), ["none", "None of the four"]];

@@ -12,47 +12,47 @@ const said: Record<string, string> = {
 
 const runs = [
   { key: "kick", who: "Kick, Friday", text: `Done. All eight school sites, ${story.counted} conference matches, no errors.`, ok: "no", publish: "no",
-    why: "Failed, and it stays in. Dunmore never answered and nothing written down says so, so nobody can tell what this run did. “No errors” describes the program." },
+    why: "Failed, and hold back the table. Dunmore never answered and nothing recorded that gap, so nobody can tell what this run actually collected. “No errors” only describes the code." },
   { key: "record", who: "Collector with a record, Friday", text: `8 schedule pages expected, 7 saved. Dunmore: unavailable, no answer after three tries. ${story.counted} of ${story.finals} finished matches read; ${bounds.unseen} Dunmore home matches not read; ${noScore.day} final, no score on either schedule.`, ok: "yes", publish: "no",
-    why: `Succeeded, and it stays in. The record is written and true, gaps and all. Reading it, ${bounds.unseen} matches are recoverable from pages already saved, so a table built without them should not go out yet.` },
-  { key: "monday", who: "Collector with a record, Monday", text: `Both schools' pages read for every match. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' pages. Not counted: ${noScore.home} v ${noScore.away}, ${noScore.day}, final, score unknown.`, ok: "yes", publish: "yes",
-    why: "Succeeded, and it goes out with the gap named under the table. A table does not have to be whole to be published. It has to say what it holds." },
+    why: `Succeeded, and hold back the table. The coverage record was written accurately, gaps and all. Looking at it, ${bounds.unseen} matches can be recovered from pages already saved, so a table missing them shouldn't be published yet.` },
+  { key: "monday", who: "Collector with a record, Monday", text: `Both schools' pages read for every match. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' pages. Not counted: ${noScore.home} vs. ${noScore.away}, ${noScore.day}, final, score unknown.`, ok: "yes", publish: "yes",
+    why: "Succeeded, and publish it with the gap noted under the table. A table doesn't need 100% coverage to be published; it just needs to be honest about what it includes." },
 ];
-const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Goes out"], ["no", name === "ok" ? "Failed" : "Stays in"]];
+const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"], ["no", name === "ok" ? "Failed" : "Hold back"]];
 ---
 
 <section id="decision">
   <h2>The decision: what to do when a site is silent</h2>
-  <blockquote class="cv-ask">
-    <p class="cv-who">The film's narrator</p>
-    <p>Every check mark hid a decision Riley never knew was theirs to make.</p>
+  <blockquote class="cv-quote">
+    <p>“Every check mark hid a decision Riley never knew was theirs to make.”</p>
+    <footer>From <em>Publish Day</em></footer>
   </blockquote>
-  <p>Here is the first one: what Kick should do when Dunmore does not answer. <span data-decision-said data-said={JSON.stringify(said)}>Run Friday under each of the four and compare.</span></p>
-  <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's page is down. Choose what the collector does about it." />
+  <p>Here is the first design choice: what should Kick do when Dunmore's site doesn't answer? <span data-decision-said data-said={JSON.stringify(said)}>Test Friday under all four options below and compare what happens.</span></p>
+  <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's page is down. Compare all four options." />
   <div class="cv-chose" data-gate data-chose>
-    <p class="cv-once">Run Friday under all four before you read on. <span data-chose-tried></span></p>
-    <button type="button" data-chose-open disabled>Show the comparison</button>
+    <p class="cv-once">Try all four options above to unlock the comparison. <span data-chose-tried></span></p>
+    <button type="button" data-chose-open disabled>Show comparison</button>
     <div class="cv-reveal">
-  <p>Kick chose “Skip it and carry on”, a defensible default: the run finishes and seven schools get a table. Its cost is that the gap stays invisible until a coach calls. Stopping publishes nothing at all. Filling in 0-0 publishes results nobody saw. Recording the gap finishes and names it.</p>
-  <p>Touchline chose the fourth, and wrote it as a rule about what success means.</p>
-  <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record was written and describes reality, gaps and all.</p>
-  <p>A run that cannot write the record has failed, because nobody can know what it did. Publishing is a second decision, made by reading the record: Friday's run succeeds under this rule, and its table still should not go out.</p>
+  <p>Kick chose “Skip it and carry on,” which is a reasonable default: the job finishes and seven schools get a table. The downside is that the gap stays invisible until someone calls. Stopping the run produces nothing at all. Filling in 0-0 invents scores nobody saw. Recording the gap lets the run finish <em>and</em> makes the gap visible.</p>
+  <p>Touchline uses that fourth approach, built around a clear rule for what counts as success:</p>
+  <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record is written and accurately reflects reality, gaps and all.</p>
+  <p>A run that fails to write the coverage record has failed, because nobody can verify what happened. Deciding whether to publish is a separate step based on reading that record: Friday's run succeeds under this rule, yet its table still shouldn't be published as-is.</p>
   <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
-    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record, and a gap list in each season file</div><i aria-hidden="true">→</i>
-    <ul><li>Season view: a notice for each gap</li><li>Figures: counted, out of played</li><li>Next run: what to ask for again</li></ul>
+    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record + gap list in each season file</div><i aria-hidden="true">→</i>
+    <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of played</li><li>Next run: knows what to retry</li></ul>
   </div>
     </div>
   </div>
 
-  <h4 class="cv-try">Use the rule</h4>
-  <p>Three runs end with these summaries. For each, did the run succeed, and should its table go out?</p>
+  <h4 class="cv-try">Apply the rule</h4>
+  <p>Three runs end with the summaries below. For each one, did the run succeed, and should you publish the table?</p>
   <div class="cv-check" data-once="succeed">
     {runs.map((r) => (
       <div class="cv-run">
         <div class="cv-say"><p class="cv-who">{r.who}</p><p>{r.text}</p></div>
         <div class="cv-row">
           {(["ok", "publish"] as const).map((q) => (
-            <div data-q data-type="select" data-answer={r[q]} data-why={q === "ok" ? r.why : (r.publish === "yes" ? "Goes out, with its gap named." : "Stays in until the recoverable matches are read.")}>
+            <div data-q data-type="select" data-answer={r[q]} data-why={q === "ok" ? r.why : (r.publish === "yes" ? "Publish it, with the gap noted underneath." : "Hold it back until the recoverable matches are included.")}>
               <label><span>{q === "ok" ? "The run" : "The table"}</span>
                 <select data-save={`run-${r.key}-${q}`}><option value="">Choose</option>{yesNo(q).map(([v, t]) => <option value={v}>{t}</option>)}</select>
               </label>
@@ -62,13 +62,13 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Goes out
         </div>
       </div>
     ))}
-    <p class="cv-once">One attempt at all six.</p>
-    <button type="button" data-submit>Check my six</button>
+    <p class="cv-once">Answer all six, then check.</p>
+    <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Success is a fact about the record. Publishing is a decision made by reading it.</p></div>
+    <div class="cv-reveal"><p>Run success is about whether the record is complete and accurate. Publishing is a separate judgment call made after reading that record.</p></div>
   </div>
-  <p class="cv-further">Go further, on a separate page: <a href="../01-collection-field-work/?from=decision#platform">How Touchline builds it</a>, which keeps that record true across reruns and interrupted runs.</p>
-  <p class="cv-next">Kick would have kept a record if Riley had asked for one. Go back and ask.</p>
+  <p class="cv-further">Optional deep dive: <a href="../01-collection-field-work/?from=decision#platform">How Touchline builds it</a> explains how the coverage record stays accurate across reruns and interrupted jobs.</p>
+  <p class="cv-next">Next: rewind to Friday and give Kick a prompt that asks for a coverage record.</p>
 </section>
 
 <script>
@@ -80,8 +80,8 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Goes out
   const apply = (choice: string) => {
     if (out) {
       out.textContent = said[choice]
-        ? `In the setup you chose “${said[choice]}”, so the bench starts there. Run the other three too.`
-        : "You did not choose in the setup, so the bench starts on Kick's choice. Run Friday under each of the four.";
+        ? `Earlier in the setup you chose “${said[choice]}”, so the simulator starts there. Try the other three options too.`
+        : "You didn't pick an option in the setup, so the simulator starts on Kick's default. Try all four options below.";
     }
     if (bench && said[choice]) bench.dispatchEvent(new CustomEvent("bench:set", { detail: { design: choice } }));
   };
@@ -92,7 +92,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Goes out
   document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", () => { if (input.checked) apply(input.value); }));
 
   const echo = document.querySelector<HTMLElement>("[data-decision-echo]");
-  const echoChoice = () => { if (echo && said[stored()]) echo.textContent = `In the setup you chose “${said[stored()]}”, cold.`; };
+  const echoChoice = () => { if (echo && said[stored()]) echo.textContent = `earlier in the setup you chose “${said[stored()]}”`; };
   echoChoice();
   document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", echoChoice));
 
@@ -104,7 +104,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Goes out
     const note = gate.querySelector<HTMLElement>("[data-chose-tried]")!;
     const button = gate.querySelector<HTMLButtonElement>("[data-chose-open]")!;
     const show = () => {
-      note.textContent = `You have run ${tried.size} of 4.`;
+      note.textContent = `(${tried.size} of 4 tried)`;
       button.disabled = tried.size < 4;
     };
     const record = (d: string | undefined) => {

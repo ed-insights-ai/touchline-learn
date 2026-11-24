@@ -17,7 +17,7 @@ const sort = [
   { evidence: "The page arrived without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs proof that this is the page you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
 ];
 
-const match = `${noScore.home} v ${noScore.away}, ${noScore.day}`;
+const match = `${noScore.home} vs. ${noScore.away}, ${noScore.day}`;
 const shows = [
   { key: "post", text: `${noScore.home} 2-1 ${noScore.away}, the score a fan posted that evening` },
   { key: "played", text: "Counted as played by both schools, with no points to either" },
@@ -26,33 +26,33 @@ const shows = [
   { key: "zero", text: `${noScore.home} 0-0 ${noScore.away}, counted as a draw` },
 ];
 const wrongs = {
-  post: "A post is a claim nobody checked against either school's page. Printing it makes the table say more than its sources do.",
-  played: "Counting it as played adds a match to both schools and spreads their goals over one match more. It is a zero in disguise.",
-  drop: "Saying nothing repeats Kick's report: the reader cannot tell the table is short.",
-  zero: "Nil-nil is a real result. Nobody saw this one.",
+  post: "A fan post hasn't been verified against either school's site. Printing it makes the table claim more than its sources support.",
+  played: "Counting it as played adds a match to both teams and spreads their goals across an extra game. That's a zero in disguise.",
+  drop: "Saying nothing repeats Kick's mistake: readers can't tell the table is short.",
+  zero: "0-0 is a real score. Nobody saw this match end 0-0.",
 };
 ---
 
 <section id="case-cedar-grove">
-  <h2>Case 3. Cedar Grove: empty, unknown and never asked</h2>
+  <h2>Case 3. Cedar Grove: empty, unknown, and never asked</h2>
   <Pipeline small lit="build" note="Parse reads the row. Build drops it." />
 
-  <p class="cv-callout">Cedar Grove men's soccer, from the bus: “September twenty-first, us and St. Lambert. That game happened. It's not in the standings.”</p>
+  <p class="cv-callout">Cedar Grove men's soccer: “September twenty-first, us and St. Lambert. That game happened. It's not in the standings.”</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Look</h3>
-  <p>Cedar Grove's page arrived. Here every page answers: {story.afterRepair} matches, no errors, and one cell still final with no score. A complete page can hold an incomplete row.</p>
+  <p>Cedar Grove's page loaded without a hitch. Even if every single schedule page answers, the table still only has {story.afterRepair} matches, because one completed match has no score listed. A complete page can still contain an incomplete row.</p>
   <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." when="if every page had answered" />
-  <p>That schedule links a box score page for the match. Here is Kick's run over every page it could have asked for. Tap a square.</p>
+  <p>Cedar Grove's schedule links to a box score page for that match. Here is what Kick requested compared to every page available across the conference. Click any square to inspect it.</p>
   <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
-  <p>The blanks are pages nobody asked for, including the box score page that might hold this score. A run's log has nothing to say about a page it never requested.</p>
+  <p>The dashed blank squares are pages Kick never asked for, including the box score page that might have the missing score. A run's log has nothing to say about pages it never requested.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Name it</h3>
-  <p>The four states from the idea section, at work. The blanks in that grid have no state, because nobody asked. The pair that matters most is <strong>empty</strong> and <strong>unavailable</strong>. “The site lists no players” may be reported as zero. “We could not read the site” must be reported as unknown.</p>
-  <p>A state describes a page. Cedar Grove's schedule is complete with one row unscored, so a page can be complete while an item on it is not. Survey statisticians call a blank item in a unit that answered <strong>item nonresponse</strong>.</p>
-  <p>A page counts only once it is <strong>proved</strong> to be the school and season asked for, since a site will sometimes serve last season's page with no error. <a href="../03-provenance/">Module 3</a> covers the proof.</p>
+  <p>Here is how the four coverage states show up on Friday's run. The blank squares have no state because Kick never asked for them. The distinction that matters most is <strong>empty</strong> vs. <strong>unavailable</strong>: “the site lists no players” can be reported as zero, whereas “we couldn't read the site” must be reported as unknown.</p>
+  <p>A coverage state describes a whole page. Cedar Grove's schedule is complete even though one row has no score, which survey statisticians call <strong>item nonresponse</strong> (a blank field inside a unit that answered).</p>
+  <p>A page only counts once it is <strong>verified</strong> as the school and season you requested, since sites sometimes serve last season's page without returning an error. <a href="../03-provenance/">Module 3</a> covers how to verify that.</p>
 
-  <h4 class="cv-try">Try it: sort the evidence</h4>
-  <p>The first two are worked. Do the other six, then check them together.</p>
+  <h4 class="cv-try">Practice: classify the evidence</h4>
+  <p>The first two are filled in as examples. Classify the remaining six, then check your answers.</p>
   <div class="cv-check" data-once="sort">
     <ol class="cv-sort">
       {sort.map((c, i) => (
@@ -72,26 +72,26 @@ const wrongs = {
         </li>
       ))}
     </ol>
-    <p class="cv-once">One attempt at the six.</p>
-    <button type="button" data-submit>Check my six</button>
+    <p class="cv-once">Classify all six, then check.</p>
+    <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Remember items 3 and 4: the same blank page is empty when it proves its season, and unavailable when it cannot.</p></div>
+    <div class="cv-reveal"><p>Notice items 3 and 4: the exact same blank page is <strong>empty</strong> when it proves its season, and <strong>unavailable</strong> when it can't.</p></div>
   </div>
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>What Touchline does</h3>
-  <p>Every expected page ends in one of the four states, with a reason for the last three. Scores are nullable: a score nobody saw is stored as no value, never as zero.</p>
+  <p>Every expected page ends in one of the four states, with a recorded reason for the last three. Scores are nullable: a score nobody saw is stored as null (no value), never as zero.</p>
 
   <h3 class="cv-beat"><span class="sr-only">Case 3, </span>Your claim</h3>
   <div class="cv-check" data-once="claim-sept21">
-    <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened and its score is unknown, so the table counts only what a saved page shows and says what it left out." data-wrong={JSON.stringify(wrongs)}>
-      <legend>How should {match} appear in the published table?</legend>
+    <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened and its score is unknown, so the table counts only what saved pages show and explicitly notes what was left out." data-wrong={JSON.stringify(wrongs)}>
+      <legend>How should {match} appear in the published standings?</legend>
       {shows.map((s) => <label><input type="radio" name="cv-sept21" value={s.key} data-save="claim-sept21" /><span>{s.text}</span></label>)}
       <p class="cv-fb" role="status"></p>
     </fieldset>
-    <p class="cv-once">One attempt.</p>
-    <button type="button" data-submit>Check my claim</button>
+    <p class="cv-once">Pick one option, then check.</p>
+    <button type="button" data-submit>Check answer</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet asked for.</p></div>
+    <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet collected.</p></div>
   </div>
-  <p class="cv-next">Behind all three calls sits one choice Kick made without asking. <span data-decision-echo>You made it cold in the setup.</span></p>
+  <p class="cv-next">Next: revisiting the policy choice behind all three calls (<span data-decision-echo>the same one you picked earlier in the setup</span>).</p>
 </section>

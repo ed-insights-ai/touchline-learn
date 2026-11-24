@@ -2,7 +2,9 @@
 import { journey } from "../../data/journey";
 import { stateOptions } from "../../lib/states";
 
-const ask = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01-collection")!.ask;
+const current = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "01-collection")!;
+const nextModule = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "02-archive")!;
+const ask = current.ask;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 const filmScript = [
@@ -22,86 +24,91 @@ const heads = [
   ["unknown", "Visits unknown"],
 ];
 const next = [
-  ["../01-collection-field-work/?from=carry-it#assistant", "Test your own assistant", "on the pages Kick got, with a gap nothing mentions"],
-  ["../01-collection-field-work/?from=carry-it#statistics", "Statistics of the gap", "missingness mechanisms, and bounds that depend on each other"],
-  ["../01-collection-field-work/?from=carry-it#platform", "How Touchline builds it", "merge, atomic write and reruns"],
-  ["../01-collection-field-work/?from=carry-it#lab", "The lab", "write Friday's coverage record in Python"],
+  ["../01-collection-field-work/?from=carry-it#assistant", "Test your own AI assistant", "Give an assistant Friday's pages and see whether it catches the hidden gap"],
+  ["../01-collection-field-work/?from=carry-it#statistics", "Statistics of the gap", "Missingness mechanisms, sampling frames, and linked bounds"],
+  ["../01-collection-field-work/?from=carry-it#platform", "How Touchline builds it", "Incremental merges, atomic writes, and conditional requests"],
+  ["../01-collection-field-work/?from=carry-it#lab", "The Python lab", "Write Friday's coverage record in code (~15 min)"],
 ];
 ---
 
 <section id="carry-it">
-  <h2>Carry it: the same number, twice</h2>
-  <p>A health network has ten clinics that report patient visits each week. For week 9 you hold the same spreadsheet in two worlds: eight rows, sum 100.</p>
+  <h2>Carry it: same number, three worlds</h2>
+  <p>A health network has ten clinics that report patient visits each week. For week 9, you receive the exact same spreadsheet in three different scenarios: eight rows totaling 100 visits.</p>
   <div class="cv-twins">
     <div>
       <h3>World A</h3>
-      <p>The other two clinics each sent a file with a header and no rows. Both were closed that week for refitting, and the closure notices are on file.</p>
+      <p>The other two clinics each sent a file with a header and no rows. Both were closed that week for renovations, and the closure notices are on file.</p>
     </div>
     <div>
       <h3>World B</h3>
-      <p>The other two sent nothing. Nobody has heard from them.</p>
+      <p>The other two clinics sent nothing. Nobody has heard from them.</p>
     </div>
-  </div>
-  <div class="cv-twins">
     <div>
       <h3>World C</h3>
-      <p>The other two each sent a file with a header and no rows. Nothing in either file says which week it covers, and there is no closure notice.</p>
+      <p>The other two each sent a file with a header and no rows, but nothing in either file says which week it covers, and there is no closure notice.</p>
     </div>
   </div>
   <div class="cv-check" data-once="transfer">
     {(["a", "b"] as const).map((w) => (
       <div class="cv-line" data-q data-type="select" data-answer={w === "a" ? "total" : "floor"}
-        data-why={w === "a" ? "100 visits across the network. The two closed clinics answered, proved their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two silent clinics are unavailable: unknown, not zero."}
-        data-wrong={JSON.stringify(w === "a" ? { floor: "World A's two clinics did answer, with proof. Nothing is unknown.", zeros: "True, and it is the same total. Choose the headline that states it plainly.", unknown: "Every clinic is accounted for. The total is known." } : { total: "Two clinics never answered. 100 is only what you hold.", zeros: "Nobody reported zero. Silence is unknown, not zero.", unknown: "You do know at least 100. Say that." })}>
+        data-why={w === "a" ? "100 visits across the network. The two closed clinics answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two silent clinics are unavailable: unknown, not zero."}
+        data-wrong={JSON.stringify(w === "a" ? { floor: "World A's two clinics did answer, with proof. Nothing is unknown.", zeros: "True, and it gives the same total. Choose the headline that states it plainly.", unknown: "Every clinic is accounted for, so the total is known." } : { total: "Two clinics never answered, so 100 is only what you received.", zeros: "Nobody reported zero. Silence is unknown, not zero.", unknown: "You do know it is at least 100. Say that." })}>
         <label><span>World {w.toUpperCase()}: which headline is honest?</span>
           <select data-save={`transfer-${w}`}><option value="">Choose</option>{heads.map(([k, t]) => <option value={k}>{t}</option>)}</select>
         </label>
         <p class="cv-fb" role="status"></p>
       </div>
     ))}
-    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file arrived and cannot prove it is week 9's. The same rule as a schedule page that cannot prove its season." data-wrong={JSON.stringify({ empty: "Empty needs proof of which week the file covers. These files cannot give it.", "no-collector": "The files open fine. They just cannot prove their week." })}>
-      <label><span>World C: what state are those two clinics in for week 9?</span>
+    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file arrived, but it can't verify that it covers week 9, which is the same rule as a schedule page that can't verify its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The files open fine. They just can't verify their week." })}>
+      <label><span>World C: what coverage state are those two clinics in for week 9?</span>
         <select data-save="transfer-c"><option value="">Choose a state</option>{stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div data-q data-type="range" data-answer="400,520" data-why="400 to 520. The floor is what you hold. The ceiling adds the most the silent clinic could have seen: 5 days at 24. A known limit on the missing unit turns a lower bound into a range, as the points rule did for Dunmore.">
-      <p class="cv-qlabel">A week later you hold 400 visits from nine clinics. The tenth is still silent. Its licence allows at most 24 visits a day, and it opens five days a week. What are the lowest and highest totals the network could have?</p>
+    <div data-q data-type="range" data-answer="400,520" data-why="400 to 520. The lower bound is what you have. The upper bound adds the maximum the silent clinic could have seen: 5 days × 24 visits. A known ceiling turns a floor into a range, just like the points rule did for Dunmore.">
+      <p class="cv-qlabel">A week later you have 400 visits from nine clinics, and the tenth is still silent. Its license allows at most 24 visits a day, and it is open five days a week. What are the lowest and highest totals the network could have?</p>
       <div class="cv-row cv-fillin"><span>Between</span><input inputmode="numeric" autocomplete="off" aria-label="Lowest total" data-save="clinic-low" /><span>and</span><input inputmode="numeric" autocomplete="off" aria-label="Highest total" data-save="clinic-high" /></div>
       <p class="cv-fb" role="status"></p>
     </div>
-    <p class="cv-once">One attempt at all four.</p>
-    <button type="button" data-submit>Check my four</button>
+    <p class="cv-once">Answer all four, then check.</p>
+    <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>World C holds the same files as World A and supports only World B's headline, because its files cannot prove their week. Same number, three worlds, and only the record tells them apart.</p></div>
+    <div class="cv-reveal"><p>World C has the same blank files as World A, yet only supports World B's headline because those files can't verify their week. Same number, three scenarios, and only the coverage record tells them apart.</p></div>
   </div>
 
-  <h3>The one ask</h3>
-  <p>Take this to any AI that collects anything for you.</p>
+  <h3>The prompt to take with you</h3>
+  <p>Ask this whenever an AI collects or summarizes data for you:</p>
   <div class="cv-prompt">
     <p data-copy-text>{ask}</p>
-    <button type="button" data-copy data-label="Copy the ask">Copy the ask</button>
+    <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 
   <h3>Then Tuesday</h3>
-  <p>A minute and a half to close the module: Monday, the idea in one breath, and the bug that opens the next one.</p>
+  <p>This 90-second closing video wraps up Monday's fix and introduces the bug that kicks off Module 2.</p>
   <figure class="cv-film">
-    <video controls playsinline preload="metadata" poster={film("monday-then-tuesday.jpg")} aria-label="Monday, Then Tuesday, a 90-second closing film for Module 1">
+    <video controls playsinline preload="metadata" poster={film("monday-then-tuesday.jpg")} aria-label="Monday, Then Tuesday, a 90-second closing video for Module 1">
       <source src={film("monday-then-tuesday.mp4")} type="video/mp4" />
       <track kind="captions" src={film("monday-then-tuesday.vtt")} srclang="en" label="English" default />
     </video>
-    <figcaption>Monday, Then Tuesday. Every count on screen is the sample's.</figcaption>
+    <figcaption>Monday, Then Tuesday. Every count shown on screen comes from the sample dataset.</figcaption>
   </figure>
   <details class="cv-more">
-    <summary>Read the film's narration</summary>
+    <summary>Read the video narration</summary>
     {filmScript.map((x) => <p>{x}</p>)}
   </details>
-  <p class="cv-next">Riley's question is where Module 2 starts. <a href="../02-archive/">Module 2: The raw archive</a></p>
 
-  <h3>Go further first</h3>
-  <p>Each of these is optional and stands alone, on the <a href="../01-collection-field-work/?from=carry-it">field work page</a>.</p>
+  <h3>Optional: go further</h3>
+  <p>Each of these stands on its own on the <a href="../01-collection-field-work/?from=carry-it">Module 1 field work page</a>.</p>
   <ul class="cv-next-links">
     {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
   </ul>
-  <button type="button" class="cv-quiet" data-reset>Clear my answers and start this module again</button>
+
+  <aside class="cv-next-card" aria-label="Next module">
+    <p class="cv-next-eyebrow">Up next · Module 2</p>
+    <p class="cv-next-q">{nextModule.question}</p>
+    <p>Riley's Tuesday question is where Module 2 begins.</p>
+    <a class="cv-next-cta" href="../02-archive/">Continue to Module 2: {nextModule.name} →</a>
+  </aside>
+
+  <button type="button" class="cv-quiet" data-reset>Reset my answers for this module</button>
 </section>
