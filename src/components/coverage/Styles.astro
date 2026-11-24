@@ -222,12 +222,10 @@
   .cv-lead { color: var(--tl-ink); font-size: 1.05rem; }
   .cv-eyebrow-sm { margin-top: 0.4rem !important; color: var(--sl-color-accent-high); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
   .cv-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.65rem; margin-top: 0.3rem !important; font-size: 0.88rem; }
-  .cv-facts span + span::before, .cv-facts a::before { content: "·"; margin-right: 0.65rem; color: var(--tl-line); font-weight: 700; }
-  .cv-facts a { font-weight: 600; }
-  .cv-facts a::before { display: inline-block; }
-  .cv-prereq { color: var(--tl-muted); font-size: 0.88rem; }
-  .cv-prereq[hidden] { display: none; }
-  .cv-prereq strong { color: var(--sl-color-white); }
+  .cv-facts strong { color: var(--tl-ink); }
+  .cv-facts > a { font-weight: 600; }
+  .cv-facts > span[hidden] { display: none; }
+  .cv-facts > span:not([hidden]) + a::before { content: "·"; display: inline-block; margin-right: 0.65rem; color: var(--tl-line); font-weight: 700; }
   .cv .cv-step { display: flex; align-items: baseline; gap: 0.6rem; margin-top: 2.25rem; }
   .cv-step > span { display: inline-grid; place-items: center; flex: none; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--sl-color-accent); color: var(--sl-color-black); font-size: 0.9rem; font-weight: 750; }
   :root[data-theme="light"] .cv-step > span { color: #fff; }
