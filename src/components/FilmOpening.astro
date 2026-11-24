@@ -70,6 +70,7 @@ const transcript: [string, string][] = [
   .fo-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); min-height: 52px; padding: 0.6rem 1.3rem 0.6rem 2.6rem; border: 2px solid #07120d; border-radius: 3px; background: #f4c62f; color: #1b1a0c; font: inherit; font-weight: 750; cursor: pointer; }
   .fo-play::before { content: ""; position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); border-left: 0.8rem solid #1b1a0c; border-top: 0.5rem solid transparent; border-bottom: 0.5rem solid transparent; }
   .fo video::cue { background: rgba(0, 0, 0, 0.88); color: #fff; }
+  .fo video::-webkit-media-text-track-display { padding: 2px 4px; border-radius: 2px; background: rgba(0, 0, 0, 0.88); }
   @media (max-width: 30rem) { .fo video::cue { font-size: 13px; } }
   .fo-play[hidden] { display: none; }
   .fo .fo-play:focus-visible { outline-color: #f4c62f; }
