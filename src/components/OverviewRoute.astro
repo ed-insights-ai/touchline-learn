@@ -6,10 +6,10 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   <p class="or-about">A course in how a trustworthy data pipeline fits together, built around Touchline, a working platform that collects results from about a thousand college soccer websites.</p>
   <p class="or-meta"><span>10 modules</span><span>Self-paced</span><span>Labs optional, a browser is enough</span><span>No soccer or pipeline background needed</span></p>
   <ol>
-    <li><a href="#film">Watch the film <span>2 min</span></a></li>
-    <li><a href="#one-match">See the seven steps</a></li>
-    <li><a href="#the-journey">The ten modules</a></li>
-    <li><a class="or-go" href={`${base}modules/01-collection/`}>Start Module 1</a></li>
+    <li><a href="#film"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch the film <span>2 min</span></a></li>
+    <li><a href="#one-match"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h3M14 12h3"/></svg>See the seven steps</a></li>
+    <li><a href="#the-journey"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>The ten modules</a></li>
+    <li><a class="or-go" href={`${base}modules/01-collection/`}>Start Module 1<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></li>
   </ol>
 </nav>
 
@@ -19,11 +19,14 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
   .or .or-about { max-width: 44rem; color: var(--tl-ink); font-size: 1rem; }
   .or .or-meta { display: flex; flex-wrap: wrap; margin-bottom: 0.75rem; }
   .or-meta span + span::before { content: "·"; margin: 0 0.5rem; }
-  .or ol { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+  .or ol { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
   .or li { margin: 0; }
-  .or a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 40px; padding: 0.3rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-card); color: var(--tl-ink); font-weight: 600; text-decoration: none; }
+  .or a { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 50px; padding: 0.55rem 1rem; border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); color: var(--tl-ink); font-size: 1rem; font-weight: 650; text-decoration: none; }
+  .or a svg { width: 1.15rem; height: 1.15rem; fill: none; stroke: var(--sl-color-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .or a:hover { border-color: var(--sl-color-accent); }
   .or a span { color: var(--tl-muted); font-weight: 400; }
-  .or a.or-go { border-color: var(--sl-color-accent); color: var(--sl-color-accent-high); }
+  .or a.or-go { border-color: var(--sl-color-accent); background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 750; }
+  :root[data-theme="light"] .or a.or-go { color: #fff; }
+  .or a.or-go svg { stroke: currentColor; }
   .or a:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
 </style>

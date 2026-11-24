@@ -1,0 +1,67 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const groups = [
+  ["Question the result", ["Look at a clean AI-built result and name how it could still be wrong.", "Ask for the evidence that would confirm or overturn it."]],
+  ["Make the data trustworthy", ["Explain why raw, clean and derived data stay apart, and what that makes recoverable.", "Tell a false merge from a real one, and unknown data from a true zero."]],
+  ["Release with judgment", ["Decide where a check belongs, and what should happen when it fails.", "Say where a language model can sit in a pipeline, and where it must not."]],
+] as const;
+const facts = [
+  { icon: '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18"/><path d="M8 21h8"/>', text: "A browser is enough", href: undefined },
+  { icon: '<path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h10"/>', text: "10 self-paced modules, one sitting each", href: undefined },
+  { icon: '<path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/>', text: "Optional hands-on labs", href: `${base}start/setup/` },
+  { icon: '<path d="M3 8 12 4l9 4-9 4-9-4z"/><path d="M7 10v5c3 2 7 2 10 0v-5"/>', text: "Instructor resources", href: `${base}teaching/instructor-notes/` },
+];
+---
+
+<section class="ab not-content" id="about" aria-labelledby="ab-title">
+  <p class="ab-kicker">The path</p>
+  <h2 id="ab-title">About the course</h2>
+  <div class="ab-grid">
+    <div class="ab-card">
+      <h3>What you will be able to do</h3>
+      {groups.map(([name, items]) => (
+        <div class="ab-group">
+          <p class="ab-gname">{name}</p>
+          <ul>{items.map((item) => <li>{item}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+    <div class="ab-card">
+      <h3>Who it is for</h3>
+      <p>Anyone who uses AI to work with data and wants to know when to trust the result, including upper-level or graduate students in data science, statistics or computer science.</p>
+      <ul class="ab-facts">
+        {facts.map((f) => (
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true" set:html={f.icon} />
+            {f.href ? <a href={f.href}>{f.text}</a> : <span>{f.text}</span>}
+          </li>
+        ))}
+      </ul>
+      <p class="ab-fine">The only soccer you need is one rule: a match has two teams and a score, and a season is a set of matches. Riley, Kick and the data are invented. The other stories in the lessons happened on the real Touchline platform. <a href={`${base}start/how-to-use/`}>How to use this guide</a></p>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .ab { max-width: 52rem; margin: 0 auto 1rem; padding-top: 3rem; border-top: 1px solid var(--tl-line); color: var(--tl-ink); line-height: 1.6; }
+  .ab p { margin: 0 0 0.75rem; }
+  .ab .ab-kicker { margin-bottom: 0.35rem; color: var(--sl-color-accent); font-size: 0.82rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; }
+  .ab h2 { margin: 0 0 1rem; color: var(--sl-color-white); font-size: clamp(1.6rem, 4.6vw, 2.2rem); line-height: 1.12; font-weight: 750; letter-spacing: -0.015em; scroll-margin-top: 5rem; }
+  .ab-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 0.75rem; }
+  .ab-card { padding: 1.15rem 1.25rem; border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); }
+  .ab h3 { margin: 0 0 0.75rem; color: var(--sl-color-white); font-size: 1.15rem; font-weight: 750; }
+  .ab-group + .ab-group { margin-top: 0.75rem; }
+  .ab .ab-gname { margin: 0 0 0.2rem; color: var(--sl-color-accent-high); font-size: 0.88rem; font-weight: 750; }
+  :root[data-theme="light"] .ab .ab-gname { color: var(--sl-color-accent); }
+  .ab ul { margin: 0; padding: 0; list-style: none; }
+  .ab-group li { position: relative; padding-left: 1.5rem; font-size: 0.95rem; }
+  .ab-group li + li { margin-top: 0.25rem; }
+  .ab-group li::before { content: ""; position: absolute; left: 0.2rem; top: 0.45em; width: 0.7rem; height: 0.38rem; border-left: 2px solid var(--sl-color-accent); border-bottom: 2px solid var(--sl-color-accent); transform: rotate(-45deg); }
+  .ab-facts { display: grid; gap: 0.5rem; margin: 0.25rem 0 1rem !important; }
+  .ab-facts li { display: flex; align-items: center; gap: 0.65rem; }
+  .ab-facts svg { flex: none; width: 2rem; height: 2rem; padding: 0.35rem; border-radius: 6px; background: var(--sl-color-accent-low); fill: none; stroke: var(--sl-color-accent-high); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ab a { color: var(--sl-color-text-accent); }
+  .ab .ab-fine { margin: 0; color: var(--tl-muted); font-size: 0.9rem; }
+  .ab a:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  @media (max-width: 45rem) { .ab-grid { grid-template-columns: 1fr; } }
+</style>

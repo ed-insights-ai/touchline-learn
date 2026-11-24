@@ -29,8 +29,9 @@ import { journey } from "../data/journey";
 </div>
 
 <style is:global>
-  .cj { display: grid; gap: 1.5rem; margin-top: 1rem; }
-  .cj-part { padding-left: 1rem; border-left: 3px solid var(--sl-color-accent); }
+  .cj { display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+  @media (min-width: 56rem) { .cj { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 1rem; } .cj-finish { grid-column: 1 / -1; } }
+  .cj-part { padding: 1rem 1rem 1.1rem; border: 1px solid var(--tl-line); border-top: 4px solid var(--sl-color-accent); border-radius: 6px; background: var(--tl-bg); }
   .cj-part h3 { margin: 0 0 0.15rem; color: var(--sl-color-white); font-size: 1.2rem; line-height: 1.25; font-weight: 700; }
   .cj-part h3 span { display: block; color: var(--tl-muted); font-size: 0.85rem; font-weight: 600; }
   .cj-part p { margin: 0 0 0.6rem; color: var(--tl-ink); }
@@ -42,6 +43,6 @@ import { journey } from "../data/journey";
   .cj-part b { flex: none; width: 1.6rem; color: var(--sl-color-accent); font-size: 1.05rem; text-align: center; font-variant-numeric: tabular-nums; }
   .cj-part a span { display: grid; font-size: 0.92rem; color: var(--tl-muted); }
   .cj-part a small { margin-top: 0.1rem; font-size: 0.78rem; }
-  .cj-finish { border-left-color: #f4c62f; }
+  .cj-finish { border-top-color: #f4c62f; }
   .cj-part a strong { color: var(--tl-ink); font-size: 1rem; font-weight: 650; }
 </style>

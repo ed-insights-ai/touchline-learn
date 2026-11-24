@@ -1,13 +1,31 @@
 ---
-import { ideas, matchLabel, stops, trail, zones } from "../lib/one-match";
+import { away, home, ideas, matchLabel, stops, trail, zones } from "../lib/one-match";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const moduleHref = (slug: string) => `${base}modules/${slug}/`;
+const riskText = (risk: string) => {
+  const text = risk.replace(/^Without it:\s*/, "");
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+const icons = [
+  '<path d="M3 5h18v4H3z"/><path d="M5 9v10h14V9"/><path d="M10 13h4"/>',
+  '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/><path d="m8.3 11 1.9 1.9 3.6-3.8"/>',
+  '<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/><path d="M12 8.5v4.5"/><path d="M12 16h.01"/>',
+  '<path d="m8 8-4 4 4 4"/><path d="m16 8 4 4-4 4"/><path d="m13.5 6-3 12"/>',
+];
 ---
 
-<section class="pm not-content" id="one-match" aria-labelledby="pm-title">
-  <h2 id="pm-title">What a trustworthy pipeline does with one result</h2>
-  <p>Kick's four green check marks were status messages. They named what the script was busy with, not what it proved. A trustworthy platform takes every result through seven steps and keeps its data in three zones. Here is one result from Riley's table, {matchLabel}, taken through all seven.</p>
+<section class="pm not-content" id="one-match" aria-labelledby="pm-title" data-pm>
+  <p class="pm-kicker">The mental model</p>
+  <h2 id="pm-title">One match, seven steps</h2>
+  <p class="pm-lead">Kick's four green check marks were status messages. They named what the script was busy with, not what it proved. A trustworthy platform takes every result through seven steps and keeps its data in three zones. Here is one result from Riley's table, {matchLabel}, taken through all seven.</p>
+
+  <div class="pm-score" aria-label={`${home.name} ${home.score}, ${away.name} ${away.score}`}>
+    <span>{home.name}</span>
+    <strong>{home.score} – {away.score}</strong>
+    <span>{away.name}</span>
+    <small>September 8 · invented example match</small>
+  </div>
 
   <figure class="pm-figure">
     <ol class="pm-band" aria-label="Seven steps in three zones">
@@ -16,7 +34,7 @@ const moduleHref = (slug: string) => `${base}modules/${slug}/`;
           <p class="pm-zname">{z.name} <small>{z.also.toLowerCase()}</small></p>
           <p class="pm-holds">{z.holds}</p>
           <ol class="pm-chips">
-            {stops.map((s, i) => s.zone === z.key && <li><a href={`#step-${s.name.toLowerCase()}`}><b>{i + 1}</b>{s.name}</a></li>)}
+            {stops.map((s, i) => s.zone === z.key && <li><a href={`#step-${s.name.toLowerCase()}`} data-chip={i}><b>{i + 1}</b>{s.name}</a></li>)}
           </ol>
           <p class="pm-trail"><span>This match, {trail[z.key].what}</span><code>{trail[z.key].text}</code></p>
         </li>
@@ -25,89 +43,163 @@ const moduleHref = (slug: string) => `${base}modules/${slug}/`;
     <figcaption>Each zone is computed from the one before it. As long as raw survives, everything after it can be rebuilt with versioned code and reference lists. That is what makes a bug recoverable.</figcaption>
   </figure>
 
-  <ol class="pm-steps">
+  <ol class="pm-steps" aria-live="polite">
     {stops.map((s, i) => (
-      <li class={`pm-step ${s.zone}`} id={`step-${s.name.toLowerCase()}`}>
+      <li class={`pm-step ${s.zone}`} id={`step-${s.name.toLowerCase()}`} data-step={i}>
         <div class="pm-head">
-          <b aria-hidden="true">{i + 1}</b>
-          <h3><span>{s.name}.</span> {s.title}</h3>
+          <p class="pm-count">Step {i + 1} of {stops.length} · {s.name}</p>
           <span class="pm-mods">{s.modules.length > 1 ? "Modules" : "Module"} {s.modules.map((m, j) => <>{j > 0 && " and "}<a href={moduleHref(m.slug)} aria-label={`Module ${m.n}: ${m.name}`}>{m.n}</a></>)}</span>
         </div>
+        <h3 tabindex="-1">{s.title}</h3>
         <p>{s.body}</p>
-        <p class="pm-risk">{s.risk}</p>
-        <details>
+        <details class="pm-see">
           <summary>See it on this match</summary>
           <pre><code>{s.artifact}</code></pre>
         </details>
+        <div class="pm-risk">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+          <p><strong>Without this step</strong>{riskText(s.risk)}</p>
+        </div>
       </li>
     ))}
   </ol>
+  <div class="pm-nav" hidden>
+    <button type="button" data-prev>Previous</button>
+    <span data-where></span>
+    <button type="button" data-next>Next step</button>
+  </div>
   <p class="pm-ten"><a href={moduleHref("10-operations")}>Module 10</a> steps back to all seven: who runs each one, when, and at what cost.</p>
 
-  <h2>Four ideas you will build across the course</h2>
+  <h2 class="pm-ideas-title">Four ideas you will build across the course</h2>
   <dl class="pm-ideas">
-    {ideas.map(([term, text]) => <div><dt>{term}</dt><dd>{text}</dd></div>)}
+    {ideas.map(([term, text], i) => (
+      <div>
+        <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[i]} />
+        <dt>{term}</dt>
+        <dd>{text}</dd>
+      </div>
+    ))}
   </dl>
 </section>
 
 <style is:global>
-  .pm { max-width: 52rem; margin: 0 auto 1.5rem; padding-top: 2rem; border-top: 1px solid var(--tl-line); color: var(--tl-ink); line-height: 1.55; }
+  .pm { max-width: 52rem; margin: 0 auto 1.5rem; padding-top: 3rem; border-top: 1px solid var(--tl-line); color: var(--tl-ink); line-height: 1.6; }
   .pm p { margin: 0 0 0.75rem; }
-  .pm h2 { margin: 0 0 0.75rem; color: var(--sl-color-white); font-size: clamp(1.4rem, 4.2vw, 1.9rem); line-height: 1.15; font-weight: 750; letter-spacing: -0.015em; text-wrap: balance; scroll-margin-top: 5rem; }
-  .pm h3 { margin: 0; color: var(--sl-color-white); font-size: 1.08rem; line-height: 1.3; font-weight: 650; }
-  .pm h3 span { color: var(--tl-muted); font-weight: 700; }
+  .pm .pm-kicker { margin-bottom: 0.35rem; color: var(--sl-color-accent); font-size: 0.82rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pm h2 { margin: 0 0 0.75rem; color: var(--sl-color-white); font-size: clamp(1.6rem, 4.6vw, 2.2rem); line-height: 1.12; font-weight: 750; letter-spacing: -0.015em; text-wrap: balance; scroll-margin-top: 5rem; }
+  .pm h3 { margin: 0 0 0.5rem; color: var(--sl-color-white); font-size: 1.35rem; line-height: 1.25; font-weight: 700; outline: none; scroll-margin-top: 6rem; }
+  .pm .pm-lead { font-size: 1.05rem; }
 
-  .pm-figure { margin: 1.25rem 0 1.5rem; }
-  .pm-band { display: grid; grid-template-columns: 2fr 3.6fr 1.6fr; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
-  .pm-band > li { position: relative; margin: 0; padding: 0.7rem 0.75rem 0.8rem; border: 1px solid var(--tl-line); border-top-width: 4px; }
-  .pm-band > li:not(:last-child)::after { content: ""; position: absolute; right: -0.33rem; top: 50%; z-index: 1; width: 0.6rem; height: 0.6rem; border-top: 2px solid var(--tl-muted); border-right: 2px solid var(--tl-muted); background: none; transform: translate(0, -50%) rotate(45deg); }
+  .pm-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.25rem 1.25rem; margin: 1.5rem 0 1rem; padding: 1rem 1.25rem; border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); }
+  .pm-score span { font-size: 1.15rem; font-weight: 700; }
+  .pm-score span:first-child { text-align: right; }
+  .pm-score strong { color: var(--sl-color-white); font-size: 2.1rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .pm-score small { grid-column: 1 / -1; color: var(--tl-muted); font-size: 0.85rem; text-align: center; }
+
+  .pm-figure { margin: 0 0 1.5rem; }
+  .pm-band { display: grid; grid-template-columns: 2fr 3.6fr 1.6fr; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .pm-band > li { position: relative; margin: 0; padding: 0.8rem 0.85rem 0.9rem; border: 1px solid var(--tl-line); border-top-width: 4px; border-radius: 4px; }
+  .pm-band > li:not(:last-child)::after { content: ""; position: absolute; right: -0.36rem; top: 50%; z-index: 1; width: 0.6rem; height: 0.6rem; border-top: 2px solid var(--tl-muted); border-right: 2px solid var(--tl-muted); transform: translate(0, -50%) rotate(45deg); }
   .pm-zone.raw { background: var(--tl-raw); border-top-color: var(--tl-raw-edge); }
   .pm-zone.clean { background: var(--tl-clean); border-top-color: var(--tl-clean-edge); }
   .pm-zone.derived { background: var(--tl-derived); border-top-color: var(--tl-derived-edge); }
-  .pm .pm-zname { margin: 0; font-weight: 750; }
-  .pm-zname small { display: block; margin-left: 0; color: var(--tl-muted); font-size: 0.78rem; font-weight: 500; }
-  .pm .pm-holds { margin: 0 0 0.55rem; color: var(--tl-muted); font-size: 0.85rem; line-height: 1.3; }
-  .pm-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0; padding: 0; list-style: none; }
+  .pm .pm-zname { margin: 0; font-size: 1.1rem; font-weight: 750; }
+  .pm-zname small { display: block; color: var(--tl-muted); font-size: 0.8rem; font-weight: 500; }
+  .pm .pm-holds { margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.88rem; line-height: 1.3; }
+  .pm-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
   .pm-chips li { margin: 0; }
-  .pm-chips a { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 36px; padding: 0.25rem 0.6rem; border: 1px solid var(--tl-line); border-radius: 3px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.88rem; font-weight: 600; text-decoration: none; }
+  .pm-chips a { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px; padding: 0.35rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 4px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.95rem; font-weight: 650; text-decoration: none; }
   .pm-chips a:hover { border-color: var(--sl-color-accent); }
+  .pm-chips a[aria-current] { border-color: var(--sl-color-accent); background: var(--sl-color-accent); color: var(--sl-color-black); }
+  :root[data-theme="light"] .pm-chips a[aria-current] { color: #fff; }
+  .pm-chips a[aria-current] b { color: inherit; }
   .pm-chips b { color: var(--tl-muted); font-variant-numeric: tabular-nums; }
-  .pm .pm-trail { display: grid; gap: 0.15rem; margin: 0.6rem 0 0; padding-top: 0.5rem; border-top: 1px dashed var(--tl-line); }
-  .pm-trail span { color: var(--tl-muted); font-size: 0.75rem; font-weight: 600; }
-  .pm-trail code { padding: 0; background: none; font-size: 0.78rem; line-height: 1.4; overflow-wrap: anywhere; }
-  .pm .pm-ten { margin: -1.4rem 0 2rem; color: var(--tl-muted); font-size: 0.92rem; }
-  .pm-ten a { color: var(--sl-color-text-accent); }
-  .pm-figure figcaption { margin-top: 0.6rem; color: var(--tl-muted); font-size: 0.9rem; }
+  .pm .pm-trail { display: grid; gap: 0.15rem; margin: 0.65rem 0 0; padding-top: 0.55rem; border-top: 1px dashed var(--tl-line); }
+  .pm-trail span { color: var(--tl-muted); font-size: 0.8rem; font-weight: 600; }
+  .pm-trail code { padding: 0; background: none; font-size: 0.8rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .pm-figure figcaption { margin-top: 0.65rem; color: var(--tl-muted); font-size: 0.92rem; }
 
-  .pm-steps { display: grid; gap: 0.5rem; margin: 0 0 2rem; padding: 0; list-style: none; counter-reset: none; }
-  .pm-step { margin: 0; padding: 0.8rem 0.95rem 0.6rem; border: 1px solid var(--tl-line); border-left-width: 4px; background: var(--tl-card); scroll-margin-top: 5rem; }
+  .pm-steps { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+  .pm-step { margin: 0; padding: 1.1rem 1.25rem 1rem; border: 1px solid var(--tl-line); border-left-width: 5px; border-radius: 4px; background: var(--tl-card); scroll-margin-top: 5rem; }
   .pm-step.raw { border-left-color: var(--tl-raw-edge); }
   .pm-step.clean { border-left-color: var(--tl-clean-edge); }
   .pm-step.derived { border-left-color: var(--tl-derived-edge); }
-  .pm-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.35rem; }
-  .pm-head > b { flex: none; width: 1.4rem; color: var(--sl-color-accent); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-  .pm-head h3 { flex: 1; }
-  .pm-mods { flex: none; color: var(--tl-muted); font-size: 0.82rem; white-space: nowrap; }
-  .pm-mods a { color: inherit; }
-  .pm-step > p { margin-left: 2rem; }
-  .pm .pm-risk { margin-bottom: 0.35rem; font-weight: 600; }
-  .pm-step details { margin-left: 2rem; }
-  .pm-step summary { display: list-item; min-height: 36px; padding-block: 0.35rem; color: var(--tl-muted); font-size: 0.88rem; font-weight: 600; cursor: pointer; }
-  .pm pre { margin: 0.1rem 0 0.6rem; padding: 0.7rem 0.8rem; overflow-x: auto; background: var(--tl-bg); border: 1px solid var(--tl-line); font-size: 0.78rem; line-height: 1.55; }
+  .pm-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.2rem; }
+  .pm .pm-count { margin: 0; color: var(--tl-muted); font-size: 0.82rem; font-weight: 750; letter-spacing: 0.05em; text-transform: uppercase; }
+  .pm-mods { flex: none; color: var(--tl-muted); font-size: 0.88rem; white-space: nowrap; }
+  .pm-mods a { color: var(--sl-color-text-accent); }
+  .pm-see { margin: 0.25rem 0 0.85rem; }
+  .pm-see summary { display: list-item; min-height: 40px; padding-block: 0.4rem; color: var(--tl-muted); font-size: 0.92rem; font-weight: 650; cursor: pointer; }
+  .pm pre { margin: 0.1rem 0 0; padding: 0.75rem 0.9rem; overflow-x: auto; background: var(--tl-bg); border: 1px solid var(--tl-line); border-radius: 4px; font-size: 0.85rem; line-height: 1.55; }
   .pm pre code { padding: 0; background: none; font-size: inherit; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .pm-risk { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.7rem 0.85rem; border-radius: 4px; background: var(--tl-bg); }
+  .pm-risk svg { flex: none; width: 1.3rem; height: 1.3rem; margin-top: 0.15rem; fill: none; stroke: #e0a92a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .pm .pm-risk p { margin: 0; }
+  .pm-risk strong { display: block; color: var(--sl-color-white); }
 
-  .pm-ideas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 1rem; }
-  .pm-ideas > div { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-top: 3px solid var(--sl-color-accent); background: var(--tl-card); }
-  .pm-ideas dt { font-weight: 700; color: var(--sl-color-white); }
-  .pm-ideas dd { margin: 0.2rem 0 0; color: var(--tl-ink); font-size: 0.95rem; }
+  .pm-nav { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.75rem; }
+  .pm-nav[hidden] { display: none; }
+  .pm-nav span { color: var(--tl-muted); font-size: 0.9rem; }
+  .pm-nav button { min-height: 48px; padding: 0.6rem 1.25rem; border: 1px solid var(--tl-muted); border-radius: 4px; background: none; color: var(--tl-ink); font: inherit; font-weight: 700; cursor: pointer; }
+  .pm-nav button[data-next] { border-color: var(--sl-color-accent); background: var(--sl-color-accent); color: var(--sl-color-black); }
+  :root[data-theme="light"] .pm-nav button[data-next] { color: #fff; }
+  .pm-nav button:disabled { opacity: 0.4; cursor: default; }
+  .pm-js .pm-step:not(.is-on) { display: none; }
 
-  .pm a:focus-visible, .pm summary:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+  .pm .pm-ten { margin: 0.9rem 0 3rem; color: var(--tl-muted); font-size: 0.95rem; }
+  .pm-ten a { color: var(--sl-color-text-accent); }
+
+  .pm .pm-ideas-title { margin-bottom: 1rem; }
+  .pm-ideas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 0 0 1rem; }
+  .pm-ideas > div { display: grid; grid-template-columns: auto 1fr; column-gap: 0.85rem; align-content: start; padding: 1.1rem 1.2rem; border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); }
+  .pm-ideas svg { grid-row: span 2; width: 2.4rem; height: 2.4rem; padding: 0.45rem; border-radius: 6px; background: var(--sl-color-accent-low); fill: none; stroke: var(--sl-color-accent-high); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .pm-ideas dt { color: var(--sl-color-white); font-size: 1.08rem; font-weight: 750; }
+  .pm-ideas dd { margin: 0.25rem 0 0; color: var(--tl-ink); }
+
+  .pm a:focus-visible, .pm summary:focus-visible, .pm button:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
 
   @media (max-width: 40rem) {
     .pm-band { grid-template-columns: 1fr; }
-    .pm-band > li:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -0.36rem; transform: translate(-50%, 0) rotate(135deg); }
+    .pm-band > li:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -0.38rem; transform: translate(-50%, 0) rotate(135deg); }
     .pm-ideas { grid-template-columns: 1fr; }
-    .pm-step > p, .pm-step details { margin-left: 0; }
+    .pm-score strong { font-size: 1.6rem; }
+    .pm-score span { font-size: 1rem; }
+    .pm-nav span { display: none; }
   }
 </style>
 
+<script>
+  const root = document.querySelector<HTMLElement>("[data-pm]");
+  if (root) {
+    const steps = [...root.querySelectorAll<HTMLElement>("[data-step]")];
+    const chips = [...root.querySelectorAll<HTMLAnchorElement>("[data-chip]")];
+    const nav = root.querySelector<HTMLElement>(".pm-nav")!;
+    const prev = nav.querySelector<HTMLButtonElement>("[data-prev]")!;
+    const next = nav.querySelector<HTMLButtonElement>("[data-next]")!;
+    const where = nav.querySelector<HTMLElement>("[data-where]")!;
+    let current = 0;
+    const show = (index: number, focus = false) => {
+      current = index;
+      steps.forEach((step, i) => step.classList.toggle("is-on", i === index));
+      chips.forEach((chip) => {
+        if (Number(chip.dataset.chip) === index) chip.setAttribute("aria-current", "step");
+        else chip.removeAttribute("aria-current");
+      });
+      prev.disabled = index === 0;
+      next.disabled = index === steps.length - 1;
+      where.textContent = `${index + 1} of ${steps.length}`;
+      if (focus) steps[index].querySelector<HTMLElement>("h3")!.focus({ preventScroll: true });
+    };
+    root.classList.add("pm-js");
+    nav.hidden = false;
+    steps.forEach((step) => step.querySelector("details")?.setAttribute("open", ""));
+    chips.forEach((chip) => chip.addEventListener("click", (event) => {
+      event.preventDefault();
+      show(Number(chip.dataset.chip), event.detail === 0);
+    }));
+    prev.addEventListener("click", (event) => show(current - 1, event.detail === 0));
+    next.addEventListener("click", (event) => show(current + 1, event.detail === 0));
+    const fromHash = steps.findIndex((step) => `#${step.id}` === location.hash);
+    show(fromHash >= 0 ? fromHash : 0);
+  }
+</script>
