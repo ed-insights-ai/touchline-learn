@@ -7,43 +7,48 @@ type Option = { label: string; why: string; correct?: boolean };
 const settle: Option[] = [
   { label: "Run it again and see if the count changes", why: "A rerun can repeat the same gap, and a new count would not tell you why it moved." },
   { label: "Open Dunmore's website now and count its games", why: "That could show the table is wrong today. It cannot show which request failed or why." },
-  { label: "Compare planned pages with what happened to each", why: "Yes. A table shows what it holds. Only that comparison can show what never arrived, or was never requested.", correct: true },
+  { label: "Compare planned pages with what happened to each", why: "Yes. A table shows what it holds. That comparison shows which planned pages never arrived.", correct: true },
 ];
 const whatToTell: Option[] = [
-  { label: "Our run had no errors, so please check your own count", why: "The log shows a request that failed. “No errors” was only ever the summary." },
-  { label: "Your schedule shows six games, so six stands", why: "Nobody has seen Dunmore's schedule. The log cannot vouch for a page that never arrived." },
-  { label: "We never got your schedule, so your row is incomplete", why: "Yes. The log supports exactly that much: one page was asked for and never answered.", correct: true },
+  { label: "We never got your schedule, so we cannot confirm your count", why: "Yes. The log supports exactly that much: one page was asked for and never answered.", correct: true },
+  { label: "We have six, so the other seven must be nonconference", why: "That is a guess. Nobody here has seen Dunmore's page." },
+  { label: "Your site was down, so those games are lost for good", why: "Too far. A failed request says nothing about what can still be recovered." },
 ];
 const otherUnit: Option[] = [
   { label: "Stop it until Dunmore is back", why: "Then one quiet server blocks every school's results. Separate units exist to prevent that." },
   { label: "Run it, and record what Dunmore does there", why: "Yes. A failure stays in the unit where it happened, and the record shows it.", correct: true },
   { label: "Run it, but leave Dunmore out to be safe", why: "Dunmore's women's page may answer fine. Skipping it creates a gap nobody asked for." },
 ];
-const whoIsHurt: Option[] = [
-  { label: "Only Dunmore", why: "Dunmore lost matches, but every match has two teams. Check who was on the other side." },
-  { label: "Dunmore and every team that played there", why: "Yes. A gap at one school moves teams whose own pages arrived perfectly.", correct: true },
-  { label: "Nobody, the saved pages are fine", why: "The pages are fine. The table never read the part of them that mattered here." },
+const rowsHurt: Option[] = [
+  { label: "One, Dunmore's", why: "Every match has two teams. Check who was on the other side." },
+  { label: "Only the teams Dunmore beat", why: "A loss or a draw changes a row too: played, goals or points." },
+  { label: "All eight", why: "Yes. Dunmore hosted all seven other schools, so a gap at one school reaches every row.", correct: true },
 ];
 const whichRow: Option[] = [
-  { label: "The table keeps only the first meeting between two teams", why: "Both meetings count. Check who hosted each one." },
   { label: "Hartwell hosted the draw, so Hartwell's page supplied it", why: "Yes. The 7-0 was played at Dunmore, so the table was waiting for Dunmore's page and never got it.", correct: true },
+  { label: "The table keeps only the first meeting between two teams", why: "Both meetings count. Check who hosted each one." },
   { label: "Dunmore's page arrived in time for the first match", why: "Dunmore's page never arrived at all. Check who hosted each match." },
 ];
 const complete: Option[] = [
-  { label: "Yes, thirteen matches the voicemail", why: "Thirteen conference games match the call. You still have no way to know what else that page listed." },
-  { label: "No, you still have not seen its page", why: "Right. Other schools can vouch for matches they played. They cannot tell you what you have never seen.", correct: true },
+  { label: "Yes, thirteen is what they told us", why: "Thirteen conference games match the call. You still have no way to know what else that page listed." },
+  { label: "No, its own page has still never arrived", why: "Right. Other schools can vouch for matches they played. They cannot tell you what you have never seen.", correct: true },
 ];
 const reports: (Option & { text: string })[] = [
   { label: "Report A", text: "status: ok\nsaved: 19\nerrors: 0\nwarnings: 1 page skipped", why: "True, and it reads as a success. Nobody holds a table over one warning." },
-  { label: "Report B", text: "status: partial\nmissing: Dunmore schedule (no answer)\naffects: Dunmore and its opponents\nretry: next run", why: "Yes. It names the source, the reason, who is affected and what happens next, so you can hold the table until the gap closes.", correct: true },
-  { label: "Report C", text: "status: partial\nsaved: 19 of 20\nmissing: 1 schedule page\nretry: next run", why: "Honest, but you cannot tell a coach which school is affected or whether their place can be trusted." },
+  { label: "Report B", text: "status: partial\nsaved: 19 of 20\nmissing: Dunmore schedule\nretry: next run", why: "Closer. It names the page, but not why it is missing or whose results depend on it." },
+  { label: "Report C", text: "status: partial\nmissing: Dunmore schedule (no answer)\naffects: 7 hosted matches, all 8 rows\nretry: next run", why: "Yes. It names the source, the reason, the damage and what happens next, so you can decide what to do with the table.", correct: true },
+];
+const theCall: Option[] = [
+  { label: "Post Kick's table and fix it on Monday", why: "That is Riley's Friday. You already know one row is wrong." },
+  { label: "Post the rebuilt table, marked provisional, naming what is open", why: "Yes. Readers get what you can stand behind, and they can see that Dunmore's page and September 21 are still open.", correct: true },
+  { label: "Post nothing until every page has answered", why: "Then one quiet server sets your deadline, and seven results you could have shown stay hidden." },
 ];
 const tagFirst: Option[] = [
+  { label: "The site says unchanged, so the page never gets saved", why: "Right. The tag claims a copy you do not have, and each run believes it for as long as the page stays the same. That is why the tag comes after the save.", correct: true },
   { label: "It downloads the page again and saves it", why: "It would only do that if the site said the page changed. The stored tag says you already have it." },
-  { label: "The site says unchanged, so the page is never saved", why: "Right. The tag claims a copy you do not have, and every later run believes it. That is why the tag comes after the save.", correct: true },
   { label: "The run reports an error for that page", why: "Nothing fails on the next run. “Unchanged” is a normal answer, which is what makes this silent." },
 ];
-const code = `for page in registry:
+const code = `for page in planned_pages:
     answer = ask(page, last_seen.get(page))
     if answer.unchanged:
         record(page, "unchanged")
@@ -95,19 +100,19 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       <div><dt>Registry</dt><dd>The list of sources to ask. Here, eight school sites. The real platform lists about a thousand. A new school on a website platform you already read is one new entry, with no new code.</dd></div>
       <div><dt>Unit of work</dt><dd>One conference, one gender, one season: Prairie Lakes men, 2026. Units run separately, so one can fail while the others finish.</dd></div>
     </dl>
-    <p>For this unit, the sample asks for {run.total} pages: {run.schedules} school schedules and the {run.boxes} box scores linked from Alder Ridge's schedule. The fetch log keeps one line per page. These are the eight schedule requests.</p>
+    <p>The registry supplies the sources. Each run turns it into a plan of page requests, and the fetch log keeps one line for every request. Kick's plan had {run.total} pages: {run.schedules} school schedules and the {run.boxes} box scores linked from Alder Ridge's schedule. These are the eight schedule lines.</p>
     <table class="cl-log">
       <caption>Fetch log, schedule pages</caption>
       <thead><tr><th scope="col">School</th><th scope="col">Result</th></tr></thead>
       <tbody>{scheduleLog.map((l) => <tr><th scope="row">{l.name}</th><td>{l.result}</td></tr>)}</tbody>
     </table>
     <div class="cl-ask" data-choice data-reveal="log">
-      <p class="cl-q">Dunmore's athletics office is on the phone. What can you honestly tell them?</p>
+      <p class="cl-q">When Dunmore's athletics office calls, what can you honestly tell them?</p>
       {whatToTell.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="cl-feedback" role="status"></p>
     </div>
     <div class="cl-after" data-after="log" tabindex="-1">
-      <p>Here is the whole run. The red square is Dunmore's schedule. The collector handled the failure and moved on, so the run ended without an error. Kick's summary left that line out.</p>
+      <p>Here is the whole run, with the eight schedules on the top row. The red square is Dunmore's. The collector handled the failure and moved on, so the run finished with 19 of 20 saved and reported no error. Kick's summary left that line out.</p>
       <div class="cl-grid" data-grid role="img" aria-label={`${run.total - 1} pages saved. Dunmore's schedule did not answer.`}>
         {Array.from({ length: run.total }, (_, i) => <span class={i === run.downIndex ? "is-missing" : "is-saved"}>{i === run.downIndex ? "?" : "✓"}</span>)}
       </div>
@@ -115,6 +120,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
         <li><i class="is-saved">✓</i> Saved: {run.total - 1}</li>
         <li><i class="is-missing">?</i> No answer: 1</li>
       </ul>
+      <p>The other schools' schedules link box scores too, and this plan never asked for them. <strong>A clean log can only account for what was planned.</strong></p>
       <div class="cl-ask" data-choice data-then="3">
         <p class="cl-q">Dunmore went quiet during the men's unit. What should happen to the women's unit in the same run?</p>
         {otherUnit.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
@@ -125,10 +131,10 @@ const bytes = (n: number) => n.toLocaleString("en-US");
 
   <section class="cl-step" data-step="3">
     <h2 tabindex="-1">Work out what one missing page did</h2>
-    <p>Both teams list every match, so the table reads each one once, from the host school's page. That keeps it from counting a match twice, and it means Dunmore's seven home matches never reached it.</p>
+    <p>Both teams list every match, so the table reads each one once, from the host school's page. That keeps it from counting a match twice. It also means Dunmore's seven home matches, one against each other school, never reached it.</p>
     <div class="cl-ask" data-choice data-reveal="rows">
-      <p class="cl-q">Whose place in the table could be wrong?</p>
-      {whoIsHurt.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+      <p class="cl-q">How many rows in your table will change once those seven are counted?</p>
+      {rowsHurt.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="cl-feedback" role="status"></p>
     </div>
     <div class="cl-after" data-after="rows" tabindex="-1">
@@ -146,9 +152,9 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     </div>
     <div class="cl-after" data-after="repaired" tabindex="-1">
       <p><strong>Hartwell Tech moves from 4th to 2nd.</strong> Their own page arrived on time. Someone else's outage cost them two places, and the run still said it worked. In all, one missing page changed all eight rows and moved five teams.</p>
-      <p class="cl-aside">Played still varies because {stillToPlay} conference matches are yet to be played and {noPublishedScore} final has no published score: Cedar Grove against St. Lambert on September 21, the third call. Module 6 deals with what a blank means.</p>
+      <p class="cl-aside">Played still varies because {stillToPlay} conference matches are yet to be played and {noPublishedScore} final has no score on either school's schedule: Cedar Grove against St. Lambert on September 21, the third call. Cedar Grove's row links a box score this run never asked for. Module 6 deals with what a blank means.</p>
       <div class="cl-ask" data-choice data-then="4">
-        <p class="cl-q">Dunmore's count now matches its voicemail. Have you seen everything on its page?</p>
+        <p class="cl-q">Dunmore's count now matches its voicemail. Can you mark its gap closed?</p>
         {complete.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
         <p class="cl-feedback" role="status"></p>
       </div>
@@ -157,16 +163,23 @@ const bytes = (n: number) => n.toLocaleString("en-US");
 
   <section class="cl-step" data-step="4">
     <h2 tabindex="-1">Choose what the run should have told you</h2>
-    <p>All three describe the same run, and a coach is on the phone. Which one lets you say who is affected and why?</p>
-    <div class="cl-ask cl-reports" data-choice data-then="5">
+    <p>All three describe the same run. Which one would let you decide what to do with the table, and answer the coaches when they call?</p>
+    <div class="cl-ask cl-reports" data-choice data-reveal="call">
       {reports.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}><b>{o.label}</b><code>{o.text}</code></button>)}
       <p class="cl-feedback" role="status"></p>
+    </div>
+    <div class="cl-after" data-after="call" tabindex="-1">
+      <div class="cl-ask" data-choice data-then="5">
+        <p class="cl-q">It is still 4:52, and Dunmore has not answered. What goes out at five?</p>
+        {theCall.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
+        <p class="cl-feedback" role="status"></p>
+      </div>
     </div>
   </section>
 
   <section class="cl-step" data-step="5">
     <h2 tabindex="-1">Run it again and do only the new work</h2>
-    <p>The next morning Dunmore answers again, and St. Lambert has changed its schedule page. The collector saved a small tag with each page, so it asks all {run.total}: <em>has this changed since I last saw it?</em> Only pages that say yes, or that it never got, are downloaded.</p>
+    <p>The next morning Dunmore answers again, and St. Lambert has changed its schedule page. The collector saved a small tag with each page, meaning <em>I hold a safe copy of this version</em>, so it asks all {run.total}: <em>has this changed since I last saw it?</em> Only pages that say yes, or that it never got, are downloaded.</p>
     <div class="cl-grid" role="img" aria-label={`2 pages downloaded. ${run.total - 2} pages unchanged. No pages missing.`}>
       {Array.from({ length: run.total }, (_, i) => {
         const fresh = i === run.downIndex || i === run.changedIndex;
@@ -180,7 +193,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
     <p class="cl-bytes"><b>{bytes(run.rerunBytes)}</b> bytes instead of {bytes(run.allBytes)}. Across a thousand sites every day, that difference is the job.</p>
     <pre tabindex="0"><code>{code}</code></pre>
     <div class="cl-ask" data-choice data-reveal="rerun">
-      <p class="cl-q">Suppose the code stored the tag first, and then the save failed. What happens on tomorrow's run?</p>
+      <p class="cl-q">Suppose the code stored the tag first, and then the save failed. If the page does not change, what happens on later runs?</p>
       {tagFirst.map((o) => <button type="button" data-why={o.why} data-correct={o.correct ? "" : undefined}>{o.label}</button>)}
       <p class="cl-feedback" role="status"></p>
     </div>
@@ -198,12 +211,12 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   <section class="cl-close il-close" data-step="close">
     <h2 tabindex="-1">Before you trust "no errors," ask for three things</h2>
     <ol>
-      <li><strong>The registry.</strong> You cannot see a gap without a list of what should be there.</li>
+      <li><strong>The plan.</strong> You cannot see a gap without a list of what should be there, and a page left off the list leaves no trace.</li>
       <li><strong>What happened to each request.</strong> Saved, unchanged or missing, with the reason.</li>
       <li><strong>Who each gap affects.</strong> One missing page moved a team that never had a problem.</li>
     </ol>
-    <p><strong>So at 4:52, you do not press Publish yet.</strong> You hold the table, ask Kick for the fetch record, and close Dunmore's gap before any coach has to call.</p>
-    <p data-close-first hidden>Your question from the film: <q data-close-first-text></q> Would the fetch record answer it? If not, carry it into the modules ahead.</p>
+    <p><strong>So at 4:52, Kick's table does not go out.</strong> If something must go at five, it is the rebuilt table, marked provisional, with Dunmore's page and September 21 named as open. The rest of the course tests whether even that deserves your name.</p>
+    <p data-close-first hidden>Your question from the film: <q data-close-first-text></q> Would the fetch log answer it? If not, carry it into the modules ahead.</p>
     <p>Want the full detail? <a href="../01-collection-lab/">Read the deep dive or run the optional lab</a></p>
     <button type="button" class="cl-restart" data-restart>Start over</button>
   </section>
@@ -214,7 +227,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   .cl-step, .cl-close { scroll-margin-top: 5rem; margin: 0 0 2rem; }
   .il-js .cl-step:not(.is-open), .il-js .cl-close:not(.is-open), .il-js .cl-after:not(.is-open) { display: none; }
   .cl h2 { margin: 0 0 0.6rem; color: var(--sl-color-white); font-size: clamp(1.4rem, 4.5vw, 1.75rem); line-height: 1.2; font-weight: 750; text-wrap: balance; }
-  .cl h2:focus, .cl-after:focus, .cl-bytes:focus { outline: none; }
+  .cl h2:focus, .cl-after:focus, .cl-bytes:focus, .cl .fr-table:focus { outline: none; }
   .cl p { margin: 0 0 0.75rem; }
   .cl-noscript { padding: 0.75rem 1rem; border-left: 3px solid var(--cl-yellow); }
   .cl-agent { margin: 0 0 1rem; padding: 0.85rem 1rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
@@ -243,7 +256,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
   .cl-feedback:not(:empty) { margin-top: 0.25rem !important; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
   .cl-live { margin: 0 !important; }
   .cl-live:not(:empty) { margin-top: 0.5rem !important; }
-  .cl-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 26rem; margin: 0 0 0.6rem; }
+  .cl-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; max-width: 26rem; margin: 0 0 0.6rem; }
   .cl-grid span, .cl-key i { display: grid; place-items: center; font-style: normal; font-weight: 700; line-height: 1; }
   .cl-grid span { aspect-ratio: 1; font-size: 0.85rem; }
   .cl .is-saved { background: #1f7a45; color: #fff; }
@@ -309,7 +322,7 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       const after = root.querySelector<HTMLElement>(`[data-after="${key}"]`)!;
       if (key === "repair") moveBoard();
       after.classList.add("is-open");
-      if (keyboard) after.focus({ preventScroll: true });
+      if (keyboard) setTimeout(() => after.focus({ preventScroll: true }), 120);
       if (scroll) after.scrollIntoView({ behavior, block: "nearest" });
     };
 
@@ -377,9 +390,11 @@ const bytes = (n: number) => n.toLocaleString("en-US");
       button.hidden = true;
       root.querySelector("[data-board-note]")!.textContent = "Seven results added.";
       rows.closest("table")!.querySelector("caption")!.textContent = "Your table, with all seven saved results added. P is played, GD is goal difference, Pts is points.";
-      const short = matchMedia("(max-height: 30rem)").matches;
-      if (short) rows.closest("table")!.scrollIntoView({ behavior, block: "start" });
-      setTimeout(() => reveal("repaired", keyboard, !short), calm ? 0 : 480);
+      const table = rows.closest<HTMLElement>(".fr-table")!;
+      table.tabIndex = -1;
+      table.scrollIntoView({ behavior, block: "start" });
+      if (keyboard) table.focus({ preventScroll: true });
+      setTimeout(() => reveal("repaired", false, false), calm ? 0 : 480);
     });
 
     root.querySelectorAll<HTMLButtonElement>("[data-go]").forEach((button) => {
