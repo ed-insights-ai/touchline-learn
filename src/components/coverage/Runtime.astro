@@ -297,4 +297,10 @@
       }
     } catch {}
   });
+
+  const hashed = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+  if (hashed?.closest(".cv-reveal")) {
+    const go = () => (hashed.offsetParent ? hashed : hashed.closest("section") ?? hashed).scrollIntoView({ block: "start" });
+    if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
+  }
 </script>

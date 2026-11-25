@@ -11,7 +11,7 @@ const rewindThoughts = [
   "Riley asked me to list every expected page and match before collecting, and to name every gap in the summary—so I can't just count what gets saved and call it done.",
   `Expected set: ${pipeline.asked} school schedule pages and ${story.scheduled} scheduled conference matches (${story.schools} × ${story.schools - 1}), minus ${spell(toPlay)} still to play—so ${story.finals} finished matches to account for.`,
   `Dunmore's schedule timed out after three tries. If I only read each match from the host's page, I'll drop ${spell(bounds.unseen)} Dunmore home matches—let me recover those from the visitors' saved pages instead.`,
-  `That accounts for ${story.afterRepair} of ${story.finals}. ${noScore.home} vs. ${noScore.away} on ${noScore.day} is marked final with no score on either schedule, and its box score page wasn't requested yet. I'll leave it uncounted and name both gaps in the record.`,
+  `That counts ${story.afterRepair} of ${story.finals}. ${noScore.home} vs. ${noScore.away} on ${noScore.day} is marked final with no score on either schedule, and its box score page wasn't requested yet. I'll leave it uncounted and name both gaps in the record.`,
 ];
 
 const record = [
@@ -42,12 +42,12 @@ const record = [
     </div>
     <p class="cv-once" data-needs-note>Write a short sentence to compare, or skip ahead.</p>
     <div class="cv-reveal">
-      <p class="cv-model">Before you collect, list every page and match the table should include, and in your summary report what happened to each, naming every gap.</p>
+      <p class="cv-model">Before you collect, list every school schedule page and every finished match the conference format says the table should include. In your summary, report what happened to each one, and name every gap and why.</p>
       <fieldset class="cv-ticks">
         <legend>Check what yours covers:</legend>
-        <label><input type="checkbox" data-save="added-set" /><span>Lists what should be collected before the run starts</span></label>
+        <label><input type="checkbox" data-save="added-set" /><span>Lists what should be collected before the run starts, from the schools and the format</span></label>
         <label><input type="checkbox" data-save="added-each" /><span>Reports what happened to each expected page and match</span></label>
-        <label><input type="checkbox" data-save="added-gaps" /><span>Requires the summary to name every gap</span></label>
+        <label><input type="checkbox" data-save="added-gaps" /><span>Requires the summary to name every gap and why</span></label>
       </fieldset>
 
       <h3>What Kick returns when asked</h3>
@@ -66,20 +66,24 @@ const record = [
         </div>
       </div>
       <div class="cv-say">
-        <p class="cv-who">Riley, to the eight schools <span>Monday morning</span></p>
-        <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. Hartwell Tech is second. {noScore.home} vs. {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>
+        <p class="cv-who">Riley, to the eight schools <span>Friday afternoon</span></p>
+        <p>Conference table attached. Through Friday, it counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer, so its {spell(bounds.unseen)} home results come from the visitors' pages. {noScore.home} vs. {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been requested yet, so both schools are one match short.</p>
       </div>
-      <p>The outage didn't disappear. In the original run, Kick counted {story.counted} of {story.finals} finished matches. Once the expected set was written down, {spell(bounds.unseen)} of the {spell(story.finals - story.counted)} gaps showed up as Dunmore home matches, so Kick checked the visitors' saved schedules and recovered them. One result stayed unknown and named, and the table went out as {story.afterRepair} of {story.finals}.</p>
-      <p>The extra sentence did not fix Friday on its own. It stated a requirement. The requirement produced a coverage record. Riley then checked that record before publishing: {spell(pipeline.asked)} pages expected, every gap named, and each recovered result traced to a visitor's page.</p>
-      <p data-close-first hidden>Your question from Publish Day: <q></q> Would its answer have surfaced Dunmore's missing page?</p>
+      <p>The outage didn't disappear. In the original run, Kick counted {story.counted} of {story.finals} finished matches. Once the expected set was written down, {spell(bounds.unseen)} of the {spell(story.finals - story.counted)} missing matches showed up as Dunmore home matches, so Kick recovered them from the visitors' saved schedules.</p>
+      <p class="cv-rule">All {story.finals} finished matches are accounted for: {story.counted} counted from the hosts' pages, {bounds.unseen} from the visitors' saved pages, and one named and not counted.</p>
+      <p>The extra sentence did not fix Friday on its own. It set <strong>acceptance criteria</strong>: conditions Kick's work had to meet before Riley would accept it. Meeting them produced a coverage record, and Riley checked that record before publishing: {spell(pipeline.asked)} pages expected, every gap named, and the {spell(bounds.unseen)} recovered results traced to the visitors' saved pages.</p>
+      <div class="cv-say cv-yours" data-close-first hidden>
+        <p class="cv-who">Your question from Publish Day</p>
+        <p><q></q> Would its answer have surfaced Dunmore's missing page?</p>
+      </div>
       <AiStudy
         id="rewind-ai-study"
-        title="Giving an agent a definition of done"
-        note="Riley's sentence was a set of acceptance criteria. Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back for a season where nobody called."
+        title="Giving an agent acceptance criteria"
+        note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back and check Kick's record against the expected set."
         prompt={donePrompt}
         href="../01-collection-ai-done/"
       />
     </div>
   </div>
-  <NextPart from="rewind">Next, a season where nobody called to complain.</NextPart>
+  <NextPart from="rewind">If nobody had called, how would you spot a missing match?</NextPart>
 </section>

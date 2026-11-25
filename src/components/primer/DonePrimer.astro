@@ -1,7 +1,7 @@
 ---
 import PrimerChat from "./PrimerChat.astro";
 import { donePrompt } from "../../lib/primer";
-import { story } from "../../lib/coverage";
+import { bounds, story } from "../../lib/coverage";
 import { toPlay } from "../../lib/cases";
 
 const branches = ["Central", "North", "East", "West"];
@@ -60,7 +60,7 @@ const checks = [
   prompt={donePrompt}
   back="../01-collection/#rewind-ai-study"
   about="This is a reply an AI assistant gave to Module 1's acceptance-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and look at Kick's record again with the expected set in mind."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and check Kick's record against the expected set."
 >
   <h2 class="pr-title">Giving an AI agent a data collection job</h2>
   <p>An AI coding agent can write a scraper, run it, produce a dataset and tell you that everything finished successfully. None of that proves it collected everything it was supposed to collect.</p>
@@ -147,7 +147,7 @@ const checks = [
 
   <h2>3. Producing a reconciliation report</h2>
   <p><strong>Reconciliation</strong> means comparing what you expected with what you actually obtained, and accounting for every difference.</p>
-  <p>Suppose the agent runs the collection and obtains {direct} records directly. It recovers one more from the city's official consolidated report, but cannot recover the last one.</p>
+  <p>In a separate run, suppose the agent obtains {direct} records directly. It recovers one more from the city's official consolidated report, but cannot recover the last one.</p>
   <figure class="pr-card">
     <p class="pr-summary-head"><b>Collection reconciliation</b><span class="pr-chip is-warn">Incomplete</span></p>
     <p class="pr-big">{final}%<small>final record coverage</small></p>
@@ -194,7 +194,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Riley's added sentence is a short set of acceptance criteria. Its expected set came from the conference format, not from the pages Kick reached: {story.schools} schools each host every other school once, so {story.scheduled} matches, {toPlay} still to play, {story.finals} finished. Like the West Library, Dunmore's silent page couldn't shrink that set.</p>
-    <p>Kick's Friday record balances the same way: {story.finals} expected = {story.counted} read directly + {story.finals - story.counted - 1} recovered from the visitors' saved schedules + 1 missing. One difference: the reply recovers a record from an outside report. Kick's {story.finals - story.counted - 1} came from the visitors' schedule pages, which were already in the expected set, so each one traces back to a page Riley asked for.</p>
+    <p>Kick's Friday record balances the same way: {story.finals} expected = {story.counted} counted from the hosts' pages + {bounds.unseen} from the visitors' saved pages + {story.finals - story.afterRepair} not counted. One difference: the reply recovers a record from an outside report. Kick's {bounds.unseen} came from the visitors' schedule pages, which were already in the expected set, so each one traces back to a page Riley asked for.</p>
   </aside>
 
   <h2>4. Checking the agent's work</h2>
@@ -297,7 +297,7 @@ const checks = [
   .pr-grid thead th { text-align: center; }
   .pr-grid td { height: 2rem; border-radius: 6px; background: var(--tl-bg); color: #fff; font-weight: 700; text-align: center; }
   .pr-grid td.is-expected { border: 1.5px solid var(--tl-line); }
-  .pr-grid td.is-direct { background: var(--pr-green); }
+  .pr-grid td.is-direct { background: var(--pr-green); color: #0b2a16; }
   .pr-grid td.is-recovered { background: var(--pr-blue); }
   .pr-grid td.is-missing { border: 1.5px dashed var(--pr-red); background: color-mix(in srgb, var(--pr-red) 12%, transparent); color: var(--pr-red); }
   :root:not([data-theme="light"]) .pr-grid td.is-missing { color: #ef7b68; }
