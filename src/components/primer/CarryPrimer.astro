@@ -10,8 +10,8 @@ const w = (n: number) => `${(n / top) * 100}%`;
 
 const worlds = {
   a: { tab: "A · Confirmed empty", value: "0", chip: "is-ok", status: "Confirmed empty", note: "West's own dispatch system confirmed that no orders were dispatched on November 20. The collection record explains why West has no row.", total: `${known}`, gap: false },
-  b: { tab: "B · Never responded", value: "?", chip: "is-bad", status: "No response", note: "West's system timed out. There is no evidence of how many orders it dispatched.", total: `At least ${known}`, gap: true },
-  c: { tab: "C · Can't be verified", value: "?", chip: "is-warn", status: "Reported 0, date unknown", note: "West returned a report showing zero orders, but the report has no date, so nothing shows that it describes November 20.", total: `At least ${known}`, gap: true },
+  b: { tab: "B · Never responded", value: "?", chip: "is-bad", status: "Unavailable", note: "No response: West's system timed out. There is no evidence of how many orders it dispatched.", total: `At least ${known}`, gap: true },
+  c: { tab: "C · Can't be verified", value: "?", chip: "is-warn", status: "Unverifiable", note: "Reported 0, date unknown: West returned a report showing zero orders, but the report has no date, so nothing shows that it describes November 20.", total: `At least ${known}`, gap: true },
 };
 const first = worlds.a;
 
@@ -79,7 +79,7 @@ const checks = [
 >
   <h2 class="pr-title">Same rows, different conclusions</h2>
   <p>A dataset tells you what was collected. The collection record tells you what those numbers are entitled to represent.</p>
-  <p>Two people can receive identical files, calculate identical totals, and still have very different grounds for publishing those totals. The difference isn't in the arithmetic. It is in the evidence around the collection.</p>
+  <p>Two people can receive identical collected rows, calculate identical totals, and still have very different grounds for publishing those totals. The difference isn't in the arithmetic. It is in the evidence around the collection.</p>
 
   <h2>1. Identical rows, three different situations</h2>
   <p>Imagine a distribution company with three warehouses. You are collecting the number of orders dispatched on November 20. An independent company registry establishes that three warehouses are expected: North, South and West.</p>
@@ -220,7 +220,7 @@ const checks = [
   .pr .pr-west-note { margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.88rem; }
   .pr .pr-west-total p { margin: 0; }
 
-  .pr .pr-claims td { text-align: center; }
+  .pr .pr-claims thead th:not(:first-child), .pr .pr-claims td { text-align: center; }
   .pr .is-open .pr-track::after { content: "▶"; position: absolute; top: 50%; right: 0; transform: translate(70%, -50%); color: var(--pr-yellow); font-size: 0.75rem; }
   .pr-table .pr-total th, .pr-table .pr-total td { border-top: 2px solid var(--tl-line); color: var(--sl-color-white); font-weight: 700; }
 

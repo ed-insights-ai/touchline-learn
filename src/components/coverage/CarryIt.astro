@@ -13,7 +13,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 const heads = [
   ["total", "100 visits across the network"],
-  ["floor", "At least 100 visits, from eight of ten clinics. Two have no verified report for week 9."],
+  ["floor", "At least 100 visits. Verified reports from eight of ten clinics."],
   ["zeros", "100 visits. Two clinics reported none."],
   ["unknown", "Visits unknown"],
 ];
@@ -28,7 +28,7 @@ const next = [
 <section id="carry-it">
   <PartHead id="carry-it">Carry it: same number, three worlds</PartHead>
   <p>The same rules work outside sports: count against an expected set, tell empty from unavailable, and bound what is missing.</p>
-  <p>A health network expects a weekly visit report from each of its ten clinics. For week 9, eight clinics send verified counts totaling 100 visits. Those eight rows are the same in three worlds. Only what you know about the other two clinics changes.</p>
+  <p>A health network requests a week 9 visit report from each of its ten clinics. For week 9, eight clinics send verified counts totaling 100 visits. Those eight rows are the same in three worlds. Only what you know about the other two clinics changes.</p>
   <div class="cv-twins">
     <div>
       <h4>World A</h4>
@@ -55,14 +55,14 @@ const next = [
         <p class="cv-fb" role="status"></p>
       </div>
     ))}
-    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. Files were saved, but nothing shows they cover week 9: the same rule as Case 3's statistics page that can't show its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The files open fine. They just can't verify their week.", complete: "Complete needs rows and a verified week. These files have neither.", none: "The network expects a report from all ten clinics, so somebody asked." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. Files were saved, but nothing shows they cover week 9: the same rule as Case 3's statistics page that can't show its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The collector read the files' headers, so it can read the format. The files just can't show their week.", complete: "Complete needs rows and a verified week. These files have neither.", none: "The network expects a report from all ten clinics, so somebody asked." })}>
       <label class="cv-stack"><span>World C: what coverage state are those two clinics in for week 9?</span>
         <select data-save="transfer-c"><option value="">Choose a state</option>{stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div class="cv-split" data-q data-type="number" data-answer="400,520" data-why="400 to 520. The low end is what you have. The high end adds the most the silent clinic's license allows: 5 days × 24 visits = 120. Like Dunmore's points bound in Case 2, it comes from a rule and says nothing about which total is likely.">
-      <p class="cv-qlabel">A week later you have 400 visits from nine clinics, and the tenth still hasn't answered. Its license allows at most 24 visits a day, on at most five days a week. What bound belongs on the network's total?</p>
+    <div class="cv-q-sep" data-q data-type="number" data-answer="110,230" data-why="110 to 230. The low end is what you have. The high end adds the most the silent clinic can see within its license: 5 days × 24 visits = 120. Like Case 2's bound on Dunmore's points, it comes from a rule and says nothing about which total is likely.">
+      <p class="cv-qlabel">For week 10, nine clinics send verified counts totaling 110 visits. The tenth hasn't answered. It operates within its license, which allows at most 24 visits a day on at most five days a week. What bound belongs on the network's week 10 total?</p>
       <div class="cv-row cv-fillin"><span>Between</span><input inputmode="numeric" autocomplete="off" aria-label="Lowest possible total" data-save="clinic-low" /><span>and</span><input inputmode="numeric" autocomplete="off" aria-label="Highest possible total" data-save="clinic-high" /></div>
       <p class="cv-fb" role="status"></p>
     </div>
@@ -70,7 +70,7 @@ const next = [
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>World A's two clinics are Empty, so zero is true. World B's and World C's are Unavailable. World C has the same blank files as World A, yet supports only World B's headline, because those files can't show their week. Same 100 visits, three worlds, and only the coverage record tells them apart.</p>
+      <p>World A's two clinics are Empty, so zero is true. World B's and World C's are Unavailable. World C's files are header-only, like World A's, yet support only World B's headline, because nothing in them shows their week. A blank report justifies zero only when it is verified as the period you asked for, as World A's are. Same 100 visits, three worlds, and only the coverage record tells them apart.</p>
       <AiStudy
         id="carry-ai-study"
         title="Same rows, different conclusions"
@@ -98,7 +98,6 @@ const next = [
     <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 
-
   <h3 id="carry-it-tuesday">Then Tuesday</h3>
   <p>This short closing video returns to what actually happened: Monday's corrected table, and the bug that kicks off Module 2.</p>
   <figure class="cv-film">
@@ -114,7 +113,6 @@ const next = [
     <p class="cv-next-q">{nextModule.question}</p>
     <p>Module 2 begins with Riley's Tuesday question: “Can you rebuild Friday's table from the pages you kept, without asking a single site again, and show me you did?”</p>
     <a class="cv-next-cta" href="../02-archive/">Continue to Module 2: {nextModule.name} →</a>
-    <p class="cv-next-alt">Not ready to move on? <a href="../01-collection-field-work/?from=carry-it">Optional field work &amp; lab →</a></p>
   </aside>
 
   <h3 id="carry-it-further">Optional: go further</h3>

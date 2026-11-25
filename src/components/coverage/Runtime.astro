@@ -305,7 +305,7 @@
   if (location.hash && entry?.type === "navigate") {
     let moved = false;
     const stop = () => { moved = true; };
-    ["wheel", "touchstart", "keydown"].forEach((name) => addEventListener(name, stop, { once: true, passive: true }));
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach((name) => addEventListener(name, stop, { once: true, passive: true }));
     const settle = () => {
       if (moved) return;
       let target: HTMLElement | null = null;
