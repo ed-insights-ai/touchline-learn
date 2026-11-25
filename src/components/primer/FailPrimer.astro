@@ -1,0 +1,426 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { failPrompt } from "../../lib/primer";
+import { bounds } from "../../lib/coverage";
+import { spell } from "../../lib/cases";
+
+const stores = [
+  { id: "A", sales: 1200 },
+  { id: "B", sales: 800 },
+  { id: "C", sales: null as number | null },
+  { id: "D", sales: 1000 },
+];
+const late = 1500;
+const usd = (n: number) => `$${n.toLocaleString("en-US")}`;
+const seen = stores.flatMap((s) => (s.sales === null ? [] : [s.sales]));
+const observed = seen.reduce((a, b) => a + b, 0);
+const coverage = Math.round((seen.length / stores.length) * 100);
+const complete = observed + late;
+
+const compare = [
+  ["Stop", "No new report", "Yes, through run status", "Delayed availability"],
+  ["Skip", usd(observed), "No", "Hidden incompleteness"],
+  ["Default", usd(observed), "No, unless flagged", "Invented data"],
+  ["Record and continue", `${usd(observed)} observed`, "Yes", "Misuse of partial data"],
+];
+
+const history = [
+  ["First attempt", "Timeout", "No valid response within 10 seconds.", "is-bad"],
+  ["Second attempt", "Timeout", "Retried after a short delay.", "is-bad"],
+  ["Third attempt", "Timeout", "Retry limit reached. Gap recorded.", "is-bad"],
+  ["Original run completes", `${coverage}% coverage`, `Observed sales: ${usd(observed)}.`, "is-warn"],
+  ["Later rerun", "Recovered", `Store C successfully returns ${usd(late)}.`, "is-ok"],
+  ["Revised output", "100% coverage", `Complete company sales: ${usd(complete)}.`, "is-ok"],
+];
+
+const states = [
+  { key: "start", name: "Start", status: ["Pending", "Pending", "Pending", "Pending"], note: "The manifest lists all four expected stores before anything is fetched." },
+  { key: "crash", name: "Crash", status: ["Collected", "Collected", "Pending", "Pending"], note: "Two stores are collected. The other two remain pending, not necessarily failed." },
+  { key: "finish", name: "Finish", status: ["Collected", "Collected", "Failed", "Collected"], note: "The run resumes from the manifest and attempts only the pending stores. Store C times out three times and is recorded as failed." },
+  { key: "recover", name: "Recover", status: ["Collected", "Collected", "Collected", "Collected"], note: "A later rerun collects Store C. Its row is replaced by key, so nothing is counted twice." },
+].map((s) => ({ ...s, pct: `${Math.round((s.status.filter((x) => x === "Collected").length / stores.length) * 100)}%` }));
+const tone: Record<string, string> = { Pending: "is-pending", Collected: "is-ok", Failed: "is-bad" };
+
+const rules = [
+  ["Internal monitoring dashboard", "At least 75% coverage, no critical sources missing, gaps disclosed"],
+  ["Management performance report", "100% store coverage"],
+  ["Official financial reconciliation", "100% coverage and all validation checks passed"],
+  ["Individual store analysis", "The selected store's report must be complete and valid"],
+];
+
+const roles = [
+  ["Collection", "What did we successfully obtain?"],
+  ["Accounting", "What did we expect but not obtain?"],
+  ["Recovery", "How can we safely resolve the gap?"],
+  ["Publication", "Is the resulting data fit for its intended purpose?"],
+];
+
+const checks = [
+  ["Failure policies", `Store C fails to respond. The pipeline fills in zero, produces a four-store report and exits successfully. What is wrong with claiming that the report has 100% data coverage? What would you change about the output?`],
+  ["Recovery and reruns", `The original run collects ${usd(observed)} from three stores. A later rerun successfully collects all four stores, including ${usd(late)} from Store C. How would you design the pipeline to prevent double-counting, and what should happen to the original run's recorded gap?`],
+  ["Publication decisions", "The company's publication policy requires at least 75% source coverage. Three of the four stores are successfully collected, but the missing store normally accounts for half of the company's revenue. Would you publish the report? Is the existing publication rule sufficient, and what would you change about it?"],
+];
+
+const manifest = `run_id: sales-2026-11-24-001
+data_date: 2026-11-24
+
+execution_status: completed
+data_status: incomplete
+
+expected_sources: 4
+validated_sources: 3
+failed_sources: 1
+source_coverage: ${(seen.length / stores.length).toFixed(2)}
+
+missing_sources:
+  - source: store_c
+    reason: timeout
+    attempts: 3
+
+observed_total_sales: ${observed}
+imputed_values: 0
+
+publication_status: provisional`;
+---
+
+<PrimerChat
+  prompt={failPrompt}
+  back="../01-collection/#decision-ai-study"
+  about="This is a reply an AI assistant gave to Module 1's source-failure study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and apply the rule to three runs."
+>
+  <h2 class="pr-title">Handling source failures in a data pipeline</h2>
+  <p>A reliable data pipeline is not one that never encounters failures. It is one that knows when something has failed, handles it deliberately, and communicates what that failure means for its output.</p>
+  <p class="pr-pull">A pipeline should never silently turn a collection failure into a statement about the real world.</p>
+
+  <h2>1. What should happen when a source fails?</h2>
+  <p>Imagine you are building a pipeline that collects daily sales from four grocery stores to produce a company-wide sales report. Every morning, the pipeline expects one sales report from each store for the previous day.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Daily sales collection</p>
+    <ol class="pr-stores">
+      {stores.map((s) => (
+        <li class:list={{ "is-failed": s.sales === null }}>
+          <span>Store {s.id}</span>
+          <b>{s.sales === null ? "—" : usd(s.sales)}</b>
+          <small>{s.sales === null ? "Timed out" : "Collected"}</small>
+        </li>
+      ))}
+    </ol>
+    <div class="pr-tiles is-two">
+      <p><b>{usd(observed)}</b>Observed sales</p>
+      <p class="is-alarm"><b>{coverage}%</b>Source coverage · {seen.length} of {stores.length} stores</p>
+    </div>
+    <figcaption>Store C failed to respond. Its actual sales are unknown.</figcaption>
+  </figure>
+  <p>The pipeline has four common policies it could follow.</p>
+
+  <div class="pr-policies">
+    <section class="pr-card">
+      <h3><span>Policy A</span>Stop the whole run</h3>
+      <p class="pr-out is-none">No report published</p>
+      <p class="pr-meta">Run status: Failed · Sources collected: {seen.length} of {stores.length}</p>
+      <p>Downstream users are protected from incomplete data, but the three reports that did arrive are unavailable in the published output. They can still be kept in staging for recovery. This makes sense when completeness is mandatory, such as financial reconciliation.</p>
+    </section>
+    <section class="pr-card">
+      <h3><span>Policy B</span>Skip the failed source and continue</h3>
+      <table class="pr-table pr-num pr-mini">
+        <tbody>
+          {stores.filter((s) => s.sales !== null).map((s) => <tr><th scope="row">Store {s.id}</th><td>{usd(s.sales!)}</td></tr>)}
+          <tr class="is-total"><th scope="row">Total</th><td>{usd(observed)}</td></tr>
+        </tbody>
+      </table>
+      <p>A reader might assume the company has only three stores, or that {usd(observed)} is all company sales. Every number is correct, but the overall impression is misleading. The missing source has become invisible.</p>
+    </section>
+    <section class="pr-card">
+      <h3><span>Policy C</span>Fill in a default value</h3>
+      <table class="pr-table pr-num pr-mini">
+        <tbody>
+          {stores.map((s) => <tr class:list={{ "is-invented": s.sales === null }}><th scope="row">Store {s.id}</th><td>{usd(s.sales ?? 0)}</td></tr>)}
+          <tr class="is-total"><th scope="row">Total</th><td>{usd(observed)}</td></tr>
+        </tbody>
+      </table>
+      <p>This is potentially worse than skipping. The report looks complete, but it contains a value nobody observed. Store C might have sold $2,000. A failed connection is not evidence of zero sales. Defaults can suit fields whose meaning is explicitly defined, but they should not silently replace unknown observations.</p>
+    </section>
+    <section class="pr-card is-record">
+      <h3><span>Policy D</span>Record the gap and continue</h3>
+      <table class="pr-table pr-num pr-mini">
+        <tbody>
+          {stores.map((s) => <tr class:list={{ "is-missing": s.sales === null }}><th scope="row">Store {s.id}</th><td>{s.sales === null ? "—" : usd(s.sales)}</td><td>{s.sales === null ? "Timed out" : "Collected"}</td></tr>)}
+          <tr class="is-total"><th scope="row">Observed total</th><td>{usd(observed)}</td><td>{seen.length} of {stores.length} stores</td></tr>
+        </tbody>
+      </table>
+      <p class="pr-note">Partial report: Store C sales are unavailable and excluded from the observed total. Company-wide sales remain unknown.</p>
+      <p>The reader now knows both what was collected and what was not.</p>
+    </section>
+  </div>
+
+  <h3>Comparing the four policies</h3>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Policy</th><th scope="col">Output</th><th scope="col">Is the gap visible?</th><th scope="col">Main risk</th></tr></thead>
+      <tbody>{compare.map(([p, o, v, r]) => <tr><th scope="row">{p}</th><td>{o}</td><td>{v}</td><td>{r}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>Recording the gap is generally a strong design choice because it preserves information. Whether to publish that incomplete data is a separate decision.</p>
+
+  <h2>2. A successful run is not the same as successful data collection</h2>
+  <p>There are two fundamentally different questions a pipeline must answer.</p>
+  <div class="pr-twin">
+    <div>
+      <p class="pr-label">Operational success</p>
+      <p><b>Did the software execute as designed?</b></p>
+      <p>The pipeline handled the timeout, processed three stores and wrote a report.</p>
+      <span class="pr-chip is-ok">Completed</span>
+    </div>
+    <div>
+      <p class="pr-label">Data readiness</p>
+      <p><b>Is the resulting data suitable for its intended use?</b></p>
+      <p>One store is missing. Company-wide sales cannot be established.</p>
+      <span class="pr-chip is-warn">Incomplete</span>
+    </div>
+  </div>
+  <p>A developer might catch a timeout exception, log a warning and let the program finish normally. The operating system receives a successful exit code. Technically, the job worked exactly as programmed, but that tells us very little about the completeness of the data.</p>
+
+  <h3>The run manifest</h3>
+  <p>A pipeline should produce a record of what happened during each execution. This is often called a <strong>run manifest</strong> or collection report. For the grocery pipeline, it might look like this:</p>
+  <div class="pr-code"><p class="pr-label">YAML</p><pre>{manifest}</pre></div>
+  <p>This record lets someone evaluate the output without inspecting application logs or understanding the pipeline's source code. A production manifest would usually also include start and finish times, record counts, validation failures, output versions and the publication rule applied.</p>
+  <p class="pr-pull">The manifest counts coverage in sources. Having {coverage}% of the stores does not mean having {coverage}% of the company's sales.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Kick's Friday run took Policy B. Its summary, “no errors,” says the code ran; it says nothing about whether the table is ready to use. And like Store C, Dunmore was one source among several: seven of eight schedule pages answered, yet Dunmore's {spell(bounds.unseen)} lost home matches touched every row of the standings. One difference to carry back: the reply's “operational success” only asks whether the code ran. Touchline's rule asks more of a run. It succeeds only when its coverage record is written and accurate.</p>
+  </aside>
+
+  <h2>3. Retries, timeouts and reruns</h2>
+  <p>A source failure does not necessarily mean the source is permanently unavailable. It might only be temporarily unreachable. Three mechanisms help the pipeline recover.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Mechanism</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Timeout</th><td>Prevent waiting indefinitely for a response</td></tr>
+        <tr><th scope="row">Retry</th><td>Make another attempt during the same run</td></tr>
+        <tr><th scope="row">Rerun</th><td>Execute collection again, possibly after the original run has finished</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Suppose the pipeline allows three attempts with a 10-second timeout per request and increasing delays between attempts.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Store C, collection history</p>
+    <ol class="pr-steps">
+      {history.map(([name, chip, text, kind]) => <li><b>{name}</b><span class:list={["pr-chip", kind]}>{chip}</span><small>{text}</small></li>)}
+    </ol>
+  </figure>
+  <p>Retries should be limited and generally use increasing delays, known as <em>backoff</em>. Repeatedly hammering an unavailable source can make the underlying problem worse.</p>
+
+  <h3>What makes a rerun safe?</h3>
+  <p>Imagine rerunning the entire pipeline after Store C becomes available. A badly designed pipeline might append the newly collected reports to the existing dataset.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <thead><tr><th scope="col">Store</th><th scope="col">Original run</th><th scope="col">Rerun</th></tr></thead>
+      <tbody>{stores.map((s) => <tr><th scope="row">{s.id}</th><td>{s.sales === null ? "—" : usd(s.sales)}</td><td>{usd(s.sales ?? late)}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <div class="pr-tiles is-two">
+    <p class="is-alarm"><b>{usd(observed + complete)}</b>Blindly appending · duplicate reports counted twice</p>
+    <p class="is-real"><b>{usd(complete)}</b>Replacing by unique key · each store counted once</p>
+  </div>
+  <p>A safe pipeline identifies each logical report by a unique key, such as:</p>
+  <div class="pr-code"><p class="pr-label">Key</p><pre>(store_id, sales_date)</pre></div>
+  <p>Instead of blindly inserting another row, it inserts or updates the existing record. This is commonly called an <em>upsert</em>. The broader principle is <strong>idempotency</strong>: repeating the same operation with the same input should not produce additional effects. If the source sends genuinely revised figures, those can still be accepted and versioned. Idempotency prevents duplication, not legitimate updates.</p>
+
+  <h3>What happens if the pipeline itself is interrupted?</h3>
+  <p>Suppose the pipeline crashes after collecting Stores A and B but before attempting C and D. If the collection report is only written at the end, there may be no reliable record of what happened. A better approach is to create the expected manifest before fetching anything, then save progress as each source is processed.</p>
+  <figure class="pr-card pr-lab" data-run-lab data-states={JSON.stringify(states)}>
+    <fieldset class="pr-seg">
+      <legend>Explore the collection state</legend>
+      {states.map((s, i) => <label><input type="radio" name="pr-run" value={s.key} checked={i === 1} /><span>{s.name}</span></label>)}
+    </fieldset>
+    <div class="pr-tiles pr-run">
+      {stores.map((s, i) => <p class={tone[states[1].status[i]]} data-store={i}><b>Store {s.id}</b><span>{states[1].status[i]}</span></p>)}
+    </div>
+    <p class="pr-lab-foot"><span>Validated source coverage <b data-run="pct">{states[1].pct}</b></span></p>
+    <p class="pr-run-note" data-run="note">{states[1].note}</p>
+  </figure>
+  <p>A pending source is different from a failed source: the pipeline may never have attempted it. The collected data and its status should be saved together where possible. Otherwise, recovery must reconcile the two, so a crash cannot leave a source marked as collected when its data was never saved.</p>
+  <p>The pipeline should also keep the original run history:</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Run</th><th scope="col">Coverage</th><th scope="col">Outcome</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">001</th><td>{coverage}%</td><td>Completed with gap</td></tr>
+        <tr><th scope="row">002</th><td>100%</td><td>Gap resolved</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="pr-pull">Resolving a gap does not mean pretending it never existed. Run records and published versions should stay traceable.</p>
+
+  <h2>4. Deciding whether to publish incomplete data</h2>
+  <p>The decision to keep collecting and the decision to publish should be independent.</p>
+  <h3>Who decides?</h3>
+  <p>The data owner, or the person responsible for the downstream decision, sets the publication policy. The engineer implements it, and the pipeline measures whether the data meets it. The rules should be set <strong>before</strong> a failure happens, not invented afterward to justify publishing a particular result.</p>
+  <h3>What rules should they use?</h3>
+  <p>Different uses of the same data can have different requirements.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Intended use</th><th scope="col">Example publication rule</th></tr></thead>
+      <tbody>{rules.map(([u, r]) => <tr><th scope="row">{u}</th><td>{r}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>These are illustrative business rules, not universal industry thresholds. The right policy depends on the consequences of using incomplete data.</p>
+
+  <h3>Experiment with a publication policy</h3>
+  <figure class="pr-card pr-lab" data-pub-lab data-coverage={coverage}>
+    <p class="pr-lab-foot"><span>Current collection: {seen.length} of {stores.length} stores, {usd(observed)} observed sales.</span></p>
+    <fieldset class="pr-seg">
+      <legend>Minimum required source coverage</legend>
+      {[50, 75, 100].map((t) => <label><input type="radio" name="pr-min" value={t} checked={t === 75} /><span>{t}%</span></label>)}
+    </fieldset>
+    <label class="pr-toggle"><input type="checkbox" data-pub-c /><span>Store C is a mandatory source</span></label>
+    <div class="pr-verdict is-go" data-pub-out>
+      <p class="pr-label">Publication decision</p>
+      <b data-pub="head">Publish provisional report</b>
+      <span data-pub="why">Coverage satisfies the rule. The known gap must still be disclosed.</span>
+    </div>
+  </figure>
+  <p>A percentage threshold alone is not always enough. If Store C is the company's largest store, missing it could make a report unsuitable even when the coverage threshold is met.</p>
+
+  <h3>What should accompany published data?</h3>
+  <p>A reader should not need engineering logs to understand a report's limits. A suitable publication might look like this:</p>
+  <figure class="pr-card pr-summary">
+    <p class="pr-summary-head"><b>Daily sales report</b><span class="pr-chip is-warn">Provisional</span></p>
+    <p class="pr-label">November 24, 2026 · Observed sales</p>
+    <p class="pr-big">{usd(observed)}</p>
+    <table class="pr-table pr-num pr-mini">
+      <tbody>{stores.map((s) => <tr class:list={{ "is-missing": s.sales === null }}><th scope="row">Store {s.id}</th><td>{s.sales === null ? "Unavailable" : usd(s.sales)}</td></tr>)}</tbody>
+    </table>
+    <figcaption>Source coverage: {coverage}% ({seen.length} of {stores.length} stores). Store C could not be collected after three attempts. No replacement value was used. The amount shown is observed sales only and should not be read as the complete company total. Subject to revision when Store C is collected.</figcaption>
+  </figure>
+  <p>The disclosure gives the size of the gap, the affected source, how the missing data was handled, what the number represents and whether it may change.</p>
+
+  <h2>The mental model to remember</h2>
+  <p>A well-designed pipeline separates four responsibilities:</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Responsibility</th><th scope="col">Question</th></tr></thead>
+      <tbody>{roles.map(([r, q]) => <tr><th scope="row">{r}</th><td>{q}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p class="pr-pull">A source failure is an operational event. Missing data is a data quality condition. Publishing incomplete data is a business decision.</p>
+  <p>Keeping these separate makes a pipeline more reliable, recoverable and trustworthy.</p>
+
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>Answer these in your own words. I'll review your reasoning before giving the answers.</p>
+</PrimerChat>
+
+<script>
+  const run = document.querySelector<HTMLElement>("[data-run-lab]");
+  if (run) {
+    const states: { key: string; status: string[]; note: string; pct: string }[] = JSON.parse(run.dataset.states!);
+    const tone: Record<string, string> = { Pending: "is-pending", Collected: "is-ok", Failed: "is-bad" };
+    run.addEventListener("change", (e) => {
+      const s = states.find((x) => x.key === (e.target as HTMLInputElement).value);
+      if (!s) return;
+      run.querySelectorAll<HTMLElement>("[data-store]").forEach((tile) => {
+        const status = s.status[Number(tile.dataset.store)];
+        tile.className = tone[status];
+        tile.querySelector("span")!.textContent = status;
+      });
+      run.querySelector<HTMLElement>('[data-run="pct"]')!.textContent = s.pct;
+      run.querySelector<HTMLElement>('[data-run="note"]')!.textContent = s.note;
+    });
+  }
+
+  const pub = document.querySelector<HTMLElement>("[data-pub-lab]");
+  if (pub) {
+    const have = Number(pub.dataset.coverage);
+    const out = pub.querySelector<HTMLElement>("[data-pub-out]")!;
+    const head = pub.querySelector<HTMLElement>('[data-pub="head"]')!;
+    const why = pub.querySelector<HTMLElement>('[data-pub="why"]')!;
+    const decide = () => {
+      const min = Number(pub.querySelector<HTMLInputElement>('input[name="pr-min"]:checked')?.value ?? 75);
+      const must = pub.querySelector<HTMLInputElement>("[data-pub-c]")!.checked;
+      const go = !must && have >= min;
+      out.classList.toggle("is-go", go);
+      out.classList.toggle("is-stop", !go);
+      head.textContent = go ? "Publish provisional report" : "Withhold report";
+      why.textContent = must
+        ? "Store C is mandatory and was not collected, so coverage alone can't satisfy the rule."
+        : go
+          ? "Coverage satisfies the rule. The known gap must still be disclosed."
+          : `Coverage of ${have}% is below the ${min}% minimum.`;
+    };
+    pub.addEventListener("change", decide);
+  }
+</script>
+
+<style is:global>
+  .pr-stores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 0.7rem; padding: 0; list-style: none; }
+  .pr-stores li { display: grid; justify-items: center; gap: 0.1rem; padding: 0.55rem 0.3rem; border: 1px solid var(--tl-line); border-top: 4px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); text-align: center; }
+  .pr-stores span, .pr-stores small { color: var(--tl-muted); font-size: 0.8rem; }
+  .pr-stores b { color: var(--sl-color-white); font-size: 1.35rem; line-height: 1.25; font-variant-numeric: tabular-nums; }
+  .pr-stores .is-failed { border: 1.5px dashed var(--pr-red); border-top-width: 4px; background: transparent; }
+  .pr-stores .is-failed b { color: var(--tl-muted); }
+  .pr-stores .is-failed small { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr-stores .is-failed small { color: #ef7b68; }
+
+  .pr-policies { display: grid; gap: 0.7rem; margin: 0 0 1.2rem; }
+  @media (min-width: 46rem) { .pr-policies { grid-template-columns: 1fr 1fr; } }
+  .pr-policies .pr-card { margin: 0; }
+  .pr-reply .pr-policies h3 { display: grid; gap: 0.1rem; margin: 0 0 0.6rem; font-size: 1.02rem; }
+  .pr-policies .pr-card > p:last-child { margin: 0; }
+  .pr-policies .is-record { border-color: var(--pr-green); }
+  .pr .pr-out { margin: 0 0 0.3rem; color: var(--sl-color-white); font-size: 1.15rem; font-weight: 700; }
+  .pr .pr-out.is-none { color: var(--tl-muted); }
+  .pr .pr-meta { color: var(--tl-muted); font-size: 0.85rem; }
+  .pr-table.pr-mini { margin: 0 0 0.7rem; font-size: 0.88rem; }
+  .pr-table.pr-mini th, .pr-table.pr-mini td { padding: 0.3rem 0.5rem; }
+  .pr-table.pr-mini td:nth-child(3) { color: var(--tl-muted); text-align: left; }
+  .pr-mini .is-invented td { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr-mini .is-invented td { color: #ef7b68; }
+  .pr-mini .is-missing td:nth-child(3) { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr-mini .is-missing td:nth-child(3) { color: #ef7b68; }
+
+  .pr-twin { display: grid; gap: 0.6rem; margin: 0 0 1rem; }
+  @media (min-width: 46rem) { .pr-twin { grid-template-columns: 1fr 1fr; } }
+  .pr-twin > div { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
+  .pr .pr-twin p { margin: 0 0 0.5rem; }
+  .pr-twin b { color: var(--sl-color-white); }
+
+  .pr-chip { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+  .pr-chip.is-ok { background: color-mix(in srgb, var(--pr-green) 25%, transparent); }
+  .pr-chip.is-warn { background: color-mix(in srgb, var(--pr-yellow) 30%, transparent); }
+  .pr-chip.is-bad { background: color-mix(in srgb, var(--pr-red) 22%, transparent); }
+
+  .pr-steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  .pr-steps li { display: grid; grid-template-columns: 1.8rem 1fr auto; gap: 0 0.7rem; align-items: center; padding: 0.45rem 0; border-bottom: 1px solid var(--tl-line); counter-increment: step; }
+  .pr-steps li:last-child { border-bottom: 0; }
+  .pr-steps li::before { content: counter(step); grid-row: span 2; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--tl-bg); color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; }
+  .pr-steps b { color: var(--sl-color-white); font-weight: 600; }
+  .pr-steps .pr-chip { grid-row: span 2; }
+  .pr-steps small { grid-column: 2; color: var(--tl-muted); font-size: 0.85rem; }
+
+  .pr-lab .pr-run { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pr .pr-run p { justify-items: center; gap: 0.15rem; text-align: center; box-shadow: inset 0 3px 0 var(--tl-line); }
+  .pr .pr-run p b { font-size: 1rem; }
+  .pr .pr-run p span { font-weight: 700; }
+  .pr .pr-run p.is-ok { box-shadow: inset 0 3px 0 var(--pr-green); }
+  .pr .pr-run p.is-bad { box-shadow: inset 0 3px 0 var(--pr-red); }
+  .pr .pr-run p.is-bad span { color: var(--pr-red); }
+  :root:not([data-theme="light"]) .pr .pr-run p.is-bad span { color: #ef7b68; }
+  .pr .pr-run p.is-pending span { font-style: italic; font-weight: 500; }
+  .pr .pr-lab-foot b { color: var(--sl-color-white); font-size: 1.1rem; }
+  .pr .pr-run-note { margin: 0; font-size: 0.92rem; }
+
+  .pr-lab label.pr-toggle { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 40px; cursor: pointer; }
+  .pr-toggle input { width: 1.15rem; height: 1.15rem; accent-color: var(--pr-ai); }
+  .pr-verdict { display: grid; gap: 0.2rem; padding: 0.7rem 0.9rem; border-radius: 8px; background: var(--tl-bg); box-shadow: inset 4px 0 0 var(--pr-green); }
+  .pr .pr-verdict .pr-label { margin: 0; }
+  .pr-verdict b { color: var(--sl-color-white); font-size: 1.35rem; line-height: 1.25; }
+  .pr-verdict span { color: var(--tl-muted); font-size: 0.9rem; }
+  .pr-verdict.is-stop { box-shadow: inset 4px 0 0 var(--pr-red); }
+
+  .pr .pr-big { margin: 0 0 0.5rem; color: var(--sl-color-white); font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .pr-summary .is-missing td { color: var(--tl-muted); font-style: italic; }
+
+</style>

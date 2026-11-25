@@ -50,3 +50,11 @@ export const nullPrompt = `I'm learning what to do with a value I know exists bu
 3. How SQL NULL and pandas NaN behave in counts, sums, averages and comparisons, and where that behavior surprises people.
 4. How to publish a number with a known gap in it: when filling in a value is acceptable, how to label it so a reader can tell it from an observed value, and what to say under the table.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
+export const failPrompt = `I'm learning what a data pipeline should do when one of its sources fails. Teach me with one running example that is not about sports.
+
+1. The common policies when one source fails: stop the whole run, skip it and continue, fill in a default value, or record the gap and continue. For each, show what comes out and what someone reading the output can tell.
+2. Why "the job finished with no errors" and "the data is ready to use" are two different questions, and what a run should write down so someone can answer the second one.
+3. How retries, timeouts and reruns interact with a recorded gap: what makes a rerun safe, and how the record stays accurate when a run is interrupted.
+4. How to decide whether to publish output that has a known gap: who decides, what rule or threshold they use, and what to say alongside it.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;

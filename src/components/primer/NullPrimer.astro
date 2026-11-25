@@ -276,19 +276,9 @@ const checks = [
   .pr-treat td.is-off { color: var(--pr-red); font-weight: 700; }
   :root:not([data-theme="light"]) .pr-treat td.is-off { color: #ef7b68; }
 
-  .pr-code { margin: 0 0 1rem; padding: 0.55rem 0.85rem 0.7rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
-  .pr .pr-code pre { font-family: var(--__sl-font-mono); }
-  .pr .pr-code .pr-label { margin-bottom: 0.25rem; font-size: 0.72rem; }
   .pr-code-pair { display: grid; gap: 0 0.6rem; }
   @media (min-width: 46rem) { .pr-code-pair { grid-template-columns: 1fr 1fr; } }
 
-  .pr-seg { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; border: 0; }
-  .pr-seg legend { width: 100%; margin-bottom: 0.4rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-  .pr-seg label { position: relative; }
-  .pr-seg input { position: absolute; opacity: 0; }
-  .pr-seg span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 0.85rem; border: 1px solid var(--tl-line); border-radius: 999px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.88rem; font-weight: 600; cursor: pointer; }
-  .pr-seg input:checked + span { border-color: var(--pr-ai); background: color-mix(in srgb, var(--pr-ai) 22%, var(--tl-card)); color: var(--sl-color-white); }
-  .pr-seg input:focus-visible + span { outline: 2px solid var(--pr-ai); outline-offset: 2px; }
   .pr-lab .pr-week { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .pr .pr-week p { justify-items: center; text-align: center; }
   .pr .pr-week p.is-thu { box-shadow: inset 0 3px 0 var(--pr-yellow); }
@@ -306,11 +296,8 @@ const checks = [
   .pr-num .is-clash td:last-child { color: var(--pr-red); font-weight: 700; }
   :root:not([data-theme="light"]) .pr-num .is-clash td:last-child { color: #ef7b68; }
 
-  .pr .pr-summary-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.85rem; }
-  .pr-summary-head b { color: var(--sl-color-white); font-size: 1rem; }
   .pr-table.pr-impute td:last-child { text-align: left; }
   .pr-table.pr-impute th[scope="col"]:last-child { text-align: left; }
   .pr-impute .is-imputed td { font-style: italic; }
   .pr-impute .is-imputed td span { padding: 0.05rem 0.5rem; border-radius: 999px; background: color-mix(in srgb, var(--pr-yellow) 25%, transparent); color: var(--tl-ink); font-style: normal; font-size: 0.82rem; font-weight: 700; }
-  .pr .pr-note { color: var(--tl-muted); font-size: 0.88rem; font-style: italic; }
 </style>

@@ -4,6 +4,8 @@ import { bounds, story } from "../../lib/coverage";
 import { noScore } from "../../lib/cases";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
+import AiStudy from "./AiStudy.astro";
+import { failPrompt } from "../../lib/primer";
 
 const said: Record<string, string> = {
   stop: "Stop the run",
@@ -50,7 +52,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
       </tbody>
     </table>
   </div>
-  <p>Kick chose “Skip it and carry on,” which is a reasonable default: the job finishes and produces a table, but every one of the eight rows is missing at least one result. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach.</p>
+  <p>Kick chose “Skip it and carry on,” a common default: the job finishes and produces a table, but every one of the eight rows is missing at least one result. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach.</p>
   <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
     <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record + gap list in each season file</div><i aria-hidden="true">→</i>
     <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of played</li><li>Next run: knows what to retry</li></ul>
@@ -72,6 +74,13 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
       <p>Does that record support what the table claims? Hold the table back while a gap can still be closed from pages you already have. Once you've recovered what you can from the pages already saved, publish with every remaining gap named.</p>
     </div>
   </div>
+  <AiStudy
+    id="decision-ai-study"
+    title="When a source doesn't answer"
+    note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back and apply the rule to three runs."
+    prompt={failPrompt}
+    href="../01-collection-ai-failures/"
+  />
   <h4 class="cv-try">Apply the rule</h4>
   <p>Three runs end with the summaries below. For each one, did the run succeed, and should you publish the table?</p>
   <div class="cv-check" data-once="succeed">
