@@ -46,8 +46,8 @@ export const LABELS = {
 const GLYPH: Record<Cell, string> = { read: "●", lost: "✕", noscore: "?", fill: "0-0", later: "" };
 const MEANS: Record<Cell, string> = {
   read: "counted in the table",
-  lost: "finished, lost with its host's page",
-  noscore: "finished, no score on the page",
+  lost: "finished, lost with the pages that didn't answer",
+  noscore: "finished, no score on any saved page",
   fill: "lost, entered as 0-0",
   later: "not yet played",
 };
@@ -188,7 +188,7 @@ export function reading(data: BenchData, st: BenchState, out: Outcome): string {
   const n = data.schools.length;
   const matches = (k: number) => `${number(k)} finished match${k === 1 ? "" : "es"}`;
   const capital = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
-  const blank = out.noscore ? ` ${capital(matches(out.noscore))} still ${out.noscore === 1 ? "has" : "have"} no score on any page that answered.` : "";
+  const blank = out.noscore ? ` ${capital(matches(out.noscore))} still ${out.noscore === 1 ? "has" : "have"} no score on any saved page.` : "";
   if (!out.down.length) {
     return out.noscore
       ? `Every page answered, and ${matches(out.noscore)} still ${out.noscore === 1 ? "has" : "have"} no score. A page that answers can still hold a row with a blank in it.`

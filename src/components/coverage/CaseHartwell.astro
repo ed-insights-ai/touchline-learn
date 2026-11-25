@@ -28,9 +28,9 @@ const outcomes = [
   <Pipeline small lit="build" note="This case happens at Build" />
 
   <p class="cv-callout">Coach Dolan, Hartwell Tech: “We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.”</p>
-  <p>Hartwell's own schedule page answered, yet its row is still wrong.</p>
+  <p>Hartwell Tech's own schedule page answered, yet its row is still wrong.</p>
 
-  <Beat part="case-hartwell" name="Look" title="Why Hartwell's row is wrong" />
+  <Beat part="case-hartwell" name="Look" title="Why Hartwell Tech's row is wrong" />
   <p>Kick read each match once, from the home team's page, so no match would be counted twice. That {hartwell.seven} win was played at Dunmore.</p>
   <div class="cv-predict" data-once="rows" data-predict>
     <div class="cv-check">
@@ -46,14 +46,14 @@ const outcomes = [
     </div>
     <div class="cv-reveal">
       <p>You predicted <b data-show="q-rows"></b>. Friday is set up below. Read the last count first. Then try two things: switch other schools' sites off and back on, and, with only Dunmore's site off, switch how Kick reads each match.</p>
-      <Bench id="bench-hartwell" controls={["pages", "rule"]} caption="Friday as it happened." />
+      <Bench id="bench-hartwell" controls={["pages", "rule"]} caption="Starts with Friday as it happened." />
       <p>All {spell(pipeline.rows)}. One page wipes out a whole row of the match matrix: Dunmore's {spell(bounds.unseen)} home matches, which are also the other {spell(bounds.unseen)} schools' away matches there. The standings break for teams whose own pages answered.</p>
-      <p>When Kick reads both schools' pages, all {spell(bounds.unseen)} lost results come back, because each visitor's saved schedule shows the score. Hartwell Tech moves up to {["first", "second", "third", "fourth"][hartwell.after - 1]}.</p>
+      <p>With only Dunmore's page missing, reading both schools' pages brings back all {spell(bounds.unseen)} lost results, because each visitor's saved schedule shows the score. Hartwell Tech moves up to {["first", "second", "third", "fourth"][hartwell.after - 1]}.</p>
     </div>
   </div>
   <div class="cv-check" data-once="skew">
     <p class="cv-kind">Knowledge check</p>
-    <div class="cv-line" data-q data-type="select" data-answer="unknown" data-why="Can't tell from Kick's table. The skew depends on how Dunmore played at home, and Kick's table holds none of those matches. Home advantage is a guess about matches nobody saw." data-wrong={JSON.stringify({ high: "That assumes Dunmore conceded fewer at home, as home advantage would suggest. Kick's table has no Dunmore home match to check that against.", low: "True, and Coach Dolan's 7-0 is enough to show it. But that came from a voicemail, from outside the table. Kick's table alone has no Dunmore home match to compare with." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="unknown" data-why="Can't tell from Kick's table. The skew depends on how Dunmore played at home, and Kick's table holds none of those matches. Home advantage is a guess about matches nobody saw." data-wrong={JSON.stringify({ high: "That assumes Dunmore conceded fewer at home, as home advantage would suggest. Kick's table has no Dunmore home match to check that against.", low: "Right direction, but not from the table. Coach Dolan's 7-0 alone puts Dunmore's home rate at 1.00 or more, but it came from a voicemail, from outside the table. Kick's table alone has no Dunmore home match to compare with." })}>
       <label><span>Kick's original table holds all {spell(bounds.played)} of Dunmore's finished away matches and none of its home matches. Using that table alone, which way is Dunmore's goals conceded per match skewed?</span>
         <select data-save="bias-dir"><option value="">Choose</option><option value="low">Too low</option><option value="high">Too high</option><option value="unknown">Can't tell from Kick's table</option></select>
       </label>
@@ -92,15 +92,15 @@ const outcomes = [
     <p class="cv-once">Choose one, then check.</p>
     <button type="button" data-submit>Check answer</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Coach Dolan's {hartwell.seven} already shows which way Dunmore's numbers lean: seven goals conceded at home in one match, against {dunmoreSplit.kick.perMatch} a match away. Only the recovered scores show how far, from {dunmoreSplit.kick.perMatch} to {dunmoreSplit.all.perMatch} goals conceded per match.</p></div>
+    <div class="cv-reveal"><p>Coach Dolan's {hartwell.seven} already shows which way Dunmore's numbers lean. Even if Dunmore conceded nothing in its other six home matches, seven goals in seven matches is 1.00 a match, above its {dunmoreSplit.kick.perMatch} away. Only the recovered scores show how far, from {dunmoreSplit.kick.perMatch} to {dunmoreSplit.all.perMatch} goals conceded per match.</p></div>
   </div>
 
-  <p>The gap also reaches further than its size suggests. That's why Part 2's second rule says to count in the unit of analysis, the thing your claim counts. Counted in pages, Kick lost one of {spell(pipeline.asked)}. Counted in matches, it lost {bounds.unseen} of {story.finals}, about the same share. What the matches show is who was hit: every team played at Dunmore, so every row is wrong.</p>
+  <p>The gap also reaches further than its size suggests. That's why Part 2's second rule says to count in the unit of analysis, the thing your claim counts. Counted in pages, Kick lost one of {spell(pipeline.asked)}. Counted in matches, it lost {bounds.unseen} of {story.finals}, about the same share. The share hides the reach: every other team played at Dunmore, and Dunmore lost its whole home block, so every row is wrong.</p>
   <ol class="cv-reach" aria-label="How far Dunmore's missing page reaches">
     {reach.map(([n, what]) => <li><b>{n}</b><span>{what}</span></li>)}
   </ol>
 
-  <p>Even before a lost result is recovered, you can limit its uncertainty. Kick's table gives Hartwell Tech {hartwell.pts} points, and the expected set shows one of its finished matches is lost. That match adds 0 for a loss, 1 for a draw or 3 for a win, so Hartwell's true total must lie within {hartwell.pts} and {hartwell.high}. That range is a <strong>bound</strong>: you don't know the exact value, but you know the limits it cannot cross. This bound comes from the count of lost matches and the scoring rules. It says nothing about which value is likely.</p>
+  <p>Even before a lost result is recovered, you can limit its uncertainty. Kick's table gives Hartwell Tech {hartwell.pts} points, and the expected set shows one of its finished matches is lost. That match adds 0 for a loss, 1 for a draw or 3 for a win, so Hartwell Tech's true total must lie between {hartwell.pts} and {hartwell.high}. That range is a <strong>bound</strong>: you don't know the exact value, but you know the limits it cannot cross. This bound comes from the count of lost matches and the scoring rules. It says nothing about which value is likely.</p>
   <figure class="cv-bound" aria-label={`Hartwell Tech's possible totals: ${hartwell.pts}, ${hartwell.pts + 1} or ${hartwell.high}`}>
     <p class="cv-bound-head"><b>Hartwell Tech</b><span>{hartwell.pts} points counted, one match lost</span></p>
     <ol>{outcomes.map(([what, add]) => <li><span>{what}</span><b>{hartwell.pts + add}</b><small>+{add}</small></li>)}</ol>
@@ -135,7 +135,7 @@ const outcomes = [
     <button type="button" data-submit>Check bounds</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>Bounds tell readers exactly who is affected and how far each number could move, before a single lost score is recovered.</p>
+      <p>The expected set tells readers which teams are affected, because it names every lost match. The scoring rules then limit how far each team's points could move. Both are known before a single lost score is recovered.</p>
       <p class="cv-further">Optional deep dive: <a href="../01-collection-field-work/?from=case-hartwell#statistics">Statistics of the gap</a> covers where an expected set comes from, why bounds are linked, and how to test your assistant on the missingness patterns.</p>
     </div>
   </div>
