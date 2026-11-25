@@ -1,6 +1,7 @@
 ---
 import FirstRunTable from "../FirstRunTable.astro";
 import KickThink from "./KickThink.astro";
+import KickPlan from "./KickPlan.astro";
 import Pipeline from "./Pipeline.astro";
 import Voicemail from "./Voicemail.astro";
 import PartHead from "./PartHead.astro";
@@ -19,12 +20,12 @@ const kickThoughts = [
 ];
 
 const kickPlan = [
-  `Download the schedule page from each of the ${spell(pipeline.asked)} school sites, and the box scores Alder Ridge's schedule links.`,
-  "Parse each results table into rows: date, opponent, score.",
-  "If a page fails to load, retry up to three times, then log a warning with the school's name and continue so the run finishes.",
-  "Read each match once, from the home team's page, so none counts twice.",
-  "Compute played, goal difference and points, then sort and write the table.",
-  "Print a summary: pages fetched, matches found, errors.",
+  { stage: "Scrape", text: `Download the schedule page from each of the ${spell(pipeline.asked)} school sites, and the box scores Alder Ridge's schedule links.` },
+  { stage: "Parse", text: "Parse each results table into rows: date, opponent, score." },
+  { stage: "Scrape", text: "If a page fails to load, retry up to three times, then log a warning with the school's name and continue so the run finishes." },
+  { stage: "Build", text: "Read each match once, from the home team's page, so none counts twice." },
+  { stage: "Build", text: "Compute played, goal difference and points, then sort and write the table." },
+  { stage: "Report", text: "Print a summary: pages fetched, matches found, errors." },
 ];
 
 const openings = [
@@ -60,7 +61,8 @@ const choices = [
     <p class="cv-chat-text">{rileyAsk}</p>
   </div>
   <KickThink duration="Thought for 6s" thoughts={kickThoughts} />
-  <p>Every choice in that trace sounds reasonable on its own. Kick made all of them in seconds and never asked Riley a single question.</p>
+  <KickPlan steps={kickPlan} />
+  <p>Every choice in that trace and plan sounds reasonable on its own. Kick made all of them in seconds and never asked Riley a single question.</p>
 
   <h3 class="cv-step" id="setup-built"><span>2</span>What Kick built</h3>
   <p>Kick built a web scraper, a program that downloads pages meant for people and extracts structured rows from them. This video builds one from a single loop and shows five ordinary ways it breaks.</p>
@@ -82,10 +84,6 @@ const choices = [
   />
   <p>Kick's scraper used the same five stages as the video. Here is what happened at each stage on Friday.</p>
   <Pipeline />
-  <details class="cv-more">
-    <summary>Kick's build plan</summary>
-    <ol class="cv-plan">{kickPlan.map((x) => <li>{x}</li>)}</ol>
-  </details>
   <p>Whenever you check a data pipeline, there are three main questions to ask:</p>
   <ul class="cv-three">
     <li class="is-here"><b>Is everything here?</b><span><strong>Completeness</strong>, measured as coverage. This module.</span></li>

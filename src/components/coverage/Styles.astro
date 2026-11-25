@@ -568,4 +568,14 @@
   .cv .cv-ai-copy.is-copied, :root[data-theme="light"] .cv button.cv-ai-copy.is-copied { color: var(--tl-accent); }
   .cv .cv-ai-send { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--cv-ai); color: #fff; }
   .cv .cv-ai-send:hover, .cv .cv-ai-send:focus-visible { background: color-mix(in srgb, var(--cv-ai) 80%, #000); color: #fff; }
+  .cv-kplan { margin: 0 0 1rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); overflow: hidden; }
+  .cv-think + .cv-kplan { margin-top: -0.35rem; }
+  .cv-kplan-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0.9rem; border-bottom: 1px solid var(--tl-line); background: var(--tl-bg); font-size: 0.82rem; }
+  .cv-kplan-who { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--tl-ink); font-weight: 600; }
+  .cv-kplan-who svg { color: color-mix(in srgb, var(--sl-color-accent) 75%, var(--tl-muted)); }
+  .cv-kplan-meta { color: var(--tl-accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cv .cv-kplan-list { margin: 0; padding: 0.35rem 0; list-style: none; }
+  .cv-kplan-list li { display: grid; grid-template-columns: auto 1fr auto; gap: 0.65rem; align-items: start; margin: 0; padding: 0.4rem 0.9rem; font-size: 0.92rem; line-height: 1.45; }
+  .cv-kplan-tick { display: grid; place-items: center; width: 1.1rem; height: 1.1rem; margin-top: 0.12rem; border-radius: 50%; background: var(--cv-green); color: #fff; }
+  .cv-kplan-stage { margin-top: 0.05rem; padding: 0.05rem 0.5rem; border: 1px solid var(--tl-line); border-radius: 999px; background: var(--tl-bg); color: var(--tl-muted); font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
 </style>
