@@ -1,76 +1,106 @@
 WEBVTT
 
-00:00:01.510 --> 00:00:05.020
+00:00:01.610 --> 00:00:05.220
 Monday morning. No angry voicemails.
 
-00:00:05.590 --> 00:00:10.780
-Riley's table went out at 53 of 54, with the one missing game named.
+00:00:05.690 --> 00:00:08.790
+Riley's table went out at 53 of 54,
 
-00:00:11.540 --> 00:00:13.210
+00:00:08.810 --> 00:00:10.980
+with the one missing game named.
+
+00:00:11.856 --> 00:00:13.626
 That is what Friday taught.
 
-00:00:13.540 --> 00:00:16.170
+00:00:13.856 --> 00:00:16.586
 No errors describes only the program.
 
-00:00:16.580 --> 00:00:19.610
+00:00:16.896 --> 00:00:20.026
 A coverage record, checked against what should exist,
 
-00:00:19.780 --> 00:00:23.850
-describes the data. And anything it can't see is unknown.
+00:00:20.096 --> 00:00:21.466
+describes the data.
 
-00:00:24.260 --> 00:00:25.290
+00:00:21.616 --> 00:00:24.266
+And anything it can't see is unknown.
+
+00:00:24.576 --> 00:00:25.706
 Never zero.
 
-00:00:27.650 --> 00:00:31.790
-Tuesday. Kick adds a tidy rule to spell out school names on the
+00:00:28.706 --> 00:00:31.246
+Tuesday. Kick adds a tidy rule
 
-00:00:31.810 --> 00:00:35.640
-published table. "St." becomes "State."
+00:00:31.266 --> 00:00:33.836
+to spell out school names on the published table.
 
-00:00:36.050 --> 00:00:39.400
-Great for Brightwater. Less great for State Lambert.
+00:00:34.586 --> 00:00:36.796
+An "St." becomes State.
 
-00:00:40.460 --> 00:00:42.760
-St. Lambert (voicemail): Hi, this is Saint Lambert soccer.
+00:00:37.106 --> 00:00:38.396
+Great for Brightwater.
 
-00:00:42.780 --> 00:00:47.250
-Saint, as in the saint. Your table says State Lambert.
+00:00:38.626 --> 00:00:40.556
+Less great for State Lambert.
 
-00:00:47.420 --> 00:00:49.080
-We are not a state school.
+00:00:44.074 --> 00:00:46.374
+<v Iris>Hi, this is Saint Lambert soccer.
 
-00:00:49.100 --> 00:00:50.130
-Please fix it.
+00:00:46.394 --> 00:00:48.614
+<v Iris>Saint, as in the saint.
 
-00:00:51.090 --> 00:00:53.710
-Kick: Fixed. Saint stays Saint.
+00:00:48.634 --> 00:00:50.964
+<v Iris>Your table says State Lambert.
 
-00:00:53.730 --> 00:00:54.840
-One line.
+00:00:51.034 --> 00:00:52.694
+<v Iris>We are not a state school.
 
-00:00:55.700 --> 00:00:57.050
+00:00:52.714 --> 00:00:53.844
+<v Iris>Please fix it.
+
+00:00:54.876 --> 00:00:57.176
+<v Kick>You're absolutely right, and I apologize.
+
+00:00:57.196 --> 00:01:00.296
+<v Kick>Fixed. Saint stays Saint.
+
+00:01:00.316 --> 00:01:01.286
+<v Kick>One line.
+
+00:01:04.098 --> 00:01:05.518
 The code is fixed in a minute.
 
-00:00:57.140 --> 00:01:00.200
-Friday's table isn't. Ask the eight sites again,
+00:01:05.538 --> 00:01:07.068
+Friday's table isn't.
 
-00:01:00.220 --> 00:01:02.170
+00:01:07.358 --> 00:01:08.738
+Ask the eight sites again,
+
+00:01:08.758 --> 00:01:10.808
 and you won't get Friday's standings.
 
-00:01:02.340 --> 00:01:05.690
-You'll get Tuesday's pages, with weekend updates mixed in.
+00:01:11.018 --> 00:01:12.628
+<v Kick>Re-fetching!
 
-00:01:06.100 --> 00:01:08.330
+00:01:13.098 --> 00:01:14.598
+You'll get Tuesday's pages,
+
+00:01:14.618 --> 00:01:16.548
+with weekend updates mixed in.
+
+00:01:17.408 --> 00:01:19.738
 And Dunmore might not answer at all.
 
-00:01:09.190 --> 00:01:11.500
+00:01:21.858 --> 00:01:24.268
 This time, Riley knows what to ask.
 
-00:01:12.620 --> 00:01:15.440
-Riley: Can you rebuild Friday's table from the pages you kept,
+00:01:25.276 --> 00:01:28.056
+<v Riley>Can you rebuild Friday's table from the pages you kept,
 
-00:01:15.460 --> 00:01:19.130
-without asking a single site again, and show me you did?
+00:01:28.076 --> 00:01:30.016
+<v Riley>without asking a single site again,
 
-00:01:22.100 --> 00:01:26.100
-Module 2: The raw archive
+00:01:30.036 --> 00:01:31.286
+<v Riley>and show me you did?
+
+00:01:32.274 --> 00:01:33.294
+<v Kick>Great question.
