@@ -1,0 +1,315 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { nullPrompt } from "../../lib/primer";
+import { bounds } from "../../lib/coverage";
+import { noScore } from "../../lib/cases";
+
+const days = [
+  { day: "Monday", short: "Mon", orders: 12, status: "Observed", kind: "is-seen" },
+  { day: "Tuesday", short: "Tue", orders: 0, status: "Observed", kind: "is-seen" },
+  { day: "Wednesday", short: "Wed", orders: 18, status: "Observed", kind: "is-seen" },
+  { day: "Thursday", short: "Thu", orders: null, status: "Missing value", kind: "is-blank" },
+  { day: "Friday", short: "Fri", orders: undefined, status: "Missing record", kind: "is-absent" },
+];
+const known = days.flatMap((d) => (typeof d.orders === "number" ? [d.orders] : []));
+const total = known.reduce((a, b) => a + b, 0);
+const collected = days.filter((d) => d.orders !== undefined).length;
+const pct = (n: number, d: number) => `${Math.round((n / d) * 100)}%`;
+const two = (n: number) => n.toFixed(2);
+
+const treatments = [
+  { key: "keep", name: "Preserve missing", thu: null },
+  { key: "zero", name: "Fill with 0", thu: 0 },
+  { key: "drop", name: "Drop the row", thu: undefined },
+  { key: "neg", name: "Sentinel −1", thu: -1 },
+  { key: "big", name: "Sentinel 999", thu: 999 },
+  { key: "def", name: "Default to 8", thu: 8 },
+].map((t) => {
+  const vals = typeof t.thu === "number" ? [...known, t.thu] : known;
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const shown = t.thu === null ? "NULL" : t.thu === undefined ? "dropped" : String(t.thu).replace("-", "−");
+  const row = [...known.map(String), ...(t.thu === undefined ? [] : [t.thu === null ? "NULL" : String(t.thu).replace("-", "−")])].join(", ");
+  return { ...t, shown, row, sum, n: vals.length, avg: sum / vals.length };
+});
+const keep = treatments[0];
+
+const compare = [
+  ["Equal to zero", "Unknown", "False"],
+  ["Not equal to zero", "Unknown", "True"],
+  ["Greater than zero", "Unknown", "False"],
+  ["Equal to itself", "Unknown", "False"],
+];
+
+const imputed = 10;
+const reported = days.map((d) => (typeof d.orders === "number" ? d.orders : imputed));
+
+const checks = [
+  ["Understanding absence", "A warehouse is expected to submit seven daily reports. Six reports are collected, one contains a shipping count of zero, and another contains a NULL shipping count. What is your record coverage? What is your value coverage? Why should the zero count be treated differently from the NULL count?"],
+  ["Silent data transformation", "You collect the following four shipping values: 20, 0, NULL, 40. Calculate the total and average under each of these treatments: ignoring the missing value, replacing it with zero, and replacing it with a sentinel of −1. Which treatment introduces a factual assertion that no orders were shipped on the missing day?"],
+  ["Responsible reporting", "You expect ten daily reports but collect only eight, all containing valid shipping counts. Those eight reports contain a combined total of 160 orders. Your colleague fills both missing days with 20 orders and publishes a total of 200. Is this necessarily an unreasonable estimate? What is wrong with publishing 200 without qualification, and how would you label the result and write a note underneath the table?"],
+];
+---
+
+<PrimerChat
+  prompt={nullPrompt}
+  back="../01-collection/#cedar-ai-study"
+  about="This is a reply an AI assistant gave to Module 1's missing-value study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 3 and decide how the September 21 match appears."
+>
+  <h2 class="pr-title">A blank is not a zero</h2>
+  <p class="pr-pull">Not knowing a value is fundamentally different from knowing its value is zero.</p>
+  <p>Many data quality problems begin when software quietly removes that distinction. Let's use one running example: a warehouse that is required to report the number of orders shipped every day.</p>
+
+  <h2>1. Zero, missing values, and missing records</h2>
+  <p>Imagine you are collecting five days of warehouse shipping reports. You know from the reporting schedule that five records should exist.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Warehouse shipping records</p>
+    <ol class="pr-days">
+      {days.map((d) => (
+        <li class={d.kind}>
+          <span>{d.day}</span>
+          <b>{d.orders === undefined ? "—" : d.orders === null ? "NULL" : d.orders}</b>
+          <small>{d.status}</small>
+        </li>
+      ))}
+    </ol>
+    <div class="pr-tiles is-two">
+      <p><b>{pct(collected, days.length)}</b>Record coverage · {collected} of {days.length} expected records collected</p>
+      <p class="is-alarm"><b>{pct(known.length, days.length)}</b>Value coverage · {known.length} of {days.length} expected shipping values observed</p>
+    </div>
+  </figure>
+  <p>Each situation lets you make a different claim.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Situation</th><th scope="col">What you can claim</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Zero</th><td>Tuesday shipped no orders.</td></tr>
+        <tr><th scope="row">Missing value</th><td>Thursday's report exists, but its shipping count is unknown.</td></tr>
+        <tr><th scope="row">Missing record</th><td>Friday's expected report was not collected.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>You can establish that {total} orders were shipped across the three observed days. You cannot establish that only {total} orders were shipped during the entire five-day period.</p>
+  <p>Notice that you would not even know Friday was missing unless you had an independent expectation of which records should exist.</p>
+
+  <h2>2. How missing values quietly turn into data</h2>
+  <p>For now, work with the four records you actually collected. The observed total is {total} and the observed average is {two(keep.avg)}. There are several common ways software handles Thursday's missing value.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num pr-treat">
+      <thead><tr><th scope="col">Treatment</th><th scope="col">Resulting values</th><th scope="col">Total</th><th scope="col">Average</th></tr></thead>
+      <tbody>
+        {treatments.map((t) => <tr><th scope="row">{t.name}</th><td>{t.row}</td><td class:list={{ "is-off": t.sum !== keep.sum }}>{t.sum.toLocaleString("en-US")}</td><td class:list={{ "is-off": t.avg !== keep.avg }}>{two(t.avg)}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
+  <p>The preserve-missing calculation uses only known numeric values. None of these treatments recovers Friday's absent record.</p>
+
+  <h3>Filling with zero</h3>
+  <p>You have converted an unknown observation into a factual assertion that no orders were shipped. The total happens to remain unchanged, but the average decreases because you now divide by four instead of three.</p>
+  <h3>Dropping the row</h3>
+  <p>The total and average remain unchanged, but you have removed evidence that Thursday's report was incomplete. Someone examining the resulting dataset may believe that every collected record was complete.</p>
+  <h3>Sentinel codes</h3>
+  <p>A sentinel is a special value intended to represent a condition rather than an actual measurement. Older systems frequently use codes such as <code>-1</code>, <code>999</code> or <code>-9999</code>. Unless the software explicitly recognizes those codes, it treats them as ordinary numbers. A sentinel can therefore corrupt an otherwise correct calculation.</p>
+  <h3>Default values</h3>
+  <p>A database, parser or application might automatically assign a value when none is supplied. For example:</p>
+  <div class="pr-code"><p class="pr-label">Python</p><pre>{`orders = report.get("orders_shipped", 8)`}</pre></div>
+  <p>If the key is absent, the result becomes 8, even though nobody observed eight orders. An explicitly present key with a <code>None</code> value behaves differently in this example. Defaults are useful in application development, but they can be dangerous in data collection.</p>
+
+  <h3>Experiment with the missing value</h3>
+  <figure class="pr-card pr-lab pr-treat-lab" data-treat-lab data-treat={JSON.stringify(treatments.map(({ key, shown, sum, n, avg }) => ({ key, shown, sum, n, avg: two(avg) })))}>
+    <fieldset class="pr-seg">
+      <legend>Treatment of Thursday's value</legend>
+      {treatments.map((t, i) => <label><input type="radio" name="pr-treat" value={t.key} checked={i === 0} /><span>{t.name}</span></label>)}
+    </fieldset>
+    <div class="pr-tiles pr-week">
+      {days.slice(0, 4).map((d) => <p class:list={{ "is-thu": d.orders === null }}><b data-out={d.orders === null ? "thu" : undefined}>{d.orders === null ? "NULL" : d.orders}</b>{d.short}</p>)}
+    </div>
+    <div class="pr-tiles is-three">
+      <p><b data-out="sum">{keep.sum}</b>Calculated total</p>
+      <p><b data-out="n">{keep.n}</b>Numeric count</p>
+      <p><b data-out="avg">{two(keep.avg)}</b>Average</p>
+    </div>
+    <p class="pr-lab-foot"><span>Actual observed values: {known.length} of {days.length}, whichever treatment you choose.</span></p>
+  </figure>
+  <p>No matter which treatment you select, your actual knowledge of warehouse activity has not increased.</p>
+  <p class="pr-pull">A more complete-looking dataset is not necessarily a more complete dataset.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Module 1 has all three situations. {noScore.home} vs. {noScore.away} on {noScore.day} is Thursday: the row is on a saved page, marked final, and its score is blank. Dunmore's {bounds.unseen} home matches are Friday: records that should exist and were never collected, which only the expected set shows. Kick's run dropped the September 21 row, and nothing in its summary said so. In soccer a blank score is two values, so filling it with zero makes it a 0-0 draw that nobody saw.</p>
+  </aside>
+
+  <h2>3. How SQL NULL and pandas NaN behave</h2>
+  <p>SQL and pandas both have mechanisms for representing missing values. However, understanding their default behavior is essential. SQL uses <code>NULL</code> to represent an absent or unknown value. Pandas commonly uses <code>NaN</code> (Not a Number) for missing numeric values, although it also supports other missing-value representations such as <code>pd.NA</code>.</p>
+  <p>Using our four collected warehouse records:</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-ops">
+      <thead><tr><th scope="col">Operation</th><th scope="col">SQL</th><th scope="col">pandas</th><th scope="col">Result</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Count rows</th><td><code>COUNT(*)</code></td><td><code>len(df)</code></td><td>{collected}</td></tr>
+        <tr><th scope="row">Count known values</th><td><code>COUNT(orders)</code></td><td><code>df.orders.count()</code></td><td>{known.length}</td></tr>
+        <tr><th scope="row">Sum</th><td><code>SUM(orders)</code></td><td><code>df.orders.sum()</code></td><td>{total}</td></tr>
+        <tr><th scope="row">Average</th><td><code>AVG(orders)</code></td><td><code>df.orders.mean()</code></td><td>{keep.avg}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>By default, these sum and average operations ignore missing values.</p>
+
+  <h3><span>Surprise 1</span>Averages silently change their denominator</h3>
+  <p class="pr-formula" role="math" aria-label={`12 plus 0 plus 18, divided by 3, equals 10`}>
+    <span class="pr-frac"><span>12 + 0 + 18</span><span>{known.length}</span></span><span>= {keep.avg}</span>
+  </p>
+  <p>It is not divided by four collected records or five expected records. The software returns a mathematically correct answer, but you can still report it incorrectly if you describe it as the average across all five days.</p>
+
+  <h3><span>Surprise 2</span>Missing values behave differently in comparisons</h3>
+  <div class="pr-scroll">
+    <table class="pr-table pr-truth">
+      <thead><tr><th scope="col">Comparison</th><th scope="col">SQL NULL</th><th scope="col">pandas float NaN</th></tr></thead>
+      <tbody>{compare.map(([c, sql, pd]) => <tr><th scope="row">{c}</th><td class="is-unknown">{sql}</td><td class:list={{ "is-true": pd === "True" }}>{pd}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>SQL uses three-valued logic: true, false and unknown. A <code>WHERE</code> clause retains only rows where the condition is true. For example, this SQL query returns Monday and Wednesday:</p>
+  <div class="pr-code"><p class="pr-label">SQL</p><pre>{`SELECT *\nFROM shipments\nWHERE orders <> 0;`}</pre></div>
+  <p>However, the following pandas operation with ordinary floating-point <code>NaN</code> also returns Thursday:</p>
+  <div class="pr-code"><p class="pr-label">Python</p><pre>{`df[df["orders"] != 0]`}</pre></div>
+  <p>Thursday is included because <code>NaN != 0</code> evaluates to true. That does not mean Thursday shipped any orders. Use explicit missing-value checks instead.</p>
+  <div class="pr-code-pair">
+    <div class="pr-code"><p class="pr-label">SQL</p><pre>{`WHERE orders IS NULL\nWHERE orders IS NOT NULL`}</pre></div>
+    <div class="pr-code"><p class="pr-label">Python</p><pre>{`df["orders"].isna()\ndf["orders"].notna()`}</pre></div>
+  </div>
+  <p>Pandas nullable data types using <code>pd.NA</code> have different comparison semantics from floating-point <code>NaN</code>, which makes explicit missing-value checks even more important.</p>
+
+  <h3><span>Surprise 3</span>Summing entirely missing data</h3>
+  <p>Imagine Thursday was the only report you collected, and its shipping count was missing.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <thead><tr><th scope="col">Operation</th><th scope="col">SQL</th><th scope="col">pandas</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Count known values</th><td>0</td><td>0</td></tr>
+        <tr class="is-clash"><th scope="row">Sum</th><td>NULL</td><td>0</td></tr>
+        <tr><th scope="row">Average</th><td>NULL</td><td>NaN</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Pandas returns zero for an entirely missing numeric series when summing with default settings. To prevent that behavior:</p>
+  <div class="pr-code"><p class="pr-label">Python</p><pre>{`df["orders"].sum(min_count=1)`}</pre></div>
+  <p>This requires at least one valid observation before returning a numeric sum.</p>
+  <p class="pr-pull">Neither SQL nor pandas automatically knows how many records you originally expected. That information must come from outside the dataset.</p>
+
+  <h2>4. Publishing a number with a known gap</h2>
+  <p>There are three legitimate approaches to publishing incomplete data.</p>
+
+  <h3><span>Approach A</span>Report only what you observed</h3>
+  <p>This is generally the safest approach when reporting factual historical data.</p>
+  <figure class="pr-card pr-summary">
+    <p class="pr-summary-head"><b>Warehouse shipping summary</b><span>Monday–Friday</span></p>
+    <div class="pr-tiles">
+      <p><b>{total}</b>Confirmed orders</p>
+      <p><b>{keep.avg}</b>Average per observed day</p>
+      <p><b>{pct(collected, days.length)}</b>Record coverage</p>
+      <p><b>{pct(known.length, days.length)}</b>Value coverage</p>
+    </div>
+    <figcaption>Figures reflect three of five scheduled reporting days. Thursday's shipping count is unavailable, and Friday's report was not collected. The confirmed total is incomplete. The average excludes missing observations.</figcaption>
+  </figure>
+  <p>Notice how the note tells the reader exactly what is missing and how the calculations were performed.</p>
+
+  <h3><span>Approach B</span>Derive a value from known facts</h3>
+  <p>Suppose an independently verified operations record confirms that no shipments occurred on Thursday. You can now fill Thursday with zero, not because the data was missing, but because independent evidence establishes the value. You should still preserve its <strong>provenance</strong>: the information about where that value came from.</p>
+
+  <h3><span>Approach C</span>Estimate a missing value</h3>
+  <p>Replacing a missing value with an estimate is known as <strong>imputation</strong>. Suppose you are preparing a planning forecast and decide to use the observed daily average of {imputed} as an estimate for both missing days. You might publish the data like this:</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num pr-impute">
+      <thead><tr><th scope="col">Day</th><th scope="col">Observed</th><th scope="col">Reported</th><th scope="col">Provenance</th></tr></thead>
+      <tbody>
+        {days.map((d, i) => typeof d.orders === "number"
+          ? <tr><th scope="row">{d.day}</th><td>{d.orders}</td><td>{reported[i]}</td><td>Observed</td></tr>
+          : <tr class="is-imputed"><th scope="row">{d.day}</th><td>—</td><td>{reported[i]}</td><td><span>Imputed</span></td></tr>)}
+        <tr class="is-total"><th scope="row">Total</th><td>{total}</td><td>{reported.reduce((a, b) => a + b, 0)}</td><td>Mixed</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="pr-note">Note: The estimated total of {reported.reduce((a, b) => a + b, 0)} includes {reported.reduce((a, b) => a + b, 0) - total} imputed orders. Missing daily values were estimated using the mean of the three observed days. Actual value coverage is {pct(known.length, days.length)}. The estimated total assumes the missing days are reasonably represented by the observed days.</p>
+  <p>Imputation can be acceptable for forecasting, planning, statistical analysis and certain machine learning applications when the assumptions are appropriate. It is not acceptable to present an estimate as an observed fact.</p>
+
+  <h3>Preserve the original data</h3>
+  <p>A well-designed data pipeline keeps the original observation separate from any calculated replacement.</p>
+  <div class="pr-code"><p class="pr-label">JSON</p><pre>{`{\n  "day": "Thursday",\n  "observed_orders": null,\n  "reported_orders": ${imputed},\n  "status": "imputed",\n  "method": "observed_daily_mean"\n}`}</pre></div>
+  <p>This allows someone to reproduce the calculation, exclude estimated values or replace the estimate when the actual report becomes available.</p>
+  <p class="pr-pull">Preserve the distinction between what you know, what you derive, what you estimate and what you do not know.</p>
+
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>I'll wait for your answers before reviewing them.</p>
+</PrimerChat>
+
+<script>
+  const lab = document.querySelector<HTMLElement>("[data-treat-lab]");
+  if (lab) {
+    const rows: { key: string; shown: string; sum: number; n: number; avg: string }[] = JSON.parse(lab.dataset.treat!);
+    const out = (k: string) => lab.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    lab.addEventListener("change", (e) => {
+      const t = rows.find((r) => r.key === (e.target as HTMLInputElement).value);
+      if (!t) return;
+      out("thu").textContent = t.shown;
+      out("thu").parentElement!.classList.toggle("is-filled", t.key !== "keep" && t.key !== "drop");
+      out("thu").parentElement!.classList.toggle("is-dropped", t.key === "drop");
+      out("sum").textContent = t.sum.toLocaleString("en-US");
+      out("n").textContent = String(t.n);
+      out("avg").textContent = t.avg;
+    });
+  }
+</script>
+
+<style is:global>
+  .pr-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 0.7rem; padding: 0; list-style: none; }
+  .pr-days li { display: grid; justify-items: center; gap: 0.1rem; padding: 0.55rem 0.3rem; border: 1px solid var(--tl-line); border-top: 4px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); text-align: center; }
+  .pr-days span { color: var(--tl-muted); font-size: 0.8rem; }
+  .pr-days b { color: var(--sl-color-white); font-size: 1.5rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .pr-days small { color: var(--tl-muted); font-size: 0.78rem; }
+  .pr-days .is-blank { border-top-color: var(--pr-yellow); }
+  .pr-days .is-blank b { font-family: var(--__sl-font-mono); font-size: 1.15rem; line-height: 1.55; }
+  .pr-days .is-absent { border: 1.5px dashed var(--pr-red); border-top-width: 4px; background: transparent; }
+  .pr-days .is-absent b { color: var(--tl-muted); }
+
+  .pr-treat td:nth-child(2) { font-family: var(--__sl-font-mono); font-size: 0.85rem; }
+  .pr-treat td.is-off { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr-treat td.is-off { color: #ef7b68; }
+
+  .pr-code { margin: 0 0 1rem; padding: 0.55rem 0.85rem 0.7rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
+  .pr .pr-code pre { font-family: var(--__sl-font-mono); }
+  .pr .pr-code .pr-label { margin-bottom: 0.25rem; font-size: 0.72rem; }
+  .pr-code-pair { display: grid; gap: 0 0.6rem; }
+  @media (min-width: 46rem) { .pr-code-pair { grid-template-columns: 1fr 1fr; } }
+
+  .pr-seg { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; border: 0; }
+  .pr-seg legend { width: 100%; margin-bottom: 0.4rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pr-seg label { position: relative; }
+  .pr-seg input { position: absolute; opacity: 0; }
+  .pr-seg span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 0.85rem; border: 1px solid var(--tl-line); border-radius: 999px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+  .pr-seg input:checked + span { border-color: var(--pr-ai); background: color-mix(in srgb, var(--pr-ai) 22%, var(--tl-card)); color: var(--sl-color-white); }
+  .pr-seg input:focus-visible + span { outline: 2px solid var(--pr-ai); outline-offset: 2px; }
+  .pr-lab .pr-week { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pr .pr-week p { justify-items: center; text-align: center; }
+  .pr .pr-week p.is-thu { box-shadow: inset 0 3px 0 var(--pr-yellow); }
+  .pr .pr-week p.is-thu b { font-family: var(--__sl-font-mono); }
+  .pr .pr-week p.is-filled { box-shadow: inset 0 3px 0 var(--pr-red); }
+  .pr .pr-week p.is-filled b { color: var(--pr-red); }
+  :root:not([data-theme="light"]) .pr .pr-week p.is-filled b { color: #ef7b68; }
+  .pr .pr-week p.is-dropped b { color: var(--tl-muted); font-size: 1rem; line-height: 1.8; }
+
+  .pr-ops td:nth-child(4) { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pr-ops th[scope="col"]:last-child { text-align: right; }
+  .pr-truth td.is-unknown { color: var(--tl-muted); font-style: italic; }
+  .pr-truth td.is-true { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr-truth td.is-true { color: #ef7b68; }
+  .pr-num .is-clash td:last-child { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr-num .is-clash td:last-child { color: #ef7b68; }
+
+  .pr .pr-summary-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.85rem; }
+  .pr-summary-head b { color: var(--sl-color-white); font-size: 1rem; }
+  .pr-impute td:last-child { text-align: left; }
+  .pr-impute th[scope="col"]:last-child { text-align: left; }
+  .pr-impute .is-imputed td { font-style: italic; }
+  .pr-impute .is-imputed td span { padding: 0.05rem 0.5rem; border-radius: 999px; background: color-mix(in srgb, var(--pr-yellow) 25%, transparent); color: var(--tl-ink); font-style: normal; font-size: 0.82rem; font-weight: 700; }
+  .pr .pr-note { color: var(--tl-muted); font-size: 0.88rem; font-style: italic; }
+</style>

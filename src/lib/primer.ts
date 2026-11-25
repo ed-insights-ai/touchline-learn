@@ -42,3 +42,11 @@ export const boundsPrompt = `I'm learning what a block of missing records does t
 3. Worst-case bounds: how to put a lower and an upper limit on a total using only known rules, without guessing the missing values. Show it with numbers.
 4. What a bound can and cannot tell me: why it says nothing about which value is likely, and when it is too wide to be useful.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
+export const nullPrompt = `I'm learning what to do with a value I know exists but never saw. Teach me with one running example that is not about sports.
+
+1. The difference between a value that is zero, a value that is missing, and a record that should exist but doesn't, and what each lets me claim.
+2. How missing values quietly turn into data: filling with 0, dropping the row, sentinel codes like -1 or 999, and default values. Show with numbers how each changes a total and an average.
+3. How SQL NULL and pandas NaN behave in counts, sums, averages and comparisons, and where that behavior surprises people.
+4. How to publish a number with a known gap in it: when filling in a value is acceptable, how to label it so a reader can tell it from an observed value, and what to say under the table.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
