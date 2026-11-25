@@ -163,7 +163,7 @@ const checks = [
   <p>Neither should automatically be interpreted as zero visitors.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Module 1 has one of each. Dunmore's schedule page never answered, so Dunmore is unit nonresponse. In Case 3, a finished match sits on a saved page with no score, which is item nonresponse.</p>
+    <p>Module 1 has one of each. Dunmore's schedule page never answered, which is unit nonresponse. In Case 3, a finished match sits on a saved page with no score, which is item nonresponse.</p>
   </aside>
 
   <h2>4. Knowing what to expect before collecting anything</h2>
@@ -208,8 +208,8 @@ const checks = [
   <p>You might conclude that you have 1,080 out of 1,080 records, giving yourself 100% coverage.</p>
   <p>But your independently established expectation was 1,200 records. Assuming all collected records are unique and eligible, your actual coverage is 90%.</p>
   <figure class="pr-card"><div class="pr-tiles is-two">
-    <p><b>100%</b>Measured against itself · 1,080 of 1,080</p>
-    <p class="is-real"><b>90%</b>Measured against the expected set · 1,080 of 1,200</p>
+    <p><b>100%</b>Measured against itself · <span class="pr-nowrap">1,080 of 1,080</span></p>
+    <p class="is-real"><b>90%</b>Measured against the expected set · <span class="pr-nowrap">1,080 of 1,200</span></p>
   </div></figure>
   <p class="pr-pull">You cannot reliably discover what is missing if the only evidence you have is what you successfully collected.</p>
 
@@ -269,7 +269,8 @@ const checks = [
   .pr-ledger-real i { position: relative; display: block; height: 0.4rem; margin-top: 0.45rem; border-radius: 999px; background: color-mix(in srgb, var(--pr-red) 35%, transparent); }
   .pr-ledger-real i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: inherit; background: var(--pr-green); }
 
-  .pr-resp td { text-align: center; }
+  .pr-table.pr-resp td { text-align: center; }
+  .pr-nowrap { white-space: nowrap; }
   .pr-resp th[scope="col"]:not(:first-child) { text-align: center; }
   .pr-mark { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 6px; font-weight: 700; line-height: 1; }
   .pr-mark.is-ok { background: color-mix(in srgb, var(--pr-green) 18%, transparent); color: var(--pr-green); }

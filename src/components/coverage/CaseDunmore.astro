@@ -21,7 +21,7 @@ const bar = (n: number) => `${(n / story.scheduled) * 100}%`;
 const chain = [
   [story.scheduled, "scheduled by the format", ""],
   [story.finals, "finished by Friday", `${toPlay} dated after Friday`],
-  [story.finals - bounds.unseen, "on saved hosts' pages", `${bounds.unseen} hosted by Dunmore, whose page didn't answer`],
+  [story.finals - bounds.unseen, "on saved hosts' pages", `${bounds.unseen} Dunmore home matches: Kick read each match only from its host's page, and Dunmore's didn't answer`],
   [story.counted, "counted in Kick's table", `${noPublishedScore} finished match with no score on the page (Case 3)`],
 ] as const;
 ---
@@ -31,7 +31,7 @@ const chain = [
   <Pipeline small lit="scrape" note="This case happens at Scrape" />
 
   <p class="cv-callout">Dunmore athletics: “You've got our men at six conference games. We've played thirteen.”</p>
-  <p>Part 2 asked how many matches had finished by Friday. Dunmore knows its own number. Kick's table had no way to know thirteen was right.</p>
+  <p>Part 2 asked how many matches had finished by Friday. Dunmore knows its own number. Kick's table had no way to show that six was short.</p>
 
   <Beat part="case-dunmore" name="Look" title="What the fetch log shows" />
   <p>Besides the table, Kick kept a log of every page it requested. Here are the {spell(pipeline.asked)} schedule page requests:</p>
@@ -55,7 +55,7 @@ const chain = [
   <p>Kick's log names the missing page, but it can't tell you how many matches went missing with it, because nothing in the run records how many matches should exist. To measure the gap in matches, first work out how many the conference scheduled.</p>
   <div class="cv-check" data-once="scheduled">
     <p class="cv-kind">Knowledge check</p>
-    <div class="cv-line" data-q data-type="select" data-answer="rule" data-why="The membership list and the competition format. Both exist before the run and independently of it, so a school that never answers stays in the count." data-wrong={JSON.stringify({ pages: "A school whose page never answered lists nothing, so it drops out of its own count.", log: "The log only counts pages requested, not matches." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="rule" data-why="The membership list and the competition format. Both exist before the run and independently of it, so a school that never answers stays in the count." data-wrong={JSON.stringify({ pages: "Here the saved pages happen to list all 56, but only because seven of eight answered. A count taken from the run can confirm the expected set, never establish it: the more pages fail, the less it lists.", log: "The log only counts pages requested, not matches." })}>
       <label><span>Where can the expected set of matches come from, before the run?</span>
         <select data-save="q-source"><option value="">Choose</option>{sources.map(([k, t]) => <option value={k}>{t}</option>)}</select>
       </label>
@@ -73,12 +73,12 @@ const chain = [
   </div>
 
   <Beat part="case-dunmore" name="Name it" title="The sampling frame" />
-  <p>Kick knew Dunmore's page didn't answer. What it didn't know was how much went missing with it. Kick had a list of pages, which is why its log could name Dunmore. It had no list of matches, so its {story.counted} matches were compared against nothing. An expected set of matches, taken from the conference format, is the reference that turns that count into coverage.</p>
-  <p>Survey statistics has names for these pieces. The membership list is the <strong>sampling frame</strong>: the list of units you collect from, here the {spell(kickGrid.length)} schools. A unit on the frame that never answers is <strong>unit nonresponse</strong>. Dunmore is one, because its schedule page never answered.</p>
+  <p>Kick had a list of pages, which is why its log could name Dunmore. It had no list of matches, so its {story.counted} matches were compared against nothing. An expected set of matches, taken from the conference format, is the reference that turns that count into coverage.</p>
+  <p>Survey statistics has names for these pieces. The membership list is the <strong>sampling frame</strong>: the list of units you collect from, here the {spell(kickGrid.length)} schools. The frame plus the conference format gives the <strong>expected observations</strong>, which this module calls the expected set. When a unit on the frame never answers, that is <strong>unit nonresponse</strong>. Dunmore's schedule page never answered, so Friday has one case of it.</p>
   <dl class="cv-terms" aria-label="Friday's pieces and their survey statistics names">
     <div><dt>The membership list</dt><dd><b>Sampling frame</b><span>The {spell(kickGrid.length)} schools to collect from</span></dd></div>
-    <div><dt>The conference format</dt><dd><b>Expected observations</b><span>The {story.scheduled} matches those schools should play</span></dd></div>
-    <div><dt>Dunmore</dt><dd><b>Unit nonresponse</b><span>On the frame, and never answered</span></dd></div>
+    <div><dt>The frame and the format</dt><dd><b>Expected observations</b><span>The {story.scheduled} matches those schools should play</span></dd></div>
+    <div><dt>Dunmore's unanswered page</dt><dd><b>Unit nonresponse</b><span>A school on the frame that never answered</span></dd></div>
   </dl>
   <AiStudy
     id="dunmore-ai-study"
@@ -112,8 +112,8 @@ const chain = [
     <div class="cv-reveal">
       <Recount solved />
       <p>Here is where the other {story.scheduled - story.counted} of the {story.scheduled} scheduled matches went.</p>
-      <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => (lost ? `${lost}, leaving ${n} ${what}` : `${n} ${what}`)).join(". ")}>
-        {chain.map(([n, what, lost], i) => <div class:list={{ "is-unplayed": i === 1 }}>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
+      <div class="cv-chain" style={`--unplayed:${bar(toPlay)}`} role="img" aria-label={chain.map(([n, what, lost]) => (lost ? `${lost}, leaving ${n} ${what}` : `${n} ${what}`)).join(". ")}>
+        {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
       </div>
       <p>Riley could have known the {story.scheduled}, the {story.finals} and the missing {spell(bounds.unseen)} before publishing. With an expected set, any reader can tell the table is short.</p>
     </div>
