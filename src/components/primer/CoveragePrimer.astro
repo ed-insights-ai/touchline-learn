@@ -145,8 +145,8 @@ const checks = [
   <h3>Experiment with coverage</h3>
   <p>Change the results of the collection below and observe how the different measurements respond.</p>
   <figure class="pr-card pr-lab" data-cov-lab>
-    <label><span>Readable reports</span><b data-out="reports">6 of 8</b><input type="range" min="0" max="8" value="6" data-in="reports" /></label>
-    <label><span>Program records collected</span><b data-out="records">30 of 40</b><input type="range" min="0" max="40" value="30" data-in="records" /></label>
+    <label><span>Readable reports (five programs each)</span><b data-out="reports">6 of 8</b><input type="range" min="0" max="8" value="6" data-in="reports" /></label>
+    <label><span>Program records collected</span><b data-out="records">30 of 40</b><input type="range" min="0" max="30" value="30" data-in="records" /></label>
     <label><span>Records with attendance</span><b data-out="attendance">24 of 30</b><input type="range" min="0" max="30" value="24" data-in="attendance" /></label>
     <div class="pr-tiles">
       <p><b data-out="page">75.0%</b>Page coverage</p>
@@ -225,7 +225,7 @@ const checks = [
   <p>Imagine library staff are less likely to publish attendance figures for poorly attended programs because they do not want those programs to appear unsuccessful.</p>
   <p>The lower the attendance, the more likely it is to be missing.</p>
   <figure class="pr-card">
-    <div class="pr-chart" role="img" aria-label="Fourteen programs sorted by attendance; the six lowest are missing.">
+    <div class="pr-chart" role="img" aria-label="Fourteen programs sorted by attendance. Six values are missing, mostly at the low end, and one low value is observed.">
       {mnar.map(([v, gone]) => <i class={gone ? "is-gone" : ""} style={`--h:${(v / scale(mnar)) * 100}%`}></i>)}
     </div>
     <p class="pr-axis"><span>Low attendance</span><span>High attendance</span></p>
@@ -259,9 +259,9 @@ const checks = [
     <p class="pr-legend"><span class="is-seen">Kept</span><span class="is-gone">Lost</span></p>
   </figure>
   <p><strong>Collection A</strong> lost ten programs at random. In this example its average lands close to the truth. It simply rests on fewer programs.</p>
-  <p><strong>Collection B</strong> lost the two smallest branches. Every program it kept is real, but it has no records at all from those two branches, so its average leans toward the larger ones. You know exactly where the gap is and can report it, but the large branches cannot stand in for the small ones.</p>
+  <p><strong>Collection B</strong> lost the two smallest branches. Every program it kept is real, but it has no records at all from those two branches, so its average leans toward the larger ones. You know exactly where the gap is and can report it, but the large branches cannot stand in for the small ones. Unlike the MAR example above, no program from those branches survived to adjust with.</p>
   <p><strong>Collection C</strong> lost the ten least-attended programs, spread across seven branches. Its coverage is the same 75%, but nothing in the 30 records it kept shows that its average is too high.</p>
-  <p class="pr-pull">Coverage tells you how much is missing. The pattern of what is missing tells you whether what remains can still stand for the whole.</p>
+  <p class="pr-pull">Coverage tells you how much is missing. How the gaps arose helps you judge whether the records you kept still represent the whole.</p>
 
   <h2>6. Check your understanding</h2>
   <p>Answer these three questions in your own words. I'll review your reasoning before providing the answers.</p>
@@ -276,7 +276,10 @@ const checks = [
     const fmt = (a: number, b: number) => `${((a / b) * 100).toFixed(1)}%`;
     const render = () => {
       const reports = +input("reports").value;
-      const records = +input("records").value;
+      const rec = input("records");
+      rec.max = String(reports * 5);
+      if (+rec.value > reports * 5) rec.value = String(reports * 5);
+      const records = +rec.value;
       const att = input("attendance");
       att.max = String(records);
       if (+att.value > records) att.value = String(records);
@@ -292,6 +295,7 @@ const checks = [
     lab.addEventListener("input", render);
     lab.querySelector("[data-cov-reset]")?.addEventListener("click", () => {
       input("reports").value = "6";
+      input("records").max = "30";
       input("records").value = "30";
       input("attendance").max = "30";
       input("attendance").value = "24";

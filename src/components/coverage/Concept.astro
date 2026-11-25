@@ -1,6 +1,6 @@
 ---
 import { states, stateOptions } from "../../lib/states";
-import { story } from "../../lib/coverage";
+import { story, kickGrid } from "../../lib/coverage";
 import { pipeline, spell } from "../../lib/cases";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
@@ -41,30 +41,30 @@ const captions = [
     <p><dfn>Completeness</dfn> asks whether everything you need is here. <dfn>Coverage</dfn> puts a number on it: what you have, divided by what you expected, counted in the same unit.</p>
     <p class="cv-formula"><span>coverage</span> = <span>what you have</span> ÷ <span>what you expected</span></p>
   </div>
-  <p>Take the schedule pages. The conference membership list names {spell(pipeline.asked)} schools, and each school has a schedule page. Those {spell(pipeline.asked)} pages are the <strong>expected set</strong>: the list of what should exist. Its size goes on the bottom of the fraction. Here is Kick's Friday summary, counted that way.</p>
+  <p>Take the schedule pages. The conference membership list names {spell(kickGrid.length)} schools, and each school has a schedule page. Those {spell(kickGrid.length)} pages are the <strong>expected set</strong>: the list of what should exist. Its size goes on the bottom of the fraction. Here is Kick's Friday summary, counted that way.</p>
   <div class="cv-recount" role="region" aria-label="Kick's Friday summary, counted as coverage">
     <div class="cv-chat-bar">
       <span class="cv-agent-badge">Kick · Friday's summary</span>
       <span class="cv-recount-tag">Recounted</span>
     </div>
-    <p class="cv-recount-was">“All eight school sites, {story.counted} conference matches, no errors.”</p>
+    <p class="cv-recount-was">“<s>All eight school sites</s>, {story.counted} conference matches, <s>no errors</s>.”</p>
     <div class="cv-recount-row">
       <p class="cv-recount-unit">Schedule pages</p>
-      <p class="cv-frac"><span>{pipeline.saved} saved</span><span>{pipeline.asked} on the membership list</span></p>
-      <p class="cv-recount-val">{pipeline.saved} of {pipeline.asked}</p>
+      <p class="cv-frac" aria-label={`${pipeline.saved} saved, over ${kickGrid.length} on the membership list`}><span aria-hidden="true">{pipeline.saved} saved</span><span aria-hidden="true">{kickGrid.length} on the membership list</span></p>
+      <p class="cv-recount-val">{pipeline.saved} of {kickGrid.length}</p>
     </div>
     <div class="cv-recount-row is-open">
       <p class="cv-recount-unit">Finished matches</p>
-      <p class="cv-frac"><span>{story.counted} counted in the table</span><span>? finished by Friday</span></p>
+      <p class="cv-frac" aria-label={`${story.counted} counted in the table, over an unknown number finished by Friday`}><span aria-hidden="true">{story.counted} counted in the table</span><span aria-hidden="true">? finished by Friday</span></p>
       <p class="cv-recount-val">{story.counted} of ?</p>
     </div>
-    <p class="cv-recount-foot">A match counts on top only if its score was found on a saved page. A match whose score is still unknown counts only on the bottom: it was played, but nobody can count it.</p>
+    <p class="cv-recount-foot">A match counts on top only if its score was found on a saved page. A match whose score is still unknown belongs only on the bottom: it was played, but it cannot be counted in the table.</p>
   </div>
 
   <p>Three rules keep that number honest.</p>
   <ol class="cv-rules">
     <li><b>Write the expected set before the run, from a source outside it.</b> Take it from something the run can't change, such as the membership list or the competition format. If you build the page list from whatever was saved, Dunmore drops out of its own count and the gap disappears with it.
-      <p class="cv-rule-call"><span>Dunmore athletics</span>“We've played thirteen.”<em>Case 1</em></p></li>
+      <p class="cv-rule-call"><span>Dunmore athletics</span>“You've got our men at six. We've played thirteen.”<em>Case 1</em></p></li>
     <li><b>Count in the unit of analysis, the thing your claim counts.</b> A standings table makes claims about matches, not pages. Counted in pages, Dunmore is one gap in {spell(pipeline.asked)}. Counted in matches, that one page may cost several results. Case 2 works out how many.
       <p class="cv-rule-call"><span>Coach Dolan, Hartwell</span>“Seven-nothing. You've got us fourth.”<em>Case 2</em></p></li>
     <li><b>Keep a coverage record beside the data.</b> A <strong>coverage record</strong> is an inventory of what you set out to collect, with what happened to each one. For pages, every entry ends in a state.
@@ -132,7 +132,7 @@ const captions = [
         <p class="cv-fb" role="status"></p>
       </div>
     ))}
-    <div class="cv-line" data-q data-type="select" data-answer="named" data-why="22 of 27 finished, with the page that didn't answer named. Not 30, because three debates haven't happened yet. Not 27 of 27: Pinecrest's debates happened, and we haven't read them." data-wrong={JSON.stringify({ found: "A raw count with no denominator hides what's missing.", scheduled: "Three of the 30 haven't happened yet, so they can't be missing.", whole: "Pinecrest's five debates happened. Its page is unavailable: unknown, not zero." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="named" data-why="22 of 27 finished, with the page that didn't answer named. Not 30, because three debates haven't happened yet. Not 27 of 27: Pinecrest's debates happened, and we haven't read them." data-wrong={JSON.stringify({ found: "A raw count with nothing on the bottom hides what's missing.", scheduled: "Three of the 30 haven't happened yet, so they can't be missing.", whole: "Pinecrest's five debates happened. Its page is unavailable: unknown, not zero." })}>
       <label><span>Which caption belongs under the league table?</span>
         <select data-save="idea-caption"><option value="">Choose</option>{captions.map(([k, t]) => <option value={k}>{t}</option>)}</select>
       </label>
