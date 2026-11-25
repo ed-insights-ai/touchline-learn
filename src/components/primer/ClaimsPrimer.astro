@@ -22,7 +22,7 @@ const claims = [
   [`${collected === 8 ? "Eight" : collected} library reports were collected.`, "Dataset", "Yes"],
   [`Five collected reports show at least ${fmt(bar)} visitors.`, "Dataset", "Yes"],
   [`The highest recorded visitor count was ${fmt(Math.max(...seen))}.`, "Dataset", "Yes"],
-  ["Only eight libraries received visitors.", "Real world", "No"],
+  ["Only eight libraries received visitors.", "Real world", "Not established"],
   [`Exactly five libraries had at least ${fmt(bar)} visitors.`, "Real world", "Not established"],
   ["Library A was the city's busiest library.", "Real world", "Not established"],
 ];
@@ -36,7 +36,7 @@ const words = [
 const log = [
   ["Request attempted", "Yes", "Yes"],
   ["HTTP response", "200 OK", "Timeout"],
-  ["Report rows retrieved", "0", "Unknown"],
+  ["Report rows retrieved", "0", "None (no response)"],
   ["Valid weekly report obtained", "No", "No"],
   ["Actual visitor count", "Unknown", "Unknown"],
 ];
@@ -73,7 +73,7 @@ const checks = [
   prompt={claimsPrompt}
   back="../01-collection/#prove-it"
   about="This is a reply an AI assistant gave to Module 1's claim-checking study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 8 and red-pen Kick's report."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 8 and compare the better caption with yours."
 >
   <h2 class="pr-title">From collected data to defensible claims</h2>
   <p>Collecting data and writing about data are two different tasks. An AI assistant can summarize a dataset accurately and still draw a conclusion about the world that the dataset doesn't support.</p>
@@ -97,7 +97,7 @@ const checks = [
         </li>
       ))}
     </ol>
-    <figcaption>Five of the eight collected reports show at least {fmt(bar)} visitors. Libraries {missing.join(" and ")} have no report.</figcaption>
+    <figcaption>Five of the eight collected reports show at least {fmt(bar)} visitors. No report was collected from Libraries {missing.join(" and ")}.</figcaption>
   </figure>
   <p>Now imagine an AI assistant writes a summary.</p>
   <div class="pr-scroll">
@@ -146,7 +146,7 @@ const checks = [
       <i data-share="band" style={`left:${(high / expected) * 100}%;width:${(missing.length / expected) * 100}%`}></i>
       <span style="left:0%">0%</span><span style="left:50%">50%</span><span style="left:100%">100%</span>
     </div>
-    <p class="pr-lab-foot"><span>Citywide share with {fmt(bar)}+ visitors <b data-share="out">{pct(high, expected)} to {pct(high + missing.length, expected)}</b></span></p>
+    <p class="pr-lab-foot" aria-live="polite"><span>Citywide share with {fmt(bar)}+ visitors <b data-share="out">{pct(high, expected)} to {pct(high + missing.length, expected)}</b></span></p>
     <p class="pr-run-note">The {pct(high, collected)} from collected reports is not a possible citywide value: with {expected} libraries, the share moves in steps of {pct(1, expected)}.</p>
   </figure>
   <p>Reporting {pct(high, collected)} as a citywide figure would assume the reporting libraries represent the missing ones. Nothing has established that.</p>
@@ -200,8 +200,9 @@ const checks = [
   <p class="pr-pull">A claim should never be broader than the evidence that supports it.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Kick's drafted report in Part 8 mixes the same two kinds of sentence. The 2025 record counts three different things, schedule pages, matches and box scores, each against its own expected total. Before you keep a sentence, ask what it counts, and out of what.</p>
-    <p>One difference: the reply's expected set rests on an assumed reporting requirement. Touchline's comes from the membership list and the competition format, so in Part 8 you can work it out before you judge a single sentence.</p>
+    <p>Kick's drafted report in Part 8 mixed the same two kinds of sentence: true of the file, and claims about the season. Ask of any sentence what it counts, and out of what.</p>
+    <p>The ladder maps onto Part 5's coverage states. Library J, which timed out, is Unavailable. Touchline marks a page Empty only after verifying that it covers the requested period, and only an Empty page lets you report zero.</p>
+    <p>One more difference: the reply's expected set rests on an assumed reporting requirement. Touchline's comes from the membership list and the competition format.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
@@ -269,6 +270,8 @@ const checks = [
   .pr-ladder b { color: var(--sl-color-white); }
   .pr-ladder span { color: var(--pr-ai); font-size: 0.85rem; font-weight: 700; }
   .pr-ladder small { color: var(--tl-muted); font-size: 0.88rem; }
+  :root[data-theme="light"] .pr-ladder span { color: #5b5291; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .pr-ladder span { color: #5b5291; } }
 
   .pr-captions .is-poor { border-color: color-mix(in srgb, var(--pr-red) 45%, var(--tl-line)); }
   .pr-captions .is-better { border-color: var(--pr-green); }

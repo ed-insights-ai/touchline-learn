@@ -186,6 +186,7 @@
           const ok = grade(q) === true;
           right += Number(ok);
           const fb = q.querySelector<HTMLElement>(".cv-fb")!;
+          delete fb.dataset.reviewFb;
           fb.classList.remove("is-right", "is-wrong");
           if (predict) { fb.textContent = "Prediction recorded. It isn't graded: the simulator shows what happened."; return; }
           fb.classList.add(ok ? "is-right" : "is-wrong");

@@ -209,6 +209,12 @@ import { parts, phases } from "../../lib/parts";
     const review = rail.querySelector<HTMLInputElement>("[data-rail-review]")!;
     const setReview = (on: boolean) => {
       root.classList.toggle("is-review", on);
+      root.querySelectorAll<HTMLElement>("[data-q][data-why]").forEach((q) => {
+        const fb = q.querySelector<HTMLElement>(".cv-fb");
+        if (!fb) return;
+        if (on && !fb.textContent?.trim()) { fb.textContent = q.dataset.why!; fb.dataset.reviewFb = "1"; }
+        else if (!on && fb.dataset.reviewFb) { fb.textContent = ""; delete fb.dataset.reviewFb; }
+      });
       review.checked = on;
       try { if (on) sessionStorage.setItem(REVIEW, "1"); else sessionStorage.removeItem(REVIEW); } catch {}
     };
