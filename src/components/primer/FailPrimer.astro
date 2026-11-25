@@ -189,7 +189,7 @@ publication_status: provisional`;
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Kick's Friday run took Policy B. Its summary, “no errors,” says the code ran; it says nothing about whether the table is ready to use. Like Store C, Dunmore was one source among several, yet its {spell(bounds.unseen)} missing home matches touched every row of the standings.</p>
-    <p>Two differences to carry back. The reply's “operational success” only asks whether the code ran; Touchline's rule says a run succeeds only when its coverage record is written and accurate. And Touchline's publish decision is not a coverage threshold: hold the table while a gap can still be closed from pages already saved.</p>
+    <p>Two differences to carry back. The reply's “operational success” only asks whether the code ran; Touchline's rule says a run succeeds only when its coverage record is written and matches what happened. And Touchline's publish decision is not a coverage threshold: hold the table while a gap can still be closed from pages already saved, then publish if the record supports the table, with every remaining gap named.</p>
   </aside>
 
   <h2>3. Retries, timeouts and reruns</h2>
@@ -223,7 +223,7 @@ publication_status: provisional`;
   </div>
   <div class="pr-tiles is-two">
     <p class="is-alarm"><b>{usd(observed + complete)}</b>Blindly appending · duplicate reports counted twice</p>
-    <p class="is-real"><b>{usd(complete)}</b>Replacing by unique key · each store counted once</p>
+    <p class="is-real"><b>{usd(complete)}</b>Inserting or updating by key · each store counted once</p>
   </div>
   <p>A safe pipeline identifies each logical report by a unique key, such as:</p>
   <div class="pr-code"><p class="pr-label">Key</p><pre>(store_id, sales_date)</pre></div>

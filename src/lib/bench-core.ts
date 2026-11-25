@@ -196,7 +196,7 @@ export function reading(data: BenchData, st: BenchState, out: Outcome): string {
   }
   const one = out.down.length === 1;
   const who = listed(out.down.map((i) => data.schools[i].name));
-  if (out.stopped) return `The run stopped at ${data.schools[out.down[0]].name}'s page. Nothing comes out, including the ${out.read} matches read from pages that did answer.`;
+  if (out.stopped) return `The run stopped at ${data.schools[out.down[0]].name}'s page. Nothing comes out, including results from pages already read.`;
   if (!out.unread) return `${who} did not answer, yet every finished match ${one ? "it" : "they"} hosted was found on the visitor's page.${blank}`;
   const lost = st.rule === "host"
     ? `${who} did not answer, and ${matches(out.unread)} went with ${one ? "that page" : "those pages"}: every finished match ${one ? "that school" : "those schools"} hosted.`
