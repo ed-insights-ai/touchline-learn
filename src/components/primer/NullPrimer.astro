@@ -44,7 +44,7 @@ const imputed = 10;
 const reported = days.map((d) => (typeof d.orders === "number" ? d.orders : imputed));
 
 const checks = [
-  ["Understanding absence", "A warehouse is expected to submit seven daily reports. Six reports are collected, one contains a shipping count of zero, and another contains a NULL shipping count. What is your record coverage? What is your value coverage? Why should the zero count be treated differently from the NULL count?"],
+  ["Understanding absence", "A warehouse is expected to submit seven daily reports. Six reports are collected, one contains a shipping count of zero, another contains a NULL shipping count, and the other four contain valid counts. What is your record coverage? What is your value coverage? Why should the zero count be treated differently from the NULL count?"],
   ["Silent data transformation", "You collect the following four shipping values: 20, 0, NULL, 40. Calculate the total and average under each of these treatments: ignoring the missing value, replacing it with zero, and replacing it with a sentinel of −1. Which treatment introduces a factual assertion that no orders were shipped on the missing day?"],
   ["Responsible reporting", "You expect ten daily reports but collect only eight, all containing valid shipping counts. Those eight reports contain a combined total of 160 orders. Your colleague fills both missing days with 20 orders and publishes a total of 200. Is this necessarily an unreasonable estimate? What is wrong with publishing 200 without qualification, and how would you label the result and write a note underneath the table?"],
 ];
@@ -135,7 +135,7 @@ const checks = [
   <p class="pr-pull">A more complete-looking dataset is not necessarily a more complete dataset.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Module 1 has all three situations. {noScore.home} vs. {noScore.away} on {noScore.day} is Thursday: the row is on a saved page, marked final, and its score is blank. Dunmore's {bounds.unseen} home matches are Friday: records that should exist and were never collected, which only the expected set shows. Kick's run dropped the September 21 row, and nothing in its summary said so. In soccer a blank score is two values, so filling it with zero makes it a 0-0 draw that nobody saw.</p>
+    <p>Two of Friday's gaps map onto this example. {noScore.home} vs. {noScore.away} on {noScore.day} is Thursday: the row is on a saved page, marked final, and its score is blank. Dunmore's {bounds.unseen} home matches are Friday: records that should be in the table and weren't counted, which only the expected set shows. So what should the standings tell readers about {noScore.day}?</p>
   </aside>
 
   <h2>3. How SQL NULL and pandas NaN behave</h2>
@@ -182,7 +182,7 @@ const checks = [
   <p>Imagine Thursday was the only report you collected, and its shipping count was missing.</p>
   <div class="pr-scroll">
     <table class="pr-table pr-num">
-      <thead><tr><th scope="col">Operation</th><th scope="col">SQL</th><th scope="col">pandas</th></tr></thead>
+      <thead><tr><th scope="col">Operation</th><th scope="col">SQL</th><th scope="col">pandas float NaN</th></tr></thead>
       <tbody>
         <tr><th scope="row">Count known values</th><td>0</td><td>0</td></tr>
         <tr class="is-clash"><th scope="row">Sum</th><td>NULL</td><td>0</td></tr>
@@ -208,7 +208,7 @@ const checks = [
       <p><b>{pct(collected, days.length)}</b>Record coverage</p>
       <p><b>{pct(known.length, days.length)}</b>Value coverage</p>
     </div>
-    <figcaption>Figures reflect three of five scheduled reporting days. Thursday's shipping count is unavailable, and Friday's report was not collected. The confirmed total is incomplete. The average excludes missing observations.</figcaption>
+    <figcaption>Figures reflect three of five scheduled reporting days. Thursday's shipping count is missing, and Friday's report was not collected. The confirmed total is incomplete. The average excludes missing observations.</figcaption>
   </figure>
   <p>Notice how the note tells the reader exactly what is missing and how the calculations were performed.</p>
 
@@ -223,7 +223,7 @@ const checks = [
       <tbody>
         {days.map((d, i) => typeof d.orders === "number"
           ? <tr><th scope="row">{d.day}</th><td>{d.orders}</td><td>{reported[i]}</td><td>Observed</td></tr>
-          : <tr class="is-imputed"><th scope="row">{d.day}</th><td>—</td><td>{reported[i]}</td><td><span>Imputed</span></td></tr>)}
+          : <tr class="is-imputed"><th scope="row">{d.day}</th><td>{d.orders === null ? "NULL" : "—"}</td><td>{reported[i]}</td><td><span>Imputed</span></td></tr>)}
         <tr class="is-total"><th scope="row">Total</th><td>{total}</td><td>{reported.reduce((a, b) => a + b, 0)}</td><td>Mixed</td></tr>
       </tbody>
     </table>
@@ -307,8 +307,8 @@ const checks = [
 
   .pr .pr-summary-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.85rem; }
   .pr-summary-head b { color: var(--sl-color-white); font-size: 1rem; }
-  .pr-impute td:last-child { text-align: left; }
-  .pr-impute th[scope="col"]:last-child { text-align: left; }
+  .pr-table.pr-impute td:last-child { text-align: left; }
+  .pr-table.pr-impute th[scope="col"]:last-child { text-align: left; }
   .pr-impute .is-imputed td { font-style: italic; }
   .pr-impute .is-imputed td span { padding: 0.05rem 0.5rem; border-radius: 999px; background: color-mix(in srgb, var(--pr-yellow) 25%, transparent); color: var(--tl-ink); font-style: normal; font-size: 0.82rem; font-weight: 700; }
   .pr .pr-note { color: var(--tl-muted); font-size: 0.88rem; font-style: italic; }

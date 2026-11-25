@@ -173,14 +173,14 @@ export function matrixKey(out: Outcome, withFill: boolean): string {
   return keys.map((c) => `<li><i class="bn-${c}" aria-hidden="true">${GLYPH[c]}</i>${MEANS[c].charAt(0).toUpperCase()}${MEANS[c].slice(1)}: ${n(c)}</li>`).join("");
 }
 
-export function countTiles(data: BenchData, out: Outcome): string {
+export function countTiles(data: BenchData, out: Outcome, rows = true): string {
   const tiles = [
     [`${data.schools.length - out.down.length} of ${data.schools.length}`, "schedule pages answered"],
     [`${out.stopped ? 0 : out.read} of ${out.finished}`, "finished matches counted"],
     [String(out.unread), out.invented ? "finished matches lost, entered as 0-0" : "finished matches lost"],
     [String(out.noscore), "finished, no score on any saved page"],
     [out.wrong === null ? "No table" : `${out.wrong} of ${data.schools.length}`, out.wrong === null ? "the run stopped" : "rows that differ from the reference table"],
-  ];
+  ].slice(0, rows ? 5 : 4);
   return tiles.map(([v, l]) => `<div><dt>${esc(l)}</dt><dd>${esc(v)}</dd></div>`).join("");
 }
 

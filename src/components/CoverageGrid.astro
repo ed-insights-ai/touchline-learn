@@ -3,7 +3,7 @@ import { LAYERS, type GridRow } from "../lib/coverage";
 
 interface Props { rows: GridRow[]; caption: string; id: string }
 const { rows, caption, id } = Astro.props;
-const names: Record<string, string> = { complete: "Complete", empty: "Empty", unavailable: "Unavailable", "no-collector": "No collector", "not-asked": "Not asked" };
+const names: Record<string, string> = { complete: "Complete", empty: "Empty", unavailable: "Unavailable", "no-collector": "No collector", "not-asked": "Never asked" };
 const glyph: Record<string, string> = { complete: "✓", empty: "○", unavailable: "✕", "no-collector": "–", "not-asked": "" };
 const used = [...new Set(rows.flatMap((r) => r.cells.map((c) => c.state)))];
 ---

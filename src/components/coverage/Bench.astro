@@ -99,7 +99,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
     </div>
   )}
 
-  {show.includes("counts") && <dl class="bn-counts" data-bn-counts set:html={countTiles(benchData, out)} />}
+  {show.includes("counts") && <dl class="bn-counts" data-bn-counts set:html={countTiles(benchData, out, show.includes("table"))} />}
 
   {controls.length > 0 && (
     <div class="bn-reading">
@@ -275,7 +275,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       const says = part("says");
       if (says && says.textContent !== out.says) says.textContent = out.says;
       const fill = (name: string, html: string) => { const el = part(name); if (el) el.innerHTML = html; };
-      fill("counts", countTiles(data, out));
+      fill("counts", countTiles(data, out, !!part("table")));
       fill("matrix", matrixRows(data, out));
       fill("key", matrixKey(out, withFill));
       fill("table", tableRows(out));

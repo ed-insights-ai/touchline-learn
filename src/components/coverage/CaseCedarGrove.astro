@@ -15,12 +15,12 @@ import { stateOptions, stateName as nameOf } from "../../lib/states";
 const sort = [
   { evidence: "The request timed out on every try.", answer: "unavailable", worked: true, why: "Nothing was saved, and the reason is known: the site did not answer." },
   { evidence: "The page was saved, shows it is the 2026 season, and lists 18 matches.", answer: "complete", worked: true, why: "Saved, verified, and it holds rows." },
-  { evidence: "The page was saved and shows it is the right season. Its statistics table has a header row and no players.", answer: "empty", why: "Saved and verified, with nothing in it. You know what the page says, and it says nothing.", wrong: { unavailable: "The page was saved, and it shows which season it is.", complete: "Complete means it holds rows. This one holds none." } },
-  { evidence: "The page was saved with no rows, and nothing on it shows which season it belongs to.", answer: "unavailable", why: "A page that cannot show what it is tells you nothing about the season you asked for, so the state is unavailable, with that reason.", wrong: { empty: "Empty for which season? Nothing on the page says. You cannot claim the 2026 page is empty when you cannot show this is the 2026 page.", complete: "It holds no rows, and you cannot show it is the page you asked for." } },
+  { evidence: "The page was saved and shows it is the right season. Its statistics table has a header row and the line “No players listed.”", answer: "empty", why: "Saved and verified, with nothing in it. You know what the page says, and it says nothing.", wrong: { unavailable: "The page was saved, and it shows which season it is.", complete: "Complete means it holds rows. This one holds none." } },
+  { evidence: "The same statistics page, header row and “No players listed,” but nothing on it shows which season it belongs to.", answer: "unavailable", why: "A page that cannot show what it is tells you nothing about the season you asked for, so the state is unavailable, with that reason.", wrong: { empty: "Empty for which season? Nothing on the page says. You cannot claim the 2026 page is empty when you cannot show this is the 2026 page.", complete: "It holds no rows, and you cannot show it is the page you asked for." } },
   { evidence: "The school moved its site to a system the collector has no reader for.", answer: "no-collector", why: "Retrying changes nothing. This gap closes when someone builds a reader.", wrong: { unavailable: "Unavailable is for a page this collector could have read. This one it cannot read at all." } },
-  { evidence: "The roster address answers “page not found.”", answer: "unavailable", why: "Nothing was served, so nothing was verified. “Not found” is a fact about the address. It does not say the team has no players.", wrong: { empty: "No page was served, so nothing proves the roster is empty. The address may simply have moved.", "no-collector": "The collector can read this site. The page it asked for was not there." } },
+  { evidence: "The schedule page was saved, shows it is the 2026 season, and lists 14 matches. One of them is marked final and has no score.", answer: "complete", why: "A state describes the whole page, and this one is verified and holds rows. The blank score is item nonresponse, recorded against that one row.", wrong: { empty: "The page holds 14 rows. One blank field does not empty a page.", unavailable: "The page answered and is verified as the right season. The gap is one field, not the page." } },
   { evidence: "The plan never listed this page.", answer: "none", why: "A state answers a question somebody asked. Nobody asked, so there is no record at all.", wrong: { unavailable: "Unavailable means you tried and failed. Nobody tried.", "no-collector": "Nothing says it could not be read. It was never requested.", empty: "Empty is a verified fact about a page you saved. This page was never requested." } },
-  { evidence: "The page was saved without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs proof that this is the page you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
+  { evidence: "The page was saved without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs the page verified as the one you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
 ];
 
 const match = `${noScore.home} vs. ${noScore.away}, ${noScore.day}`;
@@ -40,7 +40,7 @@ const wrongs = {
 ---
 
 <section id="case-cedar-grove">
-  <PartHead id="case-cedar-grove">Case 3. Cedar Grove: empty, unknown, and never asked</PartHead>
+  <PartHead id="case-cedar-grove">Case 3. Cedar Grove: empty, unknown and never asked</PartHead>
   <Pipeline small lit="build" note="Parse reads the row. Build drops it." />
 
   <p class="cv-callout">Cedar Grove men's soccer: “September twenty-first, us and St. Lambert. That game happened. It's not in the standings.”</p>
@@ -48,17 +48,20 @@ const wrongs = {
   <Beat part="case-cedar-grove" name="Look" title="A saved page with a blank score" />
   <p>Cedar Grove's page answered without a hitch. Even if every schedule page answers, the table counts only {story.afterRepair} matches, because one finished match has no score on either schedule. A Complete page can still hold an incomplete row.</p>
   <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." when="if every page had answered" />
-  <p>Cedar Grove's schedule links to a box score page for that match. Here is what Kick requested compared to every page available across the conference. Click any square to inspect it.</p>
+  <p>Cedar Grove's schedule links to a box score page for that match. Here are Friday's requests, by school and the four kinds of page each school publishes. Tap any square to inspect it.</p>
   <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
-  <p>The dashed blank squares are pages Kick never asked for, including the box score page that might have the missing score. A run's log has nothing to say about pages it never requested.</p>
+  <p>The dashed squares are pages Kick never asked for, including the box score page that might have the missing score. A run's log has nothing to say about pages it never requested.</p>
 
   <Beat part="case-cedar-grove" name="Name it" title="Empty, unknown and never asked" />
-  <p>The grid above shows the four coverage states on Friday's run. The blank squares have no state because Kick never asked for them. The distinction that matters most is <strong>empty</strong> vs. <strong>unavailable</strong>: “the site lists no players” can be reported as zero, whereas “we couldn't read the site” must be reported as unknown.</p>
-  <p>A coverage state describes a whole page. Cedar Grove's schedule is Complete even though one row has no score, which survey statisticians call <strong>item nonresponse</strong>: a blank field inside a unit that answered. Coverage can fail at three levels: a page that never answers (Dunmore's schedule), the records that go with it (its seven home results), and a field left blank in a row you have (this score).</p>
-  <p>A page only counts once it is <strong>verified</strong> as the school and season you requested, since sites sometimes serve last season's page without returning an error. <a href="../03-provenance/">Module 3</a> covers how to verify that.</p>
+  <p>Part 2 named four states for a page. Friday's grid uses two of them: Dunmore's schedule is Unavailable, and the other seven are Complete. The dashed squares have no state, because Kick never asked for them. The distinction that matters most is <strong>empty</strong> vs. <strong>unavailable</strong>: “the site lists no players” can be reported as zero, whereas “the site didn't answer” must be reported as unknown.</p>
+  <p>A state describes a whole page, so Cedar Grove's schedule is Complete even though one row has no score. Survey statisticians call a blank field inside a unit that answered <strong>item nonresponse</strong>. It pairs with the term Part 3 gave Dunmore.</p>
+  <dl class="cv-terms" aria-label="Friday's two kinds of nonresponse">
+    <div><dt>Dunmore's unanswered page</dt><dd><b>Unit nonresponse</b><span>A school on the frame that never answered</span></dd></div>
+    <div><dt>{noScore.day}'s blank score</dt><dd><b>Item nonresponse</b><span>A blank field in a page that did answer</span></dd></div>
+  </dl>
 
   <h4 class="cv-try">Practice: classify the evidence</h4>
-  <p>The first two are filled in as examples. Classify the remaining six, then check your answers.</p>
+  <p>A saved page can be marked Complete or Empty only once it is <strong>verified</strong> as the school and season you requested, since sites sometimes serve last season's page without an error. <a href="../03-provenance/">Module 3</a> covers how to verify that. The first two items are filled in as examples. Classify the remaining six, then check your answers.</p>
   <div class="cv-check" data-once="sort">
     <p class="cv-kind">Knowledge check</p>
     <ol class="cv-sort">
@@ -82,7 +85,7 @@ const wrongs = {
     <p class="cv-once">Classify all six, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Notice items 3 and 4: the exact same blank page is <strong>Empty</strong> when it shows its season, and <strong>Unavailable</strong> when it can't.</p></div>
+    <div class="cv-reveal"><p>Notice items 3 and 4: the same blank table is <strong>Empty</strong> when the page shows its season, and <strong>Unavailable</strong> when it can't. Item 6 is Cedar Grove's case: a blank score doesn't change the page's state.</p></div>
   </div>
 
   <AiStudy
@@ -110,8 +113,8 @@ const wrongs = {
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
       <p class="cv-tablenote"><b>Not counted</b>{match}: final, score unknown. Box score page not yet requested, so both schools show one match fewer than they played.</p>
-      <p>The note keeps the blank a blank. Every other option turns it into data: a score nobody verified, a match with no result, or a 0-0 nobody saw. Saying nothing hides it. <a href="#rewind">Rewind</a> puts this note under the corrected table.</p>
+      <p>The note keeps the blank a blank. A posted score, a played match with no result and a 0-0 each turn it into data nobody verified. Leaving it out silently hides the gap, so readers can't tell the table is short.</p>
     </div>
   </div>
-  <NextPart from="case-cedar-grove">Next, the policy choice behind all three calls (<span data-decision-echo>the same one you picked earlier in the setup</span>).</NextPart>
+  <NextPart from="case-cedar-grove">You just chose how to publish one blank score. What should a run do when a whole site doesn't answer (<span data-decision-echo>you answered this once in the setup</span>)?</NextPart>
 </section>

@@ -174,3 +174,7 @@
 .pr-eq-op { color: var(--tl-muted); font-size: 1.4rem !important; }
 .pr .pr-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0.5rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
 .pr-legend span::before { content: ""; display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.35rem; border-radius: 50%; vertical-align: -0.05rem; }
+.pr-table.pr-num td { text-align: right; font-variant-numeric: tabular-nums; }
+.pr-num th[scope="col"]:not(:first-child) { text-align: right; }
+.pr-num .is-missing td { color: var(--tl-muted); font-style: italic; }
+.pr-num .is-total th, .pr-num .is-total td { border-bottom: 0; font-weight: 700; color: var(--sl-color-white); }
