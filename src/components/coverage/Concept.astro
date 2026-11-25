@@ -5,6 +5,7 @@ import { pipeline, spell } from "../../lib/cases";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 import AiStudy from "./AiStudy.astro";
+import { coveragePrompt } from "../../lib/primer";
 
 const stages = [
   ["Scrape", "Fetch", "Ask for each page, and write down which answered", "1, this one"],
@@ -17,13 +18,6 @@ const stages = [
   ["Report", "The coverage record", "Kept from Fetch onward, beside every step", "1, this one"],
 ];
 
-const learnPrompt = `I'm learning how to tell whether a data collection is complete. Teach me with one running example that is not about sports.
-
-1. What an expected set is, and why it has to be written before the collection runs and from outside it.
-2. Coverage as what I have divided by what I expected, and why the unit I count in (pages, records, fields) changes the answer.
-3. The difference between a page that is empty, one I could not reach, and one I have no way to read, and what each lets me claim.
-4. Missing completely at random, missing at random, and missing not at random, with one example of each.
-5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
 
 const q = [
   { key: "timeout", text: "Pinecrest's results page timed out on every try.", answer: "unavailable", why: "Unavailable. It was requested and never answered, and the reason is recorded." },
@@ -94,8 +88,9 @@ const captions = [
   <AiStudy
     id="concept-ai-study"
     title="Want the same idea outside sports?"
-    note="Paste this into any AI assistant for a short walkthrough outside sports, then come back to test yourself below."
-    prompt={learnPrompt}
+    note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back and test yourself on a debate league below."
+    prompt={coveragePrompt}
+    href="../01-collection-ai-coverage/"
   />
 
   <h4 class="cv-try">Check your understanding: a debate league</h4>

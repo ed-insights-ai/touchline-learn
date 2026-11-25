@@ -1,0 +1,379 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { coveragePrompt } from "../../lib/primer";
+
+const units = [
+  ["Page coverage", "Readable branch reports", 6, 8],
+  ["Record coverage", "Unique program records", 30, 40],
+  ["Field coverage", "Required field values", 84, 120],
+  ["Attendance coverage", "The field needed for our analysis", 24, 40],
+] as const;
+const pct = (a: number, b: number) => `${Math.round((a / b) * 1000) / 10}%`;
+
+const unitQuestions = [
+  ["Pages", "Did I obtain the documents?"],
+  ["Records", "Did I collect the individual programs?"],
+  ["Fields", "Did I collect the required information about those programs?"],
+  ["Attendance", "Do I have the specific information needed for my analysis?"],
+];
+
+const states = [
+  ["empty", "Empty", "known absence", "The branch report loads correctly and explicitly states that no programs took place during October.", "zero programs, assuming the report is valid."],
+  ["unreachable", "Unreachable", "failed retrieval", "The branch website is temporarily unavailable. Your requests fail even after retries.", "the report was not obtained. Its contents are unknown."],
+  ["unreadable", "Unreadable", "unsupported extraction", "The report loads, but the attendance table is embedded in a scanned image that your scraper cannot interpret.", "the report was obtained, but its records could not be extracted."],
+];
+
+const branchStatus = [
+  ["Central", "Parsed successfully", "12", "ok"],
+  ["North", "Confirmed empty", "0", "empty"],
+  ["East", "Unreachable", "Unknown", "lost"],
+  ["West", "Unreadable", "Unknown", "lost"],
+];
+
+const mcar = [[34, 0], [52, 1], [28, 0], [46, 0], [61, 0], [39, 1], [55, 0], [31, 0], [48, 0], [27, 1], [58, 0], [42, 0], [36, 0], [50, 1], [44, 0], [29, 0]] as const;
+const marLarge = [[62, 0], [55, 0], [70, 1], [58, 0], [66, 0], [51, 0], [64, 0], [59, 0], [68, 1], [57, 0], [61, 0], [53, 0]] as const;
+const marSmall = [[24, 1], [31, 0], [19, 1], [27, 0], [22, 1], [33, 0], [26, 1], [21, 0], [29, 1], [18, 0], [25, 1], [30, 0]] as const;
+const mnar = [[8, 1], [12, 1], [15, 1], [19, 1], [23, 1], [27, 1], [31, 0], [35, 0], [40, 0], [44, 0], [49, 0], [53, 0], [58, 0], [62, 0]] as const;
+const scale = (rows: readonly (readonly [number, number])[]) => Math.max(...rows.map(([v]) => v));
+
+const mechanisms = [
+  ["MCAR", "Neither observed nor missing values", "Random software fault"],
+  ["MAR", "Observed information", "Branch reporting software"],
+  ["MNAR", "Unobserved information, potentially the missing value itself", "Low attendance deliberately omitted"],
+];
+
+const base = [44, 40, 36, 32, 26, 22, 15, 12];
+const offsets = [-6, 3, 8, -2, 5];
+const programs = base.flatMap((b) => offsets.map((o) => b + o));
+const lowest = [...programs.keys()].sort((a, b) => programs[a] - programs[b] || a - b).slice(0, 10);
+const collections = [
+  { name: "Collection A", lost: "ten programs at random", missing: [2, 7, 9, 14, 18, 21, 26, 30, 33, 38] },
+  { name: "Collection B", lost: "the two smallest branches", missing: [30, 31, 32, 33, 34, 35, 36, 37, 38, 39] },
+  { name: "Collection C", lost: "the ten least-attended programs", missing: lowest },
+].map((c) => {
+  const kept = programs.filter((_, i) => !c.missing.includes(i));
+  return { ...c, average: (kept.reduce((a, b) => a + b, 0) / kept.length).toFixed(1) };
+});
+const trueAverage = (programs.reduce((a, b) => a + b, 0) / programs.length).toFixed(1);
+const top = Math.max(...programs);
+
+const checks = [
+  ["The expected set", "Your scraper finds seven branch websites and collects all seven reports without an error. The library's directory lists eight branches. What is your page coverage, and why could the scraper never have noticed the problem on its own?"],
+  ["Empty or unknown", "North's report loads and lists no programs. East's website times out on every retry. West's report is a scanned image. What program count would you record for each branch, and why?"],
+  ["Why data is missing", "Programs run by volunteers are less likely to have attendance recorded, and your registry shows which programs were volunteer-run. Which missing-data mechanism is this most likely to be, and what does knowing that let you do?"],
+];
+---
+
+<PrimerChat
+  prompt={coveragePrompt}
+  back="../01-collection/#concept-ai-study"
+  about="This is a reply an AI assistant gave to Module 1's coverage study prompt, edited for this course. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Module 1 and test the same ideas on a debate league."
+>
+  <h2 class="pr-title">How do you know your data collection is complete?</h2>
+  <p>Collecting data and knowing that you collected everything are two different problems. A collection can finish successfully, produce a clean dataset, and still be missing important information without generating a single error.</p>
+  <p>Throughout this lesson, imagine you are building a dataset of <strong>public library program attendance across eight library branches</strong>. Your goal is to understand how many people attended library programs during October.</p>
+  <p>Each branch publishes a monthly report containing its programs, dates, and attendance figures.</p>
+
+  <h2>1. The expected set</h2>
+  <p>An <strong>expected set</strong> is an independently established inventory of everything your collection should contain.</p>
+  <p>Before collecting the library reports, you obtain a branch directory and a central registry of completed programs from the library administration.</p>
+  <p>From these sources, you establish that you expect:</p>
+  <ul class="pr-expect">
+    <li><b>8</b>branch reports</li>
+    <li><b>40</b>completed library programs</li>
+    <li><b>3</b>required fields per program: program ID, date, and attendance</li>
+    <li><b>120</b>total required field values</li>
+  </ul>
+  <p>This becomes your definition of completeness.</p>
+
+  <h3>Why establish it before collection?</h3>
+  <p>Imagine your scraper discovers five library branches, collects their reports, and successfully processes all five.</p>
+  <p>Without an expected set, it might report 100% success. But three branches were never discovered.</p>
+  <figure class="pr-card">
+    <p class="pr-label">What actually exists: 8 branches</p>
+    <ol class="pr-branches">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <li class={n > 5 ? "is-missed" : ""}><b>{n}</b><span>{n > 5 ? "Overlooked" : "Discovered"}</span></li>)}
+    </ol>
+    <div class="pr-tiles is-two">
+      <p><b>100%</b>Self-reported coverage · 5 of 5 discovered</p>
+      <p class="is-alarm"><b>62.5%</b>Actual coverage · 5 of 8 expected</p>
+    </div>
+  </figure>
+
+  <h3>Why must it come from outside the collection?</h3>
+  <p>If your scraper determines both what exists and what it successfully collected, it is effectively grading its own work.</p>
+  <p>An independent source provides a reference against which you can measure the collection. That source might be an official directory, a central database, a published schedule, or a manually verified inventory.</p>
+  <p>The expected set should also contain identifiers, not just totals. Knowing that you need eight specific branches is more useful than simply knowing that you need eight.</p>
+  <p class="pr-pull">You cannot reliably measure what is missing using only what you managed to find.</p>
+
+  <h2>2. Measuring coverage</h2>
+  <p>Coverage measures how much of your expected set you actually collected.</p>
+  <p class="pr-formula" role="math" aria-label="Coverage equals expected items collected divided by total expected items, times 100">
+    <span>Coverage =</span>
+    <span class="pr-frac"><span>Expected items collected</span><span>Total expected items</span></span>
+    <span>× 100</span>
+  </p>
+  <p>Suppose your library collection runs and produces the following results:</p>
+  <ul>
+    <li>Six readable branch reports.</li>
+    <li>Thirty unique program records.</li>
+    <li>Six of those programs have missing attendance values.</li>
+  </ul>
+  <p>You can now measure coverage at different levels.</p>
+  <figure class="pr-card">
+    <ul class="pr-meters">
+      {units.map(([name, what, got, of], i) => (
+        <li class={i === 3 ? "is-key" : ""}>
+          <p><b>{name}</b><strong>{pct(got, of)}</strong></p>
+          <i style={`--w:${(got / of) * 100}%`}></i>
+          <p><span>{what}</span><span>{got} / {of}</span></p>
+        </li>
+      ))}
+    </ul>
+  </figure>
+  <p>All four measurements describe the same collection, but they answer different questions.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th>Unit</th><th>Question it answers</th></tr></thead>
+      <tbody>{unitQuestions.map(([u, q]) => <tr><td><b>{u}</b></td><td>{q}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>Your collection has 75% page coverage, but only 60% attendance coverage. That is particularly important because attendance is the very thing you want to analyze.</p>
+
+  <h3>Experiment with coverage</h3>
+  <p>Change the results of the collection below and observe how the different measurements respond.</p>
+  <figure class="pr-card pr-lab" data-cov-lab>
+    <label><span>Readable reports</span><b data-out="reports">6 of 8</b><input type="range" min="0" max="8" value="6" data-in="reports" /></label>
+    <label><span>Program records collected</span><b data-out="records">30 of 40</b><input type="range" min="0" max="40" value="30" data-in="records" /></label>
+    <label><span>Records with attendance</span><b data-out="attendance">24 of 30</b><input type="range" min="0" max="30" value="24" data-in="attendance" /></label>
+    <div class="pr-tiles">
+      <p><b data-out="page">75.0%</b>Page coverage</p>
+      <p><b data-out="record">75.0%</b>Record coverage</p>
+      <p><b data-out="field">70.0%</b>Field coverage</p>
+      <p><b data-out="attend">60.0%</b>Attendance coverage</p>
+    </div>
+    <p class="pr-lab-foot"><span>This simplified model assumes every collected record contains its program ID and date.</span><button type="button" data-cov-reset>Reset example</button></p>
+  </figure>
+  <p>Notice that you can collect every page and still have incomplete records and fields.</p>
+  <p>Coverage also does not guarantee correctness. You could collect every attendance value and still have inaccurate data.</p>
+
+  <h2>3. Empty, unreachable, and unreadable</h2>
+  <p>When a scraper produces no records from a page, it is tempting to treat that result as zero. But there are several fundamentally different reasons why you might have no data.</p>
+  <ul class="pr-states">
+    {states.map(([key, name, kind, what, claim]) => (
+      <li class={`is-${key}`}>
+        <p class="pr-state-name"><b>{name}</b> · {kind}</p>
+        <p>{what}</p>
+        <p class="pr-claim"><span>You can claim:</span> {claim}</p>
+      </li>
+    ))}
+  </ul>
+  <p>These distinctions should be preserved in your collection results.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th>Branch</th><th>Collection status</th><th>Program count</th></tr></thead>
+      <tbody>{branchStatus.map(([b, st, n, tone]) => <tr><td><b>{b}</b></td><td><span class={`pr-pill is-${tone}`}>{st}</span></td><td>{n === "Unknown" ? <em>{n}</em> : n}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>Notice how zero and unknown are different values. In Python, you might represent zero as <code>0</code> and unknown as <code>None</code>.</p>
+  <p>Also, a parser returning an empty list does not automatically mean the source is empty. The parser may simply have failed to locate the table. If the independent registry expects programs from that branch, an apparently empty report should trigger further investigation.</p>
+  <p class="pr-pull">Absence of data is not evidence of absence.</p>
+
+  <h2>4. Understanding why data is missing</h2>
+  <p>Knowing how much data is missing is only part of the problem. You also need to understand why it is missing.</p>
+  <p>In statistics, there are three important missing-data mechanisms.</p>
+
+  <h3><span>MCAR</span>Missing Completely at Random</h3>
+  <p>The probability that a value is missing is unrelated to both the observed and unobserved data.</p>
+  <p>Imagine a software fault randomly discards attendance values from otherwise valid program records. Every program has an equal chance of losing its attendance value, regardless of branch, date, or actual attendance.</p>
+  <figure class="pr-card">
+    <div class="pr-chart" role="img" aria-label="Sixteen programs with attendance bars; four missing values are scattered across high and low bars.">
+      {mcar.map(([v, gone]) => <i class={gone ? "is-gone" : ""} style={`--h:${(v / scale(mcar)) * 100}%`}></i>)}
+    </div>
+    <p class="pr-legend"><span class="is-seen">Observed</span><span class="is-gone">Missing</span></p>
+    <figcaption>Missing values are scattered independently of attendance.</figcaption>
+  </figure>
+  <p><strong>Impact:</strong> Your sample is smaller, but the missingness itself does not systematically favor high or low attendance programs.</p>
+
+  <h3><span>MAR</span>Missing at Random</h3>
+  <p>The probability that a value is missing depends on other observed information, but not on the missing value itself after accounting for that information.</p>
+  <p>Imagine smaller library branches use older reporting software that frequently fails to export attendance figures. You know which branch hosted every program.</p>
+  <p>Within each branch, the likelihood of a missing attendance value does not depend on how many people actually attended.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Large branches</p>
+    <div class="pr-chart is-short" role="img" aria-label="Large branches: two of twelve values missing.">
+      {marLarge.map(([v, gone]) => <i class={gone ? "is-gone" : ""} style={`--h:${(v / scale(marLarge)) * 100}%`}></i>)}
+    </div>
+    <p class="pr-label">Small branches</p>
+    <div class="pr-chart is-short" role="img" aria-label="Small branches: six of twelve values missing.">
+      {marSmall.map(([v, gone]) => <i class={gone ? "is-gone" : ""} style={`--h:${(v / scale(marLarge)) * 100}%`}></i>)}
+    </div>
+    <p class="pr-legend"><span class="is-seen">Observed</span><span class="is-gone">Missing</span></p>
+    <figcaption>Missing values are associated with an observed characteristic: the branch.</figcaption>
+  </figure>
+  <p><strong>Impact:</strong> Your dataset may overrepresent larger branches. Because you know the branch associated with each program, you may be able to account for this imbalance statistically.</p>
+  <p>Despite its name, MAR does not mean that the missing values are scattered randomly throughout the dataset.</p>
+
+  <h3><span>MNAR</span>Missing Not at Random</h3>
+  <p>The probability that a value is missing depends on the missing value itself, even after accounting for other observed information.</p>
+  <p>Imagine library staff are less likely to publish attendance figures for poorly attended programs because they do not want those programs to appear unsuccessful.</p>
+  <p>The lower the attendance, the more likely it is to be missing.</p>
+  <figure class="pr-card">
+    <div class="pr-chart" role="img" aria-label="Fourteen programs sorted by attendance; the six lowest are missing.">
+      {mnar.map(([v, gone]) => <i class={gone ? "is-gone" : ""} style={`--h:${(v / scale(mnar)) * 100}%`}></i>)}
+    </div>
+    <p class="pr-axis"><span>Low attendance</span><span>High attendance</span></p>
+    <p class="pr-legend"><span class="is-seen">Observed</span><span class="is-gone">Missing</span></p>
+    <figcaption>Missing values are directly associated with the attendance figures themselves.</figcaption>
+  </figure>
+  <p><strong>Impact:</strong> Your dataset could make the library's programs appear more successful than they actually are. Calculating average attendance from the available records would tend to overestimate the true average.</p>
+  <p>This is particularly difficult to correct because the information needed to understand the missingness is itself missing.</p>
+
+  <h3>Comparing the three mechanisms</h3>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th>Mechanism</th><th>Missingness depends on</th><th>Library example</th></tr></thead>
+      <tbody>{mechanisms.map(([m, d, e]) => <tr><td><b>{m}</b></td><td>{d}</td><td>{e}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>These mechanisms are explanations of how data becomes missing. You generally cannot determine which mechanism applies with certainty from the collected data alone. You need knowledge of the collection process and the source.</p>
+
+  <h2>5. Completeness versus representativeness</h2>
+  <p>Imagine three different collections, each with exactly 75% record coverage. Each one kept 30 of the 40 programs and lost 10. The bars below show every program's attendance, grouped by branch from largest to smallest.</p>
+  <figure class="pr-card">
+    {collections.map((c) => (
+      <div class="pr-coll">
+        <p class="pr-coll-head"><b>{c.name}</b><span>lost {c.lost}</span><strong>75%</strong></p>
+        <div class="pr-chart is-strip" role="img" aria-label={`${c.name}: 30 of 40 programs kept, lost ${c.lost}. Average attendance of the kept programs: ${c.average}.`}>
+          {programs.map((v, i) => <i class:list={[{ "is-gone": c.missing.includes(i), "is-branch": i % 5 === 0 && i > 0 }]} style={`--h:${(v / top) * 100}%`}></i>)}
+        </div>
+        <p class="pr-coll-avg">Average attendance of what it kept: <b>{c.average}</b> <span>true average {trueAverage}</span></p>
+      </div>
+    ))}
+    <p class="pr-legend"><span class="is-seen">Kept</span><span class="is-gone">Lost</span></p>
+  </figure>
+  <p><strong>Collection A</strong> lost ten programs at random. Its average is close to the truth. It simply rests on fewer programs.</p>
+  <p><strong>Collection B</strong> lost the two smallest branches. Every program it kept is real, but it says nothing about small branches, and its average leans toward the large ones. Because you know which branches are missing, you can report the gap or adjust for it.</p>
+  <p><strong>Collection C</strong> lost the ten least-attended programs. Its average is too high, and nothing in the 30 records it kept shows that anything is wrong.</p>
+  <p class="pr-pull">Coverage tells you how much is missing. Only the pattern of what is missing tells you whether what remains still represents the whole.</p>
+
+  <h2>6. Check your understanding</h2>
+  <p>Answer these three questions in your own words. I'll review your reasoning before providing the answers.</p>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<script>
+  const lab = document.querySelector<HTMLElement>("[data-cov-lab]");
+  if (lab) {
+    const input = (k: string) => lab.querySelector<HTMLInputElement>(`[data-in="${k}"]`)!;
+    const out = (k: string) => lab.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const fmt = (a: number, b: number) => `${((a / b) * 100).toFixed(1)}%`;
+    const render = () => {
+      const reports = +input("reports").value;
+      const records = +input("records").value;
+      const att = input("attendance");
+      att.max = String(records);
+      if (+att.value > records) att.value = String(records);
+      const attendance = +att.value;
+      out("reports").textContent = `${reports} of 8`;
+      out("records").textContent = `${records} of 40`;
+      out("attendance").textContent = `${attendance} of ${records}`;
+      out("page").textContent = fmt(reports, 8);
+      out("record").textContent = fmt(records, 40);
+      out("field").textContent = fmt(2 * records + attendance, 120);
+      out("attend").textContent = fmt(attendance, 40);
+    };
+    lab.addEventListener("input", render);
+    lab.querySelector("[data-cov-reset]")?.addEventListener("click", () => {
+      input("reports").value = "6";
+      input("records").value = "30";
+      input("attendance").max = "30";
+      input("attendance").value = "24";
+      render();
+    });
+  }
+</script>
+
+<style is:global>
+  .pr-expect { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pr-expect li { display: grid; align-content: start; padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-card); color: var(--tl-muted); font-size: 0.9rem; line-height: 1.35; }
+  .pr-expect b { color: var(--sl-color-white); font-size: 1.4rem; line-height: 1.2; }
+  @media (min-width: 46rem) { .pr-expect { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .pr-card { padding: 0.8rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
+  .pr-card figcaption { margin-top: 0.4rem; color: var(--tl-muted); font-size: 0.85rem; }
+  .pr .pr-pull { padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-ai); background: var(--tl-card); color: var(--sl-color-white); font-weight: 700; }
+
+  .pr-branches { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 0.35rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+  .pr-branches li { display: grid; place-items: center; gap: 0.1rem; padding: 0.45rem 0.1rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-clean); text-align: center; }
+  .pr-branches b { color: var(--sl-color-white); }
+  .pr-branches span { color: var(--tl-muted); font-size: 0.66rem; letter-spacing: 0.02em; }
+  .pr-branches .is-missed { border: 1px dashed var(--pr-red); background: color-mix(in srgb, var(--pr-red) 10%, var(--tl-card)); }
+  .pr .pr-tiles p.is-alarm { box-shadow: inset 3px 0 0 var(--pr-red); }
+  .pr .pr-tiles p.is-alarm b { color: var(--pr-red); }
+  :root:not([data-theme="light"]) .pr .pr-tiles p.is-alarm b { color: #ef7b68; }
+
+  .pr .pr-formula { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.9rem; border-radius: 10px; background: var(--tl-card); color: var(--sl-color-white); font-family: var(--sl-font-serif, Georgia, serif); font-size: 1.05rem; }
+  .pr-frac { display: inline-grid; text-align: center; }
+  .pr-frac span:first-child { padding-bottom: 0.15rem; border-bottom: 1.5px solid currentColor; }
+  .pr-frac span:last-child { padding-top: 0.15rem; }
+
+  .pr-meters { display: grid; gap: 0.8rem; margin: 0; padding: 0; list-style: none; }
+  .pr .pr-meters p { display: flex; justify-content: space-between; gap: 0.5rem; margin: 0; }
+  .pr-meters b { color: var(--sl-color-white); }
+  .pr-meters strong { color: var(--sl-color-white); font-size: 1.15rem; }
+  .pr-meters p + i + p { color: var(--tl-muted); font-size: 0.82rem; }
+  .pr-meters i { position: relative; display: block; height: 0.45rem; margin: 0.25rem 0; border-radius: 999px; background: var(--tl-bg); }
+  .pr-meters i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: inherit; background: var(--tl-derived-edge); }
+  .pr-meters .is-key i::after { background: #d9822b; }
+  .pr-meters .is-key strong { color: #d9822b; }
+
+  .pr-lab { display: grid; gap: 0.7rem; }
+  .pr-lab label { display: grid; grid-template-columns: 1fr auto; gap: 0.2rem 0.8rem; align-items: center; font-size: 0.9rem; }
+  .pr-lab label b { color: var(--sl-color-white); font-variant-numeric: tabular-nums; }
+  .pr-lab input[type="range"] { grid-column: 1 / -1; width: 100%; min-height: 32px; accent-color: var(--pr-ai); }
+  .pr-lab .pr-tiles { margin: 0.2rem 0 0; }
+  .pr-lab .pr-tiles b { font-variant-numeric: tabular-nums; }
+  .pr .pr-lab-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; color: var(--tl-muted); font-size: 0.82rem; }
+  .pr-lab-foot button { min-height: 36px; padding: 0.3rem 0.8rem; border: 1px solid var(--tl-muted); border-radius: 999px; background: transparent; color: var(--tl-ink); font: inherit; font-weight: 600; cursor: pointer; }
+
+  .pr-states { display: grid; gap: 0.6rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pr-states li { padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-left-width: 4px; border-radius: 8px; background: var(--tl-card); }
+  .pr .pr-states p { margin: 0 0 0.3rem; }
+  .pr .pr-states p:last-child { margin: 0; }
+  .pr-state-name { color: var(--tl-muted); font-size: 0.9rem; }
+  .pr-state-name b { color: var(--sl-color-white); font-size: 1rem; }
+  .pr-claim { font-size: 0.9rem; }
+  .pr-claim span { font-weight: 700; }
+  .pr-states .is-empty { border-left-color: var(--pr-green); }
+  .pr-states .is-empty .pr-claim span { color: var(--pr-green); }
+  .pr-states .is-unreachable { border-left-color: var(--pr-red); }
+  .pr-states .is-unreachable .pr-claim span { color: var(--pr-red); }
+  .pr-states .is-unreadable { border-left-color: var(--pr-yellow); }
+  .pr-states .is-unreadable .pr-claim span { color: #a77a1f; }
+  .pr-pill { padding: 0.05rem 0.55rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+  .pr-pill.is-ok { background: var(--tl-clean); }
+  .pr-pill.is-empty { background: var(--tl-derived); }
+  .pr-pill.is-lost { background: color-mix(in srgb, var(--pr-red) 16%, transparent); }
+
+  .pr-chart { display: flex; align-items: flex-end; gap: 4px; height: 8rem; padding: 0 0.1rem; border-bottom: 1px solid var(--tl-line); }
+  .pr-chart.is-short { height: 5rem; margin-bottom: 0.6rem; }
+  .pr-chart i { flex: 1; height: var(--h); min-height: 3px; border-radius: 3px 3px 0 0; background: var(--tl-derived-edge); }
+  .pr-chart i.is-gone { border: 1.5px dashed #d9822b; background: repeating-linear-gradient(45deg, color-mix(in srgb, #d9822b 30%, transparent) 0 4px, transparent 4px 8px); }
+  .pr-chart.is-strip { gap: 2px; height: 4.5rem; }
+  .pr-chart.is-strip i.is-branch { margin-left: 6px; }
+  .pr .pr-legend { display: flex; gap: 1rem; margin: 0.5rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
+  .pr-legend span::before { content: ""; display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.35rem; border-radius: 2px; vertical-align: -0.05rem; background: var(--tl-derived-edge); }
+  .pr-legend span.is-gone::before { border: 1.5px dashed #d9822b; background: transparent; }
+  .pr .pr-axis { display: flex; justify-content: space-between; margin: 0.25rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
+
+  .pr-coll + .pr-coll { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--tl-line); }
+  .pr .pr-coll-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0 0 0.4rem; }
+  .pr-coll-head b { color: var(--sl-color-white); }
+  .pr-coll-head span { flex: 1; color: var(--tl-muted); font-size: 0.88rem; }
+  .pr-coll-head strong { color: var(--sl-color-white); }
+  .pr .pr-coll-avg { margin: 0.35rem 0 0; font-size: 0.88rem; }
+  .pr-coll-avg b { color: var(--sl-color-white); }
+  .pr-coll-avg span { margin-left: 0.4rem; color: var(--tl-muted); }
+</style>

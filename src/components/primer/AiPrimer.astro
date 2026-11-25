@@ -1,8 +1,8 @@
 ---
 import { Code } from "@astrojs/starlight/components";
+import PrimerChat from "./PrimerChat.astro";
 import { primerCode, primerOutput, primerPrompt } from "../../lib/primer";
 
-const back = "../01-collection/#setup-ai-primer";
 
 const stages = [
   ["01", "Plan collection", "List of URLs to retrieve"],
@@ -105,494 +105,308 @@ const csv = `date,team,opponent,gf,ga
 2026-09-12,A,C,0,0
 2026-09-19,A,D,1,3`;
 
-const sparkle = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" fill="currentColor"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="currentColor" opacity=".7"/></svg>`;
 ---
 
-<div class="pr not-content" data-primer>
-  <a class="pr-back" href={back}>← Back to Module 1</a>
-  <p class="pr-about">This is a reply an AI assistant gave to Module 1's study prompt, lightly edited. Its Python was run on the sample data before it was published here. Send the same prompt yourself and you will get a different reply.</p>
+<PrimerChat
+  prompt={primerPrompt}
+  back="../01-collection/#setup-ai-primer"
+  about="This is a reply an AI assistant gave to Module 1's study prompt, lightly edited. Its Python was run on the sample data before it was published here. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Module 1 and see what happened at each stage of Kick's scraper on Friday."
+>
+    <h2 class="pr-title">From web scraper to data pipeline</h2>
+    <p>Imagine you are responsible for building a soccer league table for eight schools. Each school publishes its season schedule and match results on its own athletics website, but there is no central dataset containing all the results.</p>
+    <p>You want to collect that information, organize it, and eventually answer questions such as:</p>
+    <ul>
+      <li>Which school is leading the league?</li>
+      <li>How many games has each school won, lost or drawn?</li>
+      <li>Which school has the best goal difference?</li>
+      <li>Can we trust that our standings are accurate and complete?</li>
+    </ul>
+    <p>Before you can perform any meaningful data analysis, you need to collect reliable data.</p>
 
-  <div class="pr-thread">
-    <div class="pr-you">
-      <p class="pr-who">You</p>
-      <p class="pr-bubble" data-copy-text>{primerPrompt}</p>
+    <h2>1. What is a web scraper?</h2>
+    <p>A <strong>web scraper</strong> is a program that retrieves information from a website and extracts useful data from its content.</p>
+    <p>A website is designed primarily for people to read. A scraper transforms that information into structured data that a computer can analyze.</p>
+    <figure class="pr-extract">
+      <div class="pr-site">
+        <p class="pr-site-bar"><i></i><i></i><i></i><span>school-a.example</span></p>
+        <p class="pr-site-head">School A — Men's Soccer Results</p>
+        <table>
+          <thead><tr><th>Date</th><th>Opponent</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>Sep 5</td><td>School B</td><td>W 2–1</td></tr>
+            <tr><td>Sep 12</td><td>School C</td><td>D 0–0</td></tr>
+            <tr><td>Sep 19</td><td>School D</td><td>L 1–3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="pr-arrow"><span>Retrieve and extract</span></p>
+      <div class="pr-csv">
+        <p class="pr-label">Structured CSV data</p>
+        <Code code={csv} lang="csv" frame="none" />
+      </div>
+    </figure>
+    <p>Now you have data that can be loaded into Python, pandas, a database or a machine learning project.</p>
+    <p>However, extracting information from a single page is only the beginning. You need a repeatable process that can collect information from all eight schools, handle failures, preserve evidence and produce trustworthy results.</p>
+    <p>That is where a <strong>data pipeline</strong> comes in.</p>
+
+    <h2>2. How a scraper becomes a pipeline</h2>
+    <p>A data pipeline is a sequence of connected processing stages. Each stage has a specific responsibility, receives an input and produces an output for the next stage.</p>
+    <figure class="pr-pipe">
+      <p class="pr-label">Eight school websites</p>
+      <ol class="pr-schools">{"ABCDEFGH".split("").map((s) => <li>{s}</li>)}</ol>
+      <ol class="pr-stages">
+        {stages.map(([n, name, out]) => <li><b>{n}</b><span>{name}</span><small>{out}</small></li>)}
+      </ol>
+    </figure>
+    <p>The advantage of separating these responsibilities is that you can test, troubleshoot, rerun and improve each stage independently.</p>
+    <p>For example, if your HTML parser contains a bug, you can fix it and reprocess your saved pages without downloading everything from the eight websites again.</p>
+
+    <h2>3. Understanding each stage</h2>
+
+    <h3><span>Stage 1</span>Plan what to collect</h3>
+    <p>Before downloading anything, you need to define the scope of your collection.</p>
+    <p>For our soccer example, that means identifying the eight schools, their athletics website URLs, the correct season and the correct sport.</p>
+    <p>This collection list is often called a <strong>manifest</strong>.</p>
+    <div class="pr-scroll">
+      <table class="pr-table">
+        <thead><tr><th>School</th><th>Page to collect</th><th>Season</th></tr></thead>
+        <tbody>
+          <tr><td>School A</td><td><code>/soccer/schedule</code></td><td>2026</td></tr>
+          <tr><td>School B</td><td><code>/mens-soccer/results</code></td><td>2026</td></tr>
+          <tr><td>School C</td><td><code>/sports/msoc/schedule</code></td><td>2026</td></tr>
+          <tr><td>School D–H</td><td>Their respective schedule pages</td><td>2026</td></tr>
+        </tbody>
+      </table>
     </div>
+    <p>Different schools may organize their websites differently. Some might display the entire season on one page, while others might require pagination or a season filter.</p>
+    <dl class="pr-why">
+      <div><dt>Why it exists</dt><dd>It defines what a complete collection should include.</dd></div>
+      <div><dt>Without it</dt><dd>You have no reliable way to determine whether you collected everything.</dd></div>
+    </dl>
+    <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your manifest accidentally includes only seven schools. The scraper processes every URL successfully, but an entire school's data is missing.</p></aside>
 
-    <div class="pr-ai">
-      <p class="pr-who"><span class="pr-avatar" aria-hidden="true" set:html={sparkle} />AI assistant</p>
-      <p class="pr-typing" aria-hidden="true"><span></span><span></span><span></span> Thinking</p>
-      <script is:inline>document.querySelector("[data-primer]").classList.add("is-sending");</script>
+    <h3><span>Stage 2</span>Fetch the web pages</h3>
+    <p>Fetching is the process of requesting a resource from a web server. In Python, the <code>requests</code> library is commonly used for this purpose.</p>
+    <figure class="pr-fetch">
+      <div class="pr-node"><b>Python</b><span>Scraper</span></div>
+      <div class="pr-wire">
+        <p class="pr-wire-out">GET request <span aria-hidden="true">→</span></p>
+        <p class="pr-wire-in"><span aria-hidden="true">←</span> <b>200 OK</b> · HTML content</p>
+      </div>
+      <div class="pr-node"><b>School A</b><span>Web server</span></div>
+    </figure>
+    <p>A reliable fetcher needs to understand several concepts.</p>
+    <div class="pr-scroll">
+      <table class="pr-table">
+        <thead><tr><th>Concept</th><th>Purpose</th></tr></thead>
+        <tbody>{fetchConcepts.map(([c, p]) => <tr><td>{c === "robots.txt" ? <code>{c}</code> : c}</td><td>{p}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <p>Common HTTP status codes include:</p>
+    <ul class="pr-codes">
+      {statuses.map(([code, name, note, tone]) => <li class={`is-${tone}`}><b>{code}</b><span><strong>{name}</strong>{note}</span></li>)}
+    </ul>
+    <p>Retries should be limited and generally use increasing delays, a technique called <strong>exponential backoff</strong>. A scraper should also respect crawling rules, website terms, access restrictions and rate limits.</p>
+    <dl class="pr-why">
+      <div><dt>Why it exists</dt><dd>It reliably retrieves source data while behaving responsibly toward the websites.</dd></div>
+      <div><dt>Without it</dt><dd>Temporary network failures or unavailable websites could interrupt your entire collection.</dd></div>
+    </dl>
+    <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>School C returns a <code>200 OK</code> response, but the page contains a generic error message instead of match results. Your scraper treats it as a successful download.</p></aside>
+    <p>Remember: a successful HTTP request does not necessarily mean you received the correct data.</p>
 
-      <article class="pr-reply" aria-live="polite">
-        <h2 class="pr-title">From web scraper to data pipeline</h2>
-        <p>Imagine you are responsible for building a soccer league table for eight schools. Each school publishes its season schedule and match results on its own athletics website, but there is no central dataset containing all the results.</p>
-        <p>You want to collect that information, organize it, and eventually answer questions such as:</p>
+    <h3><span>Stage 3</span>Store the raw pages</h3>
+    <p>Rather than immediately extracting information from the downloaded HTML, save a copy of the original response.</p>
+    <p>A collection might produce the following directory:</p>
+    <ul class="pr-tree">
+      <li class="is-dir">raw/
         <ul>
-          <li>Which school is leading the league?</li>
-          <li>How many games has each school won, lost or drawn?</li>
-          <li>Which school has the best goal difference?</li>
-          <li>Can we trust that our standings are accurate and complete?</li>
-        </ul>
-        <p>Before you can perform any meaningful data analysis, you need to collect reliable data.</p>
-
-        <h2>1. What is a web scraper?</h2>
-        <p>A <strong>web scraper</strong> is a program that retrieves information from a website and extracts useful data from its content.</p>
-        <p>A website is designed primarily for people to read. A scraper transforms that information into structured data that a computer can analyze.</p>
-        <figure class="pr-extract">
-          <div class="pr-site">
-            <p class="pr-site-bar"><i></i><i></i><i></i><span>school-a.example</span></p>
-            <p class="pr-site-head">School A — Men's Soccer Results</p>
-            <table>
-              <thead><tr><th>Date</th><th>Opponent</th><th>Result</th></tr></thead>
-              <tbody>
-                <tr><td>Sep 5</td><td>School B</td><td>W 2–1</td></tr>
-                <tr><td>Sep 12</td><td>School C</td><td>D 0–0</td></tr>
-                <tr><td>Sep 19</td><td>School D</td><td>L 1–3</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="pr-arrow"><span>Retrieve and extract</span></p>
-          <div class="pr-csv">
-            <p class="pr-label">Structured CSV data</p>
-            <Code code={csv} lang="csv" frame="none" />
-          </div>
-        </figure>
-        <p>Now you have data that can be loaded into Python, pandas, a database or a machine learning project.</p>
-        <p>However, extracting information from a single page is only the beginning. You need a repeatable process that can collect information from all eight schools, handle failures, preserve evidence and produce trustworthy results.</p>
-        <p>That is where a <strong>data pipeline</strong> comes in.</p>
-
-        <h2>2. How a scraper becomes a pipeline</h2>
-        <p>A data pipeline is a sequence of connected processing stages. Each stage has a specific responsibility, receives an input and produces an output for the next stage.</p>
-        <figure class="pr-pipe">
-          <p class="pr-label">Eight school websites</p>
-          <ol class="pr-schools">{"ABCDEFGH".split("").map((s) => <li>{s}</li>)}</ol>
-          <ol class="pr-stages">
-            {stages.map(([n, name, out]) => <li><b>{n}</b><span>{name}</span><small>{out}</small></li>)}
-          </ol>
-        </figure>
-        <p>The advantage of separating these responsibilities is that you can test, troubleshoot, rerun and improve each stage independently.</p>
-        <p>For example, if your HTML parser contains a bug, you can fix it and reprocess your saved pages without downloading everything from the eight websites again.</p>
-
-        <h2>3. Understanding each stage</h2>
-
-        <h3><span>Stage 1</span>Plan what to collect</h3>
-        <p>Before downloading anything, you need to define the scope of your collection.</p>
-        <p>For our soccer example, that means identifying the eight schools, their athletics website URLs, the correct season and the correct sport.</p>
-        <p>This collection list is often called a <strong>manifest</strong>.</p>
-        <div class="pr-scroll">
-          <table class="pr-table">
-            <thead><tr><th>School</th><th>Page to collect</th><th>Season</th></tr></thead>
-            <tbody>
-              <tr><td>School A</td><td><code>/soccer/schedule</code></td><td>2026</td></tr>
-              <tr><td>School B</td><td><code>/mens-soccer/results</code></td><td>2026</td></tr>
-              <tr><td>School C</td><td><code>/sports/msoc/schedule</code></td><td>2026</td></tr>
-              <tr><td>School D–H</td><td>Their respective schedule pages</td><td>2026</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Different schools may organize their websites differently. Some might display the entire season on one page, while others might require pagination or a season filter.</p>
-        <dl class="pr-why">
-          <div><dt>Why it exists</dt><dd>It defines what a complete collection should include.</dd></div>
-          <div><dt>Without it</dt><dd>You have no reliable way to determine whether you collected everything.</dd></div>
-        </dl>
-        <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your manifest accidentally includes only seven schools. The scraper processes every URL successfully, but an entire school's data is missing.</p></aside>
-
-        <h3><span>Stage 2</span>Fetch the web pages</h3>
-        <p>Fetching is the process of requesting a resource from a web server. In Python, the <code>requests</code> library is commonly used for this purpose.</p>
-        <figure class="pr-fetch">
-          <div class="pr-node"><b>Python</b><span>Scraper</span></div>
-          <div class="pr-wire">
-            <p class="pr-wire-out">GET request <span aria-hidden="true">→</span></p>
-            <p class="pr-wire-in"><span aria-hidden="true">←</span> <b>200 OK</b> · HTML content</p>
-          </div>
-          <div class="pr-node"><b>School A</b><span>Web server</span></div>
-        </figure>
-        <p>A reliable fetcher needs to understand several concepts.</p>
-        <div class="pr-scroll">
-          <table class="pr-table">
-            <thead><tr><th>Concept</th><th>Purpose</th></tr></thead>
-            <tbody>{fetchConcepts.map(([c, p]) => <tr><td>{c === "robots.txt" ? <code>{c}</code> : c}</td><td>{p}</td></tr>)}</tbody>
-          </table>
-        </div>
-        <p>Common HTTP status codes include:</p>
-        <ul class="pr-codes">
-          {statuses.map(([code, name, note, tone]) => <li class={`is-${tone}`}><b>{code}</b><span><strong>{name}</strong>{note}</span></li>)}
-        </ul>
-        <p>Retries should be limited and generally use increasing delays, a technique called <strong>exponential backoff</strong>. A scraper should also respect crawling rules, website terms, access restrictions and rate limits.</p>
-        <dl class="pr-why">
-          <div><dt>Why it exists</dt><dd>It reliably retrieves source data while behaving responsibly toward the websites.</dd></div>
-          <div><dt>Without it</dt><dd>Temporary network failures or unavailable websites could interrupt your entire collection.</dd></div>
-        </dl>
-        <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>School C returns a <code>200 OK</code> response, but the page contains a generic error message instead of match results. Your scraper treats it as a successful download.</p></aside>
-        <p>Remember: a successful HTTP request does not necessarily mean you received the correct data.</p>
-
-        <h3><span>Stage 3</span>Store the raw pages</h3>
-        <p>Rather than immediately extracting information from the downloaded HTML, save a copy of the original response.</p>
-        <p>A collection might produce the following directory:</p>
-        <ul class="pr-tree">
-          <li class="is-dir">raw/
+          <li class="is-dir">2026-11-25/
             <ul>
-              <li class="is-dir">2026-11-25/
-                <ul>
-                  {"abcdefgh".split("").map((s) => <li>school-{s}.html</li>)}
-                  <li class="is-meta">manifest.json</li>
-                </ul>
-              </li>
+              {"abcdefgh".split("").map((s) => <li>school-{s}.html</li>)}
+              <li class="is-meta">manifest.json</li>
             </ul>
           </li>
         </ul>
-        <p>In addition to the HTML, a real system should preserve metadata such as the source URL, collection timestamp and HTTP status code.</p>
-        <dl class="pr-why">
-          <div><dt>Why it exists</dt><dd>Raw storage provides reproducibility, traceability, debugging and historical evidence.</dd></div>
-          <div><dt>Without it</dt><dd>If you discover that your league table is incorrect, you may have to download everything again. The original websites might have changed in the meantime.</dd></div>
-        </dl>
-        <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>You save each response using the filename <code>schedule.html</code>. Every successful download overwrites the previous school's page. Eight pages were fetched, but only one was preserved.</p></aside>
-        <p>This separation between fetching and parsing is one of the most important architectural decisions in a collection pipeline.</p>
+      </li>
+    </ul>
+    <p>In addition to the HTML, a real system should preserve metadata such as the source URL, collection timestamp and HTTP status code.</p>
+    <dl class="pr-why">
+      <div><dt>Why it exists</dt><dd>Raw storage provides reproducibility, traceability, debugging and historical evidence.</dd></div>
+      <div><dt>Without it</dt><dd>If you discover that your league table is incorrect, you may have to download everything again. The original websites might have changed in the meantime.</dd></div>
+    </dl>
+    <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>You save each response using the filename <code>schedule.html</code>. Every successful download overwrites the previous school's page. Eight pages were fetched, but only one was preserved.</p></aside>
+    <p>This separation between fetching and parsing is one of the most important architectural decisions in a collection pipeline.</p>
 
-        <h3><span>Stage 4</span>Parse the HTML</h3>
-        <p>Parsing transforms unstructured or semi-structured source content into structured records.</p>
-        <p>HTML describes the elements that make up a web page. A match result might appear in the HTML like this:</p>
-        <Code code={htmlSample} lang="html" />
-        <p>A Python library such as Beautiful Soup helps you navigate the HTML and extract the values you need.</p>
-        <figure class="pr-parse">
-          <div><p class="pr-label">Raw HTML elements</p><pre>{`<td>2026-09-05</td>\n<td>School B</td>\n<td>W 2-1</td>`}</pre></div>
-          <p class="pr-arrow"><span>Parse</span></p>
-          <div class="is-out"><p class="pr-label">Parsed record</p><pre>{`date: 2026-09-05\nteam: School A\nopponent: School B\ngoals_for: 2\ngoals_against: 1`}</pre></div>
-        </figure>
-        <p>The parser understands the source structure and translates it into a common data model.</p>
-        <p>The parser also needs to account for differences between schools. One might represent a result as <code>W 2-1</code>, another as <code>2:1</code>, and another might provide separate columns for each score.</p>
-        <dl class="pr-why">
-          <div><dt>Why it exists</dt><dd>It transforms differently formatted websites into consistent data that can be analyzed together.</dd></div>
-          <div><dt>Without it</dt><dd>Your downstream analysis would have to understand the HTML structure of every school website.</dd></div>
-        </dl>
-        <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your parser searches only for HTML rows with a particular CSS class. A school changes that class midway through the season. The parser continues running but quietly ignores some of the matches.</p></aside>
+    <h3><span>Stage 4</span>Parse the HTML</h3>
+    <p>Parsing transforms unstructured or semi-structured source content into structured records.</p>
+    <p>HTML describes the elements that make up a web page. A match result might appear in the HTML like this:</p>
+    <Code code={htmlSample} lang="html" />
+    <p>A Python library such as Beautiful Soup helps you navigate the HTML and extract the values you need.</p>
+    <figure class="pr-parse">
+      <div><p class="pr-label">Raw HTML elements</p><pre>{`<td>2026-09-05</td>\n<td>School B</td>\n<td>W 2-1</td>`}</pre></div>
+      <p class="pr-arrow"><span>Parse</span></p>
+      <div class="is-out"><p class="pr-label">Parsed record</p><pre>{`date: 2026-09-05\nteam: School A\nopponent: School B\ngoals_for: 2\ngoals_against: 1`}</pre></div>
+    </figure>
+    <p>The parser understands the source structure and translates it into a common data model.</p>
+    <p>The parser also needs to account for differences between schools. One might represent a result as <code>W 2-1</code>, another as <code>2:1</code>, and another might provide separate columns for each score.</p>
+    <dl class="pr-why">
+      <div><dt>Why it exists</dt><dd>It transforms differently formatted websites into consistent data that can be analyzed together.</dd></div>
+      <div><dt>Without it</dt><dd>Your downstream analysis would have to understand the HTML structure of every school website.</dd></div>
+    </dl>
+    <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your parser searches only for HTML rows with a particular CSS class. A school changes that class midway through the season. The parser continues running but quietly ignores some of the matches.</p></aside>
 
-        <h3><span>Stage 5</span>Build the output</h3>
-        <p>Once the match records have been extracted, they need to be validated, standardized, combined and deduplicated.</p>
-        <p>Consider what happens when two schools publish the same match:</p>
-        <figure class="pr-dedup">
-          <div class="pr-src"><p class="pr-label">School A's website</p><p><b>A vs. B</b></p><p class="pr-score">2 – 1</p><p>Win for A</p></div>
-          <div class="pr-src"><p class="pr-label">School B's website</p><p><b>B vs. A</b></p><p class="pr-score">1 – 2</p><p>Loss for B</p></div>
-          <div class="pr-canon"><p class="pr-label">Canonical match record</p><p><b>September 5 — School A 2–1 School B</b></p><p>Two source records → one actual match</p></div>
-        </figure>
-        <p>This is called <strong>deduplication</strong>. The two source records describe the same real-world event.</p>
-        <p>After resolving duplicates, you can calculate wins, draws, losses, goals and league points. In our example, a win is worth three points, a draw one point and a loss zero points.</p>
-        <dl class="pr-why">
-          <div><dt>Why it exists</dt><dd>It produces a consistent, analysis-ready dataset and the derived league table.</dd></div>
-          <div><dt>Without it</dt><dd>Matches might be counted twice, school names might be inconsistent, and standings could be incorrect.</dd></div>
-        </dl>
-        <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your deduplication logic uses only the two school names to identify a match. If those schools play each other twice during the season, the second match is incorrectly discarded.</p></aside>
+    <h3><span>Stage 5</span>Build the output</h3>
+    <p>Once the match records have been extracted, they need to be validated, standardized, combined and deduplicated.</p>
+    <p>Consider what happens when two schools publish the same match:</p>
+    <figure class="pr-dedup">
+      <div class="pr-src"><p class="pr-label">School A's website</p><p><b>A vs. B</b></p><p class="pr-score">2 – 1</p><p>Win for A</p></div>
+      <div class="pr-src"><p class="pr-label">School B's website</p><p><b>B vs. A</b></p><p class="pr-score">1 – 2</p><p>Loss for B</p></div>
+      <div class="pr-canon"><p class="pr-label">Canonical match record</p><p><b>September 5 — School A 2–1 School B</b></p><p>Two source records → one actual match</p></div>
+    </figure>
+    <p>This is called <strong>deduplication</strong>. The two source records describe the same real-world event.</p>
+    <p>After resolving duplicates, you can calculate wins, draws, losses, goals and league points. In our example, a win is worth three points, a draw one point and a loss zero points.</p>
+    <dl class="pr-why">
+      <div><dt>Why it exists</dt><dd>It produces a consistent, analysis-ready dataset and the derived league table.</dd></div>
+      <div><dt>Without it</dt><dd>Matches might be counted twice, school names might be inconsistent, and standings could be incorrect.</dd></div>
+    </dl>
+    <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your deduplication logic uses only the two school names to identify a match. If those schools play each other twice during the season, the second match is incorrectly discarded.</p></aside>
 
-        <h3><span>Stage 6</span>Report on the run</h3>
-        <p>A collection run should produce more than just a league table. It should also produce information about how that table was built.</p>
-        <p>Here is an example of what a hypothetical full-season collection report might look like.</p>
-        <figure class="pr-report">
-          <p class="pr-report-head"><b>Season collection report</b><span>Review required</span></p>
-          <div class="pr-tiles">
-            <p><b>8 / 8</b>Schools collected</p>
-            <p><b>8</b>Raw pages preserved</p>
-            <p><b>55</b>Source match records</p>
-            <p><b>28</b>Unique matches</p>
-          </div>
-          <p class="pr-label">Records extracted by school</p>
-          <ul class="pr-bars">
-            {extracted.map(([s, n]) => <li class={n < 7 ? "is-short" : ""}><span>School {s}</span><i style={`--w:${(n / 7) * 100}%`}></i><b>{n}/7</b></li>)}
-          </ul>
-          <p class="pr-flag">School F is missing one expected source record. Investigate before declaring the collection complete.</p>
-        </figure>
-        <p>This example assumes every school has completed seven league matches, playing each other once. The missing record may still have been collected from the opponent's website, but the discrepancy deserves investigation.</p>
-        <dl class="pr-why">
-          <div><dt>Why it exists</dt><dd>Reporting provides visibility into the health, completeness and reliability of your pipeline.</dd></div>
-          <div><dt>Without it</dt><dd>You might publish an incorrect league table without realizing there was a collection problem.</dd></div>
-        </dl>
-        <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your report measures only successful downloads. It reports 100% success even though one school's parser extracted zero matches. The reporting stage hides the earlier data loss.</p></aside>
+    <h3><span>Stage 6</span>Report on the run</h3>
+    <p>A collection run should produce more than just a league table. It should also produce information about how that table was built.</p>
+    <p>Here is an example of what a hypothetical full-season collection report might look like.</p>
+    <figure class="pr-report">
+      <p class="pr-report-head"><b>Season collection report</b><span>Review required</span></p>
+      <div class="pr-tiles">
+        <p><b>8 / 8</b>Schools collected</p>
+        <p><b>8</b>Raw pages preserved</p>
+        <p><b>55</b>Source match records</p>
+        <p><b>28</b>Unique matches</p>
+      </div>
+      <p class="pr-label">Records extracted by school</p>
+      <ul class="pr-bars">
+        {extracted.map(([s, n]) => <li class={n < 7 ? "is-short" : ""}><span>School {s}</span><i style={`--w:${(n / 7) * 100}%`}></i><b>{n}/7</b></li>)}
+      </ul>
+      <p class="pr-flag">School F is missing one expected source record. Investigate before declaring the collection complete.</p>
+    </figure>
+    <p>This example assumes every school has completed seven league matches, playing each other once. The missing record may still have been collected from the opponent's website, but the discrepancy deserves investigation.</p>
+    <dl class="pr-why">
+      <div><dt>Why it exists</dt><dd>Reporting provides visibility into the health, completeness and reliability of your pipeline.</dd></div>
+      <div><dt>Without it</dt><dd>You might publish an incorrect league table without realizing there was a collection problem.</dd></div>
+    </dl>
+    <aside class="pr-loss"><p class="pr-loss-head">Silent data loss</p><p>Your report measures only successful downloads. It reports 100% success even though one school's parser extracted zero matches. The reporting stage hides the earlier data loss.</p></aside>
 
-        <h2>4. Connecting the stages</h2>
-        <p>Now that you understand the responsibilities, consider what each stage receives and produces.</p>
-        <div class="pr-scroll">
-          <table class="pr-table">
-            <thead><tr><th>Stage</th><th>Input</th><th>Output</th></tr></thead>
-            <tbody>{contracts.map(([s, i, o]) => <tr><td><b>{s}</b></td><td>{i}</td><td>{o}</td></tr>)}</tbody>
-          </table>
-        </div>
-        <p>These inputs and outputs form the <strong>contracts</strong> between stages.</p>
-        <p>For example, the parser does not need to know how the fetcher handles network retries. It only needs to know how to read the saved HTML.</p>
-        <p>Similarly, the league table builder does not need to understand HTML. It expects structured match records in a consistent format.</p>
-        <p>This is a software engineering principle called <strong>separation of concerns</strong>, and it is fundamental to building maintainable data pipelines.</p>
-
-        <h2>5. Building a simple Python pipeline</h2>
-        <p>Let's put these concepts together in Python.</p>
-        <p>We will use saved HTML strings instead of making live HTTP requests. This allows us to focus on pipeline design without introducing network problems.</p>
-        <p>The example uses five completed matches involving our eight fictional schools rather than an entire season.</p>
-
-        <h3>Prepare the sample data</h3>
-        <p>We'll use Beautiful Soup for HTML parsing. If you don't already have it installed:</p>
-        <Code code="pip install beautifulsoup4" lang="sh" />
-        <p>First, create simulated copies of the eight school websites.</p>
-        <Code code={primerCode.sample} lang="python" />
-        <p>Our <code>saved_html</code> dictionary represents the source websites. Each school has its own HTML string containing its results.</p>
-
-        <h3><span>Function 1</span>Plan the collection</h3>
-        <Code code={primerCode.plan} lang="python" />
-        <p>This function creates our manifest. It does not download or parse anything.</p>
-        <dl class="pr-io"><div><dt>Input</dt><dd>School identifiers.</dd></div><div><dt>Output</dt><dd>A list of collection targets.</dd></div></dl>
-
-        <h3><span>Function 2</span>Fetch the pages</h3>
-        <Code code={primerCode.fetch} lang="python" />
-        <p>In a real scraper, this function would use HTTP requests, timeouts, retries and status code handling.</p>
-        <p>Here, we simulate a successful HTTP response by retrieving an existing HTML string.</p>
-        <dl class="pr-io"><div><dt>Input</dt><dd>A collection target.</dd></div><div><dt>Output</dt><dd>A simulated response containing HTML and metadata.</dd></div></dl>
-
-        <h3><span>Function 3</span>Store the raw HTML</h3>
-        <Code code={primerCode.store} lang="python" />
-        <p>Notice that we return a reference to the saved file rather than passing the HTML string directly to the parser.</p>
-        <p>This establishes raw storage as an independent stage.</p>
-        <dl class="pr-io"><div><dt>Input</dt><dd>A response containing HTML.</dd></div><div><dt>Output</dt><dd>A reference to a saved raw file.</dd></div></dl>
-
-        <h3><span>Function 4</span>Parse the saved HTML</h3>
-        <Code code={primerCode.parse} lang="python" />
-        <p>This is where the actual extraction happens.</p>
-        <p>Notice that we raise errors when expected structures are missing rather than quietly ignoring them. This helps prevent silent data loss.</p>
-        <p>For example, the first extracted record would look like:</p>
-        <Code code={firstRecord} lang="python" />
-        <dl class="pr-io"><div><dt>Input</dt><dd>A saved HTML file reference.</dd></div><div><dt>Output</dt><dd>A list of structured match records.</dd></div></dl>
-
-        <h3><span>Function 5</span>Build the league table</h3>
-        <p>This function has two responsibilities: identifying unique matches and calculating the standings.</p>
-        <Code code={primerCode.build} lang="python" />
-        <p>Pay particular attention to the match key:</p>
-        <Code code={`key = (r["date"], a, b)`} lang="python" />
-        <p>By sorting the team names and including the date, we give both schools' records of the same match a common identity.</p>
-        <p>We also check for conflicting scores rather than arbitrarily trusting one school's result.</p>
-        <dl class="pr-io"><div><dt>Input</dt><dd>All extracted match records.</dd></div><div><dt>Output</dt><dd>Unique matches and a calculated league table.</dd></div></dl>
-
-        <h3><span>Function 6</span>Report on the collection</h3>
-        <Code code={primerCode.report} lang="python" />
-        <p>This function provides visibility into the collection process. It gives us a way to investigate unexpected results rather than simply assuming the pipeline worked.</p>
-        <dl class="pr-io"><div><dt>Input</dt><dd>Information gathered throughout the run.</dd></div><div><dt>Output</dt><dd>A collection report.</dd></div></dl>
-
-        <h3>Putting everything together</h3>
-        <p>We now need something to coordinate the individual functions. This is known as <strong>orchestration</strong>.</p>
-        <Code code={primerCode.run} lang="python" />
-        <p>Notice how the orchestration code primarily coordinates the work. Each individual function remains responsible for its own task.</p>
-        <p>We also avoid producing a new league table when a known collection or parsing failure occurs.</p>
-        <p>Running the whole script prints:</p>
-        <Code code={primerOutput} lang="txt" title="Output" />
-
-        <h2>6. Understanding the final result</h2>
-        <p>With our sample data, the expected output would be the following league table.</p>
-        <figure class="pr-league">
-          <p class="pr-report-head"><b>League standings</b><span class="is-quiet">8 schools · 5 unique matches</span></p>
-          <div class="pr-scroll">
-            <table class="pr-table">
-              <thead><tr><th>#</th><th>School</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
-              <tbody>{table.map(([s, p, w, d, l, g, pts], i) => <tr><td>{i + 1}</td><td>School {s}</td><td>{p}</td><td>{w}</td><td>{d}</td><td>{l}</td><td>{gd(g)}</td><td><b>{pts}</b></td></tr>)}</tbody>
-            </table>
-          </div>
-          <p class="pr-label">Points earned</p>
-          <ul class="pr-bars is-points">
-            {table.map(([s, , , , , , pts]) => <li><span>School {s}</span><i style={`--w:${(pts / 4) * 100}%`}></i><b>{pts}</b></li>)}
-          </ul>
-        </figure>
-        <p>But equally important is the collection report.</p>
-        <figure class="pr-results">
-          <p class="pr-report-head"><b>Pipeline results</b></p>
-          <ol class="pr-funnel">{funnel.map(([n, label], i) => <li class={i > 2 ? "is-data" : ""}><b>{n}</b> {label}</li>)}</ol>
-          <div class="pr-tiles is-two">
-            <p><b>5</b>Duplicates resolved</p>
-            <p><b>0</b>Errors</p>
-          </div>
-        </figure>
-        <p>We started with eight websites, collected ten source records, identified five unique matches and transformed those matches into a meaningful analytical result.</p>
-        <p>The code runs as shown on this sample, but it is a teaching sketch, not a production scraper. It assumes consistent HTML, completed league matches, no same-day repeat fixtures between two schools and simplified league tiebreakers. A production version would need more validation, persisted metadata, actual HTTP handling and independent completeness checks.</p>
-
-        <h2>7. The most important lesson: correctness versus completeness</h2>
-        <p>As a data science student, you need to understand that a program can execute successfully and still produce unreliable data.</p>
-        <div class="pr-scroll">
-          <table class="pr-table">
-            <thead><tr><th>Quality dimension</th><th>Question to ask</th></tr></thead>
-            <tbody>{quality.map(([q, a]) => <tr><td><b>{q}</b></td><td>{a}</td></tr>)}</tbody>
-          </table>
-        </div>
-        <p>A scraper extracts information. A well-designed data pipeline makes that information <strong>repeatable, traceable, measurable and trustworthy</strong>.</p>
-        <p>That distinction matters because every analysis, visualization, statistical model or machine learning system you build later depends on the quality of the data you collect.</p>
-
-        <h2>8. Check your understanding</h2>
-        <p>Answer these three questions in your own words. I'll review your reasoning before providing the answers.</p>
-        <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
-      </article>
+    <h2>4. Connecting the stages</h2>
+    <p>Now that you understand the responsibilities, consider what each stage receives and produces.</p>
+    <div class="pr-scroll">
+      <table class="pr-table">
+        <thead><tr><th>Stage</th><th>Input</th><th>Output</th></tr></thead>
+        <tbody>{contracts.map(([s, i, o]) => <tr><td><b>{s}</b></td><td>{i}</td><td>{o}</td></tr>)}</tbody>
+      </table>
     </div>
-  </div>
+    <p>These inputs and outputs form the <strong>contracts</strong> between stages.</p>
+    <p>For example, the parser does not need to know how the fetcher handles network retries. It only needs to know how to read the saved HTML.</p>
+    <p>Similarly, the league table builder does not need to understand HTML. It expects structured match records in a consistent format.</p>
+    <p>This is a software engineering principle called <strong>separation of concerns</strong>, and it is fundamental to building maintainable data pipelines.</p>
 
-  <aside class="pr-turn">
-    <p class="pr-turn-head">Your turn</p>
-    <p>In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Module 1 and see what happened at each stage of Kick's scraper on Friday.</p>
-    <div class="pr-turn-actions">
-      <button type="button" data-primer-copy>Copy prompt</button>
-      <a href={back}>Back to Module 1</a>
+    <h2>5. Building a simple Python pipeline</h2>
+    <p>Let's put these concepts together in Python.</p>
+    <p>We will use saved HTML strings instead of making live HTTP requests. This allows us to focus on pipeline design without introducing network problems.</p>
+    <p>The example uses five completed matches involving our eight fictional schools rather than an entire season.</p>
+
+    <h3>Prepare the sample data</h3>
+    <p>We'll use Beautiful Soup for HTML parsing. If you don't already have it installed:</p>
+    <Code code="pip install beautifulsoup4" lang="sh" />
+    <p>First, create simulated copies of the eight school websites.</p>
+    <Code code={primerCode.sample} lang="python" />
+    <p>Our <code>saved_html</code> dictionary represents the source websites. Each school has its own HTML string containing its results.</p>
+
+    <h3><span>Function 1</span>Plan the collection</h3>
+    <Code code={primerCode.plan} lang="python" />
+    <p>This function creates our manifest. It does not download or parse anything.</p>
+    <dl class="pr-io"><div><dt>Input</dt><dd>School identifiers.</dd></div><div><dt>Output</dt><dd>A list of collection targets.</dd></div></dl>
+
+    <h3><span>Function 2</span>Fetch the pages</h3>
+    <Code code={primerCode.fetch} lang="python" />
+    <p>In a real scraper, this function would use HTTP requests, timeouts, retries and status code handling.</p>
+    <p>Here, we simulate a successful HTTP response by retrieving an existing HTML string.</p>
+    <dl class="pr-io"><div><dt>Input</dt><dd>A collection target.</dd></div><div><dt>Output</dt><dd>A simulated response containing HTML and metadata.</dd></div></dl>
+
+    <h3><span>Function 3</span>Store the raw HTML</h3>
+    <Code code={primerCode.store} lang="python" />
+    <p>Notice that we return a reference to the saved file rather than passing the HTML string directly to the parser.</p>
+    <p>This establishes raw storage as an independent stage.</p>
+    <dl class="pr-io"><div><dt>Input</dt><dd>A response containing HTML.</dd></div><div><dt>Output</dt><dd>A reference to a saved raw file.</dd></div></dl>
+
+    <h3><span>Function 4</span>Parse the saved HTML</h3>
+    <Code code={primerCode.parse} lang="python" />
+    <p>This is where the actual extraction happens.</p>
+    <p>Notice that we raise errors when expected structures are missing rather than quietly ignoring them. This helps prevent silent data loss.</p>
+    <p>For example, the first extracted record would look like:</p>
+    <Code code={firstRecord} lang="python" />
+    <dl class="pr-io"><div><dt>Input</dt><dd>A saved HTML file reference.</dd></div><div><dt>Output</dt><dd>A list of structured match records.</dd></div></dl>
+
+    <h3><span>Function 5</span>Build the league table</h3>
+    <p>This function has two responsibilities: identifying unique matches and calculating the standings.</p>
+    <Code code={primerCode.build} lang="python" />
+    <p>Pay particular attention to the match key:</p>
+    <Code code={`key = (r["date"], a, b)`} lang="python" />
+    <p>By sorting the team names and including the date, we give both schools' records of the same match a common identity.</p>
+    <p>We also check for conflicting scores rather than arbitrarily trusting one school's result.</p>
+    <dl class="pr-io"><div><dt>Input</dt><dd>All extracted match records.</dd></div><div><dt>Output</dt><dd>Unique matches and a calculated league table.</dd></div></dl>
+
+    <h3><span>Function 6</span>Report on the collection</h3>
+    <Code code={primerCode.report} lang="python" />
+    <p>This function provides visibility into the collection process. It gives us a way to investigate unexpected results rather than simply assuming the pipeline worked.</p>
+    <dl class="pr-io"><div><dt>Input</dt><dd>Information gathered throughout the run.</dd></div><div><dt>Output</dt><dd>A collection report.</dd></div></dl>
+
+    <h3>Putting everything together</h3>
+    <p>We now need something to coordinate the individual functions. This is known as <strong>orchestration</strong>.</p>
+    <Code code={primerCode.run} lang="python" />
+    <p>Notice how the orchestration code primarily coordinates the work. Each individual function remains responsible for its own task.</p>
+    <p>We also avoid producing a new league table when a known collection or parsing failure occurs.</p>
+    <p>Running the whole script prints:</p>
+    <Code code={primerOutput} lang="txt" title="Output" />
+
+    <h2>6. Understanding the final result</h2>
+    <p>With our sample data, the expected output would be the following league table.</p>
+    <figure class="pr-league">
+      <p class="pr-report-head"><b>League standings</b><span class="is-quiet">8 schools · 5 unique matches</span></p>
+      <div class="pr-scroll">
+        <table class="pr-table">
+          <thead><tr><th>#</th><th>School</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead>
+          <tbody>{table.map(([s, p, w, d, l, g, pts], i) => <tr><td>{i + 1}</td><td>School {s}</td><td>{p}</td><td>{w}</td><td>{d}</td><td>{l}</td><td>{gd(g)}</td><td><b>{pts}</b></td></tr>)}</tbody>
+        </table>
+      </div>
+      <p class="pr-label">Points earned</p>
+      <ul class="pr-bars is-points">
+        {table.map(([s, , , , , , pts]) => <li><span>School {s}</span><i style={`--w:${(pts / 4) * 100}%`}></i><b>{pts}</b></li>)}
+      </ul>
+    </figure>
+    <p>But equally important is the collection report.</p>
+    <figure class="pr-results">
+      <p class="pr-report-head"><b>Pipeline results</b></p>
+      <ol class="pr-funnel">{funnel.map(([n, label], i) => <li class={i > 2 ? "is-data" : ""}><b>{n}</b> {label}</li>)}</ol>
+      <div class="pr-tiles is-two">
+        <p><b>5</b>Duplicates resolved</p>
+        <p><b>0</b>Errors</p>
+      </div>
+    </figure>
+    <p>We started with eight websites, collected ten source records, identified five unique matches and transformed those matches into a meaningful analytical result.</p>
+    <p>The code runs as shown on this sample, but it is a teaching sketch, not a production scraper. It assumes consistent HTML, completed league matches, no same-day repeat fixtures between two schools and simplified league tiebreakers. A production version would need more validation, persisted metadata, actual HTTP handling and independent completeness checks.</p>
+
+    <h2>7. The most important lesson: correctness versus completeness</h2>
+    <p>As a data science student, you need to understand that a program can execute successfully and still produce unreliable data.</p>
+    <div class="pr-scroll">
+      <table class="pr-table">
+        <thead><tr><th>Quality dimension</th><th>Question to ask</th></tr></thead>
+        <tbody>{quality.map(([q, a]) => <tr><td><b>{q}</b></td><td>{a}</td></tr>)}</tbody>
+      </table>
     </div>
-  </aside>
-</div>
+    <p>A scraper extracts information. A well-designed data pipeline makes that information <strong>repeatable, traceable, measurable and trustworthy</strong>.</p>
+    <p>That distinction matters because every analysis, visualization, statistical model or machine learning system you build later depends on the quality of the data you collect.</p>
 
-<script>
-  const root = document.querySelector<HTMLElement>("[data-primer]");
-  if (root) {
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setTimeout(() => { root.classList.remove("is-sending"); root.classList.add("is-sent"); }, calm ? 0 : 2600);
-    const button = root.querySelector<HTMLButtonElement>("[data-primer-copy]");
-    button?.addEventListener("click", async () => {
-      const text = root.querySelector<HTMLElement>("[data-copy-text]")?.textContent ?? "";
-      try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; }
-      catch { button.textContent = "Select the prompt and copy it"; }
-      setTimeout(() => { button.textContent = "Copy prompt"; }, 2500);
-    });
-  }
-</script>
-
-<style>
-  .pr { --pr-ai: var(--tl-private-edge); --pr-red: #c5301c; --pr-yellow: #c9a455; --pr-green: var(--tl-clean-edge); color: var(--tl-ink); line-height: 1.6; }
-  .pr p { margin: 0 0 0.9rem; }
-  .pr code { padding: 0.05rem 0.3rem; border-radius: 4px; background: var(--tl-bg); font-size: 0.88em; }
-  .pr-back { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 0.4rem; color: var(--sl-color-accent-high); font-weight: 600; text-decoration: none; }
-  .pr .pr-about { padding: 0.65rem 0.85rem; border-left: 3px solid var(--pr-ai); background: var(--tl-card); color: var(--tl-muted); font-size: 0.92rem; }
-
-  .pr-thread { display: grid; gap: 1.25rem; margin-top: 1.5rem; }
-  .pr .pr-who { display: flex; align-items: center; gap: 0.45rem; margin: 0 0 0.35rem; color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-  .pr-you { justify-self: end; max-width: min(40rem, 92%); }
-  .pr-you .pr-who { justify-content: flex-end; }
-  .pr .pr-bubble { margin: 0; padding: 0.85rem 1rem; border-radius: 16px 16px 4px 16px; background: color-mix(in srgb, var(--pr-ai) 22%, var(--tl-card)); color: var(--sl-color-white); font-size: 0.95rem; white-space: pre-wrap; }
-  .pr-avatar { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--pr-ai); color: #fff; }
-
-  .pr .pr-typing { display: none; align-items: center; gap: 0.3rem; color: var(--tl-muted); font-size: 0.92rem; }
-  .pr-typing span { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--pr-ai); animation: pr-dot 1s infinite ease-in-out; }
-  .pr-typing span:nth-child(2) { animation-delay: 0.15s; }
-  .pr-typing span:nth-child(3) { margin-right: 0.35rem; animation-delay: 0.3s; }
-  @keyframes pr-dot { 0%, 80%, 100% { opacity: 0.25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
-  .pr.is-sending .pr-typing { display: flex; }
-  .pr.is-sending .pr-reply { display: none; }
-  .pr.is-sending .pr-turn { display: none; }
-  .pr.is-sent .pr-reply { animation: pr-in 0.5s ease-out; }
-  @keyframes pr-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-
-  .pr-reply { padding: 0.25rem 0 0 1rem; border-left: 2px solid color-mix(in srgb, var(--pr-ai) 50%, var(--tl-line)); }
-  .pr-reply h2 { margin: 2rem 0 0.75rem; color: var(--sl-color-white); font-size: 1.35rem; line-height: 1.3; }
-  .pr-reply h2.pr-title { margin-top: 0.4rem; font-size: 1.6rem; }
-  .pr-reply h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.6rem; margin: 1.6rem 0 0.6rem; color: var(--sl-color-white); font-size: 1.12rem; }
-  .pr-reply h3 span { color: var(--pr-ai); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-  .pr-reply ul:not([class]) { margin: 0 0 0.9rem; padding-left: 1.3rem; }
-  .pr figure { margin: 0 0 1rem; }
-  .pr .pr-label { margin: 0 0 0.4rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-  .pr .pr-arrow { display: grid; place-items: center; margin: 0; color: var(--pr-ai); font-size: 0.8rem; font-weight: 700; text-align: center; }
-  .pr-arrow span::after { content: "↓"; display: block; font-size: 1.3rem; line-height: 1.2; }
-  .pr-scroll { margin: 0 0 1rem; overflow-x: auto; }
-
-  .pr-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  .pr-table th, .pr-table td { padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--tl-line); text-align: left; vertical-align: top; }
-  .pr-table th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-
-  .pr-extract, .pr-parse { display: grid; gap: 0.5rem; }
-  .pr-site, .pr-csv, .pr-parse > div, .pr-src, .pr-canon, .pr-report, .pr-league, .pr-results, .pr-fetch { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
-  .pr .pr-site-bar { display: flex; align-items: center; gap: 0.3rem; margin: -0.2rem 0 0.6rem; color: var(--tl-muted); font-size: 0.78rem; }
-  .pr-site-bar i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--tl-line); }
-  .pr-site-bar span { margin-left: 0.5rem; padding: 0.05rem 0.6rem; border-radius: 999px; background: var(--tl-bg); }
-  .pr .pr-site-head { margin-bottom: 0.4rem; color: var(--sl-color-white); font-weight: 700; }
-  .pr-site table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  .pr-site th, .pr-site td { padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--tl-line); text-align: left; }
-  .pr pre { margin: 0; padding: 0; overflow-x: auto; background: transparent; font-family: var(--sl-font-mono); font-size: 0.86rem; line-height: 1.55; white-space: pre; }
-  .pr-parse > .is-out { border-color: var(--pr-green); }
-  @media (min-width: 46rem) {
-    .pr-extract, .pr-parse { grid-template-columns: 1fr auto 1fr; align-items: center; }
-    .pr-arrow span::after { content: "→"; }
-  }
-
-  .pr-schools { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.75rem; padding: 0; list-style: none; }
-  .pr-schools li { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 1px solid var(--tl-derived-edge); border-radius: 8px; background: var(--tl-derived); font-weight: 700; }
-  .pr-stages { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; counter-reset: none; }
-  .pr-stages li { display: grid; grid-template-columns: auto 1fr; gap: 0 0.7rem; align-content: center; align-items: start; padding: 0.55rem 0.8rem; border: 1px solid var(--tl-line); border-left: 3px solid var(--pr-ai); border-radius: 8px; background: var(--tl-card); }
-  .pr-stages b { grid-row: span 2; align-self: center; color: var(--pr-ai); font-family: var(--sl-font-mono); font-size: 1.05rem; }
-  .pr-stages span { color: var(--sl-color-white); font-weight: 700; }
-  .pr-stages small { color: var(--tl-muted); font-size: 0.85rem; }
-  @media (min-width: 46rem) { .pr-stages { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-
-  .pr-why { display: grid; gap: 0.5rem; margin: 0 0 0.8rem; }
-  .pr-why div { padding: 0.55rem 0.8rem; border-radius: 8px; background: var(--tl-card); }
-  .pr-why dt { color: var(--tl-accent); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-  .pr-why div + div dt { color: var(--tl-muted); }
-  .pr-why dd { margin: 0; }
-  @media (min-width: 46rem) { .pr-why { grid-template-columns: 1fr 1fr; } }
-  .pr-loss { margin: 0 0 1rem; padding: 0.65rem 0.85rem; border: 1px solid color-mix(in srgb, var(--pr-red) 55%, var(--tl-line)); border-left-width: 4px; border-radius: 8px; background: color-mix(in srgb, var(--pr-red) 9%, var(--tl-card)); }
-  .pr .pr-loss p { margin: 0; }
-  .pr .pr-loss .pr-loss-head { margin-bottom: 0.2rem; color: var(--pr-red); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-  :root:not([data-theme="light"]) .pr .pr-loss .pr-loss-head { color: #ef7b68; }
-
-  .pr-fetch { display: grid; grid-template-columns: auto 1fr auto; gap: 0.75rem; align-items: center; }
-  .pr-node { display: grid; padding: 0.65rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); text-align: center; }
-  .pr-node span { color: var(--tl-muted); font-size: 0.85rem; }
-  .pr-wire p { margin: 0.2rem 0; padding-bottom: 0.15rem; border-bottom: 2px solid var(--tl-line); font-size: 0.85rem; text-align: center; }
-  .pr-wire-in b { color: var(--pr-green); }
-  .pr-codes { display: grid; gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
-  .pr-codes li { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0.6rem; align-items: center; padding: 0.45rem 0.7rem; border-radius: 8px; background: var(--tl-card); font-size: 0.9rem; }
-  .pr-codes b { padding: 0.15rem 0; border-radius: 6px; color: #fff; font-family: var(--sl-font-mono); text-align: center; }
-  .pr-codes strong { display: block; color: var(--sl-color-white); }
-  .pr-codes .is-ok b { background: var(--tl-clean-edge); }
-  .pr-codes .is-stop b { background: var(--pr-red); }
-  .pr-codes .is-warn b { background: #a77a1f; }
-  @media (min-width: 46rem) { .pr-codes { grid-template-columns: 1fr 1fr; } }
-
-  .pr-tree, .pr-tree ul { margin: 0; padding: 0 0 0 1.1rem; list-style: none; font-family: var(--sl-font-mono); font-size: 0.88rem; }
-  .pr-tree { margin: 0 0 1rem; padding: 0.7rem 0.9rem; border: 1px solid var(--tl-raw-edge); border-radius: 10px; background: var(--tl-raw); }
-  .pr-tree .is-dir { font-weight: 700; }
-  .pr-tree .is-dir li { font-weight: 400; }
-  .pr-tree .is-meta { color: var(--tl-muted); }
-
-  .pr-dedup { display: grid; gap: 0.6rem; }
-  .pr-dedup p { margin: 0 0 0.2rem; }
-  .pr .pr-score { color: var(--sl-color-white); font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
-  .pr-canon { border-color: var(--pr-green); background: var(--tl-clean); }
-  @media (min-width: 46rem) { .pr-dedup { grid-template-columns: 1fr 1fr; } .pr-canon { grid-column: span 2; } }
-
-  .pr .pr-report-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.7rem; color: var(--sl-color-white); }
-  .pr-report-head span { padding: 0.1rem 0.6rem; border-radius: 999px; background: color-mix(in srgb, var(--pr-yellow) 25%, transparent); color: var(--tl-ink); font-size: 0.8rem; font-weight: 700; }
-  .pr-report-head span.is-quiet { background: transparent; color: var(--tl-muted); font-weight: 500; }
-  .pr-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0 0.9rem; }
-  .pr .pr-tiles p { display: grid; margin: 0; padding: 0.55rem 0.7rem; border-radius: 8px; background: var(--tl-bg); color: var(--tl-muted); font-size: 0.82rem; }
-  .pr-tiles b { color: var(--sl-color-white); font-size: 1.5rem; line-height: 1.2; }
-  @media (min-width: 46rem) { .pr-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } .pr-tiles.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .pr-bars { display: grid; gap: 0.3rem; margin: 0 0 0.8rem; padding: 0; list-style: none; font-size: 0.86rem; }
-  .pr-bars li { display: grid; grid-template-columns: 5.5rem 1fr 2.5rem; gap: 0.6rem; align-items: center; }
-  .pr-bars i { position: relative; height: 0.65rem; border-radius: 999px; background: var(--tl-bg); }
-  .pr-bars i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: inherit; background: var(--pr-green); }
-  .pr-bars.is-points i::after { background: var(--tl-derived-edge); }
-  .pr-bars .is-short i::after { background: var(--pr-yellow); }
-  .pr-bars .is-short b { color: var(--pr-yellow); }
-  .pr-bars b { text-align: right; }
-  .pr .pr-flag { margin: 0; padding: 0.5rem 0.7rem; border-left: 3px solid var(--pr-yellow); background: var(--tl-bg); font-size: 0.9rem; }
-
-  .pr-funnel { display: grid; gap: 0.35rem; margin: 0 0 0.9rem; padding: 0; list-style: none; }
-  .pr-funnel li { position: relative; padding: 0.5rem 0.8rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); text-align: center; }
-  .pr-funnel li + li::before { content: "↓"; position: absolute; top: -0.95rem; left: 50%; color: var(--tl-muted); font-size: 0.8rem; transform: translateX(-50%); }
-  .pr-funnel b { color: var(--sl-color-white); font-size: 1.1rem; }
-  .pr-funnel .is-data { border-color: var(--pr-green); background: var(--tl-clean); }
-
-  .pr-io { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin: 0 0 1rem; font-size: 0.9rem; }
-  .pr-io div { display: flex; gap: 0.4rem; }
-  .pr-io dt { color: var(--tl-muted); font-weight: 700; }
-  .pr-io dt::after { content: ":"; }
-  .pr-io dd { margin: 0; }
-
-  .pr-checks { display: grid; gap: 0.6rem; margin: 0 0 1rem; padding: 0; list-style: none; counter-reset: check; }
-  .pr-checks li { display: grid; gap: 0.2rem; padding: 0.7rem 0.9rem 0.7rem 3rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); position: relative; counter-increment: check; }
-  .pr-checks li::before { content: counter(check); position: absolute; top: 0.7rem; left: 0.85rem; display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--pr-ai); color: #fff; font-size: 0.85rem; font-weight: 700; }
-  .pr-checks b { color: var(--sl-color-white); }
-
-  .pr-turn { margin-top: 2rem; padding: 0.9rem 1rem; border: 1px solid color-mix(in srgb, var(--pr-ai) 55%, var(--tl-line)); border-radius: 12px; background: linear-gradient(135deg, color-mix(in srgb, var(--pr-ai) 14%, var(--tl-card)), var(--tl-card) 60%); }
-  .pr .pr-turn-head { margin-bottom: 0.3rem; color: var(--pr-ai); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-  .pr-turn-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
-  .pr-turn-actions button { min-height: 44px; padding: 0.5rem 0.95rem; border: 1px solid var(--tl-muted); border-radius: 999px; background: transparent; color: var(--tl-ink); font: inherit; font-weight: 700; cursor: pointer; }
-  .pr-turn-actions a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 1.1rem; border-radius: 999px; background: var(--pr-ai); color: #fff; font-weight: 700; text-decoration: none; }
-
-  @media (max-width: 30rem) {
-    .pr-reply { padding-left: 0.6rem; }
-    .pr-fetch { grid-template-columns: 1fr; }
-  }
-</style>
+    <h2>8. Check your understanding</h2>
+    <p>Answer these three questions in your own words. I'll review your reasoning before providing the answers.</p>
+    <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+</PrimerChat>

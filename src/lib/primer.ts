@@ -6,6 +6,14 @@ export const primerPrompt = `I'm a data science student learning how data is col
 4. Sketch the stages as separate Python functions, working on a saved HTML string, not a live site.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
 
+export const coveragePrompt = `I'm learning how to tell whether a data collection is complete. Teach me with one running example that is not about sports.
+
+1. What an expected set is, and why it has to be written before the collection runs and from outside it.
+2. Coverage as what I have divided by what I expected, and why the unit I count in (pages, records, fields) changes the answer.
+3. The difference between a page that is empty, one I could not reach, and one I have no way to read, and what each lets me claim.
+4. Missing completely at random, missing at random, and missing not at random, with one example of each.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
 export const primerCode = {
   "sample": "from bs4 import BeautifulSoup\nfrom pathlib import Path\nfrom uuid import uuid4\n\nschools = list(\"ABCDEFGH\")\n\nsource_results = {\n    \"A\": [\n        (\"2026-09-05\", \"B\", \"W 2-1\"),\n        (\"2026-09-12\", \"C\", \"D 0-0\"),\n        (\"2026-09-19\", \"D\", \"L 1-3\"),\n    ],\n    \"B\": [(\"2026-09-05\", \"A\", \"L 1-2\")],\n    \"C\": [(\"2026-09-12\", \"A\", \"D 0-0\")],\n    \"D\": [(\"2026-09-19\", \"A\", \"W 3-1\")],\n    \"E\": [(\"2026-09-05\", \"F\", \"W 2-0\")],\n    \"F\": [(\"2026-09-05\", \"E\", \"L 0-2\")],\n    \"G\": [(\"2026-09-05\", \"H\", \"D 1-1\")],\n    \"H\": [(\"2026-09-05\", \"G\", \"D 1-1\")],\n}\n\n\ndef make_html(rows):\n    content = \"\".join(\n        f\"<tr><td>{date}</td>\"\n        f\"<td>{opponent}</td>\"\n        f\"<td>{result}</td></tr>\"\n        for date, opponent, result in rows\n    )\n    return f'<table id=\"results\">{content}</table>'\n\n\nsaved_html = {\n    school: make_html(rows)\n    for school, rows in source_results.items()\n}",
   "plan": "def plan_collection(schools):\n    return [\n        {\n            \"school\": school,\n            \"url\": f\"https://school-{school.lower()}.example/soccer/2026\"\n        }\n        for school in schools\n    ]",
