@@ -4,6 +4,8 @@ import { noScore, pipeline, rileyAsk, spell, toPlay } from "../../lib/cases";
 import KickThink from "./KickThink.astro";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
+import AiStudy from "./AiStudy.astro";
+import { donePrompt } from "../../lib/primer";
 
 const rewindThoughts = [
   "Riley asked me to list every expected page and match before collecting, and to name every gap in the summary—so I can't just count what gets saved and call it done.",
@@ -70,6 +72,13 @@ const record = [
       <p>The outage didn't disappear. In the original run, Kick counted {story.counted} of {story.finals} finished matches. Once the expected set was written down, {spell(bounds.unseen)} of the {spell(story.finals - story.counted)} gaps showed up as Dunmore home matches, so Kick checked the visitors' saved schedules and recovered them. One result stayed unknown and named, and the table went out as {story.afterRepair} of {story.finals}.</p>
       <p>The extra sentence did not fix Friday on its own. It stated a requirement. The requirement produced a coverage record. Riley then checked that record before publishing: {spell(pipeline.asked)} pages expected, every gap named, and each recovered result traced to a visitor's page.</p>
       <p data-close-first hidden>Your question from Publish Day: <q></q> Would its answer have surfaced Dunmore's missing page?</p>
+      <AiStudy
+        id="rewind-ai-study"
+        title="Giving an agent a definition of done"
+        note="Riley's sentence was a set of acceptance criteria. Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back for a season where nobody called."
+        prompt={donePrompt}
+        href="../01-collection-ai-done/"
+      />
     </div>
   </div>
   <NextPart from="rewind">Next, a season where nobody called to complain.</NextPart>

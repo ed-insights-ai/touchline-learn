@@ -384,17 +384,6 @@ publication_status: provisional`;
   .pr-mini .is-missing td:nth-child(3) { color: var(--pr-red); font-weight: 700; }
   :root:not([data-theme="light"]) .pr-mini .is-missing td:nth-child(3) { color: #ef7b68; }
 
-  .pr-twin { display: grid; gap: 0.6rem; margin: 0 0 1rem; }
-  @media (min-width: 46rem) { .pr-twin { grid-template-columns: 1fr 1fr; } }
-  .pr-twin > div { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
-  .pr .pr-twin p { margin: 0 0 0.5rem; }
-  .pr-twin b { color: var(--sl-color-white); }
-
-  .pr-chip { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
-  .pr-chip.is-ok { background: color-mix(in srgb, var(--pr-green) 25%, transparent); }
-  .pr-chip.is-warn { background: color-mix(in srgb, var(--pr-yellow) 30%, transparent); }
-  .pr-chip.is-bad { background: color-mix(in srgb, var(--pr-red) 22%, transparent); }
-
   .pr-steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; counter-reset: step; }
   .pr-steps li { display: grid; grid-template-columns: 1.8rem 1fr auto; gap: 0 0.7rem; align-items: center; padding: 0.45rem 0; border-bottom: 1px solid var(--tl-line); counter-increment: step; }
   .pr-steps li:last-child { border-bottom: 0; }
@@ -413,7 +402,6 @@ publication_status: provisional`;
   :root:not([data-theme="light"]) .pr .pr-run p.is-bad span { color: #ef7b68; }
   .pr .pr-run p.is-pending span { font-style: italic; font-weight: 500; }
   .pr .pr-lab-foot b { color: var(--sl-color-white); font-size: 1.1rem; }
-  .pr .pr-run-note { margin: 0; font-size: 0.92rem; }
 
   .pr-lab label.pr-toggle { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 40px; cursor: pointer; }
   .pr-toggle input { width: 1.15rem; height: 1.15rem; accent-color: var(--pr-ai); }
@@ -423,7 +411,6 @@ publication_status: provisional`;
   .pr-verdict span { color: var(--tl-muted); font-size: 0.9rem; }
   .pr-verdict.is-stop { box-shadow: inset 4px 0 0 var(--pr-red); }
 
-  .pr .pr-big { margin: 0 0 0.5rem; color: var(--sl-color-white); font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
   .pr-summary .is-missing td { color: var(--tl-muted); font-style: italic; }
 
 </style>

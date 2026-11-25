@@ -1,0 +1,328 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { donePrompt } from "../../lib/primer";
+import { story } from "../../lib/coverage";
+import { toPlay } from "../../lib/cases";
+
+const branches = ["Central", "North", "East", "West"];
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const expected = branches.length * days.length;
+const firstTry = expected - 3;
+
+const status = (b: string, d: string) => (b === "East" && d === "Wed" ? "recovered" : b === "West" && d === "Fri" ? "missing" : "direct");
+const cells = branches.flatMap((b) => days.map((d) => status(b, d)));
+const direct = cells.filter((c) => c === "direct").length;
+const recovered = cells.filter((c) => c === "recovered").length;
+const missing = cells.filter((c) => c === "missing").length;
+const final = Math.round(((direct + recovered) / expected) * 100);
+const mark: Record<string, string> = { direct: "✓", recovered: "↺", missing: "✕" };
+const said: Record<string, string> = { direct: "Collected directly", recovered: "Recovered", missing: "Missing" };
+
+const criteria = [
+  ["Sources", "All four library branches attempted"],
+  ["Expected records", `${expected} unique branch-day records`],
+  ["Accuracy", "Values traceable to original sources"],
+  ["Duplicates", "No duplicate branch-day records"],
+  ["Missing data", "Every missing record explicitly identified"],
+  ["Recovery", "Alternative sources checked for missing records"],
+  ["Reporting", "Reconciliation report produced"],
+  ["Completion", "Incomplete collections must not be reported as complete"],
+];
+
+const frames = [
+  { key: "registry", name: "Branch registry", branches: 4, expected: 20, collected: 15, note: "The expected set comes from the city's registry. West is still expected, so its five missing days show up as a gap." },
+  { key: "reached", name: "Sites the agent reached", branches: 3, expected: 15, collected: 15, note: "The agent works out what should exist from the sites it reached. West drops out of the expected set, and the gap disappears with it." },
+].map((f) => ({ ...f, coverage: `${Math.round((f.collected / f.expected) * 100)}%` }));
+
+const byBranch = branches.map((b) => {
+  const row = days.map((d) => status(b, d));
+  return [b, days.length, row.filter((c) => c === "direct").length, row.filter((c) => c === "recovered").length, row.filter((c) => c === "missing").length] as const;
+});
+
+const verify = [
+  ["There are four branches", "Check the official branch registry."],
+  [`There should be ${expected} records`, "Check the reporting policy and date range."],
+  ["A branch recorded 125 checkouts", "Compare a sample of collected values with original pages."],
+  ["A record was recovered", "Inspect the alternative source and confirm matching definitions."],
+  ["A record could not be collected", "Inspect request logs and, where practical, attempt to access the source yourself."],
+  [`Coverage is ${final}%`, "Independently compare expected and collected record identifiers."],
+  ["No duplicates exist", "Check the uniqueness of the branch-date identifiers."],
+];
+
+const checks = [
+  ["Expected set", "An agent discovers three library websites, collects five records from each and reports 100% coverage. You later discover that the city operates a fourth library. What was wrong with the agent's approach, and how would you change your original instructions?"],
+  ["Reconciliation", `An agent expects ${expected} records, collects 16 directly and recovers two from an approved alternative source. What should its reconciliation report contain, what is its final coverage, and can it claim that collection is complete?`],
+  ["Human judgment", `The agent produces a dataset with ${final}% coverage and recommends replacing the missing checkout count with the branch's daily average so that the report can be published. What would you need to investigate, and which decisions should remain yours rather than the agent's?`],
+];
+---
+
+<PrimerChat
+  prompt={donePrompt}
+  back="../01-collection/#rewind-ai-study"
+  about="This is a reply an AI assistant gave to Module 1's acceptance-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and look at Kick's record again with the expected set in mind."
+>
+  <h2 class="pr-title">Giving an AI agent a data collection job</h2>
+  <p>An AI coding agent can write a scraper, run it, produce a dataset and tell you that everything finished successfully. None of that proves it collected everything it was supposed to collect.</p>
+  <p class="pr-pull">The key skill is giving an agent a task whose success you can verify independently.</p>
+  <p>Throughout this reply, we'll use a fictional city library system. Your goal is to collect daily book checkout totals from four library branches for five days and produce a report showing library usage.</p>
+
+  <h2>1. Defining what “done” means</h2>
+  <p>Imagine giving an AI coding agent this instruction:</p>
+  <p class="pr-ask">Collect daily book checkout totals from the four library websites for this week. Save the results to a CSV file and tell me when you're done.</p>
+  <p>The agent writes a scraper, runs it and returns {firstTry} records. It reports:</p>
+  <figure class="pr-card pr-agent">
+    <p class="pr-summary-head"><b>Agent summary</b><span class="pr-chip is-ok">Done</span></p>
+    <ul class="pr-ticks">
+      <li>Scraper executed successfully.</li>
+      <li>CSV file generated.</li>
+      <li>No unhandled errors.</li>
+    </ul>
+    <div class="pr-tiles is-two">
+      <p><b>{firstTry}</b>Records returned</p>
+      <p class="is-alarm"><b>{expected}</b>Records you needed</p>
+    </div>
+  </figure>
+  <p>Everything the agent said could be true. But you needed {expected} records, and three are missing. Your instructions never said how the agent should show that the collection was complete.</p>
+  <p>This is where <strong>acceptance criteria</strong> come in. They define the conditions the work must meet before you accept it. A better definition of done might be:</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Requirement</th><th scope="col">Acceptance criterion</th></tr></thead>
+      <tbody>{criteria.map(([r, c]) => <tr><th scope="row">{r}</th><td>{c}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>These requirements describe the quality of the result, not just whether the code ran. An agent can finish its assigned work without collecting all the data, and its report has to show that difference.</p>
+
+  <h2>2. Establishing the expected set</h2>
+  <p>Before the agent collects anything, you establish what should exist. The city's official branch registry lists four libraries, and the reporting policy requires one checkout count per branch per day, including days with zero checkouts.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Expected set before collection</p>
+    <div class="pr-scroll">
+      <table class="pr-grid">
+        <thead><tr><td></td>{days.map((d) => <th scope="col">{d}</th>)}</tr></thead>
+        <tbody>{branches.map((b) => <tr><th scope="row">{b}</th>{days.map((d) => <td class="is-expected"><span class="sr-only">{b} {d}: expected</span></td>)}</tr>)}</tbody>
+      </table>
+    </div>
+    <div class="pr-tiles is-three">
+      <p><b>{branches.length}</b>Branches</p>
+      <p><b>{days.length}</b>Days</p>
+      <p><b>{expected}</b>Expected records</p>
+    </div>
+    <figcaption>Each square is one required record, identified by its branch and date.</figcaption>
+  </figure>
+  <p>This is more than an expected count. It is an expected set of specific records. A dataset with {expected} rows could still be incomplete if Monday's Central record appeared twice and Friday's West record was missing.</p>
+  <p>You could give the agent an <code>expected_records.csv</code> with the {expected} required identifiers, along with a source manifest listing the four official source URLs.</p>
+
+  <h3>Why establish it beforehand?</h3>
+  <p>Suppose the West Library website is unavailable all week. If the agent works out what should exist from the websites it reached, it might conclude that the city has only three libraries.</p>
+  <figure class="pr-card pr-lab" data-frame-lab data-frames={JSON.stringify(frames)}>
+    <fieldset class="pr-seg">
+      <legend>Where does the expected set come from?</legend>
+      {frames.map((f, i) => <label><input type="radio" name="pr-frame" value={f.key} checked={i === 0} /><span>{f.name}</span></label>)}
+    </fieldset>
+    <div class="pr-scroll">
+      <table class="pr-grid" data-frame-grid>
+        <thead><tr><td></td>{days.map((d) => <th scope="col">{d}</th>)}</tr></thead>
+        <tbody>{branches.map((b) => (
+          <tr class:list={{ "is-west": b === "West" }}>
+            <th scope="row">{b}</th>
+            {days.map((d) => b === "West"
+              ? <td class="is-missing"><span aria-hidden="true">✕</span><span class="sr-only">{b} {d}: missing</span></td>
+              : <td class="is-direct"><span aria-hidden="true">✓</span><span class="sr-only">{b} {d}: collected</span></td>)}
+          </tr>
+        ))}</tbody>
+      </table>
+    </div>
+    <div class="pr-tiles">
+      <p><b data-frame="branches">{frames[0].branches}</b>Expected branches</p>
+      <p><b data-frame="expected">{frames[0].expected}</b>Expected records</p>
+      <p><b data-frame="collected">{frames[0].collected}</b>Collected records</p>
+      <p data-frame-cov><b data-frame="coverage">{frames[0].coverage}</b>Reported coverage</p>
+    </div>
+    <p class="pr-run-note" data-frame="note" aria-live="polite">{frames[0].note}</p>
+  </figure>
+  <p>The same dataset produces two different conclusions.</p>
+  <p class="pr-pull">The collection process must not define the standard against which its own completeness is measured.</p>
+  <p>The expected set should come from independent information, such as an official registry, a reporting policy, a published schedule or an authoritative inventory. It should be kept, so that any later change to it can be reviewed.</p>
+
+  <h2>3. Producing a reconciliation report</h2>
+  <p><strong>Reconciliation</strong> means comparing what you expected with what you actually obtained, and accounting for every difference.</p>
+  <p>Suppose the agent runs the collection and obtains {direct} records directly. It recovers one more from the city's official consolidated report, but cannot recover the last one.</p>
+  <figure class="pr-card">
+    <p class="pr-summary-head"><b>Collection reconciliation</b><span class="pr-chip is-warn">Incomplete</span></p>
+    <p class="pr-big">{final}%<small>final record coverage</small></p>
+    <div class="pr-stack" role="img" aria-label={`${direct} collected directly, ${recovered} recovered, ${missing} missing, out of ${expected}`}>
+      <i class="is-direct" style={`--n:${direct}`}></i><i class="is-recovered" style={`--n:${recovered}`}></i><i class="is-missing" style={`--n:${missing}`}></i>
+    </div>
+    <p class="pr-legend"><span class="is-direct">Direct: {direct}</span><span class="is-recovered">Recovered: {recovered}</span><span class="is-missing">Missing: {missing}</span></p>
+    <div class="pr-scroll">
+      <table class="pr-grid">
+        <thead><tr><td></td>{days.map((d) => <th scope="col">{d}</th>)}</tr></thead>
+        <tbody>{branches.map((b) => <tr><th scope="row">{b}</th>{days.map((d) => { const s = status(b, d); return <td class={`is-${s}`}><span aria-hidden="true">{mark[s]}</span><span class="sr-only">{b} {d}: {said[s]}</span></td>; })}</tr>)}</tbody>
+      </table>
+    </div>
+  </figure>
+  <p>The summary might look like this:</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <thead><tr><th scope="col">Branch</th><th scope="col">Expected</th><th scope="col">Direct</th><th scope="col">Recovered</th><th scope="col">Missing</th></tr></thead>
+      <tbody>
+        {byBranch.map(([b, e, d, r, m]) => <tr><th scope="row">{b}</th><td>{e}</td><td>{d}</td><td>{r}</td><td>{m}</td></tr>)}
+        <tr class="is-total"><th scope="row">Total</th><td>{expected}</td><td>{direct}</td><td>{recovered}</td><td>{missing}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Counts alone are not enough. The agent must also give an exception report.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Record</th><th scope="col">Status</th><th scope="col">Reason and evidence</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">East, Wednesday</th><td><span class="pr-chip is-info">Recovered</span></td><td>Original page returned HTTP 404. A matching count of 142 was found in the official consolidated report.</td></tr>
+        <tr><th scope="row">West, Friday</th><td><span class="pr-chip is-bad">Missing</span></td><td>HTTP 503 after three attempts. The consolidated report did not contain the record.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>For a recovered record, the agent should keep the alternative source and show that it measures the same thing as the original. For a missing record, it should keep the evidence of failure, without inventing a value or quietly removing the record from the expected set.</p>
+  <p>The reconciliation must balance:</p>
+  <div class="pr-eq" role="img" aria-label={`Expected ${expected} equals direct ${direct} plus recovered ${recovered} plus missing ${missing}`}>
+    <span><b>{expected}</b>Expected</span><span class="pr-eq-op" aria-hidden="true">=</span>
+    <span><b>{direct}</b>Direct</span><span class="pr-eq-op" aria-hidden="true">+</span>
+    <span><b>{recovered}</b>Recovered</span><span class="pr-eq-op" aria-hidden="true">+</span>
+    <span><b>{missing}</b>Missing</span>
+  </div>
+  <p>The categories must not overlap: each expected record is counted exactly once. Unexpected records and duplicates are reported separately.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Riley's added sentence is a short set of acceptance criteria. Its expected set came from the conference format, not from the pages Kick reached: {story.schools} schools each host every other school once, so {story.scheduled} matches, {toPlay} still to play, {story.finals} finished. Like the West Library, Dunmore's silent page couldn't shrink that set.</p>
+    <p>Kick's Friday record balances the same way: {story.finals} expected = {story.counted} read directly + {story.finals - story.counted - 1} recovered from the visitors' saved schedules + 1 missing. One difference: the reply recovers a record from an outside report. Kick's {story.finals - story.counted - 1} came from the visitors' schedule pages, which were already in the expected set, so each one traces back to a page Riley asked for.</p>
+  </aside>
+
+  <h2>4. Checking the agent's work</h2>
+  <p>An AI-generated reconciliation report is itself a claim. It is not proof that the collection is accurate. You need to check some of the evidence yourself.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Agent's claim</th><th scope="col">How you check it</th></tr></thead>
+      <tbody>{verify.map(([c, v]) => <tr><th scope="row">{c}</th><td>{v}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>You don't need to check every ordinary record by hand. Pay particular attention to exceptions, recovered records, unexpected values and any assumptions the agent made.</p>
+
+  <h3>Which decisions belong to you?</h3>
+  <div class="pr-twin">
+    <div>
+      <p class="pr-label">The agent</p>
+      <ul class="pr-ticks">
+        <li>Collects data</li><li>Retries failed requests</li><li>Finds alternative sources</li><li>Identifies discrepancies</li><li>Produces evidence</li><li>Applies rules you approved</li>
+      </ul>
+    </div>
+    <div class="is-you">
+      <p class="pr-label">You</p>
+      <ul class="pr-ticks">
+        <li>Define the expected set</li><li>Approve acceptable sources</li><li>Set quality thresholds</li><li>Approve estimation methods</li><li>Decide acceptable risks</li><li>Authorize publication</li>
+      </ul>
+    </div>
+  </div>
+  <p>For example, is {final}% coverage good enough? That depends on what you intend to do with the data. It might be enough for an exploratory analysis, but not for an official report comparing branches. Friday might be West Library's busiest day, and losing that record could change the comparison.</p>
+  <p class="pr-pull">The agent can enforce a publication policy you set. It should not quietly invent one.</p>
+
+  <h2>5. Putting it together: a better agent prompt</h2>
+  <p>Here is how you could hand the same job to an AI coding agent.</p>
+  <figure class="pr-card pr-brief">
+    <p class="pr-label">Prompt</p>
+    <p class="pr-brief-title">Library data collection task</p>
+    <h4>Objective</h4>
+    <p>Collect daily book checkout totals for the four city library branches from Monday through Friday.</p>
+    <h4>Expected data</h4>
+    <p>Use the supplied branch registry and reporting schedule as the authoritative expected set. There are {expected} unique branch-date records. Save the expected set before starting collection. Do not change it based on collection results; report any discrepancies separately.</p>
+    <h4>Collection requirements</h4>
+    <ul>
+      <li>Attempt every expected record.</li>
+      <li>Keep raw source responses and collection timestamps.</li>
+      <li>Record failed requests and retry attempts.</li>
+      <li>Use approved alternative sources where necessary.</li>
+      <li>Keep the source and collection status of each record.</li>
+      <li>Do not substitute zero or estimated values for missing records.</li>
+    </ul>
+    <h4>Deliverables</h4>
+    <ul>
+      <li><code>expected_records.csv</code>: the original expected set</li>
+      <li><code>collected_records.csv</code>: observed and recovered data with source references</li>
+      <li><code>exceptions.csv</code>: missing, recovered, duplicate and unexpected records, with explanations</li>
+      <li><code>reconciliation.json</code>: expected, direct, recovered and missing counts</li>
+      <li><code>run_report.md</code>: execution status, coverage, limitations and evidence</li>
+    </ul>
+    <h4>Acceptance criteria</h4>
+    <ul>
+      <li>Every expected record is accounted for.</li>
+      <li>Every collected value is traceable to a source.</li>
+      <li>No duplicate record identifiers exist in the final dataset.</li>
+      <li>Reconciliation counts balance.</li>
+      <li>Unresolved gaps are reported explicitly.</li>
+    </ul>
+    <p>Report execution success, collection completeness and publication readiness separately. Do not describe an incomplete dataset as complete. If any records remain missing, return the output and evidence for human review rather than approving publication.</p>
+  </figure>
+  <p>The prompt doesn't dictate every Python function. It leaves the agent free to choose how to do the work, and sets firm requirements for what it must return.</p>
+  <p class="pr-pull">Delegate the implementation. Keep control of the acceptance criteria.</p>
+
+  <h2>6. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>Answer these in your own words. I'll review your reasoning before giving the answers.</p>
+</PrimerChat>
+
+<script>
+  const lab = document.querySelector<HTMLElement>("[data-frame-lab]");
+  if (lab) {
+    const frames: Record<string, string | number>[] = JSON.parse(lab.dataset.frames!);
+    lab.addEventListener("change", (e) => {
+      const f = frames.find((x) => x.key === (e.target as HTMLInputElement).value);
+      if (!f) return;
+      lab.classList.toggle("is-reached", f.key === "reached");
+      for (const k of ["branches", "expected", "collected", "coverage", "note"]) lab.querySelector<HTMLElement>(`[data-frame="${k}"]`)!.textContent = String(f[k]);
+      lab.querySelectorAll<HTMLElement>(".is-west .sr-only").forEach((s) => { s.textContent = s.textContent!.replace(/: .*/, f.key === "reached" ? ": not expected" : ": missing"); });
+    });
+  }
+</script>
+
+<style is:global>
+  .pr .pr-ask { padding: 0.7rem 0.9rem; border-radius: 12px; background: color-mix(in srgb, var(--pr-ai) 14%, var(--tl-card)); color: var(--sl-color-white); font-style: italic; }
+  .pr-ticks { display: grid; gap: 0.25rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+  .pr-ticks li { display: grid; grid-template-columns: 1.2rem 1fr; gap: 0.4rem; }
+  .pr-ticks li::before { content: "✓"; color: var(--pr-green); font-weight: 700; }
+  .pr-twin .is-you .pr-ticks li::before { content: "●"; color: var(--pr-ai); font-size: 0.7rem; line-height: 1.6rem; }
+  .pr-twin .is-you { border-color: color-mix(in srgb, var(--pr-ai) 55%, var(--tl-line)); }
+
+  .pr { --pr-blue: #3a78c4; }
+  .pr-grid { width: 100%; min-width: 19rem; margin: 0 0 0.7rem; border-collapse: separate; border-spacing: 4px; font-size: 0.85rem; }
+  .pr-grid th { padding: 0 0.3rem; color: var(--tl-muted); font-weight: 600; text-align: left; }
+  .pr-grid thead th { text-align: center; }
+  .pr-grid td { height: 2rem; border-radius: 6px; background: var(--tl-bg); color: #fff; font-weight: 700; text-align: center; }
+  .pr-grid td.is-expected { border: 1.5px solid var(--tl-line); }
+  .pr-grid td.is-direct { background: var(--pr-green); }
+  .pr-grid td.is-recovered { background: var(--pr-blue); }
+  .pr-grid td.is-missing { border: 1.5px dashed var(--pr-red); background: color-mix(in srgb, var(--pr-red) 12%, transparent); color: var(--pr-red); }
+  :root:not([data-theme="light"]) .pr-grid td.is-missing { color: #ef7b68; }
+  .pr-lab.is-reached .is-west th { color: var(--tl-muted); text-decoration: line-through; }
+  .pr-lab.is-reached .is-west td { border: 1.5px dotted var(--tl-line); background: transparent; }
+  .pr-lab.is-reached .is-west td span[aria-hidden] { visibility: hidden; }
+  .pr-grid thead td { background: none; }
+  .pr-card .pr-scroll:has(.pr-grid) { margin: 0; }
+  .pr-lab [data-frame-cov] b { transition: color 0.2s; }
+  .pr-lab.is-reached [data-frame-cov] { box-shadow: inset 3px 0 0 var(--pr-red); }
+  .pr-lab.is-reached [data-frame-cov] b { color: var(--pr-red); }
+  :root:not([data-theme="light"]) .pr-lab.is-reached [data-frame-cov] b { color: #ef7b68; }
+
+  .pr .pr-big small { margin-left: 0.6rem; color: var(--tl-muted); font-size: 0.85rem; font-weight: 500; }
+  .pr-stack { display: flex; gap: 2px; height: 0.8rem; margin: 0 0 0.4rem; overflow: hidden; border-radius: 999px; }
+  .pr-stack i { flex: var(--n) 0 0; }
+  .pr-stack .is-direct, .pr-legend .is-direct::before { background: var(--pr-green); }
+  .pr-stack .is-recovered, .pr-legend .is-recovered::before { background: var(--pr-blue); }
+  .pr-stack .is-missing, .pr-legend .is-missing::before { background: var(--pr-red); }
+  .pr-card .pr-legend { margin: 0 0 0.7rem; }
+  .pr-chip.is-info { background: color-mix(in srgb, var(--pr-blue) 25%, transparent); }
+
+  .pr-brief { border-left: 3px solid var(--pr-ai); }
+  .pr .pr-brief-title { margin: 0 0 0.4rem; color: var(--sl-color-white); font-size: 1.1rem; font-weight: 700; }
+  .pr-brief h4 { margin: 0.8rem 0 0.25rem; color: var(--sl-color-white); font-size: 0.95rem; }
+  .pr .pr-brief p, .pr-brief ul { margin: 0 0 0.4rem; font-size: 0.92rem; }
+  .pr-brief ul { padding-left: 1.2rem; }
+</style>

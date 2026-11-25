@@ -58,3 +58,11 @@ export const failPrompt = `I'm learning what a data pipeline should do when one 
 3. How retries, timeouts and reruns interact with a recorded gap: what makes a rerun safe, and how the record stays accurate when a run is interrupted.
 4. How to decide whether to publish output that has a known gap: who decides, what rule or threshold they use, and what to say alongside it.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
+export const donePrompt = `I'm learning how to hand a data collection job to an AI coding agent so I can check what it returns. Teach me with one running example that is not about sports.
+
+1. Why a request like "collect this data and tell me when it's done" lets an agent report success no matter what it missed, and what acceptance criteria (a definition of done) add to the request.
+2. How to state the expected set before the job runs, meaning every source and record the output should include, and why it has to be written down before collection rather than worked out afterward from what was collected.
+3. What a reconciliation report looks like: expected, collected, recovered from another source, and still missing, with each gap named and the reason for it. Show a short example.
+4. How I check that report before I use the output: which claims I should trace back to a source myself, and which decisions are still mine to make rather than the agent's.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;

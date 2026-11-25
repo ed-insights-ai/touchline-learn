@@ -191,3 +191,15 @@
 .pr .pr-summary-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 1rem; margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.85rem; }
 .pr-summary-head b { color: var(--sl-color-white); font-size: 1rem; }
 .pr .pr-note { color: var(--tl-muted); font-size: 0.88rem; font-style: italic; }
+.pr-twin { display: grid; gap: 0.6rem; margin: 0 0 1rem; }
+@media (min-width: 46rem) { .pr-twin { grid-template-columns: 1fr 1fr; } }
+.pr-twin > div { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
+.pr .pr-twin p { margin: 0 0 0.5rem; }
+.pr-twin b { color: var(--sl-color-white); }
+
+.pr-chip { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+.pr-chip.is-ok { background: color-mix(in srgb, var(--pr-green) 25%, transparent); }
+.pr-chip.is-warn { background: color-mix(in srgb, var(--pr-yellow) 30%, transparent); }
+.pr-chip.is-bad { background: color-mix(in srgb, var(--pr-red) 22%, transparent); }
+.pr .pr-big { margin: 0 0 0.5rem; color: var(--sl-color-white); font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.pr .pr-run-note { margin: 0; font-size: 0.92rem; }
