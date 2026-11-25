@@ -75,21 +75,22 @@ const captions = [
   <p>A state describes the whole page, so a Complete page can still hold a row with a blank score. Case 3 shows one.</p>
 
   <p>Kick's scraper had five stages, and Touchline uses seven steps. Kick's Build splits in two. Prove and Check are added, because Kick skipped them. Report moves out of the line to become the coverage record, kept beside every step. Each case names the Kick stage where it broke and the Touchline step that handles it.</p>
-  <details class="cv-more">
-    <summary>How Kick's five stages map to Touchline's seven steps</summary>
-    <div class="cv-scroll">
-      <table class="cv-stagemap">
-        <caption>Kick's stages compared to Touchline's steps</caption>
-        <thead><tr><th scope="col">Kick</th><th scope="col">Touchline</th><th scope="col">What it does</th><th scope="col">Module</th></tr></thead>
-        <tbody>
-          {stages.map(([kick, step, what, mod]) => (
-            <tr class:list={{ "is-skipped": !kick, "is-here": mod.startsWith("1,") }}><td>{kick || <span class="cv-none">skipped</span>}</td><th scope="row">{step}</th><td>{what}</td><td>{mod}</td></tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <p>Kick's <em>Build</em> chose which copy of each match to keep and generated the table. Touchline's <em>Build</em> publishes finished products only from checked records.</p>
-  </details>
+  <figure class="cv-cross" aria-labelledby="cv-cross-title">
+    <figcaption id="cv-cross-title">Kick's five stages, Touchline's seven steps</figcaption>
+    <p class="cv-cross-head" aria-hidden="true"><span>Kick</span><span></span><span>Touchline</span><span>What it does</span><span>Module</span></p>
+    <ol>
+      {stages.map(([kick, step, what, mod]) => (
+        <li class:list={{ "is-skipped": !kick, "is-here": mod.startsWith("1,") }}>
+          {kick ? <span class="cv-kplan-stage"><span class="sr-only">Kick: </span>{kick}</span> : <span class="cv-cross-skip">skipped</span>}
+          <span class="cv-cross-arrow" aria-hidden="true">→</span>
+          <b><span class="sr-only">Touchline: </span>{step}</b>
+          <span class="cv-cross-what">{what}</span>
+          <span class="cv-cross-mod"><span class="sr-only">Module </span>{mod.startsWith("1,") ? "1, this one" : mod}</span>
+        </li>
+      ))}
+    </ol>
+  </figure>
+  <p>Kick's <em>Build</em> chose which copy of each match to keep and generated the table. Touchline's <em>Build</em> publishes finished products only from checked records.</p>
 
   <AiStudy
     id="concept-ai-study"
