@@ -4,6 +4,7 @@ import { story } from "../../lib/coverage";
 import { pipeline, spell } from "../../lib/cases";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
+import AiStudy from "./AiStudy.astro";
 
 const stages = [
   ["Scrape", "Fetch", "Ask for each page, and write down which answered", "1, this one"],
@@ -90,14 +91,12 @@ const captions = [
     <p>Kick's <em>Build</em> chose which copy of each match to keep and generated the table. Touchline's <em>Build</em> publishes finished products only from checked records.</p>
   </details>
 
-  <details class="cv-learn-box">
-    <summary><span class="cv-optional">Optional · AI study prompt</span>Want the same idea outside sports?</summary>
-    <div class="cv-prompt cv-learn">
-      <p class="cv-prompt-note">Paste this into any AI assistant for a short walkthrough outside sports, then come back to test yourself below.</p>
-      <p data-copy-text tabindex="0">{learnPrompt}</p>
-      <button type="button" data-copy>Copy prompt</button>
-    </div>
-  </details>
+  <AiStudy
+    id="concept-ai-study"
+    title="Want the same idea outside sports?"
+    note="Paste this into any AI assistant for a short walkthrough outside sports, then come back to test yourself below."
+    prompt={learnPrompt}
+  />
 
   <h4 class="cv-try">Check your understanding: a debate league</h4>
   <p>A school debate league has six schools, and each hosts every other school once. Three debates haven't happened yet. A collector fetches each school's results page and reads each debate from its host's page. Five pages are saved, with 22 finished debates on them. Pinecrest's site doesn't answer, and Pinecrest has hosted five finished debates.</p>

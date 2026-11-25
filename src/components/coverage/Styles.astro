@@ -155,8 +155,6 @@
   .cv-prompt p { font-family: var(--sl-font-mono); font-size: 0.9rem; }
   .cv-prompt .cv-prompt-head { margin: 0; font-family: inherit; font-size: 1rem; font-weight: 700; color: var(--sl-color-white); }
   .cv-prompt .cv-prompt-note { font-family: inherit; font-size: 0.95rem; }
-  .cv-learn [data-copy-text] { white-space: pre-wrap; max-height: 14rem; overflow-y: auto; }
-  .cv-learn button { justify-self: start; margin-top: 0.75rem; }
   .cv-pre { white-space: pre-wrap; }
   .cv-cases li { margin-bottom: 0.4rem; }
   .cv-more { margin: 0 0 0.75rem; border-top: 1px solid var(--tl-line); }
@@ -286,9 +284,6 @@
   .cv-quote p { margin: 0 0 0.25rem; font-size: 1.08rem; font-style: italic; line-height: 1.45; }
   .cv-quote footer { color: var(--tl-muted); font-size: 0.85rem; }
 
-  .cv-learn-box { margin: 0 0 1.25rem; border: 1px dashed var(--tl-line); border-radius: 8px; background: var(--tl-card); }
-  .cv-learn-box > summary { display: list-item; min-height: 44px; padding: 0.6rem 0.95rem; color: var(--tl-ink); font-size: 0.94rem; font-weight: 600; cursor: pointer; }
-  .cv-learn-box .cv-prompt { margin: 0; padding: 0 0.95rem 0.95rem; border: 0; background: transparent; }
 
   .cv-next-card { margin: 1.75rem 0 1rem; padding: 1.1rem 1.2rem; border: 1px solid var(--sl-color-accent); border-radius: 10px; background: var(--tl-card); }
   .cv-next-eyebrow { margin: 0 0 0.2rem !important; color: var(--sl-color-accent-high); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
@@ -528,7 +523,6 @@
   .cv-twins h4 { margin: 0 0 0.4rem; }
   .cv-two > div { border-top-color: var(--sl-color-accent); }
   .cv-options tbody th { white-space: normal; }
-  .cv-optional { margin-right: 0.6rem; color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
   .cv-dots i.is-lost { background: repeating-linear-gradient(45deg, var(--cv-red) 0 3px, color-mix(in srgb, var(--cv-red) 40%, transparent) 3px 5px); }
   .il-js .cv-core.is-review .cv-reveal:not(.is-open) { display: block; }
   .il-js .cv-core.is-review .cv-exchange:not(.is-open) { display: grid; }
@@ -557,4 +551,17 @@
   .cv-callout { margin: 0 0 1rem !important; padding-left: 0.8rem; border-left: 3px solid var(--tl-line); color: var(--tl-muted); font-style: italic; }
   .cv-log.cv-record { max-width: 40rem; }
   .cv-record th { vertical-align: top; white-space: nowrap; color: var(--sl-color-white); font-weight: 600 !important; }
+  .cv-ai { --cv-ai: var(--tl-private-edge); margin: 0 0 1.25rem; padding: 0.9rem 1rem 1rem; border: 1px solid color-mix(in srgb, var(--cv-ai) 55%, var(--tl-line)); border-radius: 12px; background: linear-gradient(135deg, color-mix(in srgb, var(--cv-ai) 14%, var(--tl-card)), var(--tl-card) 60%); }
+  .cv-ai-head { display: flex; align-items: center; gap: 0.7rem; }
+  .cv-ai-icon { display: grid; flex: none; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--cv-ai); color: #fff; }
+  .cv .cv-ai-kicker { margin: 0; color: var(--cv-ai); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .cv .cv-ai-title { margin: 0; color: var(--sl-color-white); font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
+  .cv .cv-ai-note { margin: 0.6rem 0 0.75rem; font-size: 0.95rem; }
+  .cv-ai-composer { border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
+  .cv .cv-ai-prompt { max-height: 9.5rem; margin: 0; padding: 0.75rem 0.9rem; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
+  .cv-ai-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.6rem; padding: 0.5rem 0.6rem; border-top: 1px solid var(--tl-line); }
+  .cv .cv-ai-copy { min-height: 44px; }
+  .cv .cv-ai-copy:not(:last-child), :root[data-theme="light"] .cv .cv-ai-copy:not(:last-child) { border-color: var(--tl-muted); background: transparent; color: var(--tl-ink); }
+  .cv .cv-ai-send { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 44px; padding: 0 1.1rem; border-radius: 999px; background: var(--cv-ai); color: #fff; font-weight: 700; text-decoration: none; }
+  .cv .cv-ai-send:hover, .cv .cv-ai-send:focus-visible { background: color-mix(in srgb, var(--cv-ai) 80%, #000); color: #fff; }
 </style>

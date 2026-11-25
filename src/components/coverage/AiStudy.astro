@@ -1,0 +1,29 @@
+---
+interface Props { id: string; title: string; note: string; prompt: string; href?: string }
+const { id, title, note, prompt, href } = Astro.props;
+---
+
+<aside class="cv-ai" id={id} aria-labelledby={`${id}-title`}>
+  <div class="cv-ai-head">
+    <span class="cv-ai-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" fill="currentColor"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="currentColor" opacity=".7"/></svg>
+    </span>
+    <div>
+      <p class="cv-ai-kicker">Learn with AI</p>
+      <p class="cv-ai-title" id={`${id}-title`}>{title}</p>
+    </div>
+  </div>
+  <p class="cv-ai-note">{note}</p>
+  <div class="cv-ai-composer" data-copy-scope>
+    <p class="cv-ai-prompt" data-copy-text tabindex="0" aria-label="Study prompt">{prompt}</p>
+    <div class="cv-ai-actions">
+      <button type="button" class="cv-ai-copy" data-copy data-label="Copy prompt">Copy prompt</button>
+      {href && (
+        <a class="cv-ai-send" href={href}>
+          Send
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M3.4 20.4l17.4-7.5a1 1 0 000-1.8L3.4 3.6a.7.7 0 00-1 .8L4.6 11l9.4 1-9.4 1-2.2 6.6a.7.7 0 001 .8z" fill="currentColor"/></svg>
+        </a>
+      )}
+    </div>
+  </div>
+</aside>

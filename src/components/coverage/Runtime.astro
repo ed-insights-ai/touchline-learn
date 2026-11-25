@@ -250,7 +250,7 @@
     root.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => {
       const label = button.dataset.label ?? button.textContent!.trim();
       button.addEventListener("click", () => {
-        const body = button.parentElement!.querySelector<HTMLElement>("[data-copy-text]")!.textContent!;
+        const body = (button.closest<HTMLElement>("[data-copy-scope]") ?? button.parentElement!).querySelector<HTMLElement>("[data-copy-text]")!.textContent!;
         const lead = button.dataset.copyPrefix ? (store[button.dataset.copyPrefix] ?? "").trim() : "";
         if (button.dataset.copyPrefix && !lead) { button.textContent = "Write your paragraph first"; setTimeout(() => { button.textContent = label; }, 2500); return; }
         copy(button, lead ? `${lead}\n\n${body}` : body, label);

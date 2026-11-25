@@ -5,6 +5,8 @@ import Pipeline from "./Pipeline.astro";
 import Voicemail from "./Voicemail.astro";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
+import AiStudy from "./AiStudy.astro";
+import { primerPrompt } from "../../lib/primer";
 import { reported } from "../../lib/first-run";
 import { bounds, story } from "../../lib/coverage";
 import { pipeline, rileyAsk, spell } from "../../lib/cases";
@@ -36,13 +38,6 @@ const openings = [
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 
-const learnPrompt =`I'm a data science student learning how data is collected from websites. Teach me what a web scraper is and how it becomes a data pipeline. Use one running example throughout: collecting a season of match results from eight school athletics sites to build a league table.
-
-1. Walk me through the parts a scraper needs: a list of what to fetch, fetching (requests, status codes, retries, rate limits, robots.txt), storing the raw pages before parsing them, parsing HTML tables into rows, building the output, and reporting on the run. For each part, tell me why it exists and what goes wrong without it.
-2. Show how those parts chain into a pipeline: what each stage takes in and what it hands to the next.
-3. For each stage, name one way it can lose data without raising an error.
-4. Sketch the stages as separate Python functions, working on a saved HTML string, not a live site.
-5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
 
 const choices = [
   ["stop", "Stop the run"],
@@ -77,7 +72,15 @@ const choices = [
     </video>
     <figcaption>One Loop to a Pipeline. Schools are lettered and the counts are illustrative.</figcaption>
   </figure>
-  <p>The video's five stages are a teaching model of a simple scraper, not the only way to build one. Kick's scraper used the same five. Here is what happened at each stage on Friday.</p>
+  <p>The video's five stages are a teaching model of a simple scraper, not the only way to build one.</p>
+  <AiStudy
+    id="setup-ai-primer"
+    title="New to web scrapers? Ask an AI for a primer."
+    note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. The reply uses six stages, not five. Notice the one it adds at the start."
+    prompt={primerPrompt}
+    href="../01-collection-ai-primer/"
+  />
+  <p>Kick's scraper used the same five stages as the video. Here is what happened at each stage on Friday.</p>
   <Pipeline />
   <details class="cv-more">
     <summary>Kick's build plan</summary>
@@ -90,14 +93,6 @@ const choices = [
     <li><b>Does each record obey the rules?</b><span>Validation. <a href="../06-contracts/">Modules 6</a> and <a href="../07-gates/">7</a>.</span></li>
   </ul>
   <p>All {story.counted} of Kick's matches are real and accurately parsed. Checks on individual results can pass even when other results are missing, because a missing record gives them nothing to fail.</p>
-  <details class="cv-learn-box">
-    <summary><span class="cv-optional">Optional · AI study prompt</span>New to web scrapers? Get a primer first.</summary>
-    <div class="cv-prompt cv-learn">
-      <p class="cv-prompt-note">Paste this into any AI assistant for a quick primer on scrapers and pipelines, then come back for the cases.</p>
-      <p data-copy-text tabindex="0">{learnPrompt}</p>
-      <button type="button" data-copy>Copy prompt</button>
-    </div>
-  </details>
 
   <h3 class="cv-step" id="setup-left-open"><span>3</span>What the prompt left open</h3>
   <p>Riley's one-sentence prompt left five important details unspecified. Kick filled each one with a reasonable default and never mentioned any of them. Open each to see what Kick chose, and what that choice risked.</p>
