@@ -5,6 +5,10 @@ import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 import Beat from "./Beat.astro";
 import Touchline from "./Touchline.astro";
+import Voicemail from "./Voicemail.astro";
+import AiStudy from "./AiStudy.astro";
+import Recount from "./Recount.astro";
+import { framePrompt } from "../../lib/primer";
 import { run, scheduleLog } from "../../lib/first-run";
 import { bounds, story } from "../../lib/coverage";
 import { pipeline, spell, toPlay } from "../../lib/cases";
@@ -27,7 +31,8 @@ const chain = [
   <PartHead id="case-dunmore">Case 1. Dunmore: a count needs an expected set</PartHead>
   <Pipeline small lit="scrape" note="This case happens at Scrape" />
 
-  <p class="cv-callout">Dunmore athletics: “You've got our men at six conference games. We've played thirteen.” Kick's table had no way to know thirteen was the right number.</p>
+  <Voicemail who="dunmore" caller="Dunmore athletics" line="You've got our men at six conference games. We've played thirteen." small />
+  <p>Kick's table had no way to know thirteen was the right number.</p>
 
   <Beat part="case-dunmore" name="Look" title="What the fetch log shows" />
   <p>Besides the table, Kick kept a log of the {run.total} pages it requested. {pipeline.boxes} of those were box scores: Kick's plan also followed the box score links on Alder Ridge's schedule, and no other school's. Here are the {spell(pipeline.asked)} schedule pages:</p>
@@ -63,6 +68,13 @@ const chain = [
   <Beat part="case-dunmore" name="Name it" title="The expected set" />
   <p>Kick knew Dunmore's page had failed. What it didn't know was how much went missing with it. Kick had a list of pages, which is why its log could name Dunmore. It had no list of matches, so its {story.counted} matches were compared against nothing. An expected set of matches, taken from the conference format, is the reference that turns that count into coverage.</p>
   <p>Survey statistics has names for the same ideas. The list of units you set out to collect is the <strong>sampling frame</strong>. A unit on that list that never answers is <strong>unit nonresponse</strong>, and Dunmore's schedule page is one.</p>
+  <AiStudy
+    id="dunmore-ai-study"
+    title="Where do these terms come from?"
+    note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back and caption Friday's standings."
+    prompt={framePrompt}
+    href="../01-collection-ai-frames/"
+  />
 
   <Touchline part="case-dunmore" at={["Fetch"]} note="At Fetch, before the first request." title="Where Touchline gets its expected counts">
     <p>Touchline's expected set of pages comes from a season membership file kept apart from any scraper run, and its expected match totals come from the conference format. Counting whatever appears on saved pages is a weaker fallback, because it is only as complete as the pages that answered.</p>
@@ -71,7 +83,7 @@ const chain = [
   <Beat part="case-dunmore" name="Your claim" title="Caption Friday's standings" />
   <div class="cv-check" data-once="claim-count">
     <p class="cv-kind">Apply it</p>
-    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's summary reported ${story.counted}. The denominator is what should exist by now: ${story.scheduled} scheduled, minus ${spell(toPlay)} still to play. Not ${story.scheduled} (unplayed matches aren't missing) and not ${story.counted} (a count of what was saved can't show what wasn't).`}>
+    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's summary reported ${story.counted}. The bottom of the fraction is what should exist by now: ${story.scheduled} scheduled, minus ${spell(toPlay)} still to play. Not ${story.scheduled} (unplayed matches aren't missing) and not ${story.counted} (a count of what was saved can't show what wasn't).`}>
       <p class="cv-qlabel">Write the caption Kick's table needed. Kick's summary only stated how many matches it found.</p>
       <p class="cv-row cv-fillin">
         <span>Built from</span>
@@ -89,6 +101,8 @@ const chain = [
       <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => `${n} ${what}${lost ? `, minus ${lost}` : ""}`).join(". ")}>
         {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
       </div>
+      <p>That fills the question mark Part 2 left open.</p>
+      <Recount solved />
       <p>Riley could have seen every line of this before publishing. With an expected set, any reader can tell the table is short.</p>
     </div>
   </div>

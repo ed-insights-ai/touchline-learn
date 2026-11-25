@@ -1,0 +1,306 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { framePrompt } from "../../lib/primer";
+
+const frameDots = Array.from({ length: 27 }, (_, i) => ({ x: 70 + (i % 9) * 50, y: 106 + Math.floor(i / 9) * 50, sampled: i % 9 < 4 && Math.floor(i / 9) < 2 }));
+const unlisted = [106, 156, 206];
+
+const errors = [
+  { key: "under", name: "Undercoverage", what: "Five newly opened, eligible branches are missing from the directory.", count: "Count: 5 too few", note: "Some eligible entities have no opportunity to be selected.", dots: [...Array(7).fill("ok"), ...Array(5).fill("missing")] },
+  { key: "over", name: "Overcoverage", what: "Three permanently closed branches are still listed.", count: "Count: 3 too many", note: "Ineligible entities are incorrectly included.", dots: [...Array(7).fill("ok"), ...Array(3).fill("closed")] },
+  { key: "dup", name: "Duplicates", what: "Two branches are each listed twice because of naming changes.", count: "Count: 2 too many", note: "The same entity may be selected or counted more than once.", dots: [...Array(7).fill("ok"), ...Array(2).fill("dup")] },
+];
+
+const ledger = [
+  ["Actual population", "100"],
+  ["Undercoverage", "−5"],
+  ["Overcoverage", "+3"],
+  ["Duplicates", "+2"],
+];
+
+const months = ["Jan", "Feb", "Mar", "Apr"];
+const responses: [string, string[]][] = [
+  ["Library A", ["ok", "ok", "ok", "ok"]],
+  ["Library B", ["ok", "ok", "item", "ok"]],
+  ["Library C", ["unit", "unit", "unit", "unit"]],
+  ["Library D", ["ok", "ok", "ok", "ok"]],
+  ["Library E", ["ok", "ok", "ok", "item"]],
+];
+const mark = { ok: ["✓", "Received"], unit: ["✕", "Unit nonresponse"], item: ["–", "Item nonresponse"] } as Record<string, [string, string]>;
+
+const sources = [
+  ["Official library registry", "100 eligible library branches"],
+  ["Published reporting rule", "Each branch must report visitor counts monthly"],
+  ["Reporting calendar", "12 reporting periods per year"],
+  ["Reporting specification", "One visitor-count record per branch per month"],
+];
+const year = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+const gridRows = ["001", "002", "003", "004", "005", "…", "100"];
+
+const expected = [
+  ["LIB-001", "January"], ["LIB-001", "February"], ["LIB-001", "March"], ["LIB-002", "January"], ["…", "…"], ["LIB-100", "December"],
+];
+
+const model = [
+  ["Target population", "What exists in reality?"],
+  ["Sampling frame", "What entities can I identify and select?"],
+  ["Expected observations", "What records should I receive?"],
+  ["Data collection", "What records did I actually receive?"],
+  ["Completeness assessment", "What is missing, duplicated or unexpected?"],
+];
+
+const checks = [
+  ["Frame errors", "A state has 200 eligible library branches. Your directory contains 200 entries, but you discover that four eligible branches are missing, two closed branches are included, and two active branches are listed twice. Is your sampling frame complete? How many unique, eligible branches does it actually represent?"],
+  ["Nonresponse", "A library submits visitor counts for 11 months but leaves September blank. Another library never submits its report. How would you classify each problem, and why might you handle them differently?"],
+  ["Establishing expectations", "An official registry lists 80 eligible library branches. A published rule requires each branch to submit one report every quarter. Your collection process returns 300 unique, eligible reports. How many reports should you have expected, what is your coverage, and why is the published rule a better basis for your expected count than the collection results themselves?"],
+];
+---
+
+<PrimerChat
+  prompt={framePrompt}
+  back="../01-collection/#dunmore-ai-study"
+  about="This is a reply an AI assistant gave to Module 1's sampling-frame study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 1 and caption Friday's standings."
+>
+  <h2 class="pr-title">Understanding sampling frames and expected data</h2>
+  <p>Imagine you are a data scientist studying how public libraries are used across a state. Your goal is to build a dataset containing monthly visitor counts for every public library branch during a calendar year.</p>
+  <p>Before collecting a single visitor count, you need to establish what your dataset <strong>should contain</strong>. Survey statisticians do this by defining their population, constructing a sampling frame, and establishing the expected observations.</p>
+
+  <h2>1. What is a sampling frame?</h2>
+  <p>A <strong>population</strong> is the complete group of entities you want to study.</p>
+  <p>A <strong>sampling frame</strong> is the operational list of entities from which you collect data or select a sample.</p>
+  <p>In our library example:</p>
+  <ul>
+    <li><strong>Target population:</strong> Every public library branch operating throughout the state during the year.</li>
+    <li><strong>Sampling frame:</strong> A directory of public library branches published by the state library authority.</li>
+    <li><strong>Sample:</strong> The branches selected from that directory, if you decide not to survey everyone.</li>
+  </ul>
+  <figure class="pr-card">
+    <svg class="pr-frame" viewBox="0 0 600 260" role="img" aria-label="The target population contains the sampling frame, which contains the sample. Three branches sit inside the population but outside the frame: they are unlisted.">
+      <rect class="pop" x="6" y="6" width="588" height="248" rx="14" />
+      <text class="pop-label" x="24" y="34">Target population</text>
+      <rect class="frm" x="34" y="48" width="470" height="190" rx="12" />
+      <text class="frm-label" x="50" y="72">Sampling frame</text>
+      <rect class="smp" x="48" y="84" width="200" height="104" rx="10" />
+      <text class="smp-label" x="148" y="182" text-anchor="middle">Sample</text>
+      {frameDots.map((d) => <circle class={d.sampled ? "dot is-sampled" : "dot"} cx={d.x} cy={d.y} r="9" />)}
+      {unlisted.map((y) => <circle class="dot is-unlisted" cx="550" cy={y} r="9" />)}
+    </svg>
+    <p class="pr-legend pr-frame-key"><span class="is-listed">Listed branches</span><span class="is-sampled">Selected sample</span><span class="is-unlisted">Unlisted branches</span></p>
+  </figure>
+  <p>The distinction matters because the population is what exists in reality, while the frame is your representation of that reality. They are not necessarily identical.</p>
+  <p>Sampling frames commonly come from existing sources such as government registries, administrative records, licensing databases, institutional directories, census records and membership lists.</p>
+  <p>A good frame is authoritative, current, uniquely identifiable and independent of the results you are about to collect.</p>
+
+  <h2>2. Frame errors</h2>
+  <p>Suppose there are exactly 100 eligible library branches in reality. However, the directory you obtained contains several errors.</p>
+  <ul class="pr-errs">
+    {errors.map((e) => (
+      <li class={`is-${e.key}`}>
+        <span class="pr-errs-dots" aria-hidden="true">{e.dots.map((d) => <i class={`is-${d}`}></i>)}</span>
+        <div>
+          <p><b>{e.name}</b></p>
+          <p>{e.what}</p>
+          <p class="pr-errs-count">{e.count}</p>
+          <p class="pr-errs-note">{e.note}</p>
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <h3>When errors cancel each other out</h3>
+  <p>Here is where things become particularly interesting.</p>
+  <figure class="pr-card pr-ledger">
+    <dl>
+      {ledger.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+      <div class="is-total"><dt>Sampling frame entries</dt><dd>100</dd></div>
+    </dl>
+    <div class="pr-ledger-real">
+      <p>Actual population represented by the frame</p>
+      <p><b>95%</b> 95 unique, eligible branches out of 100</p>
+      <i style="--w:95%"></i>
+    </div>
+  </figure>
+  <p>Both the population and the directory have a count of 100. Yet the directory is incorrect.</p>
+  <p class="pr-pull">Matching counts does not prove matching membership. You must validate which entities are present, not just how many there are.</p>
+
+  <h2>3. Unit nonresponse versus item nonresponse</h2>
+  <p>Now suppose you have corrected your sampling frame and sent a survey to five library branches asking for visitor counts for January through April.</p>
+  <p>Here is what comes back:</p>
+  <figure class="pr-card">
+    <div class="pr-scroll">
+      <table class="pr-table pr-resp">
+        <caption class="sr-only">Survey returns by branch and month</caption>
+        <thead><tr><th scope="col">Branch</th>{months.map((m) => <th scope="col">{m}</th>)}</tr></thead>
+        <tbody>
+          {responses.map(([b, row]) => (
+            <tr><th scope="row">{b}</th>{row.map((r) => <td><span class={`pr-mark is-${r}`} title={mark[r][1]}><span aria-hidden="true">{mark[r][0]}</span><span class="sr-only">{mark[r][1]}</span></span></td>)}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="pr-legend pr-resp-key"><span class="is-ok">Received</span><span class="is-unit">Unit nonresponse</span><span class="is-item">Item nonresponse</span></p>
+  </figure>
+
+  <h3>Unit nonresponse</h3>
+  <p>Library C did not respond to the survey at all.</p>
+  <p>The entire observation unit is missing. You have no visitor information for that branch.</p>
+  <p>Statisticians may handle this through follow-up requests, nonresponse weighting or adjustments based on known characteristics of responding and nonresponding branches.</p>
+
+  <h3>Item nonresponse</h3>
+  <p>Library B responded but did not provide its March visitor count. Library E did not provide its April count.</p>
+  <p>The observation units are present, but individual pieces of information are missing.</p>
+  <p>Statisticians may handle this through targeted follow-up, imputation (estimating missing values) or analysis that accounts for the missing observations.</p>
+
+  <h3>Why the distinction matters</h3>
+  <div class="pr-tiles is-three">
+    <p><b>80%</b>Unit response rate · 4 of 5 branches</p>
+    <p><b>87.5%</b>Item response among respondents · 14 of 16 items</p>
+    <p><b>70%</b>Overall data completeness · 14 of 20 expected items</p>
+  </div>
+  <p>All three percentages are correct, but they answer different questions.</p>
+  <p>Unit nonresponse affects which members of the population are represented. Item nonresponse affects which information is available about those members.</p>
+  <p>Neither should automatically be interpreted as zero visitors.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Module 1 has one of each. Dunmore's schedule page never answered, so Dunmore is unit nonresponse. In Case 3, a finished match sits on a saved page with no score, which is item nonresponse.</p>
+  </aside>
+
+  <h2>4. Knowing what to expect before collecting anything</h2>
+  <p>You do not necessarily need to see the data to know how much data should exist.</p>
+  <p>Instead, you can establish expectations using independent evidence.</p>
+  <p>Suppose our fictional state has the following information available:</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th>Independent source</th><th>What it establishes</th></tr></thead>
+      <tbody>{sources.map(([s, w]) => <tr><td><b>{s}</b></td><td>{w}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>You can now calculate the size of your expected dataset.</p>
+  <figure class="pr-card">
+    <p class="pr-eq" role="math" aria-label="100 branches times 12 months equals 1,200 expected records">
+      <span><b>100</b>Branches</span><span class="pr-eq-op">×</span><span><b>12</b>Months</span><span class="pr-eq-op">=</span><span class="is-result"><b>1,200</b>Expected records</span>
+    </p>
+    <div class="pr-cal" role="img" aria-label="A grid with one row per branch, 001 to 100, and one cell per month. Every cell is an expected record.">
+      <span></span>{year.map((m) => <span class="pr-cal-head">{m}</span>)}
+      {gridRows.map((r) => (
+        <>
+          <span class="pr-cal-row">{r}</span>
+          {year.map(() => (r === "…" ? <span class="pr-cal-gap">·</span> : <i></i>))}
+        </>
+      ))}
+    </div>
+    <figcaption>Every cell represents an expected observation, established before collection.</figcaption>
+  </figure>
+  <p>Even more importantly, you can establish the exact identity of each expected record.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th>Branch ID</th><th>Reporting period</th><th>Expected</th></tr></thead>
+      <tbody>{expected.map(([b, m]) => <tr><td><code>{b}</code></td><td>{m}</td><td>{b === "…" ? "…" : "Yes"}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>This is your <strong>expected set of observations</strong>. You can compare your collected dataset against this set and identify precisely which records are missing, duplicated or unexpected.</p>
+  <p>This example assumes every eligible branch is required to report for all 12 months and that you intend to collect data from every branch. If branches open midyear, receive reporting exemptions or are not selected for your sample, your expected set must account for those conditions.</p>
+  <p>A reporting rule establishes what <em>should</em> exist, not proof that someone actually recorded or published it.</p>
+
+  <h3>Why expectations must be independent of collection</h3>
+  <p>Imagine you collect 1,080 records and then use those records to determine what your dataset should contain.</p>
+  <p>You might conclude that you have 1,080 out of 1,080 records, giving yourself 100% coverage.</p>
+  <p>But your independently established expectation was 1,200 records. Assuming all collected records are unique and eligible, your actual coverage is 90%.</p>
+  <div class="pr-tiles is-two">
+    <p><b>100%</b>Measured against itself · 1,080 of 1,080</p>
+    <p class="is-real"><b>90%</b>Measured against the expected set · 1,080 of 1,200</p>
+  </div>
+  <p class="pr-pull">You cannot reliably discover what is missing if the only evidence you have is what you successfully collected.</p>
+
+  <h2>The mental model</h2>
+  <ol class="pr-model">
+    {model.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}
+  </ol>
+  <p>The important lesson is that data quality begins before data collection. A perfectly functioning collection process can still produce an incomplete or biased dataset if its sampling frame is flawed.</p>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>I'll wait for your answers before providing mine.</p>
+</PrimerChat>
+
+<style is:global>
+  .pr-frame { display: block; width: 100%; height: auto; }
+  .pr-frame .pop { fill: none; stroke: var(--tl-muted); stroke-width: 1.5; stroke-dasharray: 7 6; }
+  .pr-frame .frm { fill: color-mix(in srgb, var(--tl-derived-edge) 10%, transparent); stroke: var(--tl-derived-edge); stroke-width: 2; }
+  .pr-frame .smp { fill: color-mix(in srgb, var(--pr-green) 14%, transparent); stroke: var(--pr-green); stroke-width: 2; }
+  .pr-frame text { fill: var(--sl-color-white); font: 700 17px var(--sl-font, system-ui); }
+  .pr-frame .frm-label { fill: var(--tl-derived-edge); }
+  .pr-frame .smp-label { fill: var(--pr-green); font-size: 14px; }
+  .pr-frame .dot { fill: var(--tl-derived-edge); }
+  .pr-frame .dot.is-sampled { fill: var(--pr-green); }
+  .pr-frame .dot.is-unlisted { fill: #d9822b; }
+  .pr .pr-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0.5rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
+  .pr-legend span::before { content: ""; display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.35rem; border-radius: 50%; vertical-align: -0.05rem; }
+  .pr-frame-key .is-listed::before { background: var(--tl-derived-edge); }
+  .pr-frame-key .is-sampled::before { background: var(--pr-green); }
+  .pr-frame-key .is-unlisted::before { background: #d9822b; }
+
+  .pr-errs { display: grid; gap: 0.6rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pr-errs li { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.9rem; align-items: start; padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
+  .pr .pr-errs p { margin: 0 0 0.15rem; }
+  .pr-errs b { color: var(--sl-color-white); }
+  .pr-errs-dots { display: grid; grid-template-columns: repeat(4, 1rem); gap: 0.4rem; padding-top: 0.2rem; }
+  .pr-errs-dots i { width: 1rem; height: 1rem; border-radius: 50%; background: var(--tl-derived-edge); }
+  .pr-errs-dots i.is-missing { background: transparent; border: 1.5px dashed var(--pr-red); }
+  .pr-errs-dots i.is-closed { background: var(--tl-muted); opacity: 0.55; position: relative; }
+  .pr-errs-dots i.is-closed::after { content: "×"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--tl-bg); font-size: 0.8rem; font-weight: 700; line-height: 1; }
+  .pr-errs-dots i.is-dup { box-shadow: 0.3rem 0 0 0 color-mix(in srgb, #d9822b 80%, transparent); background: #d9822b; }
+  .pr .pr-errs-count { color: var(--pr-red); font-weight: 700; }
+  :root:not([data-theme="light"]) .pr .pr-errs-count { color: #ef7b68; }
+  .pr .pr-errs-note { color: var(--tl-muted); font-size: 0.88rem; }
+  @media (max-width: 30rem) { .pr-errs li { grid-template-columns: 1fr; } }
+
+  .pr-ledger dl { margin: 0; }
+  .pr-ledger dl div { display: flex; justify-content: space-between; padding: 0.3rem 0; border-bottom: 1px solid var(--tl-line); }
+  .pr-ledger dt { color: var(--tl-muted); }
+  .pr-ledger dd { margin: 0; color: var(--sl-color-white); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .pr-ledger dl div.is-total { border-bottom: 0; padding-top: 0.5rem; }
+  .pr-ledger .is-total dt { color: var(--sl-color-white); font-weight: 700; }
+  .pr-ledger .is-total dd { font-size: 1.4rem; }
+  .pr-ledger-real { margin-top: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 8px; background: var(--tl-bg); }
+  .pr .pr-ledger-real p { margin: 0; color: var(--tl-muted); font-size: 0.85rem; }
+  .pr-ledger-real b { margin-right: 0.4rem; color: var(--pr-red); font-size: 1.5rem; }
+  :root:not([data-theme="light"]) .pr-ledger-real b { color: #ef7b68; }
+  .pr-ledger-real i { position: relative; display: block; height: 0.4rem; margin-top: 0.45rem; border-radius: 999px; background: color-mix(in srgb, var(--pr-red) 35%, transparent); }
+  .pr-ledger-real i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: inherit; background: var(--pr-green); }
+
+  .pr-resp td { text-align: center; }
+  .pr-resp th[scope="col"]:not(:first-child) { text-align: center; }
+  .pr-mark { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 6px; font-weight: 700; line-height: 1; }
+  .pr-mark.is-ok { background: color-mix(in srgb, var(--pr-green) 18%, transparent); color: var(--pr-green); }
+  .pr-mark.is-unit { background: color-mix(in srgb, var(--pr-red) 16%, transparent); color: var(--pr-red); }
+  .pr-mark.is-item { background: color-mix(in srgb, var(--pr-yellow) 22%, transparent); color: #a77a1f; }
+  :root:not([data-theme="light"]) .pr-mark.is-unit { color: #ef7b68; }
+  :root:not([data-theme="light"]) .pr-mark.is-item { color: var(--pr-yellow); }
+  .pr-resp-key span::before { border-radius: 3px; }
+  .pr-resp-key .is-ok::before { background: var(--pr-green); }
+  .pr-resp-key .is-unit::before { background: var(--pr-red); }
+  .pr-resp-key .is-item::before { background: var(--pr-yellow); }
+  .pr-tiles.is-three p { font-size: 0.8rem; }
+
+  .pr .pr-eq { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 1rem; margin: 0 0 0.9rem; }
+  .pr-eq > span { display: grid; justify-items: center; color: var(--tl-muted); font-size: 0.8rem; }
+  .pr-eq b { color: var(--sl-color-white); font-size: 1.8rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .pr-eq .is-result b { color: var(--tl-derived-edge); }
+  .pr-eq-op { color: var(--tl-muted); font-size: 1.4rem !important; }
+  .pr-cal { display: grid; grid-template-columns: 2.4rem repeat(12, minmax(0, 1fr)); gap: 3px; align-items: center; }
+  .pr-cal i { height: 1rem; border: 1px solid color-mix(in srgb, var(--tl-derived-edge) 55%, transparent); border-radius: 3px; background: color-mix(in srgb, var(--tl-derived-edge) 14%, transparent); }
+  .pr-cal-head { color: var(--tl-muted); font-size: 0.72rem; font-weight: 700; text-align: center; }
+  .pr-cal-row { color: var(--tl-muted); font-family: var(--sl-font-mono); font-size: 0.72rem; }
+  .pr-cal-gap { color: var(--tl-muted); text-align: center; line-height: 0.6; }
+  .pr .pr-tiles p.is-real { box-shadow: inset 3px 0 0 var(--tl-derived-edge); }
+
+  .pr-model { display: grid; gap: 0; margin: 0 0 1rem; padding: 0; list-style: none; justify-items: center; }
+  .pr-model li { display: grid; justify-items: center; width: min(100%, 22rem); padding: 0.55rem 0.8rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); text-align: center; }
+  .pr-model li + li { margin-top: 1.6rem; position: relative; }
+  .pr-model li + li::before { content: "↓"; position: absolute; top: -1.5rem; left: 50%; transform: translateX(-50%); color: var(--pr-ai); font-weight: 700; }
+  .pr-model b { color: var(--sl-color-white); }
+  .pr-model span { color: var(--tl-muted); font-size: 0.86rem; }
+  .pr-model li:nth-child(2), .pr-model li:nth-child(3) { border-color: var(--pr-ai); }
+</style>

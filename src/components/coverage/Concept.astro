@@ -5,6 +5,7 @@ import { pipeline, spell } from "../../lib/cases";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 import AiStudy from "./AiStudy.astro";
+import Recount from "./Recount.astro";
 import { coveragePrompt } from "../../lib/primer";
 
 const stages = [
@@ -42,24 +43,7 @@ const captions = [
     <p class="cv-formula"><span>coverage</span> = <span>what you have</span> ÷ <span>what you expected</span></p>
   </div>
   <p>Take the schedule pages. The conference membership list names {spell(kickGrid.length)} schools, and each school has a schedule page. Those {spell(kickGrid.length)} pages are the <strong>expected set</strong>: the list of what should exist. Its size goes on the bottom of the fraction. Here is Kick's Friday summary, counted that way.</p>
-  <div class="cv-recount" role="region" aria-label="Kick's Friday summary, counted as coverage">
-    <div class="cv-chat-bar">
-      <span class="cv-agent-badge">Kick · Friday's summary</span>
-      <span class="cv-recount-tag">Recounted</span>
-    </div>
-    <p class="cv-recount-was">“<s>All eight school sites</s>, {story.counted} conference matches, <s>no errors</s>.”</p>
-    <div class="cv-recount-row">
-      <p class="cv-recount-unit">Schedule pages</p>
-      <p class="cv-frac" aria-label={`${pipeline.saved} saved, over ${kickGrid.length} on the membership list`}><span aria-hidden="true">{pipeline.saved} saved</span><span aria-hidden="true">{kickGrid.length} on the membership list</span></p>
-      <p class="cv-recount-val">{pipeline.saved} of {kickGrid.length}</p>
-    </div>
-    <div class="cv-recount-row is-open">
-      <p class="cv-recount-unit">Finished matches</p>
-      <p class="cv-frac" aria-label={`${story.counted} counted in the table, over an unknown number finished by Friday`}><span aria-hidden="true">{story.counted} counted in the table</span><span aria-hidden="true">? finished by Friday</span></p>
-      <p class="cv-recount-val">{story.counted} of ?</p>
-    </div>
-    <p class="cv-recount-foot">A match counts on top only if its score was found on a saved page. A match whose score is still unknown belongs only on the bottom: it was played, but it cannot be counted in the table.</p>
-  </div>
+  <Recount />
 
   <p>Three rules keep that number honest.</p>
   <ol class="cv-rules">

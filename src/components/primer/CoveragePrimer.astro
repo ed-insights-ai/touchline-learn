@@ -310,9 +310,6 @@ const checks = [
   .pr-expect b { color: var(--sl-color-white); font-size: 1.4rem; line-height: 1.2; }
   @media (min-width: 46rem) { .pr-expect { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
-  .pr-card { padding: 0.8rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
-  .pr-card figcaption { margin-top: 0.4rem; color: var(--tl-muted); font-size: 0.85rem; }
-  .pr .pr-pull { padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-ai); background: var(--tl-card); color: var(--sl-color-white); font-weight: 700; }
 
   .pr-branches { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 0.35rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
   .pr-branches li { display: grid; place-items: center; gap: 0.1rem; padding: 0.45rem 0.1rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-clean); text-align: center; }
@@ -377,8 +374,6 @@ const checks = [
   .pr-legend span.is-gone::before { border: 1.5px dashed #d9822b; background: transparent; }
   .pr .pr-axis { display: flex; justify-content: space-between; margin: 0.25rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
 
-  .pr .pr-course { padding: 0.7rem 0.9rem; border: 1px dashed var(--tl-muted); border-radius: 8px; font-size: 0.92rem; }
-  .pr .pr-course p:last-child { margin: 0; }
   .pr-coll + .pr-coll { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--tl-line); }
   .pr .pr-coll-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0 0 0.4rem; }
   .pr-coll-head b { color: var(--sl-color-white); }
