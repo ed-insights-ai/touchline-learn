@@ -34,3 +34,11 @@ export const primerCode = {
 } as const;
 
 export const primerOutput = "COLLECTION REPORT\nSchools requested: 8\nPages saved: 8\nPages parsed: 8\nSource records: 10\nUnique matches: 5\nDuplicates removed: 5\nSchool A: 3 records\nSchool B: 1 records\nSchool C: 1 records\nSchool D: 1 records\nSchool E: 1 records\nSchool F: 1 records\nSchool G: 1 records\nSchool H: 1 records\nErrors: {}";
+
+export const boundsPrompt = `I'm learning what a block of missing records does to the numbers I report. Teach me with one running example that is not about sports.
+
+1. Why records usually go missing in clusters, such as one source, one batch or one day, rather than one at a time, and how counting in sources versus records changes how big the gap looks.
+2. Selection bias: how losing one cluster can tilt an average or a rate even when every record I kept is correct. Show it with numbers.
+3. Worst-case bounds: how to put a lower and an upper limit on a total using only known rules, without guessing the missing values. Show it with numbers.
+4. What a bound can and cannot tell me: why it says nothing about which value is likely, and when it is too wide to be useful.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;

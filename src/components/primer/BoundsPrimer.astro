@@ -1,0 +1,280 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { boundsPrompt } from "../../lib/primer";
+import { bounds, story } from "../../lib/coverage";
+import { hartwell, pipeline, spell } from "../../lib/cases";
+
+const branches = [
+  { name: "Branch A", records: 100, picked: 80 },
+  { name: "Branch B", records: 100, picked: 70 },
+  { name: "Branch C", records: 100, picked: 90 },
+  { name: "Branch D", records: 300, picked: 120, missing: true },
+];
+const expected = branches.reduce((n, b) => n + b.records, 0);
+const seen = branches.filter((b) => !b.missing);
+const seenRecords = seen.reduce((n, b) => n + b.records, 0);
+const seenPicked = seen.reduce((n, b) => n + b.picked, 0);
+const missing = expected - seenRecords;
+const low = seenPicked;
+const high = seenPicked + missing;
+const pct = (n: number, d: number) => `${Math.round((n / d) * 100)}%`;
+const lowPct = (low / expected) * 100;
+const highPct = (high / expected) * 100;
+
+const targets = [
+  { at: 35, name: "35% target", verdict: "Definitely achieved", why: "Even the worst possible result exceeds the target.", kind: "is-yes" },
+  { at: 70, name: "70% target", verdict: "Undetermined", why: "Possible results fall on both sides of the target.", kind: "is-maybe" },
+  { at: 95, name: "95% target", verdict: "Definitely not achieved", why: "Even the best possible result falls below the target.", kind: "is-no" },
+];
+
+const checks = [
+  ["Clustered missingness", "Suppose Branch A was missing instead of Branch D, and all other branches were successfully collected. What would your source coverage and record coverage be? Why are they different?"],
+  ["Selection bias", "Return to the original situation where Branch D is missing. Suppose you later discover that 180 of its 300 reservations were picked up. What is the true citywide pickup rate? Did your original report overestimate or underestimate the true rate? Were any of your originally collected records necessarily incorrect?"],
+  ["Worst-case bounds", "Your pipeline recovers 60 of Branch D's missing records. Of those, 30 reservations were picked up. The remaining 240 records are still missing. What are your new lower and upper bounds for the total number of pickups? What are the corresponding percentage bounds? Can you now determine whether the city achieved its 70% target?"],
+];
+---
+
+<PrimerChat
+  prompt={boundsPrompt}
+  back="../01-collection/#hartwell-ai-study"
+  about="This is a reply an AI assistant gave to Module 1's missing-block study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 2 and bound Dunmore's points."
+>
+  <h2 class="pr-title">When missing records come in blocks</h2>
+  <p>Imagine you are a data scientist working for a city library system. The city has four library branches, and you are collecting records to determine how often customers pick up the books they reserve before their reservation expires.</p>
+  <p>Every reservation has one of two outcomes: <strong>picked up or not picked up</strong>.</p>
+  <p>A central reservation registry tells you to expect {expected} records for the week. However, your data collection pipeline fails to retrieve records from one branch.</p>
+
+  <h2>1. Missing records often occur in clusters</h2>
+  <p>Data pipelines collect records through shared sources, connections, requests and processing steps. When one of those fails, it can affect an entire group of records rather than individual observations.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Expected versus collected records</p>
+    <ul class="pr-blocks" role="img" aria-label={`Branches A, B and C each have 100 records, all collected. Branch D has 300 records, all missing. Each square is 25 records.`}>
+      {branches.map((b) => (
+        <li class:list={{ "is-missing": b.missing }}>
+          <span>{b.name}</span>
+          <span class="pr-blocks-row">{Array.from({ length: b.records / 25 }, () => <i></i>)}</span>
+          <b>{b.records}</b>
+        </li>
+      ))}
+    </ul>
+    <p class="pr-legend pr-blocks-key"><span class="is-got">Collected</span><span class="is-missing">Missing</span><span class="is-note">Each square is 25 records</span></p>
+    <div class="pr-tiles is-two">
+      <p><b>{pct(seen.length, branches.length)}</b>Source coverage · {seen.length} of {branches.length} branches</p>
+      <p class="is-alarm"><b>{pct(seenRecords, expected)}</b>Record coverage · {seenRecords} of {expected} records</p>
+    </div>
+  </figure>
+  <p>You might lose an entire cluster because a website is unavailable, a daily export fails, a batch is skipped, or a parser cannot understand a particular source's format.</p>
+  <p>In our example, only one of four sources is missing, but that source contains half the expected records. Both coverage measurements are correct. They simply answer different questions.</p>
+  <p class="pr-pull">Counting successful sources does not necessarily tell you how much data you successfully collected.</p>
+
+  <h2>2. Selection bias: correct records, misleading results</h2>
+  <p>Now consider the results you successfully collected.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <thead><tr><th scope="col">Branch</th><th scope="col">Reservations</th><th scope="col">Picked up</th><th scope="col">Pickup rate</th></tr></thead>
+      <tbody>
+        {branches.map((b) => b.missing
+          ? <tr class="is-missing"><th scope="row">{b.name.replace("Branch ", "")}</th><td>{b.records}</td><td>Unknown</td><td>Unknown</td></tr>
+          : <tr><th scope="row">{b.name.replace("Branch ", "")}</th><td>{b.records}</td><td>{b.picked}</td><td>{pct(b.picked, b.records)}</td></tr>)}
+        <tr class="is-total"><th scope="row">Observed total</th><td>{seenRecords}</td><td>{seenPicked}</td><td>{pct(seenPicked, seenRecords)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Based on your collected records:</p>
+  <p class="pr-formula" role="math" aria-label={`${seenPicked} divided by ${seenRecords} equals 80 percent`}>
+    <span class="pr-frac"><span>{seenPicked}</span><span>{seenRecords}</span></span><span>= {pct(seenPicked, seenRecords)}</span>
+  </p>
+  <p>You might report that 80% of library reservations are picked up.</p>
+  <p>But suppose Branch D serves a community with limited transportation and has a much lower pickup rate. For demonstration purposes, imagine that only 120 of its 300 reservations were picked up. The true citywide rate would then be:</p>
+  <p class="pr-formula" role="math" aria-label="240 plus 120, divided by 300 plus 300, equals 60 percent">
+    <span class="pr-frac"><span>{seenPicked} + 120</span><span>{seenRecords} + 300</span></span><span>= {pct(seenPicked + 120, expected)}</span>
+  </p>
+  <figure class="pr-card">
+    <p class="pr-label">How losing a cluster changes the result</p>
+    <ul class="pr-bars pr-rates">
+      {branches.map((b) => (
+        <li class:list={{ "is-missing": b.missing }}>
+          <span>{b.missing ? `${b.name} (missing)` : b.name}</span>
+          <i style={`--w:${(b.picked / b.records) * 100}%`}></i>
+          <b>{pct(b.picked, b.records)}</b>
+        </li>
+      ))}
+    </ul>
+    <div class="pr-tiles is-three">
+      <p><b>{pct(seenPicked, seenRecords)}</b>Reported rate</p>
+      <p class="is-real"><b>{pct(seenPicked + 120, expected)}</b>True rate in this scenario</p>
+      <p class="is-alarm"><b>20 pp</b>Overstatement</p>
+    </div>
+    <figcaption>Branch D's 40% is the scenario's assumption. In the real collection, it is unknown.</figcaption>
+  </figure>
+  <p>This is <strong>selection bias</strong>. The records that made it into your dataset are not representative of the population you want to describe.</p>
+  <p>Every collected record is accurate. Your calculations are accurate. Yet your conclusion is misleading.</p>
+  <p>Losing a cluster does not automatically introduce bias. If the missing branch had the same pickup rate as the collected branches, the overall rate would remain unchanged. The problem is that you cannot assume that it does.</p>
+  <p class="pr-pull">Data accuracy and data representativeness are two different properties.</p>
+
+  <h2>3. Worst-case bounds</h2>
+  <p>In reality, you do not know how many reservations were picked up at Branch D. Rather than guessing, you can calculate the limits of what is possible. These are called <strong>worst-case bounds</strong>.</p>
+  <p>You know four things from your records, registry and business rules:</p>
+  <ul>
+    <li>There are {expected} expected reservations.</li>
+    <li>You have {seenRecords} reservation records.</li>
+    <li>Exactly {seenPicked} of the collected reservations were picked up.</li>
+    <li>Each missing reservation can contribute either zero or one pickup.</li>
+  </ul>
+  <div class="pr-tiles is-two pr-ends">
+    <p><span class="pr-label">Lower bound</span>Assume none of the missing reservations were picked up.<b>{seenPicked} + 0 = {low}</b></p>
+    <p><span class="pr-label">Upper bound</span>Assume every missing reservation was picked up.<b>{seenPicked} + {missing} = {high}</b></p>
+  </div>
+  <p>Your total number of pickups must therefore be between {low} and {high}. Because you know the expected denominator, you can also calculate bounds on the pickup rate.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <thead><tr><th scope="col">Scenario</th><th scope="col">Total pickups</th><th scope="col">Pickup rate</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Minimum possible</th><td>{low}</td><td>{pct(low, expected)}</td></tr>
+        <tr><th scope="row">Maximum possible</th><td>{high}</td><td>{pct(high, expected)}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>You have established these limits without inventing a single missing value.</p>
+
+  <h3>Explore the possible outcomes</h3>
+  <p>Change the hypothetical number of pickups at Branch D to see how the citywide result changes.</p>
+  <figure class="pr-card pr-lab" data-bound-lab data-seen={seenPicked} data-expected={expected}>
+    <label><span>Pickups at Branch D</span><b data-out="d">120 of 300</b><input type="range" min="0" max={missing} value="120" data-in="d" /></label>
+    <div class="pr-tiles is-two">
+      <p><b data-out="total">360</b>Total pickups</p>
+      <p><b data-out="rate">60.0%</b>Citywide pickup rate</p>
+    </div>
+    <div class="pr-range" style={`--lo:${lowPct}%;--hi:${highPct}%;--v:60%`} role="img" aria-label={`The possible range runs from ${pct(low, expected)} to ${pct(high, expected)}. The marker shows the citywide rate for the chosen value.`}>
+      <span class="pr-range-band"></span><span class="pr-range-mark" data-mark></span>
+      <span class="pr-range-end is-lo">Lower bound {pct(low, expected)}</span><span class="pr-range-end is-hi">Upper bound {pct(high, expected)}</span>
+    </div>
+    <p class="pr-lab-foot"><span>Whatever you choose, the rate stays between {pct(low, expected)} and {pct(high, expected)}, provided the registry and business rules are correct.</span><button type="button" data-bound-reset>Reset example</button></p>
+  </figure>
+  <p>The general rule is:</p>
+  <div class="pr-rule">
+    <p><b>Lower bound</b> = observed total + (missing count × minimum value)</p>
+    <p><b>Upper bound</b> = observed total + (missing count × maximum value)</p>
+  </div>
+  <p>This technique also works with nonbinary data, provided you have defensible minimum and maximum values.</p>
+  <p class="pr-pull">You do not always need to know the missing values to establish what is mathematically possible.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Dunmore's schedule page is Module 1's missing branch. Counted in pages, it is one of {spell(pipeline.asked)}. Counted in matches, it is {bounds.unseen} of {story.finals}, and every one was a Dunmore home match, so its away record alone made its defense look solid. Case 2 bounds points the same way: an uncounted match adds 0 to 3 points, so Hartwell Tech's {hartwell.pts} points, with one match uncounted, become a bound of {hartwell.pts} to {hartwell.high}.</p>
+  </aside>
+
+  <h2>4. What a bound can and cannot tell you</h2>
+  <p>A bound describes possibilities, not probabilities.</p>
+  <p>Our range of {pct(low, expected)} to {pct(high, expected)} does not mean that 65% is the most likely result simply because it is the midpoint. Nor does it mean that every value within the range is equally likely.</p>
+  <p>Worst-case bounds are not confidence intervals. They rely on known constraints rather than statistical estimates of uncertainty.</p>
+
+  <h3>When is a bound useful?</h3>
+  <p>Imagine the city wants to evaluate three different pickup-rate targets.</p>
+  <ul class="pr-targets">
+    {targets.map((t) => (
+      <li class={t.kind}>
+        <p><b>{t.name}</b><strong>{t.verdict}</strong></p>
+        <span class="pr-range is-small" style={`--lo:${lowPct}%;--hi:${highPct}%;--t:${t.at}%`} role="img" aria-label={`Target ${t.at}% against a possible range of ${pct(low, expected)} to ${pct(high, expected)}`}><span class="pr-range-band"></span><span class="pr-range-target"></span></span>
+        <p class="pr-targets-why">{t.why}</p>
+      </li>
+    ))}
+  </ul>
+  <p>A bound becomes too wide to be useful when the range prevents you from answering the question that matters. In that situation, you need to recover more records or establish additional defensible constraints.</p>
+
+  <h3>How a responsible data scientist would report the findings</h3>
+  <p>Rather than simply reporting an 80% pickup rate, you could report:</p>
+  <blockquote class="pr-report-quote">The observed reservation pickup rate was 80%, based on {seenRecords} of {expected} expected records across three of four library branches. Due to missing records from the fourth branch, the true citywide pickup rate could range from {pct(low, expected)} to {pct(high, expected)}. The available data is insufficient to determine whether the city met its 70% target.</blockquote>
+  <p>This separates what you <strong>observed</strong>, what you <strong>know</strong>, and what remains <strong>uncertain</strong>.</p>
+  <p>All numbers and business rules in this example are illustrative. In a real collection, you would need to independently verify the expected record count and the constraints used to calculate the bounds.</p>
+
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>Take your time and explain your reasoning as well as your calculations. I'll review your answers before providing the solutions.</p>
+</PrimerChat>
+
+<script>
+  const lab = document.querySelector<HTMLElement>("[data-bound-lab]");
+  if (lab) {
+    const seen = Number(lab.dataset.seen);
+    const expected = Number(lab.dataset.expected);
+    const input = lab.querySelector<HTMLInputElement>('[data-in="d"]')!;
+    const out = (k: string) => lab.querySelector<HTMLElement>(`[data-out="${k}"]`)!;
+    const range = lab.querySelector<HTMLElement>(".pr-range")!;
+    const render = () => {
+      const d = Number(input.value);
+      const rate = ((seen + d) / expected) * 100;
+      out("d").textContent = `${d} of ${input.max}`;
+      out("total").textContent = String(seen + d);
+      out("rate").textContent = `${rate.toFixed(1)}%`;
+      range.style.setProperty("--v", `${rate}%`);
+    };
+    input.addEventListener("input", render);
+    lab.querySelector("[data-bound-reset]")?.addEventListener("click", () => {
+      input.value = "120";
+      render();
+    });
+  }
+</script>
+
+<style is:global>
+  .pr-blocks { display: grid; gap: 0.45rem; margin: 0 0 0.6rem; padding: 0; list-style: none; font-size: 0.88rem; }
+  .pr-blocks li { display: grid; grid-template-columns: 5.5rem 1fr 2.5rem; gap: 0.6rem; align-items: center; }
+  .pr-blocks b { color: var(--sl-color-white); text-align: right; font-variant-numeric: tabular-nums; }
+  .pr-blocks-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pr-blocks-row i { width: 1.1rem; height: 1.1rem; border-radius: 3px; background: var(--pr-green); }
+  .pr-blocks .is-missing .pr-blocks-row i { border: 1.5px dashed var(--pr-red); background: color-mix(in srgb, var(--pr-red) 12%, transparent); }
+  .pr-blocks-key .is-got::before { border-radius: 3px; background: var(--pr-green); }
+  .pr-blocks-key .is-missing::before { border-radius: 3px; border: 1.5px dashed var(--pr-red); }
+  .pr-blocks-key .is-note::before { display: none !important; }
+  .pr-blocks-key { margin-bottom: 0.7rem !important; }
+
+  .pr-table.pr-num td { text-align: right; font-variant-numeric: tabular-nums; }
+  .pr-num th[scope="col"]:not(:first-child) { text-align: right; }
+  .pr-num .is-missing td { color: var(--tl-muted); font-style: italic; }
+  .pr-num .is-total th, .pr-num .is-total td { border-bottom: 0; font-weight: 700; color: var(--sl-color-white); }
+  .pr .pr-formula { margin: 0 0 1rem; }
+
+  .pr-rates.pr-bars li { grid-template-columns: 9rem 1fr 2.5rem; }
+  .pr-rates .is-missing i { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--pr-red) 20%, transparent) 0 3px, transparent 3px 6px); }
+  .pr-rates .is-missing i::after { background: transparent; border: 1.5px dashed var(--pr-red); }
+  .pr-rates .is-missing span, .pr-rates .is-missing b { color: var(--tl-muted); font-style: italic; }
+  .pr-card .pr-bars + .pr-tiles { margin-top: 0.7rem; }
+
+  .pr .pr-ends p { gap: 0.25rem; font-size: 0.88rem; }
+  .pr-ends .pr-label { margin: 0; }
+  .pr-ends b { margin-top: 0.2rem; color: var(--tl-derived-edge); font-variant-numeric: tabular-nums; }
+
+  .pr-range { position: relative; display: block; height: 3.2rem; margin: 0.2rem 0 0; }
+  .pr-range::before { content: ""; position: absolute; left: 0; right: 0; top: 0.5rem; height: 0.7rem; border-radius: 999px; background: var(--tl-bg); }
+  .pr-range-band { position: absolute; top: 0.5rem; left: var(--lo); width: calc(var(--hi) - var(--lo)); height: 0.7rem; border-radius: 999px; background: color-mix(in srgb, var(--tl-derived-edge) 55%, transparent); }
+  .pr-range-mark { position: absolute; top: 0.25rem; left: var(--v); width: 1.2rem; height: 1.2rem; margin-left: -0.6rem; border: 3px solid var(--tl-card); border-radius: 50%; background: var(--tl-derived-edge); box-shadow: 0 0 0 1px var(--tl-derived-edge); transition: left 0.15s; }
+  .pr-range-end { position: absolute; top: 1.6rem; color: var(--tl-muted); font-size: 0.78rem; white-space: nowrap; }
+  .pr-range-end.is-lo { left: var(--lo); transform: translateX(-50%); }
+  .pr-range-end.is-hi { left: var(--hi); transform: translateX(-50%); }
+  .pr-range.is-small { height: 1.6rem; margin: 0.3rem 0; }
+  .pr-range-target { position: absolute; top: 0.05rem; left: var(--t); width: 3px; height: 1.6rem; margin-left: -1.5px; border-radius: 2px; background: var(--tl-ink); }
+
+  .pr-rule { margin: 0 0 1rem; padding: 0.7rem 0.9rem; border-radius: 10px; background: var(--tl-card); font-family: var(--sl-font-serif, Georgia, serif); }
+  .pr .pr-rule p { margin: 0.15rem 0; }
+  .pr-rule b { color: var(--sl-color-white); }
+
+  .pr-targets { display: grid; gap: 0.6rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pr-targets li { padding: 0.65rem 0.9rem; border: 1px solid var(--tl-line); border-left-width: 4px; border-radius: 10px; background: var(--tl-card); }
+  .pr .pr-targets p { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.3rem 1rem; margin: 0; }
+  .pr-targets b { color: var(--sl-color-white); }
+  .pr .pr-targets .pr-targets-why { color: var(--tl-muted); font-size: 0.86rem; }
+  .pr-targets .is-yes { border-left-color: var(--pr-green); }
+  .pr-targets .is-yes strong { color: var(--pr-green); }
+  .pr-targets .is-yes .pr-range-target { background: var(--pr-green); }
+  .pr-targets .is-maybe { border-left-color: var(--pr-yellow); }
+  .pr-targets .is-maybe .pr-range-target { background: var(--pr-yellow); }
+  .pr-targets .is-maybe strong { color: #a77a1f; }
+  :root:not([data-theme="light"]) .pr-targets .is-maybe strong { color: var(--pr-yellow); }
+  .pr-targets .is-no { border-left-color: var(--pr-red); }
+  .pr-targets .is-no .pr-range-target { background: var(--pr-red); }
+  .pr-targets .is-no strong { color: var(--pr-red); }
+  :root:not([data-theme="light"]) .pr-targets .is-no strong { color: #ef7b68; }
+
+  .pr .pr-report-quote { margin: 0 0 1rem; padding: 0.7rem 0.9rem; border-left: 3px solid var(--tl-derived-edge); background: var(--tl-card); color: var(--sl-color-white); font-style: normal; }
+</style>

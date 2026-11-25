@@ -234,8 +234,6 @@ const checks = [
   .pr-frame .dot { fill: var(--tl-derived-edge); }
   .pr-frame .dot.is-sampled { fill: var(--pr-green); }
   .pr-frame .dot.is-unlisted { fill: #d9822b; }
-  .pr .pr-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0.5rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
-  .pr-legend span::before { content: ""; display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.35rem; border-radius: 50%; vertical-align: -0.05rem; }
   .pr-frame-key .is-listed::before { background: var(--tl-derived-edge); }
   .pr-frame-key .is-sampled::before { background: var(--pr-green); }
   .pr-frame-key .is-unlisted::before { background: #d9822b; }
@@ -283,19 +281,12 @@ const checks = [
   .pr-resp-key .is-unit::before { background: var(--pr-red); }
   .pr-resp-key .is-item::before { background: var(--pr-yellow); }
   .pr-tiles.is-three p { font-size: 0.8rem; }
-  .pr-card .pr-tiles { margin: 0; }
 
-  .pr .pr-eq { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 1rem; margin: 0 0 0.9rem; }
-  .pr-eq > span { display: grid; justify-items: center; color: var(--tl-muted); font-size: 0.8rem; }
-  .pr-eq b { color: var(--sl-color-white); font-size: 1.8rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
-  .pr-eq .is-result b { color: var(--tl-derived-edge); }
-  .pr-eq-op { color: var(--tl-muted); font-size: 1.4rem !important; }
   .pr-cal { display: grid; grid-template-columns: 2.4rem repeat(12, minmax(0, 1fr)); gap: 3px; align-items: center; }
   .pr-cal i { height: 1rem; border: 1px solid color-mix(in srgb, var(--tl-derived-edge) 55%, transparent); border-radius: 3px; background: color-mix(in srgb, var(--tl-derived-edge) 14%, transparent); }
   .pr-cal-head { color: var(--tl-muted); font-size: 0.72rem; font-weight: 700; text-align: center; }
   .pr-cal-row { color: var(--tl-muted); font-family: var(--sl-font-mono); font-size: 0.72rem; }
   .pr-cal-gap { color: var(--tl-muted); text-align: center; line-height: 0.6; }
-  .pr .pr-tiles p.is-real { box-shadow: inset 3px 0 0 var(--tl-derived-edge); }
 
   .pr-model { display: grid; gap: 0; margin: 0 0 1rem; padding: 0; list-style: none; justify-items: center; }
   .pr-model li { display: grid; justify-items: center; width: min(100%, 22rem); padding: 0.55rem 0.8rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); text-align: center; }

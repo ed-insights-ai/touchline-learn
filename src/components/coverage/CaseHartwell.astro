@@ -5,6 +5,8 @@ import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 import Beat from "./Beat.astro";
 import Touchline from "./Touchline.astro";
+import AiStudy from "./AiStudy.astro";
+import { boundsPrompt } from "../../lib/primer";
 import { bounds, pack, story } from "../../lib/coverage";
 import { dunmoreSplit, hartwell, pipeline, spell } from "../../lib/cases";
 
@@ -114,6 +116,13 @@ const dots = [
     </ul>
   </div>
   <p>Even before a missing result is recovered, you can still limit its uncertainty. Kick's original table gives Hartwell Tech {hartwell.pts} points and leaves one finished match uncounted. Using that table alone, a loss adds 0 and a win adds 3, so Hartwell's true total must fall between {hartwell.pts} and {hartwell.high}. That range is a <strong>bound</strong>: you don't know the exact value, but you know the limits it cannot cross. A bound comes from the scoring rules. It gives the range a value can take, not how likely any value in that range is.</p>
+  <AiStudy
+    id="hartwell-ai-study"
+    title="How far can one gap move a number?"
+    note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back and bound Dunmore's points."
+    prompt={boundsPrompt}
+    href="../01-collection-ai-bounds/"
+  />
 
   <Touchline part="case-hartwell" at={["Resolve"]} note="At Resolve, where two pages' rows become one match." title="Reading both schools' pages">
     <p>Reading both schools' schedules gives Touchline two chances to find each result. If the visitor's saved schedule shows the score, Touchline can still count the result when the host's page fails. If neither saved schedule shows the score, the result stays unknown, as Case 3 shows. The trade-off is a matching step: the same match, written differently on two sites, has to be recognized as one match and counted once. <a href="../05-identity/">Module 5</a> covers how that works.</p>
