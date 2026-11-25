@@ -560,8 +560,12 @@
   .cv-ai-composer { border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
   .cv .cv-ai-prompt { max-height: 9.5rem; margin: 0; padding: 0.75rem 0.9rem; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
   .cv-ai-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.4rem; padding: 0.3rem 0.4rem 0.4rem; }
-  .cv .cv-ai-copy, :root[data-theme="light"] .cv button.cv-ai-copy { min-height: 0; padding: 0.3rem 0.6rem; border: 0; border-radius: 6px; background: transparent; color: var(--tl-muted); font-size: 0.82rem; font-weight: 600; }
-  .cv .cv-ai-copy:hover, .cv .cv-ai-copy:focus-visible { background: color-mix(in srgb, var(--cv-ai) 14%, transparent); color: var(--tl-ink); }
+  .cv .cv-ai-copy, :root[data-theme="light"] .cv button.cv-ai-copy { display: inline-grid; place-items: center; width: 2rem; height: 2rem; min-height: 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--tl-muted); }
+  .cv .cv-ai-copy:hover, .cv .cv-ai-copy:focus-visible { background: color-mix(in srgb, var(--cv-ai) 16%, transparent); color: var(--tl-ink); }
+  .cv-ai-copy svg { grid-area: 1 / 1; }
+  .cv-ai-copy .cv-ai-check, .cv-ai-copy.is-copied .cv-ai-clip { display: none; }
+  .cv-ai-copy.is-copied .cv-ai-check { display: block; }
+  .cv .cv-ai-copy.is-copied, :root[data-theme="light"] .cv button.cv-ai-copy.is-copied { color: var(--tl-accent); }
   .cv .cv-ai-send { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--cv-ai); color: #fff; }
   .cv .cv-ai-send:hover, .cv .cv-ai-send:focus-visible { background: color-mix(in srgb, var(--cv-ai) 80%, #000); color: #fff; }
 </style>

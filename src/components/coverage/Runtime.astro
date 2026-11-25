@@ -243,6 +243,16 @@
     });
 
     const copy = async (button: HTMLButtonElement, text: string, label: string) => {
+      if (button.dataset.copyIcon !== undefined) {
+        let done = true;
+        try { await navigator.clipboard.writeText(text); } catch { done = false; }
+        button.classList.add(done ? "is-copied" : "is-failed");
+        const status = button.querySelector<HTMLElement>("[role=status]");
+        button.title = done ? "Copied" : "Select the text and copy it";
+        if (status) status.textContent = button.title;
+        setTimeout(() => { button.classList.remove("is-copied", "is-failed"); button.title = label; if (status) status.textContent = ""; }, 2500);
+        return;
+      }
       try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; }
       catch { button.textContent = "Select the text and copy it"; }
       setTimeout(() => { button.textContent = label; }, 2500);

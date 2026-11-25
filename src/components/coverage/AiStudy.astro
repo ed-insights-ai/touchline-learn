@@ -17,7 +17,11 @@ const { id, title, note, prompt, href } = Astro.props;
   <div class="cv-ai-composer" data-copy-scope>
     <p class="cv-ai-prompt" data-copy-text tabindex="0" aria-label="Study prompt">{prompt}</p>
     <div class="cv-ai-actions">
-      <button type="button" class="cv-ai-copy" data-copy data-label="Copy">Copy</button>
+      <button type="button" class="cv-ai-copy" data-copy data-copy-icon data-label="Copy prompt" aria-label="Copy prompt" title="Copy prompt">
+        <svg class="cv-ai-clip" aria-hidden="true" viewBox="0 0 24 24" width="17" height="17"><rect x="8" y="8" width="12" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V5a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2h2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        <svg class="cv-ai-check" aria-hidden="true" viewBox="0 0 24 24" width="17" height="17"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="sr-only" role="status" aria-live="polite"></span>
+      </button>
       {href && (
         <a class="cv-ai-send" href={href} aria-label="Send prompt" title="Send">
           <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path d="M3.4 20.4l17.4-7.5a1 1 0 000-1.8L3.4 3.6a.7.7 0 00-1 .8L4.6 11l9.4 1-9.4 1-2.2 6.6a.7.7 0 001 .8z" fill="currentColor"/></svg>
