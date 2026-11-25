@@ -438,7 +438,7 @@ const sparkle = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2.
   const root = document.querySelector<HTMLElement>("[data-primer]");
   if (root) {
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setTimeout(() => { root.classList.remove("is-sending"); root.classList.add("is-sent"); }, calm ? 0 : 1400);
+    setTimeout(() => { root.classList.remove("is-sending"); root.classList.add("is-sent"); }, calm ? 0 : 2600);
     const button = root.querySelector<HTMLButtonElement>("[data-primer-copy]");
     button?.addEventListener("click", async () => {
       const text = root.querySelector<HTMLElement>("[data-copy-text]")?.textContent ?? "";
