@@ -36,7 +36,7 @@
 
 .pr-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 .pr-table th, .pr-table td { padding: 0.45rem 0.65rem; border-bottom: 1px solid var(--tl-line); text-align: left; vertical-align: top; }
-.pr-table th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.pr-table thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 
 .pr-extract, .pr-parse { display: grid; gap: 0.5rem; }
 .pr-site, .pr-csv, .pr-parse > div, .pr-src, .pr-canon, .pr-report, .pr-league, .pr-results, .pr-fetch { padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
@@ -149,3 +149,4 @@
 .pr .pr-course { padding: 0.7rem 0.9rem; border: 1px dashed var(--tl-muted); border-radius: 8px; font-size: 0.92rem; }
 .pr .pr-course p:last-child { margin: 0; }
 .pr-tiles.is-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pr-table tbody th { color: var(--sl-color-white); font-weight: 600; }

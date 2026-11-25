@@ -52,7 +52,7 @@ const model = [
 const checks = [
   ["Frame errors", "A state has 200 eligible library branches. Your directory contains 200 entries, but you discover that four eligible branches are missing, two closed branches are included, and two active branches are listed twice. Is your sampling frame complete? How many unique, eligible branches does it actually represent?"],
   ["Nonresponse", "A library submits visitor counts for 11 months but leaves September blank. Another library never submits its report. How would you classify each problem, and why might you handle them differently?"],
-  ["Establishing expectations", "An official registry lists 80 eligible library branches. A published rule requires each branch to submit one report every quarter. Your collection process returns 300 unique, eligible reports. How many reports should you have expected, what is your coverage, and why is the published rule a better basis for your expected count than the collection results themselves?"],
+  ["Establishing expectations", "An official registry lists 80 eligible library branches. A published rule requires each branch to submit one report every quarter over a full year. Your collection process returns 300 unique, eligible reports. How many reports should you have expected, what is your coverage, and why is the published rule a better basis for your expected count than the collection results themselves?"],
 ];
 ---
 
@@ -86,7 +86,7 @@ const checks = [
       {frameDots.map((d) => <circle class={d.sampled ? "dot is-sampled" : "dot"} cx={d.x} cy={d.y} r="9" />)}
       {unlisted.map((y) => <circle class="dot is-unlisted" cx="550" cy={y} r="9" />)}
     </svg>
-    <p class="pr-legend pr-frame-key"><span class="is-listed">Listed branches</span><span class="is-sampled">Selected sample</span><span class="is-unlisted">Unlisted branches</span></p>
+    <p class="pr-legend pr-frame-key"><span class="is-listed">Listed, not sampled</span><span class="is-sampled">Selected sample</span><span class="is-unlisted">Unlisted branches</span></p>
   </figure>
   <p>The distinction matters because the population is what exists in reality, while the frame is your representation of that reality. They are not necessarily identical.</p>
   <p>Sampling frames commonly come from existing sources such as government registries, administrative records, licensing databases, institutional directories, census records and membership lists.</p>
@@ -153,11 +153,11 @@ const checks = [
   <p>Statisticians may handle this through targeted follow-up, imputation (estimating missing values) or analysis that accounts for the missing observations.</p>
 
   <h3>Why the distinction matters</h3>
-  <div class="pr-tiles is-three">
+  <figure class="pr-card"><div class="pr-tiles is-three">
     <p><b>80%</b>Unit response rate · 4 of 5 branches</p>
     <p><b>87.5%</b>Item response among respondents · 14 of 16 items</p>
     <p><b>70%</b>Overall data completeness · 14 of 20 expected items</p>
-  </div>
+  </div></figure>
   <p>All three percentages are correct, but they answer different questions.</p>
   <p>Unit nonresponse affects which members of the population are represented. Item nonresponse affects which information is available about those members.</p>
   <p>Neither should automatically be interpreted as zero visitors.</p>
@@ -207,10 +207,10 @@ const checks = [
   <p>Imagine you collect 1,080 records and then use those records to determine what your dataset should contain.</p>
   <p>You might conclude that you have 1,080 out of 1,080 records, giving yourself 100% coverage.</p>
   <p>But your independently established expectation was 1,200 records. Assuming all collected records are unique and eligible, your actual coverage is 90%.</p>
-  <div class="pr-tiles is-two">
+  <figure class="pr-card"><div class="pr-tiles is-two">
     <p><b>100%</b>Measured against itself · 1,080 of 1,080</p>
     <p class="is-real"><b>90%</b>Measured against the expected set · 1,080 of 1,200</p>
-  </div>
+  </div></figure>
   <p class="pr-pull">You cannot reliably discover what is missing if the only evidence you have is what you successfully collected.</p>
 
   <h2>The mental model</h2>
@@ -230,8 +230,7 @@ const checks = [
   .pr-frame .frm { fill: color-mix(in srgb, var(--tl-derived-edge) 10%, transparent); stroke: var(--tl-derived-edge); stroke-width: 2; }
   .pr-frame .smp { fill: color-mix(in srgb, var(--pr-green) 14%, transparent); stroke: var(--pr-green); stroke-width: 2; }
   .pr-frame text { fill: var(--sl-color-white); font: 700 17px var(--sl-font, system-ui); }
-  .pr-frame .frm-label { fill: var(--tl-derived-edge); }
-  .pr-frame .smp-label { fill: var(--pr-green); font-size: 14px; }
+  .pr-frame .smp-label { font-size: 14px; }
   .pr-frame .dot { fill: var(--tl-derived-edge); }
   .pr-frame .dot.is-sampled { fill: var(--pr-green); }
   .pr-frame .dot.is-unlisted { fill: #d9822b; }
@@ -283,6 +282,7 @@ const checks = [
   .pr-resp-key .is-unit::before { background: var(--pr-red); }
   .pr-resp-key .is-item::before { background: var(--pr-yellow); }
   .pr-tiles.is-three p { font-size: 0.8rem; }
+  .pr-card .pr-tiles { margin: 0; }
 
   .pr .pr-eq { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem 1rem; margin: 0 0 0.9rem; }
   .pr-eq > span { display: grid; justify-items: center; color: var(--tl-muted); font-size: 0.8rem; }

@@ -5,25 +5,24 @@ import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 import Beat from "./Beat.astro";
 import Touchline from "./Touchline.astro";
-import Voicemail from "./Voicemail.astro";
 import AiStudy from "./AiStudy.astro";
 import Recount from "./Recount.astro";
 import { framePrompt } from "../../lib/primer";
-import { run, scheduleLog } from "../../lib/first-run";
-import { bounds, story } from "../../lib/coverage";
+import { scheduleLog, noPublishedScore } from "../../lib/first-run";
+import { bounds, story, kickGrid } from "../../lib/coverage";
 import { pipeline, spell, toPlay } from "../../lib/cases";
 
 const sources = [
-  ["pages", "Count the matches listed on the pages Kick saved"],
-  ["log", "Count the lines in Kick's fetch log"],
+  ["pages", "The matches listed on the pages Kick saved"],
+  ["log", "The lines in Kick's fetch log"],
   ["rule", "The membership list and the competition's format"],
 ];
 const bar = (n: number) => `${(n / story.scheduled) * 100}%`;
 const chain = [
   [story.scheduled, "scheduled by the format", ""],
-  [story.finals, "finished", `${toPlay} dated after Friday`],
-  [story.finals - bounds.unseen, "on saved hosts' pages", `${bounds.unseen} hosted by Dunmore (Kick read each match only from its host's page)`],
-  [story.counted, "counted in Kick's table", "1 finished match with no score on the page (Case 3)"],
+  [story.finals, "finished by Friday", `${toPlay} dated after Friday`],
+  [story.finals - bounds.unseen, "on saved hosts' pages", `${bounds.unseen} hosted by Dunmore, whose page didn't answer`],
+  [story.counted, "counted in Kick's table", `${noPublishedScore} finished match with no score on the page (Case 3)`],
 ] as const;
 ---
 
@@ -31,17 +30,25 @@ const chain = [
   <PartHead id="case-dunmore">Case 1. Dunmore: a count needs an expected set</PartHead>
   <Pipeline small lit="scrape" note="This case happens at Scrape" />
 
-  <Voicemail who="dunmore" caller="Dunmore athletics" line="You've got our men at six conference games. We've played thirteen." small />
-  <p>Kick's table had no way to know thirteen was the right number.</p>
+  <p class="cv-callout">Dunmore athletics: “You've got our men at six conference games. We've played thirteen.”</p>
+  <p>Part 2 asked how many matches had finished by Friday. Dunmore knows its own number. Kick's table had no way to know thirteen was right.</p>
 
   <Beat part="case-dunmore" name="Look" title="What the fetch log shows" />
-  <p>Besides the table, Kick kept a log of the {run.total} pages it requested. {pipeline.boxes} of those were box scores: Kick's plan also followed the box score links on Alder Ridge's schedule, and no other school's. Here are the {spell(pipeline.asked)} schedule pages:</p>
-  <table class="cv-log">
-    <caption>Kick's fetch log, schedule pages</caption>
-    <thead><tr><th scope="col">School</th><th scope="col">Result</th></tr></thead>
-    <tbody>{scheduleLog.map((l) => <tr class:list={{ "is-gap": l.result !== "saved" }}><th scope="row">{l.name}</th><td>{l.result}</td></tr>)}</tbody>
-  </table>
-  <p>The failure sits right there in one line of the log, yet Kick's summary never mentions it. Try asking Kick a follow-up question:</p>
+  <p>Besides the table, Kick kept a log of every page it requested. Here are the {spell(pipeline.asked)} schedule page requests:</p>
+  <div class="cv-agent-reply" role="region" aria-label="Kick's fetch log">
+    <div class="cv-chat-bar">
+      <span class="cv-agent-badge">Kick · Friday's fetch log</span>
+      <span class="cv-status-note">{pipeline.saved} saved · {pipeline.silent} no answer</span>
+    </div>
+    <div class="cv-agent-record">
+      <table class="cv-log">
+        <caption class="sr-only">Kick's fetch log, schedule pages</caption>
+        <thead><tr><th scope="col">School</th><th scope="col">Fetch status</th></tr></thead>
+        <tbody>{scheduleLog.map((l) => <tr class:list={{ "is-gap": l.result !== "saved" }}><th scope="row">{l.name}</th><td>{l.result}</td></tr>)}</tbody>
+      </table>
+    </div>
+  </div>
+  <p>The missing page sits right there in one line of the log, yet Kick's summary never mentions it. Try asking Kick a follow-up question:</p>
   <AskKick />
 
   <h4 class="cv-try">How many matches were scheduled?</h4>
@@ -62,12 +69,17 @@ const chain = [
     <p class="cv-once">Answer both, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Of those {story.scheduled} scheduled matches, the saved schedules date {spell(toPlay)} for Saturday, November 21, the day after Friday's run.</p></div>
+    <div class="cv-reveal"><p>Between them, the {spell(pipeline.saved)} saved schedules list all {story.scheduled} pairings, and they date {spell(toPlay)} for Saturday, November 21, the day after Friday's run. One of those two is Dunmore's, which is why Dunmore has played thirteen, not fourteen.</p></div>
   </div>
 
-  <Beat part="case-dunmore" name="Name it" title="The expected set" />
-  <p>Kick knew Dunmore's page had failed. What it didn't know was how much went missing with it. Kick had a list of pages, which is why its log could name Dunmore. It had no list of matches, so its {story.counted} matches were compared against nothing. An expected set of matches, taken from the conference format, is the reference that turns that count into coverage.</p>
-  <p>Survey statistics has names for the same ideas. The list of units you set out to collect is the <strong>sampling frame</strong>. A unit on that list that never answers is <strong>unit nonresponse</strong>, and Dunmore's schedule page is one.</p>
+  <Beat part="case-dunmore" name="Name it" title="The sampling frame" />
+  <p>Kick knew Dunmore's page didn't answer. What it didn't know was how much went missing with it. Kick had a list of pages, which is why its log could name Dunmore. It had no list of matches, so its {story.counted} matches were compared against nothing. An expected set of matches, taken from the conference format, is the reference that turns that count into coverage.</p>
+  <p>Survey statistics has names for these pieces. The membership list is the <strong>sampling frame</strong>: the list of units you collect from, here the {spell(kickGrid.length)} schools. A unit on the frame that never answers is <strong>unit nonresponse</strong>. Dunmore is one, because its schedule page never answered.</p>
+  <dl class="cv-terms" aria-label="Friday's pieces and their survey statistics names">
+    <div><dt>The membership list</dt><dd><b>Sampling frame</b><span>The {spell(kickGrid.length)} schools to collect from</span></dd></div>
+    <div><dt>The conference format</dt><dd><b>Expected observations</b><span>The {story.scheduled} matches those schools should play</span></dd></div>
+    <div><dt>Dunmore</dt><dd><b>Unit nonresponse</b><span>On the frame, and never answered</span></dd></div>
+  </dl>
   <AiStudy
     id="dunmore-ai-study"
     title="Where do these terms come from?"
@@ -83,8 +95,8 @@ const chain = [
   <Beat part="case-dunmore" name="Your claim" title="Caption Friday's standings" />
   <div class="cv-check" data-once="claim-count">
     <p class="cv-kind">Apply it</p>
-    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's summary reported ${story.counted}. The bottom of the fraction is what should exist by now: ${story.scheduled} scheduled, minus ${spell(toPlay)} still to play. Not ${story.scheduled} (unplayed matches aren't missing) and not ${story.counted} (a count of what was saved can't show what wasn't).`}>
-      <p class="cv-qlabel">Write the caption Kick's table needed. Kick's summary only stated how many matches it found.</p>
+    <div data-q data-type="number" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's summary reported ${story.counted}. The bottom of the fraction is what should exist by now: ${story.scheduled} scheduled, minus ${spell(toPlay)} still to play. Not ${story.scheduled} (unplayed matches aren't missing) and not ${story.counted} (a count of what was saved can't show what wasn't).`}>
+      <p class="cv-qlabel">Write the caption Kick's table needed. Kick's summary only stated how many matches it counted. The season has {story.scheduled} matches, and {spell(toPlay)} are dated after Friday.</p>
       <p class="cv-row cv-fillin">
         <span>Built from</span>
         <input inputmode="numeric" autocomplete="off" aria-label="Matches in the table" data-save="claim-count" />
@@ -98,14 +110,14 @@ const chain = [
     <button type="button" data-submit>Check caption</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => `${n} ${what}${lost ? `, minus ${lost}` : ""}`).join(". ")}>
-        {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
-      </div>
-      <p>That fills the question mark Part 2 left open.</p>
       <Recount solved />
-      <p>Riley could have seen every line of this before publishing. With an expected set, any reader can tell the table is short.</p>
+      <p>Here is where the other {story.scheduled - story.counted} of the {story.scheduled} scheduled matches went.</p>
+      <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => (lost ? `${lost}, leaving ${n} ${what}` : `${n} ${what}`)).join(". ")}>
+        {chain.map(([n, what, lost], i) => <div class:list={{ "is-unplayed": i === 1 }}>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
+      </div>
+      <p>Riley could have known the {story.scheduled}, the {story.finals} and the missing {spell(bounds.unseen)} before publishing. With an expected set, any reader can tell the table is short.</p>
     </div>
   </div>
 
-  <NextPart from="case-dunmore">Dunmore was the only site that failed. So why was Hartwell's row wrong?</NextPart>
+  <NextPart from="case-dunmore">Dunmore's was the only site that didn't answer. So why was Hartwell's row wrong?</NextPart>
 </section>
