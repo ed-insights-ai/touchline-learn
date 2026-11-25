@@ -203,3 +203,4 @@
 .pr-chip.is-bad { background: color-mix(in srgb, var(--pr-red) 22%, transparent); }
 .pr .pr-big { margin: 0 0 0.5rem; color: var(--sl-color-white); font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .pr .pr-run-note { margin: 0; font-size: 0.92rem; }
+.pr-table caption.pr-label { caption-side: top; text-align: left; }

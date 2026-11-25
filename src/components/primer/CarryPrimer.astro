@@ -9,7 +9,7 @@ const top = Math.max(...houses.map(([, n]) => n));
 const w = (n: number) => `${(n / top) * 100}%`;
 
 const worlds = {
-  a: { tab: "A · Confirmed zero", value: "0", chip: "is-ok", status: "Confirmed zero", note: "West's own dispatch system confirmed that no orders were dispatched on November 20. The collection record explains why West has no row.", total: `${known}`, gap: false },
+  a: { tab: "A · Confirmed empty", value: "0", chip: "is-ok", status: "Confirmed empty", note: "West's own dispatch system confirmed that no orders were dispatched on November 20. The collection record explains why West has no row.", total: `${known}`, gap: false },
   b: { tab: "B · Never responded", value: "?", chip: "is-bad", status: "No response", note: "West's system timed out. There is no evidence of how many orders it dispatched.", total: `At least ${known}`, gap: true },
   c: { tab: "C · Can't be verified", value: "?", chip: "is-warn", status: "Reported 0, date unknown", note: "West returned a report showing zero orders, but the report has no date, so nothing shows that it describes November 20.", total: `At least ${known}`, gap: true },
 };
@@ -19,10 +19,10 @@ const claims = [
   [`Collected orders total ${known}`, "Yes", "Yes", "Yes"],
   [`The company dispatched exactly ${known}`, "Yes", "No", "No"],
   [`The company dispatched at least ${known}`, "Yes", "Yes", "Yes"],
-  ["West dispatched zero", "Yes", "Unknown", "Unknown"],
+  ["West dispatched zero", "Yes", "No", "No"],
   ["Every expected source is accounted for, with verified data or a verified zero", "Yes", "No", "No"],
 ];
-const chip: Record<string, string> = { Yes: "is-ok", No: "is-bad", Unknown: "is-warn" };
+const chip: Record<string, string> = { Yes: "is-ok", No: "is-bad" };
 
 const conditions = [
   ["Confirmed absence", "The authoritative source confirms there were no qualifying records for the requested period.", "Yes"],
@@ -77,7 +77,7 @@ const checks = [
   about="This is a reply an AI assistant gave to Module 1's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
   turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and finish the module."
 >
-  <h2 class="pr-title">Same data, different conclusions</h2>
+  <h2 class="pr-title">Same rows, different conclusions</h2>
   <p>A dataset tells you what was collected. The collection record tells you what those numbers are entitled to represent.</p>
   <p>Two people can receive identical files, calculate identical totals, and still have very different grounds for publishing those totals. The difference isn't in the arithmetic. It is in the evidence around the collection.</p>
 
@@ -99,9 +99,10 @@ const checks = [
       <p class="pr-big" data-west="total">{first.total}</p>
     </div>
   </figure>
-  <p>The collected dataset never changes. Only the evidence about West does.</p>
+  <p>The collected dataset never changes. Only the evidence about West does. In B and C, neither “exactly 200” nor “West dispatched zero” is established. Either might be true, but nothing shows it.</p>
   <div class="pr-scroll">
     <table class="pr-table pr-claims">
+      <caption class="pr-label">Does the evidence support the claim?</caption>
       <thead><tr><th scope="col">Claim</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead>
       <tbody>{claims.map(([c, ...v]) => <tr><th scope="row">{c}</th>{v.map((x) => <td><span class:list={["pr-chip", chip[x]]}>{x}</span></td>)}</tr>)}</tbody>
     </table>
@@ -152,7 +153,7 @@ const checks = [
   <p>You can now publish:</p>
   <blockquote class="pr-quote">The company dispatched between {known} and {known + ceiling} orders on November 20. Of these, {known} are directly verified. West warehouse's dispatch count is unavailable, but independent allocation records establish a maximum of {ceiling} additional orders.</blockquote>
   <p>You have improved what you know without recovering a single dispatch record.</p>
-  <p>The range does <strong>not</strong> make {known + ceiling / 2} the most likely total, or 25 the likely count for West. Every value in the range remains possible on the evidence you have.</p>
+  <p>The range does <strong>not</strong> make {known + ceiling / 2} the most likely total, or 25 the likely count for West. Every whole-number total in the range remains possible on the evidence you have.</p>
   <p>The upper limit must also be a genuine constraint, not a historical average, a typical workload or an estimated capacity.</p>
 
   <h2>4. What a per-source collection record must hold</h2>
@@ -180,9 +181,9 @@ const checks = [
   <p class="pr-pull">The strength of a published claim depends on the collected values and on the evidence about their completeness, validity and scope.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Part 9's three worlds are these three situations. World A's two clinics sent header-only files and their closure notices are on file, so zero is true. World B's never answered. World C's files can't show which week they cover.</p>
-    <p>The reply gives Situation C its own status, Unverifiable. Touchline folds that case into Unavailable and records the reason, the same rule it applies to a schedule page that can't verify its season. Either way, it is reported as unknown, never as zero.</p>
-    <p>Part 9's clinic range uses section 3's move. The licence cap is a rule, not an average, so it is the kind of upper limit the reply asks for.</p>
+    <p>The reply's collection record is what this course calls the coverage record, and its three situations are Part 9's three worlds. World A is Empty: files labeled week 9 and closure notices on file, so zero is true. World B is Unavailable: the clinics never answered. World C is Unavailable too.</p>
+    <p>The reply gives Situation C its own status, Unverifiable. Touchline folds that case into Unavailable and records the reason, the same rule as Case 3's statistics page that can't show its season. Either way, it is reported as unknown, never as zero.</p>
+    <p>Part 9's clinic bound uses section 3's move. The clinic's license is a rule, not an average, so it is the kind of upper limit the reply asks for.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
@@ -219,7 +220,8 @@ const checks = [
   .pr .pr-west-note { margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.88rem; }
   .pr .pr-west-total p { margin: 0; }
 
-  .pr-claims td { text-align: center; }
+  .pr .pr-claims td { text-align: center; }
+  .pr .is-open .pr-track::after { content: "▶"; position: absolute; top: 50%; right: 0; transform: translate(70%, -50%); color: var(--pr-yellow); font-size: 0.75rem; }
   .pr-table .pr-total th, .pr-table .pr-total td { border-top: 2px solid var(--tl-line); color: var(--sl-color-white); font-weight: 700; }
 
   .pr .pr-narrow { display: grid; gap: 0.9rem; margin: 0.3rem 0 0; padding: 0; list-style: none; }

@@ -13,7 +13,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 const heads = [
   ["total", "100 visits across the network"],
-  ["floor", "At least 100 visits, from eight of ten clinics. Two have not reported."],
+  ["floor", "At least 100 visits, from eight of ten clinics. Two have no verified report for week 9."],
   ["zeros", "100 visits. Two clinics reported none."],
   ["unknown", "Visits unknown"],
 ];
@@ -27,18 +27,19 @@ const next = [
 
 <section id="carry-it">
   <PartHead id="carry-it">Carry it: same number, three worlds</PartHead>
-  <p>A health network has ten clinics that report patient visits each week. For week 9, you receive the exact same spreadsheet in three different scenarios: eight rows totaling 100 visits.</p>
+  <p>The same rules work outside sports: count against an expected set, tell empty from unavailable, and bound what is missing.</p>
+  <p>A health network expects a weekly visit report from each of its ten clinics. For week 9, eight clinics send verified counts totaling 100 visits. Those eight rows are the same in three worlds. Only what you know about the other two clinics changes.</p>
   <div class="cv-twins">
     <div>
-      <h3>World A</h3>
-      <p>The other two clinics each sent a file with a header and no rows. Both were closed that week for renovations, and the closure notices are on file.</p>
+      <h4>World A</h4>
+      <p>The other two clinics each sent a file labeled week 9, with a header and no rows. Both were closed that week for renovations, and the closure notices are on file.</p>
     </div>
     <div>
-      <h3>World B</h3>
+      <h4>World B</h4>
       <p>The other two clinics sent nothing. Nobody has heard from them.</p>
     </div>
     <div>
-      <h3>World C</h3>
+      <h4>World C</h4>
       <p>The other two each sent a file with a header and no rows, but nothing in either file says which week it covers, and there is no closure notice.</p>
     </div>
   </div>
@@ -46,34 +47,34 @@ const next = [
     <p class="cv-kind">Transfer</p>
     {(["a", "b"] as const).map((w) => (
       <div class="cv-line" data-q data-type="select" data-answer={w === "a" ? "total|zeros" : "floor"}
-        data-why={w === "a" ? "100 visits across the network, whether or not the headline mentions the two closed clinics. They answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two clinics that never answered are unavailable: unknown, not zero."}
+        data-why={w === "a" ? "100 visits across the network, whether or not the headline mentions the two closed clinics. Their files are labeled week 9 and the closure notices confirm they saw nobody: Empty, so zero is true." : "At least 100 visits, from eight of ten. The two clinics that never answered are Unavailable: unknown, not zero."}
         data-wrong={JSON.stringify(w === "a" ? { floor: "World A's two clinics did answer, with proof. Nothing is unknown.", unknown: "Every clinic is accounted for, so the total is known." } : { total: "Two clinics never answered, so 100 is only what you received.", zeros: "Nobody reported zero. Silence is unknown, not zero.", unknown: "You do know it is at least 100. Say that." })}>
-        <label><span>World {w.toUpperCase()}: which headline is honest?</span>
+        <label class="cv-stack"><span>World {w.toUpperCase()}: which headline is honest?</span>
           <select data-save={`transfer-${w}`}><option value="">Choose</option>{heads.map(([k, t]) => <option value={k}>{t}</option>)}</select>
         </label>
         <p class="cv-fb" role="status"></p>
       </div>
     ))}
-    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file was saved, but it can't verify that it covers week 9, which is the same rule as a schedule page that can't verify its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The files open fine. They just can't verify their week." })}>
-      <label><span>World C: what coverage state are those two clinics in for week 9?</span>
+    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. Files were saved, but nothing shows they cover week 9: the same rule as Case 3's statistics page that can't show its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The files open fine. They just can't verify their week.", complete: "Complete needs rows and a verified week. These files have neither.", none: "The network expects a report from all ten clinics, so somebody asked." })}>
+      <label class="cv-stack"><span>World C: what coverage state are those two clinics in for week 9?</span>
         <select data-save="transfer-c"><option value="">Choose a state</option>{stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div data-q data-type="range" data-answer="400,520" data-why="400 to 520. The lower bound is what you have. The upper bound adds the maximum the clinic that never answered could have seen: 5 days × 24 visits. A known ceiling turns a floor into a range, just like the points rule did for Dunmore.">
-      <p class="cv-qlabel">A week later you have 400 visits from nine clinics, and the tenth still hasn't answered. Its license allows at most 24 visits a day, and it is open five days a week. What are the lowest and highest totals the network could have?</p>
-      <div class="cv-row cv-fillin"><span>Between</span><input inputmode="numeric" autocomplete="off" aria-label="Lowest total" data-save="clinic-low" /><span>and</span><input inputmode="numeric" autocomplete="off" aria-label="Highest total" data-save="clinic-high" /></div>
+    <div class="cv-split" data-q data-type="number" data-answer="400,520" data-why="400 to 520. The low end is what you have. The high end adds the most the silent clinic's license allows: 5 days × 24 visits = 120. Like Dunmore's points bound in Case 2, it comes from a rule and says nothing about which total is likely.">
+      <p class="cv-qlabel">A week later you have 400 visits from nine clinics, and the tenth still hasn't answered. Its license allows at most 24 visits a day, on at most five days a week. What bound belongs on the network's total?</p>
+      <div class="cv-row cv-fillin"><span>Between</span><input inputmode="numeric" autocomplete="off" aria-label="Lowest possible total" data-save="clinic-low" /><span>and</span><input inputmode="numeric" autocomplete="off" aria-label="Highest possible total" data-save="clinic-high" /></div>
       <p class="cv-fb" role="status"></p>
     </div>
     <p class="cv-once">Answer all four, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>World C has the same blank files as World A, yet only supports World B's headline because those files can't verify their week. Same number, three scenarios, and only the coverage record tells them apart.</p>
+      <p>World A's two clinics are Empty, so zero is true. World B's and World C's are Unavailable. World C has the same blank files as World A, yet supports only World B's headline, because those files can't show their week. Same 100 visits, three worlds, and only the coverage record tells them apart.</p>
       <AiStudy
         id="carry-ai-study"
         title="Same rows, different conclusions"
-        note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. It carries the three worlds to a new field and asks you to tell them apart again."
+        note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. It moves the three worlds to warehouses, shows the record entry for each, and ends with three new questions."
         prompt={carryPrompt}
         href="../01-collection-ai-carry/"
       />
@@ -97,11 +98,6 @@ const next = [
     <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 
-  <h3 id="carry-it-further">Optional: go further</h3>
-  <p>Each of these stands on its own on the <a href="../01-collection-field-work/?from=carry-it">Module 1 field work page</a>.</p>
-  <ul class="cv-next-links">
-    {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
-  </ul>
 
   <h3 id="carry-it-tuesday">Then Tuesday</h3>
   <p>This short closing video returns to what actually happened: Monday's corrected table, and the bug that kicks off Module 2.</p>
@@ -120,4 +116,10 @@ const next = [
     <a class="cv-next-cta" href="../02-archive/">Continue to Module 2: {nextModule.name} →</a>
     <p class="cv-next-alt">Not ready to move on? <a href="../01-collection-field-work/?from=carry-it">Optional field work &amp; lab →</a></p>
   </aside>
+
+  <h3 id="carry-it-further">Optional: go further</h3>
+  <p>Each of these stands on its own on the <a href="../01-collection-field-work/?from=carry-it">Module 1 field work page</a>.</p>
+  <ul class="cv-next-links">
+    {next.map(([href, name, what]) => <li><a href={href}>{name}</a><span>{what}</span></li>)}
+  </ul>
 </section>

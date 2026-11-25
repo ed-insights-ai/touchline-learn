@@ -303,7 +303,11 @@
 
   const entry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
   if (location.hash && entry?.type === "navigate") {
+    let moved = false;
+    const stop = () => { moved = true; };
+    ["wheel", "touchstart", "keydown"].forEach((name) => addEventListener(name, stop, { once: true, passive: true }));
     const settle = () => {
+      if (moved) return;
       let target: HTMLElement | null = null;
       try { target = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch {}
       if (target && target.offsetParent !== null) target.scrollIntoView({ block: "start" });

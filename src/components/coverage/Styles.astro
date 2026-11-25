@@ -217,6 +217,9 @@
   .cv-check > *, .cv-line > label { min-width: 0; max-width: 100%; }
   .cv-check > .cv-line[data-q] > label:first-child { display: flex; font-weight: 600; }
   .cv-line select, .cv-check [data-q] > select { min-width: 0; max-width: 100%; flex: 0 1 15rem; }
+  .cv-check > .cv-line[data-q] > label.cv-stack { flex-direction: column; align-items: stretch; gap: 0.35rem; }
+  .cv-line label.cv-stack select { flex: none; width: 100%; max-width: 34rem; }
+  .cv-check > .cv-split { padding-top: 0.9rem; border-top: 1px solid var(--tl-line); }
   .cv-rules { margin: 0 0 1rem; }
   .cv-rules button[aria-pressed="false"], :root[data-theme="light"] .cv-rules button[aria-pressed="false"] { background: transparent; color: var(--tl-ink); border-color: var(--tl-muted); font-weight: 400; }
   .cv-rules .cv-hostwrap { margin-top: 0.6rem; }
