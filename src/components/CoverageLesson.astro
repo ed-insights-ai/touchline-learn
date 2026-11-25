@@ -22,7 +22,7 @@ import { outcomes } from "../lib/parts";
 <div class="cv cv-core not-content" data-coverage data-pack={JSON.stringify({ members: pack.members, played: pack.dunmorePlayed, points: pack.dunmorePoints, host: bounds.played, scored: pack.scored, finals: story.finals })}>
   <JourneyTop />
   <div class="cv-orient">
-    <p class="cv-lead">A collection can finish without an error and still hand you an incomplete table.</p>
+    <p class="cv-lead">A data collection run can finish with no errors and still leave you with an incomplete dataset.</p>
     <p class="cv-eyebrow-sm">By the end you can</p>
     <ol class="cv-goals">{outcomes.map((o) => <li><a href={o.href}><span>{o.where}</span>{o.short}</a></li>)}</ol>
     <p class="cv-facts" data-no-first><span><strong>New here?</strong> Start with <a href="../../">Publish Day</a>.</span></p>
