@@ -1,194 +1,342 @@
 WEBVTT
 
-00:00:01.110 --> 00:00:03.150
+1
+00:00:02.110 --> 00:00:04.300
 You want a league table for eight schools.
 
-00:00:03.430 --> 00:00:07.330
-The results are spread across eight websites, on pages made for people,
+2
+00:00:04.430 --> 00:00:06.890
+The results are spread across eight websites,
 
-00:00:07.350 --> 00:00:08.750
+3
+00:00:06.910 --> 00:00:08.330
+on pages made for people,
+
+4
+00:00:08.350 --> 00:00:09.900
 not programs.
 
-00:00:10.294 --> 00:00:12.534
+5
+00:00:10.794 --> 00:00:13.134
 To collect them, you write a scraper:
 
-00:00:12.654 --> 00:00:17.094
-a program that downloads those pages and pulls rows out of them.
+6
+00:00:13.154 --> 00:00:15.774
+a program that downloads those pages
 
-00:00:17.614 --> 00:00:19.814
+7
+00:00:15.794 --> 00:00:17.744
+and pulls rows out of them.
+
+8
+00:00:18.114 --> 00:00:20.464
 The simplest one is a single loop.
 
-00:00:21.414 --> 00:00:25.714
-For each site: download the page, find the results table, read each
+9
+00:00:21.514 --> 00:00:22.454
+For each site:
 
-00:00:25.734 --> 00:00:28.094
-row, and add it to the standings.
+10
+00:00:22.474 --> 00:00:23.894
+download the page,
 
-00:00:28.374 --> 00:00:30.334
+11
+00:00:23.914 --> 00:00:25.334
+find the results table,
+
+12
+00:00:25.354 --> 00:00:26.614
+read each row,
+
+13
+00:00:26.634 --> 00:00:28.344
+and add it to the standings.
+
+14
+00:00:28.474 --> 00:00:30.584
 On a good day, it works.
 
-00:00:30.774 --> 00:00:34.254
-Then, one at a time, five ordinary things go wrong.
+15
+00:00:30.874 --> 00:00:32.294
+Then, one at a time,
 
-00:00:36.294 --> 00:00:38.774
+16
+00:00:32.314 --> 00:00:34.504
+five ordinary things go wrong.
+
+17
+00:00:36.094 --> 00:00:38.724
 First: one site doesn't answer.
 
-00:00:39.054 --> 00:00:43.114
-The loop waits, gives up, and crashes, taking the finished sites
+18
+00:00:38.854 --> 00:00:41.794
+The loop waits, gives up, and crashes,
 
-00:00:43.134 --> 00:00:43.894
-down with it.
+19
+00:00:41.814 --> 00:00:43.844
+taking the finished sites down with it.
 
-00:00:45.842 --> 00:00:48.282
-So downloading becomes its own stage:
+20
+00:00:45.642 --> 00:00:49.192
+So downloading becomes its own stage: scrape.
 
-00:00:48.322 --> 00:00:52.622
-scrape. It works down a list of addresses, checks whether each site
+21
+00:00:49.482 --> 00:00:51.382
+It works down a list of addresses,
 
-00:00:52.642 --> 00:00:55.162
-answered, waits, and tries again.
+22
+00:00:51.402 --> 00:00:53.222
+checks whether each site answered,
 
-00:00:55.602 --> 00:00:59.562
-A silent site is now scrape's to deal with, instead of a crash.
+23
+00:00:53.242 --> 00:00:55.112
+waits, and tries again.
 
-00:01:00.242 --> 00:01:03.082
+24
+00:00:55.402 --> 00:00:58.022
+A silent site is now scrape's to deal with,
+
+25
+00:00:58.042 --> 00:00:59.512
+instead of a crash.
+
+26
+00:01:00.042 --> 00:01:02.982
 What it should do about one is a real decision.
 
-00:01:03.202 --> 00:01:04.362
+27
+00:01:03.002 --> 00:01:04.312
 Hold on to that.
 
-00:01:06.730 --> 00:01:09.410
+28
+00:01:06.630 --> 00:01:09.460
 Second: a month later, you find a bug.
 
-00:01:09.610 --> 00:01:12.690
+29
+00:01:09.510 --> 00:01:12.740
 Your code had home and away scores backwards.
 
-00:01:12.890 --> 00:01:16.470
-You fix it and go back for the pages, but the sites have changed,
+30
+00:01:12.790 --> 00:01:14.930
+You fix it and go back for the pages,
 
-00:01:16.490 --> 00:01:18.930
+31
+00:01:14.950 --> 00:01:16.370
+but the sites have changed,
+
+32
+00:01:16.390 --> 00:01:18.980
 and some of last month's pages are gone.
 
-00:01:20.578 --> 00:01:21.978
+33
+00:01:20.678 --> 00:01:22.228
 That brings in store.
 
-00:01:22.338 --> 00:01:26.238
-Save every page exactly as it arrived, before any of your code reads
+34
+00:01:22.438 --> 00:01:24.818
+Save every page exactly as it arrived,
 
-00:01:26.258 --> 00:01:28.378
-it. Now a bug is cheap.
+35
+00:01:24.838 --> 00:01:26.868
+before any of your code reads it.
 
-00:01:28.658 --> 00:01:32.038
-Fix the code and run it again on the saved pages, without asking
+36
+00:01:27.078 --> 00:01:28.628
+Now a bug is cheap.
 
-00:01:32.058 --> 00:01:33.418
-the web for anything.
+37
+00:01:28.758 --> 00:01:31.458
+Fix the code and run it again on the saved pages,
 
-00:01:36.334 --> 00:01:37.894
+38
+00:01:31.478 --> 00:01:33.668
+without asking the web for anything.
+
+39
+00:01:36.334 --> 00:01:38.044
 Third, and quieter:
 
-00:01:38.174 --> 00:01:42.614
-a site is redesigned, and a ticket table now sits above the results.
+40
+00:01:38.174 --> 00:01:39.754
+a site is redesigned,
 
-00:01:43.054 --> 00:01:47.034
-The loop reads the first table it finds, the wrong one, and nothing
+41
+00:01:39.774 --> 00:01:42.764
+and a ticket table now sits above the results.
 
-00:01:47.054 --> 00:01:48.054
-complains.
+42
+00:01:43.054 --> 00:01:45.434
+The loop reads the first table it finds,
 
-00:01:49.710 --> 00:01:52.370
-Reading the page becomes its own stage:
+43
+00:01:45.454 --> 00:01:46.474
+the wrong one,
 
-00:01:52.390 --> 00:01:57.970
-parse. It finds the schedule by its label, not its position, and
+44
+00:01:46.494 --> 00:01:48.204
+and nothing complains.
 
-00:01:57.990 --> 00:02:00.510
-hands on rows in one fixed shape:
+45
+00:01:50.110 --> 00:01:53.780
+Reading the page becomes its own stage: parse.
 
-00:02:00.710 --> 00:02:03.630
+46
+00:01:53.990 --> 00:01:56.450
+It finds the schedule by its label,
+
+47
+00:01:56.470 --> 00:01:58.100
+not its position,
+
+48
+00:01:58.150 --> 00:02:01.060
+and hands on rows in one fixed shape:
+
+49
+00:02:01.110 --> 00:02:04.180
 date, opponent, result.
 
-00:02:05.562 --> 00:02:07.842
+50
+00:02:05.962 --> 00:02:08.392
 Fourth: put the rows together.
 
-00:02:08.202 --> 00:02:13.842
-A match between A and B is listed on A's page, and again on B's.
+51
+00:02:08.602 --> 00:02:12.632
+A match between A and B is listed on A's page,
 
-00:02:14.042 --> 00:02:17.922
-Add up every row, and every match counts twice.
+52
+00:02:12.682 --> 00:02:14.392
+and again on B's.
 
-00:02:19.554 --> 00:02:22.714
+53
+00:02:14.442 --> 00:02:15.992
+Add up every row,
+
+54
+00:02:16.042 --> 00:02:18.472
+and every match counts twice.
+
+55
+00:02:21.054 --> 00:02:24.364
 That forces build, where rows become matches.
 
-00:02:22.994 --> 00:02:26.334
-It decides which copy of each match to keep, and only then works
+56
+00:02:24.494 --> 00:02:26.994
+It decides which copy of each match to keep,
 
-00:02:26.354 --> 00:02:27.434
-out the standings.
+57
+00:02:27.014 --> 00:02:29.084
+and only then works out the standings.
 
-00:02:27.794 --> 00:02:30.554
+58
+00:02:29.294 --> 00:02:32.204
 Which copy it keeps is another quiet choice.
 
-00:02:30.754 --> 00:02:32.234
+59
+00:02:32.254 --> 00:02:33.884
 Hold on to that one, too.
 
-00:02:34.056 --> 00:02:36.926
+60
+00:02:35.756 --> 00:02:38.776
 Fifth: the run ends and hands you a table.
 
-00:02:37.686 --> 00:02:39.246
+61
+00:02:39.386 --> 00:02:41.046
 Did every site answer?
 
-00:02:39.366 --> 00:02:40.846
+62
+00:02:41.066 --> 00:02:42.696
 How many rows came in?
 
-00:02:41.206 --> 00:02:42.366
+63
+00:02:42.906 --> 00:02:44.216
 Were there errors?
 
-00:02:42.886 --> 00:02:44.206
+64
+00:02:44.586 --> 00:02:46.056
 The table can't say.
 
-00:02:45.822 --> 00:02:47.302
+65
+00:02:48.322 --> 00:02:49.952
 That is report's job.
 
-00:02:47.662 --> 00:02:49.542
+66
+00:02:50.162 --> 00:02:52.062
 It writes down what the run did:
 
-00:02:49.582 --> 00:02:53.942
-the pages it fetched, the rows it found, and the errors it hit.
+67
+00:02:52.082 --> 00:02:53.582
+the pages it fetched,
 
-00:02:55.890 --> 00:02:59.850
-Line the five stages up, and one loop has become a pipeline.
+68
+00:02:53.602 --> 00:02:54.862
+the rows it found,
 
-00:03:00.690 --> 00:03:03.130
+69
+00:02:54.882 --> 00:02:56.592
+and the errors it hit.
+
+70
+00:02:57.990 --> 00:02:59.650
+Line the five stages up,
+
+71
+00:02:59.670 --> 00:03:02.100
+and one loop has become a pipeline.
+
+72
+00:03:02.790 --> 00:03:05.380
 Scrape hands pages to store.
 
-00:03:03.730 --> 00:03:06.650
+73
+00:03:05.830 --> 00:03:08.900
 Store hands saved pages to parse.
 
-00:03:07.330 --> 00:03:09.690
+74
+00:03:09.430 --> 00:03:11.940
 Parse hands rows to build.
 
-00:03:10.290 --> 00:03:14.170
-Build makes the table, and hands its counts to report.
+75
+00:03:12.390 --> 00:03:13.890
+Build makes the table,
 
-00:03:14.770 --> 00:03:18.670
-Each stage can be checked on its own, and run again without starting
+76
+00:03:13.910 --> 00:03:16.420
+and hands its counts to report.
 
-00:03:18.690 --> 00:03:19.290
-over.
+77
+00:03:16.870 --> 00:03:19.090
+Each stage can be checked on its own,
 
-00:03:22.206 --> 00:03:23.926
+78
+00:03:19.110 --> 00:03:21.540
+and run again without starting over.
+
+79
+00:03:24.106 --> 00:03:25.976
 Now read that report again.
 
-00:03:24.446 --> 00:03:28.806
-Eight pages fetched, one hundred and four rows, no errors.
+80
+00:03:26.346 --> 00:03:27.766
+Eight pages fetched,
 
-00:03:29.166 --> 00:03:31.526
+81
+00:03:27.786 --> 00:03:29.606
+one hundred and four rows,
+
+82
+00:03:29.626 --> 00:03:30.856
+no errors.
+
+83
+00:03:31.066 --> 00:03:33.576
 Every line is about what the run did.
 
-00:03:31.886 --> 00:03:34.326
+84
+00:03:33.786 --> 00:03:36.376
 Not one says what the run should have found.
 
-00:03:34.686 --> 00:03:37.686
+85
+00:03:36.586 --> 00:03:39.736
 That gap is what this module is about.
 
