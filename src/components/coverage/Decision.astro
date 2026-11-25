@@ -120,10 +120,6 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
   else { document.addEventListener("DOMContentLoaded", start); addEventListener("load", start); }
   document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", () => { if (input.checked) apply(input.value); }));
 
-  const echo = document.querySelector<HTMLElement>("[data-decision-echo]");
-  const echoChoice = () => { if (echo && said[stored()]) echo.textContent = `earlier in the setup you chose “${said[stored()]}”`; };
-  echoChoice();
-  document.querySelectorAll<HTMLInputElement>('input[data-save="decision"]').forEach((input) => input.addEventListener("change", echoChoice));
 
   const gate = document.querySelector<HTMLElement>("[data-chose]");
   if (gate) {

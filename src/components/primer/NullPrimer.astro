@@ -2,7 +2,7 @@
 import PrimerChat from "./PrimerChat.astro";
 import { nullPrompt } from "../../lib/primer";
 import { bounds } from "../../lib/coverage";
-import { noScore } from "../../lib/cases";
+import { noScore, spell } from "../../lib/cases";
 
 const days = [
   { day: "Monday", short: "Mon", orders: 12, status: "Observed", kind: "is-seen" },
@@ -135,7 +135,7 @@ const checks = [
   <p class="pr-pull">A more complete-looking dataset is not necessarily a more complete dataset.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Two of Friday's gaps map onto this example. {noScore.home} vs. {noScore.away} on {noScore.day} is Thursday: the row is on a saved page, marked final, and its score is blank. Dunmore's {bounds.unseen} home matches are Friday: records that should be in the table and weren't counted, which only the expected set shows. So what should the standings tell readers about {noScore.day}?</p>
+    <p>Two of the run's gaps map onto this example. {noScore.home} vs. {noScore.away} on {noScore.day} is the warehouse's Thursday: the row is on a saved page, marked final, and its score is blank. Dunmore's {spell(bounds.unseen)} home matches are the warehouse's Friday: records that should be in the table and weren't counted, which only the expected set shows. So what should the standings tell readers about {noScore.day}?</p>
   </aside>
 
   <h2>3. How SQL NULL and pandas NaN behave</h2>
@@ -271,7 +271,8 @@ const checks = [
   .pr-days .is-absent { border: 1.5px dashed var(--pr-red); border-top-width: 4px; background: transparent; }
   .pr-days .is-absent b { color: var(--tl-muted); }
 
-  .pr-treat td:nth-child(2) { font-family: var(--__sl-font-mono); font-size: 0.85rem; }
+  .pr-table.pr-treat td:nth-child(2) { font-family: var(--__sl-font-mono); font-size: 0.85rem; text-align: left; }
+  .pr-table.pr-treat th[scope="col"]:nth-child(2) { text-align: left; }
   .pr-treat td.is-off { color: var(--pr-red); font-weight: 700; }
   :root:not([data-theme="light"]) .pr-treat td.is-off { color: #ef7b68; }
 
