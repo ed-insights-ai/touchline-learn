@@ -217,7 +217,9 @@
             questions.forEach((q) => {
               const fb = q.querySelector<HTMLElement>(".cv-fb")!;
               fb.classList.remove("is-right", "is-wrong");
-              fb.textContent = "";
+              const review = root.classList.contains("is-review") && q.dataset.why;
+              fb.textContent = review ? q.dataset.why! : "";
+              if (review) fb.dataset.reviewFb = "1";
             });
             button.hidden = false;
             box.querySelector<HTMLElement>(".cv-once")!.hidden = false;

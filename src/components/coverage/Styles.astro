@@ -551,13 +551,14 @@
   .cv-reach li + li::before { content: "→"; position: absolute; top: 50%; left: -1.25rem; transform: translateY(-50%); color: var(--tl-muted); }
   .cv-reach b { color: var(--sl-color-white); font-size: 1.4rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
   .cv-reach li:last-child { border-color: color-mix(in srgb, var(--cv-red) 55%, var(--tl-line)); }
-  .cv-reach.is-plain { gap: 0.6rem; }
-  .cv-reach.is-plain li + li::before { content: none; }
-  .cv-reach.is-plain li:last-child { border-color: var(--tl-line); }
-  .cv .cv-reach.is-plain li:last-child b { color: var(--sl-color-white); }
-  .cv-draft-body fieldset.cv-line + fieldset.cv-line { padding-top: 0.85rem; border-top: 1px solid var(--tl-line); }
   .cv-reach li:last-child b { color: var(--cv-red); }
   :root:not([data-theme="light"]) .cv-reach li:last-child b { color: #ef7b68; }
+  .cv-reach.is-plain { gap: 0.6rem; }
+  .cv-reach.is-plain li { background: var(--tl-bg); }
+  .cv-reach.is-plain li + li::before { content: none; }
+  .cv-reach.is-plain li:last-child { border-color: var(--tl-line); }
+  :root .cv .cv-reach.is-plain li:last-child b { color: var(--sl-color-white); }
+  .cv-draft-body fieldset.cv-line:not(:last-of-type) { padding-bottom: 0.85rem; border-bottom: 1px solid var(--tl-line); }
   .cv-bound { margin: 0 0 1rem; padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
   .cv-bound-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1rem; margin: 0 0 0.5rem !important; color: var(--tl-muted); font-size: 0.88rem; }
   .cv-bound-head b { color: var(--sl-color-white); font-size: 1rem; }
