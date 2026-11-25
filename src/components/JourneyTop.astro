@@ -10,8 +10,8 @@ const hasOwnFlow = current?.slug === "01-collection";
   <div class="jc-top not-content">
     <ul class="jc-meta" aria-label="Course position">
       <li class="jc-badge">Module {current.n} of {journeyModules.length}</li>
-      <li>Part {current.partNumber} · {current.part.title}</li>
-      <li>{current.step === "All steps" ? "All pipeline steps" : `Step: ${current.step}`}</li>
+      {!hasOwnFlow && <li>Part {current.partNumber} · {current.part.title}</li>}
+      {!hasOwnFlow && <li>{current.step === "All steps" ? "All pipeline steps" : `Step: ${current.step}`}</li>}
     </ul>
     <p class="jc-question">{current.question}</p>
     {!hasOwnFlow && (
