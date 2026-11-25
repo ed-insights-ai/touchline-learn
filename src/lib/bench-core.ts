@@ -46,9 +46,9 @@ export const LABELS = {
 const GLYPH: Record<Cell, string> = { read: "●", lost: "✕", noscore: "?", fill: "0-0", later: "" };
 const MEANS: Record<Cell, string> = {
   read: "counted in the table",
-  lost: "finished, never read",
+  lost: "finished, lost with its host's page",
   noscore: "finished, no score on the page",
-  fill: "never read, entered as 0-0",
+  fill: "lost, entered as 0-0",
   later: "not yet played",
 };
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -176,9 +176,9 @@ export function matrixKey(out: Outcome, withFill: boolean): string {
 export function countTiles(data: BenchData, out: Outcome): string {
   const tiles = [
     [`${data.schools.length - out.down.length} of ${data.schools.length}`, "schedule pages answered"],
-    [`${out.stopped ? 0 : out.read} of ${out.finished}`, "finished matches counted with a score from a schedule"],
-    [String(out.unread), out.invented ? "finished matches never read, entered as 0-0" : "finished matches never read"],
-    [String(out.noscore), "finished matches checked but no score found"],
+    [`${out.stopped ? 0 : out.read} of ${out.finished}`, "finished matches counted"],
+    [String(out.unread), out.invented ? "finished matches lost, entered as 0-0" : "finished matches lost"],
+    [String(out.noscore), "finished, no score on any saved page"],
     [out.wrong === null ? "No table" : `${out.wrong} of ${data.schools.length}`, out.wrong === null ? "the run stopped" : "rows that differ from the reference table"],
   ];
   return tiles.map(([v, l]) => `<div><dt>${esc(l)}</dt><dd>${esc(v)}</dd></div>`).join("");
@@ -202,7 +202,7 @@ export function reading(data: BenchData, st: BenchState, out: Outcome): string {
     ? `${who} did not answer, and ${matches(out.unread)} went with ${one ? "that page" : "those pages"}: every finished match ${one ? "that school" : "those schools"} hosted.`
     : `With both pages read, a match is lost only when neither school's page answered: ${matches(out.unread)}.`;
   if (st.design === "fill") return `${lost} Each is in the table as 0-0. ${out.wrong} of ${n} rows differ from the reference table, and nothing marks which scores were invented.${blank}`;
-  const rows = `${out.wrong} of ${n} rows differ from the reference. A missing result affects both teams, and changes in rank can affect other rows.`;
+  const rows = `${out.wrong} of ${n} rows differ from the reference.`;
   return `${lost} ${rows}${st.design === "record" ? " The table is the same as when Kick skips the page. What changed is the summary: it names the gap." : ""}${blank}`;
 }
 

@@ -104,7 +104,7 @@ const checks = [
     <div class="pr-tiles is-three">
       <p><b>{pct(seenPicked, seenRecords)}</b>Reported rate</p>
       <p class="is-real"><b>{pct(seenPicked + 120, expected)}</b>True rate in this scenario</p>
-      <p class="is-alarm"><b>20 pp</b>Overstatement</p>
+      <p class="is-alarm"><b>20 pp</b>Overstatement, in percentage points</p>
     </div>
     <figcaption>Branch D's 40% is the scenario's assumption. In the real collection, it is unknown.</figcaption>
   </figure>
@@ -161,7 +161,7 @@ const checks = [
   <p class="pr-pull">You do not always need to know the missing values to establish what is mathematically possible.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Dunmore's schedule page is Module 1's missing branch. Counted in pages, it is one of {spell(pipeline.asked)}. Counted in matches, it is {bounds.unseen} of {story.finals}, and every one was a Dunmore home match, so its away record alone made its defense look solid. Case 2 bounds points the same way: an uncounted match adds 0 to 3 points, so Hartwell Tech's {hartwell.pts} points, with one match uncounted, become a bound of {hartwell.pts} to {hartwell.high}.</p>
+    <p>In Module 1, Dunmore's schedule page is the lost cluster, though a smaller one than branch D. Counted in pages, it is one of {spell(pipeline.asked)}. Counted in matches, it is {bounds.unseen} of {story.finals}, about the same share. What it shares with branch D is the tilt: every lost match was a Dunmore home match, so its away record alone made its defense look solid. Case 2 bounds points the same way: a lost match adds 0 to 3 points, so Hartwell Tech's {hartwell.pts} points, with one match lost, become a bound of {hartwell.pts} to {hartwell.high}.</p>
   </aside>
 
   <h2>4. What a bound can and cannot tell you</h2>
@@ -265,7 +265,7 @@ const checks = [
   .pr-targets b { color: var(--sl-color-white); }
   .pr .pr-targets .pr-targets-why { color: var(--tl-muted); font-size: 0.86rem; }
   .pr-targets .is-yes { border-left-color: var(--pr-green); }
-  .pr-targets .is-yes strong { color: var(--pr-green); }
+  .pr-targets strong { color: var(--tl-ink) !important; }
   .pr-targets .is-yes .pr-range-target { background: var(--pr-green); }
   .pr-targets .is-maybe { border-left-color: var(--pr-yellow); }
   .pr-targets .is-maybe .pr-range-target { background: var(--pr-yellow); }
