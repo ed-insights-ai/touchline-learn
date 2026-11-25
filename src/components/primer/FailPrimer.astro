@@ -37,7 +37,7 @@ const states = [
   { key: "start", name: "Start", status: ["Pending", "Pending", "Pending", "Pending"], note: "The manifest lists all four expected stores before anything is fetched." },
   { key: "crash", name: "Crash", status: ["Collected", "Collected", "Pending", "Pending"], note: "Two stores are collected. The other two remain pending, not necessarily failed." },
   { key: "finish", name: "Finish", status: ["Collected", "Collected", "Failed", "Collected"], note: "The run resumes from the manifest and attempts only the pending stores. Store C times out three times and is recorded as failed." },
-  { key: "recover", name: "Recover", status: ["Collected", "Collected", "Collected", "Collected"], note: "A later rerun collects Store C. Its row is replaced by key, so nothing is counted twice." },
+  { key: "recover", name: "Recover", status: ["Collected", "Collected", "Collected", "Collected"], note: "A later rerun collects Store C. Its row is inserted or updated by key, so nothing is counted twice." },
 ].map((s) => ({ ...s, pct: `${Math.round((s.status.filter((x) => x === "Collected").length / stores.length) * 100)}%` }));
 const tone: Record<string, string> = { Pending: "is-pending", Collected: "is-ok", Failed: "is-bad" };
 
@@ -58,7 +58,7 @@ const roles = [
 const checks = [
   ["Failure policies", `Store C fails to respond. The pipeline fills in zero, produces a four-store report and exits successfully. What is wrong with claiming that the report has 100% data coverage? What would you change about the output?`],
   ["Recovery and reruns", `The original run collects ${usd(observed)} from three stores. A later rerun successfully collects all four stores, including ${usd(late)} from Store C. How would you design the pipeline to prevent double-counting, and what should happen to the original run's recorded gap?`],
-  ["Publication decisions", "The company's publication policy requires at least 75% source coverage. Three of the four stores are successfully collected, but the missing store normally accounts for half of the company's revenue. Would you publish the report? Is the existing publication rule sufficient, and what would you change about it?"],
+  ["Publication decisions", "The company's publication policy requires at least 75% source coverage. Three of the four stores are successfully collected, but the missing store normally accounts for about a third of the company's revenue, more than any other store. Would you publish the report? Is the existing publication rule sufficient, and what would you change about it?"],
 ];
 
 const manifest = `run_id: sales-2026-11-24-001
@@ -188,7 +188,8 @@ publication_status: provisional`;
   <p class="pr-pull">The manifest counts coverage in sources. Having {coverage}% of the stores does not mean having {coverage}% of the company's sales.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Kick's Friday run took Policy B. Its summary, “no errors,” says the code ran; it says nothing about whether the table is ready to use. And like Store C, Dunmore was one source among several: seven of eight schedule pages answered, yet Dunmore's {spell(bounds.unseen)} lost home matches touched every row of the standings. One difference to carry back: the reply's “operational success” only asks whether the code ran. Touchline's rule asks more of a run. It succeeds only when its coverage record is written and accurate.</p>
+    <p>Kick's Friday run took Policy B. Its summary, “no errors,” says the code ran; it says nothing about whether the table is ready to use. Like Store C, Dunmore was one source among several, yet its {spell(bounds.unseen)} missing home matches touched every row of the standings.</p>
+    <p>Two differences to carry back. The reply's “operational success” only asks whether the code ran; Touchline's rule says a run succeeds only when its coverage record is written and accurate. And Touchline's publish decision is not a coverage threshold: hold the table while a gap can still be closed from pages already saved.</p>
   </aside>
 
   <h2>3. Retries, timeouts and reruns</h2>
@@ -344,11 +345,13 @@ publication_status: provisional`;
       out.classList.toggle("is-go", go);
       out.classList.toggle("is-stop", !go);
       head.textContent = go ? "Publish provisional report" : "Withhold report";
-      why.textContent = must
-        ? "Store C is mandatory and was not collected, so coverage alone can't satisfy the rule."
-        : go
-          ? "Coverage satisfies the rule. The known gap must still be disclosed."
-          : `Coverage of ${have}% is below the ${min}% minimum.`;
+      why.textContent = must && have < min
+        ? `Coverage of ${have}% is below the ${min}% minimum, and Store C is mandatory and was not collected.`
+        : must
+          ? "Store C is mandatory and was not collected, so coverage alone can't satisfy the rule."
+          : go
+            ? "Coverage satisfies the rule. The known gap must still be disclosed."
+            : `Coverage of ${have}% is below the ${min}% minimum.`;
     };
     pub.addEventListener("change", decide);
   }

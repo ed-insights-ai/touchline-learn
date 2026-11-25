@@ -15,17 +15,20 @@ const said: Record<string, string> = {
 };
 
 const runs = [
-  { key: "kick", who: "Kick, Friday", text: `Done. All eight school sites, ${story.counted} conference matches, no errors.`, ok: "no", publish: "no",
-    why: "Failed, and hold back the table. Dunmore never answered and no coverage record names that gap, so the summary hides what is missing. “No errors” only describes the code." },
-  { key: "record", who: "Collector with a record, Friday", text: `8 schedule pages expected, 7 saved. Dunmore: unavailable, no answer after three tries. ${story.counted} of ${story.finals} finished matches counted; ${bounds.unseen} Dunmore home matches not read; ${noScore.day} final, no score on either schedule.`, ok: "yes", publish: "no",
-    why: `Succeeded, and hold back the table. The coverage record was written accurately, gaps and all. Looking at it, ${bounds.unseen} matches can be recovered from pages already saved, so a table missing them shouldn't be published yet.` },
-  { key: "monday", who: "Collector with a record, Monday", text: `Both teams' saved schedules checked where available. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' pages. Not counted: ${noScore.home} vs. ${noScore.away}, ${noScore.day}, final, score unknown.`, ok: "yes", publish: "yes",
-    why: "Succeeded, and publish it with the gap noted under the table. A table doesn't need 100% coverage to be published; it just needs to be honest about what it includes." },
+  { key: "kick", who: "Kick, Friday", text: `Done. All eight school sites, ${story.counted} conference matches, no errors. Ready to publish.`, ok: "no", publish: "no",
+    okWhy: "Failed. Kick wrote no coverage record, so nothing shows what it collected against what it expected. “No errors” only describes the code.",
+    publishWhy: "Hold back. With no record, nothing shows what the table is missing, so nothing supports its claim." },
+  { key: "record", who: "Collector with a record, Friday", text: `8 schedule pages expected, 7 saved. Dunmore: unavailable, no answer after three tries. ${story.counted} of ${story.finals} finished matches counted. Not read: ${bounds.unseen} Dunmore home matches, all listed on the visitors' saved schedules. ${noScore.day}: final, no score on either schedule.`, ok: "yes", publish: "no",
+    okWhy: "Succeeded. The record was written and matches what happened, gaps and all.",
+    publishWhy: `Hold back. The record shows the ${bounds.unseen} Dunmore matches are on pages already saved, so the table can still be closed before it goes out.` },
+  { key: "monday", who: "Collector with a record, after reading both schools' pages", text: `${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' pages. One final has no score on any saved page; it is named under the table.`, ok: "yes", publish: "yes",
+    okWhy: "Succeeded. The record accounts for every expected match, including the one still missing.",
+    publishWhy: "Publish. Everything recoverable from saved pages is in, and the one remaining gap is named under the table. A table doesn't need 100% coverage to be published." },
 ];
 const options = [
-  { name: said.skip, out: `A table on ${story.counted} matches, and “no errors”`, reader: "Nothing. The gap stays invisible until someone calls." },
+  { name: said.skip, out: `A table on ${story.counted} matches, and “no errors”`, reader: "Not which results are missing. The gap stays invisible until someone calls." },
   { name: said.fill, out: `A table on ${story.counted + bounds.unseen} matches, ${bounds.unseen} of them invented`, reader: `Nothing, and ${bounds.unseen} scores nobody saw now look real.` },
-  { name: said.stop, out: "No table at all", reader: `That something failed. The ${story.counted} matches that were read go unused.` },
+  { name: said.stop, out: "No table at all", reader: "That something failed. Nothing is published, including results already read." },
   { name: said.record, out: `A table on ${story.counted} of ${story.finals}, with each gap named`, reader: "What is missing, and why.", here: true },
 ];
 const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"], ["no", name === "ok" ? "Failed" : "Hold back"]];
@@ -38,7 +41,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
     <footer>From <em>Publish Day</em></footer>
   </blockquote>
   <p>Here is the first design choice: what should Kick do when Dunmore's site doesn't answer? <span data-decision-said data-said={JSON.stringify(said)}>Test Friday under all four options below and compare what happens.</span></p>
-  <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's site doesn't answer. Compare all four options." />
+  <Bench id="bench-decision" controls={["design"]} show={["says", "counts", "table"]} caption="Friday: Dunmore's site doesn't answer." />
   <div class="cv-chose" data-gate data-chose>
     <p class="cv-once">Click each of the four options above to unlock the comparison. <span data-chose-tried></span></p>
     <button type="button" data-chose-open disabled>Show comparison</button>
@@ -46,24 +49,24 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
   <div class="cv-scroll">
     <table class="cv-stagemap cv-options">
       <caption>Friday under each option</caption>
-      <thead><tr><th scope="col">When a page does not answer</th><th scope="col">What comes out</th><th scope="col">What a reader can tell</th></tr></thead>
+      <thead><tr><th scope="col">When a site doesn't answer</th><th scope="col">What comes out</th><th scope="col">What a reader can tell</th></tr></thead>
       <tbody>
         {options.map((o) => <tr class:list={{ "is-here": o.here }}><th scope="row">{o.name}</th><td>{o.out}</td><td>{o.reader}</td></tr>)}
       </tbody>
     </table>
   </div>
-  <p>Kick chose “Skip it and carry on,” a common default: the job finishes and produces a table, but every one of the eight rows is missing at least one result. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach.</p>
+  <p>Kick retried three times, logged a warning and carried on. The warning never reached the summary, so in effect Kick chose “Skip it and carry on”: the job finishes and produces a table, but every one of the eight rows is missing at least one result. Recording the gap lets the run finish <em>and</em> makes the gap visible. Touchline uses that fourth approach.</p>
   <div class="cv-flow" role="img" aria-label="The collector writes down every gap. The season view, the published figures and the next run work from what it wrote.">
-    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record + gap list in each season file</div><i aria-hidden="true">→</i>
-    <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of played</li><li>Next run: knows what to retry</li></ul>
+    <div>Collector</div><i aria-hidden="true">→</i><div class="is-record">Coverage record</div><i aria-hidden="true">→</i>
+    <ul><li>Season view: shows a notice for each gap</li><li>Stats: reports counted out of finished</li><li>Next run: knows what to retry</li></ul>
   </div>
     </div>
   </div>
 
   <h4 class="cv-try">The rule</h4>
   <p>Touchline's rule for what counts as success:</p>
-  <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record is written and accurately reflects reality, gaps and all.</p>
-  <p>This is Touchline's rule for a standings table. A product with stricter needs might hold everything until coverage is full. The rule turns Friday into two separate decisions:</p>
+  <p class="cv-rule">A named gap does not fail the run. A run succeeds when the coverage record is written and matches what happened, gaps and all.</p>
+  <p>This is the rule for a standings table. A product with stricter needs might hold everything until coverage is full. The rule turns Friday into two separate decisions:</p>
   <div class="cv-twins cv-two">
     <div>
       <h4>1. Did the run succeed?</h4>
@@ -71,7 +74,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
     </div>
     <div>
       <h4>2. Should we publish?</h4>
-      <p>Does that record support what the table claims? Hold the table back while a gap can still be closed from pages you already have. Once you've recovered what you can from the pages already saved, publish with every remaining gap named.</p>
+      <p>Does that record support what the table claims? Hold the table back while a gap can still be closed from pages you already have. Once you've recovered what you can, publish if the record still supports what the table claims, and name every remaining gap.</p>
     </div>
   </div>
   <AiStudy
@@ -90,7 +93,7 @@ const yesNo = (name: string) => [["yes", name === "ok" ? "Succeeded" : "Publish"
         <div class="cv-say"><p class="cv-who">{r.who}</p><p>{r.text}</p></div>
         <div class="cv-row">
           {(["ok", "publish"] as const).map((q) => (
-            <div data-q data-type="select" data-answer={r[q]} data-why={q === "ok" ? r.why : (r.publish === "yes" ? "Publish it, with the gap noted underneath." : "Hold it back until the recoverable matches are included.")}>
+            <div data-q data-type="select" data-answer={r[q]} data-why={q === "ok" ? r.okWhy : r.publishWhy}>
               <label><span>{q === "ok" ? "The run" : "The table"}</span>
                 <select data-save={`run-${r.key}-${q}`}><option value="">Choose</option>{yesNo(q).map(([v, t]) => <option value={v}>{t}</option>)}</select>
               </label>

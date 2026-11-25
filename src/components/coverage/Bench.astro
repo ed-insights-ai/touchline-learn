@@ -83,7 +83,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       )}
       {controls.includes("design") && designs.length > 0 && (
         <div class="bn-group">
-          <p class="bn-label" id={`${id}-design`}>When a page does not answer</p>
+          <p class="bn-label" id={`${id}-design`}>When a site doesn't answer</p>
           <div class="bn-btns" role="group" aria-labelledby={`${id}-design`}>
             {designs.map((d) => <button type="button" class="bn-btn" data-bn-design={d} aria-pressed={pressed(state.design === d)}>{LABELS.design[d]}</button>)}
           </div>
