@@ -21,7 +21,7 @@ const runs = [
   { key: "record", who: "Collector with a record, Friday", text: `8 schedule pages expected, 7 saved. Dunmore: unavailable, no answer after three tries. ${story.counted} of ${story.finals} finished matches counted. Not read: ${bounds.unseen} Dunmore home matches; all ${bounds.unseen} scores are on the visitors' saved schedules. ${noScore.day}: final, no score on either schedule.`, ok: "yes", publish: "no",
     okWhy: "Succeeded. The record was written and matches what happened, gaps and all.",
     publishWhy: `Hold back. The record shows all ${bounds.unseen} Dunmore scores are on pages already saved, so that gap can still be closed before the table goes out.` },
-  { key: "monday", who: "Collector with a record, after checking the visitors' saved schedules", text: `Dunmore's page still unavailable. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' saved schedules. One final has no score on any saved page; it is named under the table.`, ok: "yes", publish: "yes",
+  { key: "monday", who: "Collector with a record, Monday, after checking the visitors' saved schedules", text: `Dunmore's page still unavailable. ${story.afterRepair} of ${story.finals} finished matches counted, ${bounds.unseen} of them from the visitors' saved schedules. One final has no score on any saved page; it is named under the table.`, ok: "yes", publish: "yes",
     okWhy: "Succeeded. The record accounts for every expected match, including the one still missing.",
     publishWhy: "Publish. Everything recoverable from saved pages is in, and the one uncounted result is named under the table. A table doesn't need 100% coverage to be published." },
 ];

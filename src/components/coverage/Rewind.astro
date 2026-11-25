@@ -8,7 +8,7 @@ import AiStudy from "./AiStudy.astro";
 import { donePrompt } from "../../lib/primer";
 
 const rewindThoughts = [
-  "Riley asked me to list every expected page and match before collecting, and to name every gap in the summary—so I can't just count what gets saved and call it done.",
+  "Riley asked me to list every expected page and match before collecting, and to report what happened to each one, naming every gap and why—so I can't just count what gets saved and call it done.",
   `Expected set: ${pipeline.asked} school schedule pages and ${story.scheduled} scheduled conference matches (${story.schools} × ${story.schools - 1}), minus ${spell(toPlay)} still to play—so ${story.finals} finished matches to account for.`,
   `Dunmore's schedule timed out after three tries. If I only read each match from the host's page, I'll drop ${spell(bounds.unseen)} Dunmore home matches—let me recover those from the visitors' saved pages instead.`,
   `That counts ${story.afterRepair} of ${story.finals}. ${noScore.home} vs. ${noScore.away} on ${noScore.day} is marked final with no score on either schedule, and its box score page wasn't requested yet. I'll leave it uncounted and name both gaps in the record.`,
@@ -42,10 +42,10 @@ const record = [
     </div>
     <p class="cv-once" data-needs-note>Write a short sentence to compare, or skip ahead.</p>
     <div class="cv-reveal">
-      <p class="cv-model">Before you collect, list every school schedule page and every finished match the conference format says the table should include. In your summary, report what happened to each one, and name every gap and why.</p>
+      <p class="cv-model">Before you collect, list every school schedule page and every match the conference format schedules, and in your summary report what happened to each one, naming every gap and why.</p>
       <fieldset class="cv-ticks">
         <legend>Check what yours covers:</legend>
-        <label><input type="checkbox" data-save="added-set" /><span>Lists what should be collected before the run starts, from the schools and the format</span></label>
+        <label><input type="checkbox" data-save="added-set" /><span>Lists, before the run starts, what should be collected, taken from the schools and the format</span></label>
         <label><input type="checkbox" data-save="added-each" /><span>Reports what happened to each expected page and match</span></label>
         <label><input type="checkbox" data-save="added-gaps" /><span>Requires the summary to name every gap and why</span></label>
       </fieldset>
@@ -65,12 +65,12 @@ const record = [
           </table>
         </div>
       </div>
+      <p>The outage didn't disappear. In the original run, Kick counted {story.counted} of {story.finals} finished matches. Once the expected set was written down, {spell(bounds.unseen)} of the {spell(story.finals - story.counted)} missing matches showed up as Dunmore home matches, so Kick recovered them from the visitors' saved pages.</p>
+      <p class="cv-rule">All {story.finals} finished matches are accounted for: {story.counted} counted from the hosts' pages, {bounds.unseen} from the visitors' saved pages, and {story.finals - story.afterRepair} named and not counted.</p>
       <div class="cv-say">
         <p class="cv-who">Riley, to the eight schools <span>Friday afternoon</span></p>
-        <p>Conference table attached. Through Friday, it counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer, so its {spell(bounds.unseen)} home results come from the visitors' pages. {noScore.home} vs. {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been requested yet, so both schools are one match short.</p>
+        <p>Conference table attached. It counts {story.afterRepair} of the {story.finals} conference matches finished by Friday. Dunmore's page did not answer, so its {spell(bounds.unseen)} home results come from the visitors' pages. {noScore.home} vs. {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been requested yet, so both schools are one match short.</p>
       </div>
-      <p>The outage didn't disappear. In the original run, Kick counted {story.counted} of {story.finals} finished matches. Once the expected set was written down, {spell(bounds.unseen)} of the {spell(story.finals - story.counted)} missing matches showed up as Dunmore home matches, so Kick recovered them from the visitors' saved schedules.</p>
-      <p class="cv-rule">All {story.finals} finished matches are accounted for: {story.counted} counted from the hosts' pages, {bounds.unseen} from the visitors' saved pages, and one named and not counted.</p>
       <p>The extra sentence did not fix Friday on its own. It set <strong>acceptance criteria</strong>: conditions Kick's work had to meet before Riley would accept it. Meeting them produced a coverage record, and Riley checked that record before publishing: {spell(pipeline.asked)} pages expected, every gap named, and the {spell(bounds.unseen)} recovered results traced to the visitors' saved pages.</p>
       <div class="cv-say cv-yours" data-close-first hidden>
         <p class="cv-who">Your question from Publish Day</p>
