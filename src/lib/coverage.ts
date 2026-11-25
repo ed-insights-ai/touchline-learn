@@ -93,7 +93,7 @@ export const unseen = {
       const reason = (c.reason ?? "").replace(/^\[2025\] /, "").replace(/^[a-z-]+: /, "");
       return {
         state: c.state as GridCell["state"],
-        note: c.state === "complete" ? `${c.count} ${key === "schedule" ? "fixtures kept from this page, after duplicates were collapsed" : key === "matches" ? "box scores kept from this site" : "players"}.` : `${reason.charAt(0).toUpperCase()}${reason.slice(1)}.`,
+        note: c.state === "complete" ? `${c.count} ${key === "schedule" ? "matches kept from this page, after duplicates were collapsed" : key === "matches" ? "box scores kept from this site" : "players"}.` : `${reason.charAt(0).toUpperCase()}${reason.slice(1)}.`,
       };
     }),
   })),

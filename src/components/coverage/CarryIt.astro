@@ -44,7 +44,7 @@ const next = [
     <p class="cv-kind">Transfer</p>
     {(["a", "b"] as const).map((w) => (
       <div class="cv-line" data-q data-type="select" data-answer={w === "a" ? "total|zeros" : "floor"}
-        data-why={w === "a" ? "100 visits across the network, whether or not the headline mentions the two closed clinics. They answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two silent clinics are unavailable: unknown, not zero."}
+        data-why={w === "a" ? "100 visits across the network, whether or not the headline mentions the two closed clinics. They answered, verified their week, and saw nobody: empty, so zero is true." : "At least 100, from eight of ten. The two clinics that never answered are unavailable: unknown, not zero."}
         data-wrong={JSON.stringify(w === "a" ? { floor: "World A's two clinics did answer, with proof. Nothing is unknown.", unknown: "Every clinic is accounted for, so the total is known." } : { total: "Two clinics never answered, so 100 is only what you received.", zeros: "Nobody reported zero. Silence is unknown, not zero.", unknown: "You do know it is at least 100. Say that." })}>
         <label><span>World {w.toUpperCase()}: which headline is honest?</span>
           <select data-save={`transfer-${w}`}><option value="">Choose</option>{heads.map(([k, t]) => <option value={k}>{t}</option>)}</select>
@@ -52,14 +52,14 @@ const next = [
         <p class="cv-fb" role="status"></p>
       </div>
     ))}
-    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file arrived, but it can't verify that it covers week 9, which is the same rule as a schedule page that can't verify its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The files open fine. They just can't verify their week." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="unavailable" data-why="Unavailable. A file was saved, but it can't verify that it covers week 9, which is the same rule as a schedule page that can't verify its season." data-wrong={JSON.stringify({ empty: "Empty requires verifying which week the file covers. These files don't.", "no-collector": "The files open fine. They just can't verify their week." })}>
       <label><span>World C: what coverage state are those two clinics in for week 9?</span>
         <select data-save="transfer-c"><option value="">Choose a state</option>{stateOptions.map(([k, n]) => <option value={k}>{n}</option>)}</select>
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div data-q data-type="range" data-answer="400,520" data-why="400 to 520. The lower bound is what you have. The upper bound adds the maximum the silent clinic could have seen: 5 days × 24 visits. A known ceiling turns a floor into a range, just like the points rule did for Dunmore.">
-      <p class="cv-qlabel">A week later you have 400 visits from nine clinics, and the tenth is still silent. Its license allows at most 24 visits a day, and it is open five days a week. What are the lowest and highest totals the network could have?</p>
+    <div data-q data-type="range" data-answer="400,520" data-why="400 to 520. The lower bound is what you have. The upper bound adds the maximum the clinic that never answered could have seen: 5 days × 24 visits. A known ceiling turns a floor into a range, just like the points rule did for Dunmore.">
+      <p class="cv-qlabel">A week later you have 400 visits from nine clinics, and the tenth still hasn't answered. Its license allows at most 24 visits a day, and it is open five days a week. What are the lowest and highest totals the network could have?</p>
       <div class="cv-row cv-fillin"><span>Between</span><input inputmode="numeric" autocomplete="off" aria-label="Lowest total" data-save="clinic-low" /><span>and</span><input inputmode="numeric" autocomplete="off" aria-label="Highest total" data-save="clinic-high" /></div>
       <p class="cv-fb" role="status"></p>
     </div>

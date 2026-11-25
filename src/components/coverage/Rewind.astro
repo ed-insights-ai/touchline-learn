@@ -6,7 +6,7 @@ import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 
 const rewindThoughts = [
-  "Riley asked me to list every expected page and match before collecting, and to name every gap in the summary—so I can't just count what arrives and call it done.",
+  "Riley asked me to list every expected page and match before collecting, and to name every gap in the summary—so I can't just count what gets saved and call it done.",
   `Expected set: ${pipeline.asked} school schedule pages and ${story.scheduled} scheduled conference matches (${story.schools} × ${story.schools - 1}), minus ${spell(toPlay)} still to play—so ${story.finals} finished matches to account for.`,
   `Dunmore's schedule timed out after three tries. If I only read each match from the host's page, I'll drop ${spell(bounds.unseen)} Dunmore home matches—let me recover those from the visitors' saved pages instead.`,
   `That accounts for ${story.afterRepair} of ${story.finals}. ${noScore.home} vs. ${noScore.away} on ${noScore.day} is marked final with no score on either schedule, and its box score page wasn't requested yet. I'll leave it uncounted and name both gaps in the record.`,
@@ -15,13 +15,13 @@ const rewindThoughts = [
 const record = [
   ["Schedule pages", `${pipeline.asked} expected, ${pipeline.saved} saved. Dunmore: unavailable, no answer after three tries.`],
   ["Matches", `${story.scheduled} scheduled by the format, ${toPlay} still to play, ${story.finals} finished.`],
-  ["Read", `${story.counted} from the hosts' pages. ${spell(bounds.unseen, true)} Dunmore home matches from the visitors' saved pages.`],
+  ["Counted", `${story.counted} from the hosts' pages. ${spell(bounds.unseen, true)} Dunmore home matches from the visitors' saved pages.`],
   ["Not counted", `${noScore.home} vs. ${noScore.away}, ${noScore.day}: final, no score on either schedule. Box score page not requested yet.`],
 ];
 ---
 
 <section id="rewind">
-  <PartHead id="rewind">Rewind: the same Friday, prompted properly</PartHead>
+  <PartHead id="rewind">Rewind: Friday with a coverage requirement</PartHead>
   <p>Here is Riley's original prompt again:</p>
   <div class="cv-user-prompt" role="region" aria-label="Riley's original prompt">
     <div class="cv-chat-bar">
@@ -44,7 +44,7 @@ const record = [
       <fieldset class="cv-ticks">
         <legend>Check what yours covers:</legend>
         <label><input type="checkbox" data-save="added-set" /><span>Lists what should be collected before the run starts</span></label>
-        <label><input type="checkbox" data-save="added-each" /><span>Reports what happened to each expected item</span></label>
+        <label><input type="checkbox" data-save="added-each" /><span>Reports what happened to each expected page and match</span></label>
         <label><input type="checkbox" data-save="added-gaps" /><span>Requires the summary to name every gap</span></label>
       </fieldset>
 
@@ -67,7 +67,8 @@ const record = [
         <p class="cv-who">Riley, to the eight schools <span>Monday morning</span></p>
         <p>Corrected table attached. It counts {story.afterRepair} of {story.finals} finished conference matches. Dunmore's page did not answer on Friday, so its {spell(bounds.unseen)} home results come from the visitors' pages. Hartwell Tech is second. {noScore.home} vs. {noScore.away} on {noScore.day} is final with no score on either schedule. Its box score page has not been checked yet, so both schools are one match short.</p>
       </div>
-      <p>The outage didn't disappear. {spell(bounds.unseen, true)} results were recovered from saved pages, one stayed unknown and named, and the table went out as {story.afterRepair} of {story.finals}. Same AI agent, same outage; the difference was knowing what to require.</p>
+      <p>The outage didn't disappear. In the original run, Kick counted {story.counted} of {story.finals} finished matches. Once the expected set was written down, {spell(bounds.unseen)} of the {spell(story.finals - story.counted)} gaps showed up as Dunmore home matches, so Kick checked the visitors' saved schedules and recovered them. One result stayed unknown and named, and the table went out as {story.afterRepair} of {story.finals}.</p>
+      <p>The extra sentence did not fix Friday on its own. It stated a requirement. The requirement produced a coverage record. Riley then checked that record before publishing: {spell(pipeline.asked)} pages expected, every gap named, and each recovered result traced to a visitor's page.</p>
       <p data-close-first hidden>Your question from Publish Day: <q></q> Would its answer have surfaced Dunmore's missing page?</p>
     </div>
   </div>

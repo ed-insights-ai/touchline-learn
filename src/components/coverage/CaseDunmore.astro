@@ -6,7 +6,7 @@ import NextPart from "./NextPart.astro";
 import Beat from "./Beat.astro";
 import Touchline from "./Touchline.astro";
 import { run, scheduleLog } from "../../lib/first-run";
-import { story } from "../../lib/coverage";
+import { bounds, story } from "../../lib/coverage";
 import { pipeline, spell, toPlay } from "../../lib/cases";
 
 const sources = [
@@ -16,10 +16,10 @@ const sources = [
 ];
 const bar = (n: number) => `${(n / story.scheduled) * 100}%`;
 const chain = [
-  [story.scheduled, "scheduled, by the rule", ""],
-  [story.finals, "finished", `${toPlay} still to be played`],
-  [story.afterRepair, "with a score on a saved page", "1 final with no score"],
-  [story.counted, "read into Kick's table", `${story.afterRepair - story.counted} on the page that never arrived`],
+  [story.scheduled, "scheduled by the format", ""],
+  [story.finals, "finished", `${toPlay} dated after Friday`],
+  [story.finals - bounds.unseen, "on saved hosts' pages", `${bounds.unseen} hosted by Dunmore (Kick read each match only from its host's page)`],
+  [story.counted, "counted in Kick's table", "1 finished match with no score on the page (Case 3)"],
 ] as const;
 ---
 
@@ -29,8 +29,8 @@ const chain = [
 
   <p class="cv-callout">Dunmore athletics: “You've got our men at six conference games. We've played thirteen.” Kick's table had no way to know thirteen was the right number.</p>
 
-  <Beat part="case-dunmore" name="Look" />
-  <p>Besides the table, Kick kept a log of the {run.total} pages it requested. {pipeline.boxes} of those were box scores from Alder Ridge. Here are the {spell(pipeline.asked)} schedule pages:</p>
+  <Beat part="case-dunmore" name="Look" title="What the fetch log shows" />
+  <p>Besides the table, Kick kept a log of the {run.total} pages it requested. {pipeline.boxes} of those were box scores: Kick's plan also followed the box score links on Alder Ridge's schedule, and no other school's. Here are the {spell(pipeline.asked)} schedule pages:</p>
   <table class="cv-log">
     <caption>Kick's fetch log, schedule pages</caption>
     <thead><tr><th scope="col">School</th><th scope="col">Result</th></tr></thead>
@@ -39,12 +39,12 @@ const chain = [
   <p>The failure sits right there in one line of the log, yet Kick's summary never mentions it. Try asking Kick a follow-up question:</p>
   <AskKick />
 
-  <h4 class="cv-try">Build the denominator</h4>
-  <p>Kick's log names the missing page, but it still can't tell you how many matches are missing, because nothing in the run records how many matches should exist. The conference format can.</p>
+  <h4 class="cv-try">How many matches were scheduled?</h4>
+  <p>Kick's log names the missing page, but it can't tell you how many matches went missing with it, because nothing in the run records how many matches should exist. To measure the gap in matches, first work out how many the conference scheduled.</p>
   <div class="cv-check" data-once="scheduled">
     <p class="cv-kind">Knowledge check</p>
-    <div class="cv-line" data-q data-type="select" data-answer="rule" data-why="The membership list and the competition format. Both exist before the run and independently of it, so a silent school stays in the count." data-wrong={JSON.stringify({ pages: "A school whose page never arrived lists nothing, so it drops out of its own count.", log: "The log only counts pages requested, not matches." })}>
-      <label><span>Where can the expected number of matches come from, before the run?</span>
+    <div class="cv-line" data-q data-type="select" data-answer="rule" data-why="The membership list and the competition format. Both exist before the run and independently of it, so a school that never answers stays in the count." data-wrong={JSON.stringify({ pages: "A school whose page never answered lists nothing, so it drops out of its own count.", log: "The log only counts pages requested, not matches." })}>
+      <label><span>Where can the expected set of matches come from, before the run?</span>
         <select data-save="q-source"><option value="">Choose</option>{sources.map(([k, t]) => <option value={k}>{t}</option>)}</select>
       </label>
       <p class="cv-fb" role="status"></p>
@@ -57,21 +57,21 @@ const chain = [
     <p class="cv-once">Answer both, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Of those {story.scheduled} scheduled matches, {spell(toPlay)} haven't been played yet on Friday.</p></div>
+    <div class="cv-reveal"><p>Of those {story.scheduled} scheduled matches, the saved schedules date {spell(toPlay)} for Saturday, November 21, the day after Friday's run.</p></div>
   </div>
 
-  <Beat part="case-dunmore" name="Name it" />
-  <p>Kick never wrote down an expected set, so it had no way to calculate coverage: just {story.counted} matches found, compared against nothing. Its log could name the silent page because it had a list of pages. For matches, it had no list at all.</p>
-  <p>Survey statisticians call the list of units you set out to collect the <strong>sampling frame</strong>, and a unit on that list that doesn't answer <strong>unit nonresponse</strong>. Dunmore's schedule page is unit nonresponse.</p>
+  <Beat part="case-dunmore" name="Name it" title="The expected set" />
+  <p>Kick knew Dunmore's page had failed. What it didn't know was how much went missing with it. Kick had a list of pages, which is why its log could name Dunmore. It had no list of matches, so its {story.counted} matches were compared against nothing. An expected set of matches, taken from the conference format, is the reference that turns that count into coverage.</p>
+  <p>Survey statistics has names for the same ideas. The list of units you set out to collect is the <strong>sampling frame</strong>. A unit on that list that never answers is <strong>unit nonresponse</strong>, and Dunmore's schedule page is one.</p>
 
-  <Touchline part="case-dunmore" at={["Fetch"]} note="At Fetch, before the first request.">
-    <p>Touchline's expected list comes from a season membership file kept separately from any scraper run, and expected match totals come from the conference format. Counting whatever appears on collected pages is a weaker fallback, because it is only as complete as the pages that arrived.</p>
+  <Touchline part="case-dunmore" at={["Fetch"]} note="At Fetch, before the first request." title="Where Touchline gets its expected counts">
+    <p>Touchline's expected set of pages comes from a season membership file kept apart from any scraper run, and its expected match totals come from the conference format. Counting whatever appears on saved pages is a weaker fallback, because it is only as complete as the pages that answered.</p>
   </Touchline>
 
-  <Beat part="case-dunmore" name="Your claim" />
+  <Beat part="case-dunmore" name="Your claim" title="Caption Friday's standings" />
   <div class="cv-check" data-once="claim-count">
     <p class="cv-kind">Apply it</p>
-    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's summary reported ${story.counted}. The denominator is what should exist by now: ${story.scheduled} scheduled, minus ${spell(toPlay)} still to play. Not ${story.scheduled} (unplayed matches aren't missing) and not ${story.counted} (a count of what arrived can't show what didn't).`}>
+    <div data-q data-type="range" data-answer={`${story.counted},${story.finals}`} data-why={`${story.counted} of ${story.finals}. Kick's summary reported ${story.counted}. The denominator is what should exist by now: ${story.scheduled} scheduled, minus ${spell(toPlay)} still to play. Not ${story.scheduled} (unplayed matches aren't missing) and not ${story.counted} (a count of what was saved can't show what wasn't).`}>
       <p class="cv-qlabel">Write the caption Kick's table needed. Kick's summary only stated how many matches it found.</p>
       <p class="cv-row cv-fillin">
         <span>Built from</span>
@@ -89,9 +89,9 @@ const chain = [
       <div class="cv-chain" role="img" aria-label={chain.map(([n, what, lost]) => `${n} ${what}${lost ? `, minus ${lost}` : ""}`).join(". ")}>
         {chain.map(([n, what, lost]) => <div>{lost && <p class="cv-drop">minus {lost}</p>}<span class="cv-track"><span style={`width:${bar(n)}`}></span></span><p><b>{n}</b> {what}</p></div>)}
       </div>
-      <p>Riley could have seen every line of this before publishing. With a denominator, any reader can tell the table is short. Next, let's see which rows are affected.</p>
+      <p>Riley could have seen every line of this before publishing. With an expected set, any reader can tell the table is short.</p>
     </div>
   </div>
 
-  <NextPart from="case-dunmore">Next, how one missing page reached every team in the table.</NextPart>
+  <NextPart from="case-dunmore">Dunmore was the only site that failed. So why was Hartwell's row wrong?</NextPart>
 </section>

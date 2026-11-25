@@ -11,14 +11,14 @@ import { noScore } from "../../lib/cases";
 import { stateOptions, stateName as nameOf } from "../../lib/states";
 
 const sort = [
-  { evidence: "The request timed out on every try.", answer: "unavailable", worked: true, why: "Nothing arrived, and the reason is known: the site did not answer." },
-  { evidence: "The page arrived, shows it is the 2026 season, and lists 18 fixtures.", answer: "complete", worked: true, why: "Served, proved, and it holds rows." },
-  { evidence: "The page arrived and shows it is the right season. Its statistics table has a header row and no players.", answer: "empty", why: "Served and proved, with nothing in it. You know what the source says, and it says nothing.", wrong: { unavailable: "The page did arrive, and it proved which season it is.", complete: "Complete means it holds rows. This one holds none." } },
-  { evidence: "The page arrived with no rows, and nothing on it shows which season it belongs to.", answer: "unavailable", why: "A page that cannot prove what it is tells you nothing about the season you asked for, so the state is unavailable, with that reason.", wrong: { empty: "Empty for which season? Nothing on the page says. You cannot claim the 2026 page is empty when you cannot show this is the 2026 page.", complete: "It holds no rows, and you cannot show it is the page you asked for." } },
+  { evidence: "The request timed out on every try.", answer: "unavailable", worked: true, why: "Nothing was saved, and the reason is known: the site did not answer." },
+  { evidence: "The page was saved, shows it is the 2026 season, and lists 18 matches.", answer: "complete", worked: true, why: "Saved, verified, and it holds rows." },
+  { evidence: "The page was saved and shows it is the right season. Its statistics table has a header row and no players.", answer: "empty", why: "Saved and verified, with nothing in it. You know what the page says, and it says nothing.", wrong: { unavailable: "The page was saved, and it shows which season it is.", complete: "Complete means it holds rows. This one holds none." } },
+  { evidence: "The page was saved with no rows, and nothing on it shows which season it belongs to.", answer: "unavailable", why: "A page that cannot show what it is tells you nothing about the season you asked for, so the state is unavailable, with that reason.", wrong: { empty: "Empty for which season? Nothing on the page says. You cannot claim the 2026 page is empty when you cannot show this is the 2026 page.", complete: "It holds no rows, and you cannot show it is the page you asked for." } },
   { evidence: "The school moved its site to a system the collector has no reader for.", answer: "no-collector", why: "Retrying changes nothing. This gap closes when someone builds a reader.", wrong: { unavailable: "Unavailable is for a page this collector could have read. This one it cannot read at all." } },
-  { evidence: "The roster address answers “page not found.”", answer: "unavailable", why: "Nothing was served, so nothing was proved. “Not found” is a fact about the address. It does not say the team has no players.", wrong: { empty: "No page was served, so nothing proves the roster is empty. The address may simply have moved.", "no-collector": "The collector can read this site. The page it asked for was not there." } },
-  { evidence: "The plan never listed this page.", answer: "none", why: "A state answers a question somebody asked. Nobody asked, so there is no record at all.", wrong: { unavailable: "Unavailable means you tried and failed. Nobody tried.", "no-collector": "Nothing says it could not be read. It was never requested.", empty: "Empty is a proved fact about a page you fetched. This page was never fetched." } },
-  { evidence: "The page arrived without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs proof that this is the page you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
+  { evidence: "The roster address answers “page not found.”", answer: "unavailable", why: "Nothing was served, so nothing was verified. “Not found” is a fact about the address. It does not say the team has no players.", wrong: { empty: "No page was served, so nothing proves the roster is empty. The address may simply have moved.", "no-collector": "The collector can read this site. The page it asked for was not there." } },
+  { evidence: "The plan never listed this page.", answer: "none", why: "A state answers a question somebody asked. Nobody asked, so there is no record at all.", wrong: { unavailable: "Unavailable means you tried and failed. Nobody tried.", "no-collector": "Nothing says it could not be read. It was never requested.", empty: "Empty is a verified fact about a page you saved. This page was never requested." } },
+  { evidence: "The page was saved without any error, lists 19 matches, and its heading says 2025. You asked for 2026.", answer: "unavailable", why: "It holds rows, and they are the wrong season's rows. Counting them would put last year's results in this year's table.", wrong: { complete: "Complete needs proof that this is the page you asked for. The heading says it is not.", empty: "It is not empty, and it is not the 2026 page either." } },
 ];
 
 const match = `${noScore.home} vs. ${noScore.away}, ${noScore.day}`;
@@ -31,7 +31,7 @@ const shows = [
 ];
 const wrongs = {
   post: "A fan post hasn't been verified against either school's site. Printing it makes the table claim more than its sources support.",
-  played: "Counting it as played adds a match to both teams and spreads their goals across an extra game. That's a zero in disguise.",
+  played: "Counting it as played adds a match to both teams and spreads their goals across an extra match. That's a zero in disguise.",
   drop: "Saying nothing repeats Kick's mistake: readers can't tell the table is short.",
   zero: "0-0 is a real score. Nobody saw this match end 0-0.",
 };
@@ -43,16 +43,16 @@ const wrongs = {
 
   <p class="cv-callout">Cedar Grove men's soccer: “September twenty-first, us and St. Lambert. That game happened. It's not in the standings.”</p>
 
-  <Beat part="case-cedar-grove" name="Look" />
-  <p>Cedar Grove's page loaded without a hitch. Even if every single schedule page answers, the table still only has {story.afterRepair} matches, because one completed match has no score listed. A complete page can still contain an incomplete row.</p>
+  <Beat part="case-cedar-grove" name="Look" title="A saved page with a blank score" />
+  <p>Cedar Grove's page answered without a hitch. Even if every schedule page answers, the table counts only {story.afterRepair} matches, because one finished match has no score on either schedule. A Complete page can still hold an incomplete row.</p>
   <Bench id="bench-all" controls={[]} start={{ down: [] }} show={["says", "counts", "matrix"]} caption="Every schedule page answers." when="if every page had answered" />
   <p>Cedar Grove's schedule links to a box score page for that match. Here is what Kick requested compared to every page available across the conference. Click any square to inspect it.</p>
   <CoverageGrid rows={kickGrid} caption="Kick's run, Prairie Lakes men, 2026" id="kick" />
   <p>The dashed blank squares are pages Kick never asked for, including the box score page that might have the missing score. A run's log has nothing to say about pages it never requested.</p>
 
-  <Beat part="case-cedar-grove" name="Name it" />
+  <Beat part="case-cedar-grove" name="Name it" title="Empty, unknown and never asked" />
   <p>Here is how the four coverage states show up on Friday's run. The blank squares have no state because Kick never asked for them. The distinction that matters most is <strong>empty</strong> vs. <strong>unavailable</strong>: “the site lists no players” can be reported as zero, whereas “we couldn't read the site” must be reported as unknown.</p>
-  <p>A coverage state describes a whole page. Cedar Grove's schedule is complete even though one row has no score, which survey statisticians call <strong>item nonresponse</strong> (a blank field inside a unit that answered).</p>
+  <p>A coverage state describes a whole page. Cedar Grove's schedule is Complete even though one row has no score, which survey statisticians call <strong>item nonresponse</strong>: a blank field inside a unit that answered. Coverage can fail at three levels: a page that never answers (Dunmore's schedule), the records that go with it (its seven home results), and a field left blank in a row you have (this score).</p>
   <p>A page only counts once it is <strong>verified</strong> as the school and season you requested, since sites sometimes serve last season's page without returning an error. <a href="../03-provenance/">Module 3</a> covers how to verify that.</p>
 
   <h4 class="cv-try">Practice: classify the evidence</h4>
@@ -80,14 +80,14 @@ const wrongs = {
     <p class="cv-once">Classify all six, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Notice items 3 and 4: the exact same blank page is <strong>empty</strong> when it proves its season, and <strong>unavailable</strong> when it can't.</p></div>
+    <div class="cv-reveal"><p>Notice items 3 and 4: the exact same blank page is <strong>Empty</strong> when it shows its season, and <strong>Unavailable</strong> when it can't.</p></div>
   </div>
 
-  <Touchline part="case-cedar-grove" at={["Fetch", "Resolve"]} note="Fetch records each page's state. Resolve keeps a blank score blank.">
+  <Touchline part="case-cedar-grove" at={["Fetch", "Resolve"]} note="Fetch records each page's state. Resolve keeps a blank score blank." title="Keeping a blank score blank">
     <p>Every expected page ends in one of the four states, with a recorded reason for the last three. Scores are nullable: a score nobody saw is stored as null (no value), never as zero. <a href="../06-contracts/">Module 6</a> covers what a blank is allowed to mean.</p>
   </Touchline>
 
-  <Beat part="case-cedar-grove" name="Your claim" />
+  <Beat part="case-cedar-grove" name="Your claim" title="Publish the September 21 match honestly" />
   <div class="cv-check" data-once="claim-sept21">
     <p class="cv-kind">Apply it</p>
     <fieldset class="cv-opts" data-q data-type="radio" data-answer="named" data-why="Not counted, and named. The match happened and its score is unknown, so the table counts only what saved pages show and explicitly notes what was left out." data-wrong={JSON.stringify(wrongs)}>
@@ -98,7 +98,7 @@ const wrongs = {
     <p class="cv-once">Pick one option, then check.</p>
     <button type="button" data-submit>Check answer</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet collected.</p></div>
+    <div class="cv-reveal"><p>Under the table: final, score unknown, box score page not yet requested.</p></div>
   </div>
   <NextPart from="case-cedar-grove">Next, the policy choice behind all three calls (<span data-decision-echo>the same one you picked earlier in the setup</span>).</NextPart>
 </section>

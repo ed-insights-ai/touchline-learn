@@ -11,7 +11,7 @@ import { dunmoreSplit, hartwell, pipeline, spell } from "../../lib/cases";
 const signed = (n: number) => (n > 0 ? `+${n}` : String(n));
 const dots = [
   { label: "schedule pages saved", of: pipeline.asked, got: pipeline.saved, lost: pipeline.silent },
-  { label: "finished matches read", of: story.finals, got: story.counted, lost: bounds.unseen },
+  { label: "finished matches counted", of: story.finals, got: story.counted, lost: bounds.unseen },
 ];
 ---
 
@@ -19,9 +19,9 @@ const dots = [
   <PartHead id="case-hartwell">Case 2. Hartwell: gaps arrive in blocks</PartHead>
   <Pipeline small lit="build" note="This case happens at Build" />
 
-  <p class="cv-callout">Coach Dolan, Hartwell: “We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.” Hartwell's own schedule page loaded fine, yet its row is still wrong.</p>
+  <p class="cv-callout">Coach Dolan, Hartwell: “We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth.” Hartwell's own schedule page answered, yet its row is still wrong.</p>
 
-  <Beat part="case-hartwell" name="Look" />
+  <Beat part="case-hartwell" name="Look" title="Why Hartwell's row is wrong" />
   <p>Kick read each match once, from the home team's page, so no match would be counted twice. That {hartwell.seven} win was played at Dunmore.</p>
   <div class="cv-predict" data-once="rows" data-predict>
     <div class="cv-check">
@@ -36,18 +36,18 @@ const dots = [
       <p class="cv-fb" role="status" data-need></p>
     </div>
     <div class="cv-reveal">
-      <p>You predicted <b data-show="q-rows"></b>. Friday is set up below. Read the last count, then take other school sites offline and bring them back.</p>
-      <Bench id="bench-pages" controls={["pages"]} caption="Friday as it happened. Click a school to toggle its site offline or online." />
-      <p>All {spell(pipeline.rows)}. One page wipes out a whole row of the grid: Dunmore's {spell(bounds.unseen)} home matches, which are also the other {spell(bounds.unseen)} schools' away matches there. The standings break for teams whose own pages loaded fine.</p>
-      <p>Now leave Dunmore offline and change how Kick reads each match.</p>
-      <Bench id="bench-rule" controls={["rule"]} show={["counts", "matrix", "table"]} caption="Dunmore's site is still down. Switch the reading rule." />
-      <p>When Kick reads both schools' pages, all {spell(bounds.unseen)} missing matches are recovered from the visitors' pages, and Hartwell Tech moves up to second.</p>
+      <p>You predicted <b data-show="q-rows"></b>. Friday is set up below. Read the last count, then switch other schools' sites off and back on.</p>
+      <Bench id="bench-pages" controls={["pages"]} caption="Friday as it happened. Click a school to switch whether its site answers." />
+      <p>All {spell(pipeline.rows)}. One page wipes out a whole row of the grid: Dunmore's {spell(bounds.unseen)} home matches, which are also the other {spell(bounds.unseen)} schools' away matches there. The standings break for teams whose own pages answered.</p>
+      <p>Now leave Dunmore's site off and change how Kick reads each match.</p>
+      <Bench id="bench-rule" controls={["rule"]} show={["counts", "matrix", "table"]} caption="Dunmore's site still doesn't answer. Switch the reading rule." />
+      <p>When Kick reads both schools' pages, all {spell(bounds.unseen)} missing results are recovered, because each visitor's saved schedule shows the score. Hartwell Tech moves up to second.</p>
     </div>
   </div>
   <div class="cv-check" data-once="skew">
     <p class="cv-kind">Knowledge check</p>
     <div class="cv-line" data-q data-type="select" data-answer="unknown" data-why="Can't tell from Kick's table. The skew depends on how Dunmore played at home, and Kick's table holds none of those matches. Home advantage is a guess about matches nobody saw." data-wrong={JSON.stringify({ high: "That assumes Dunmore conceded fewer at home, as home advantage would suggest. Kick's table has no Dunmore home match to check that against.", low: "True, and Coach Dolan's 7-0 is enough to show it. But that came from a voicemail, from outside the table. Kick's table alone has no Dunmore home match to compare with." })}>
-      <label><span>Kick's original table holds every Dunmore away match and no Dunmore home match. Using that table alone, which way is Dunmore's goals conceded per match skewed?</span>
+      <label><span>Kick's original table holds all six of Dunmore's finished away matches and none of its home matches. Using that table alone, which way is Dunmore's goals conceded per match skewed?</span>
         <select data-save="bias-dir"><option value="">Choose</option><option value="low">Too low</option><option value="high">Too high</option><option value="unknown">Can't tell from Kick's table</option></select>
       </label>
       <p class="cv-fb" role="status"></p>
@@ -70,9 +70,9 @@ const dots = [
       </figure>
     </div>
   </div>
-  <p>That distortion is <strong>selection bias</strong>: which records went missing wasn't random, so the ones left aren't a representative sample. Statisticians group missing data into three patterns by what caused the gap. Picture a survey where some people skip the income question:</p>
+  <p>That distortion is <strong>selection bias</strong>: the missing records were one team's whole home block, so the ones left aren't a representative sample. Dunmore's gap had a cause, and the cause decides whether the results you kept still give a fair picture. Statisticians sort causes into three patterns. A survey where some people skip the income question shows them clearly, and the check below brings them back to Dunmore:</p>
   <ul class="cv-three">
-    <li><b>Missing completely at random</b><span>Nothing about the person decided it, like a page of the form lost in the mail. The answers you have are a fair sample, just smaller.</span></li>
+    <li><b>Missing completely at random</b><span>Nothing about the person decided it, like a page of the form lost in the mail. The answers you have are a fair sample, just smaller, so estimates from them still vary by chance.</span></li>
     <li><b>Missing at random, given something you observe</b><span>A recorded variable explains the gaps: younger respondents skip it more often, and you know everyone's age. Comparisons within an age group stay fair; totals across ages lean.</span></li>
     <li><b>Missing not at random</b><span>The missing value itself caused the gap: the highest earners skip the question because of what they earn. Nothing you recorded can reveal it.</span></li>
   </ul>
@@ -84,7 +84,7 @@ const dots = [
       </label>
       <p class="cv-fb" role="status"></p>
     </div>
-    <div class="cv-line" data-q data-type="select" data-answer="venue" data-why="Any Dunmore stat where home and away performance differ. Games played is simply short, while goals conceded per match is tilted because only away games were kept." data-wrong={JSON.stringify({ none: "Each individual match was parsed accurately, but the subset of matches is skewed.", points: "Points are short, and a bound handles that. The skew reaches any rate or average where home and away differ." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="venue" data-why="Any Dunmore stat where home and away performance differ. Matches played is simply short, while goals conceded per match is tilted because only away matches were kept." data-wrong={JSON.stringify({ none: "Each individual match was parsed accurately, but the subset of matches is skewed.", points: "Points are short, and a bound handles that. The skew reaches any rate or average where home and away differ." })}>
       <label><span>Which of Dunmore's stats in Kick's table does this missing block skew?</span>
         <select data-save="bias-which"><option value="">Choose</option><option value="none">None, since every match included was read correctly</option><option value="points">Only its points</option><option value="venue">Any stat where home and away performance differ</option></select>
       </label>
@@ -93,12 +93,12 @@ const dots = [
     <p class="cv-once">Answer both, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>“Given the host” rests on an assumption: the outage had nothing to do with the scores. No table of results can test that. Even if it holds, Kick's table can't estimate Dunmore's home form, because it holds zero Dunmore home matches. A coverage record names the cause of a gap and which numbers it touches. Only the recovered pages could show which way they leaned.</p></div>
+    <div class="cv-reveal"><p>Calling the gap missing at random, given the host, rests on an assumption: the outage had nothing to do with the scores. No table of results can test that. Even if it holds, Kick's table can't estimate Dunmore's home form, because it holds no Dunmore home match. A coverage record names the cause of a gap and which numbers it touches. Only Dunmore's own results, recovered from the visitors' pages, showed which way its numbers leaned.</p></div>
   </div>
 
-  <Beat part="case-hartwell" name="Name it" />
+  <Beat part="case-hartwell" name="Name it" title="How far one gap reaches" />
   <p class="cv-lede">Gaps arrive in blocks. A single outage wipes out related records together and hits the same teams repeatedly.</p>
-  <p>That's why you count in the <strong>unit of analysis</strong>, the unit your claim is actually about. Counted in pages, Kick lost 1 of {spell(pipeline.asked)}. But a standings table makes claims about matches, and in matches that single page cost {bounds.unseen} of {story.finals} and threw off every row.</p>
+  <p>That's why you count in the <strong>unit of analysis</strong>, the thing your claim counts. Counted in pages, Kick lost 1 of {spell(pipeline.asked)}. But a standings table makes claims about matches, and in matches that single page cost {bounds.unseen} of {story.finals} and threw off every row.</p>
   <div class="cv-dots">
     {dots.map((d) => (
       <>
@@ -107,22 +107,22 @@ const dots = [
       </>
     ))}
     <ul class="cv-key">
-      <li><i class="is-read"></i>Arrived and read</li>
+      <li><i class="is-read"></i>Saved and counted</li>
       <li><i class="is-lost"></i>Lost with Dunmore's page</li>
-      <li><i class="is-noscore"></i>Final, no score</li>
+      <li><i class="is-noscore"></i>Finished, no score</li>
     </ul>
   </div>
-  <p>Even before a missing result is recovered, you can still limit its uncertainty. Kick's table puts Hartwell Tech at {hartwell.pts} points with one match unread. A loss adds 0 and a win adds 3, so Hartwell's true total must fall between {hartwell.pts} and {hartwell.high}. That range is a <strong>bound</strong>: you don't know the exact value, but you know the limits it cannot cross.</p>
+  <p>Even before a missing result is recovered, you can still limit its uncertainty. Kick's original table gives Hartwell Tech {hartwell.pts} points and leaves one finished match uncounted. Using that table alone, a loss adds 0 and a win adds 3, so Hartwell's true total must fall between {hartwell.pts} and {hartwell.high}. That range is a <strong>bound</strong>: you don't know the exact value, but you know the limits it cannot cross. A bound comes from the scoring rules. It gives the range a value can take, not how likely any value in that range is.</p>
 
-  <Touchline part="case-hartwell" at={["Resolve"]} note="At Resolve, where two pages' rows become one match.">
-    <p>Touchline reads both schools' schedule pages and deduplicates each match, so a match is only lost if <em>both</em> sites are unavailable. The trade-off is an extra matching step: the same match, written differently on two sites, has to be recognized as one game. <a href="../05-identity/">Module 5</a> covers how that works.</p>
+  <Touchline part="case-hartwell" at={["Resolve"]} note="At Resolve, where two pages' rows become one match." title="Reading both schools' pages">
+    <p>Reading both schools' schedules gives Touchline two chances to find each result. If the visitor's saved schedule shows the score, Touchline can still count the result when the host's page fails. If neither saved schedule shows the score, the result stays unknown, as Case 3 shows. The trade-off is a matching step: the same match, written differently on two sites, has to be recognized as one match and counted once. <a href="../05-identity/">Module 5</a> covers how that works.</p>
   </Touchline>
 
-  <Beat part="case-hartwell" name="Your claim" />
+  <Beat part="case-hartwell" name="Your claim" title="Bound Dunmore's points" />
   <div class="cv-check" data-once="claim-bounds">
     <p class="cv-kind">Apply it</p>
     <div data-q data-type="range" data-answer={`${bounds.points},${bounds.high}`} data-why={`${bounds.points} to ${bounds.high}. If Dunmore lost all ${spell(bounds.unseen)}, it stays at ${bounds.points}. If it won all ${spell(bounds.unseen)}, it gains ${3 * bounds.unseen} points. Its actual total turned out to be ${pack.dunmorePoints}, right inside the bound.`}>
-      <p class="cv-qlabel">Kick's table gives Dunmore {bounds.points} points from {spell(bounds.played)} matches, with {spell(bounds.unseen)} matches unread. Fill in the bound that belongs beside it.</p>
+      <p class="cv-qlabel">Kick's table gives Dunmore {bounds.points} points from {spell(bounds.played)} matches, with {spell(bounds.unseen)} finished matches uncounted. Using only Kick's table and the scoring rules, fill in the bound that belongs beside it.</p>
       <p class="cv-row cv-fillin">
         <span>Dunmore: {bounds.points} points so far, truly between</span>
         <input inputmode="numeric" autocomplete="off" aria-label="Lowest possible total" data-save="q-low" />
@@ -137,5 +137,5 @@ const dots = [
     <div class="cv-reveal"><p>Bounds tell readers exactly who is affected and how far each number could move, before a single missing score is recovered.</p></div>
   </div>
   <p class="cv-further">Optional deep dive: <a href="../01-collection-field-work/?from=case-hartwell#statistics">Statistics of the gap</a> covers where an expected set comes from, why bounds are linked, and how to test your assistant on the missingness patterns.</p>
-  <NextPart from="case-hartwell">Next, every schedule page answers and one match still has no score.</NextPart>
+  <NextPart from="case-hartwell">If every schedule page answers, is the table complete?</NextPart>
 </section>

@@ -88,6 +88,7 @@ import { parts, phases } from "../../lib/parts";
     };
     const beatName = (h: HTMLElement) => {
       if (h.matches("h2")) return "";
+      if (h.dataset.railName) return h.dataset.railName;
       const copy = h.cloneNode(true) as HTMLElement;
       copy.querySelectorAll(".sr-only").forEach((n) => n.remove());
       if (h.classList.contains("cv-step")) copy.querySelector("span")?.remove();

@@ -27,7 +27,7 @@ const kickPlan = [
 
 const openings = [
   { gap: "How many matches to expect", kick: "Report the number found.", then: "A count with nothing to check it against.", href: "#case-dunmore", where: "Case 1" },
-  { gap: "Which page to read each match from", kick: "The home team's page, once, so no match counts twice.", then: "Fine while every page loads. Nothing covers a page that doesn't.", href: "#case-hartwell", where: "Case 2" },
+  { gap: "Which page to read each match from", kick: "The home team's page, once, so no match counts twice.", then: "Fine while every page answers. Nothing covers a page that doesn't.", href: "#case-hartwell", where: "Case 2" },
   { gap: "What to do with a final that has no score", kick: "Unspecified. Any row without a score was quietly dropped.", then: "A dropped match leaves no trace in the summary.", href: "#case-cedar-grove", where: "Case 3" },
   { gap: "What to do when a site doesn't answer", kick: "Retry three times, log a warning, and keep going.", then: "The run always finishes, whatever it missed.", href: "#decision", where: "The decision" },
   { gap: "What the final summary should report", kick: "Pages fetched, matches found, and errors.", then: "Every line is about the run. None is about the data.", href: "#rewind", where: "Rewind" },
@@ -54,7 +54,7 @@ const choices = [
 
 <section id="setup">
   <PartHead id="setup">Setup: one prompt, one Friday</PartHead>
-  <p>Let's slow Friday down and walk through what actually went wrong behind the scenes.</p>
+  <p>Riley is a final-year data science student. Kick is the AI coding agent Riley asked for a conference standings table. The table looked convincing, and Riley published it on Friday. Here is what happened behind that table, step by step.</p>
 
   <h3 class="cv-step" id="setup-prompt"><span>1</span>The prompt</h3>
   <div class="cv-user-prompt" role="region" aria-label="Riley's prompt to Kick">
@@ -77,7 +77,7 @@ const choices = [
     </video>
     <figcaption>One Loop to a Pipeline. Schools are lettered and the counts are illustrative.</figcaption>
   </figure>
-  <p>Kick's pipeline followed those same five stages. Here is what happened at each step on Friday.</p>
+  <p>The video's five stages are a teaching model of a simple scraper, not the only way to build one. Kick's scraper used the same five. Here is what happened at each stage on Friday.</p>
   <Pipeline />
   <details class="cv-more">
     <summary>Kick's build plan</summary>
@@ -89,7 +89,7 @@ const choices = [
     <li><b>Is each value in a usable form?</b><span>Cleansing. <a href="../04-parsing/">Modules 4</a> and <a href="../05-identity/">5</a>.</span></li>
     <li><b>Does each record obey the rules?</b><span>Validation. <a href="../06-contracts/">Modules 6</a> and <a href="../07-gates/">7</a>.</span></li>
   </ul>
-  <p>All {story.counted} of Kick's matches are real and accurately parsed, so both cleansing and validation would pass this table. A missing record gives those checks nothing to fail.</p>
+  <p>All {story.counted} of Kick's matches are real and accurately parsed. Checks on individual results can pass even when other results are missing, because a missing record gives them nothing to fail.</p>
   <details class="cv-learn-box">
     <summary><span class="cv-optional">Optional · AI study prompt</span>New to web scrapers? Get a primer first.</summary>
     <div class="cv-prompt cv-learn">
@@ -134,12 +134,12 @@ const choices = [
     </div>
     <p class="cv-once" data-needs-note>Write a short sentence to unlock, or skip ahead.</p>
     <div class="cv-reveal">
-      <p>Eight rows, neatly sorted, plausible numbers, no blanks. Dunmore sitting at {spell(bounds.played)} games played only looks suspicious if you already know how long the season is.</p>
+      <p>Eight rows, neatly sorted, plausible numbers, no blanks. Dunmore sitting at {spell(bounds.played)} matches played only looks suspicious if you already know how long the season is.</p>
     </div>
   </div>
 
   <h3 class="cv-step" id="setup-surfaced"><span>5</span>How the problem surfaced</h3>
-  <p>Riley published the table on Friday afternoon. Within an hour, the coaches caught what Riley had no way to see.</p>
+  <p>Riley published the table on Friday afternoon. Within an hour, the coaches caught what Kick's summary never mentioned.</p>
   <div class="cv-calls">
     <Voicemail who="dolan" caller="Coach Dolan, Hartwell" line="We went into Dunmore October fifteenth and put seven on 'em. Seven-nothing. You've got us fourth." />
     <Voicemail who="dunmore" caller="Dunmore athletics" line="You've got our men at six conference games. We've played thirteen." />
@@ -159,5 +159,5 @@ const choices = [
     ))}
   </fieldset>
   <p class="cv-once">We'll come back to your choice after the three cases.</p>
-  <NextPart from="setup">Next comes the one idea behind all three voicemails, then a case for each call.</NextPart>
+  <NextPart from="setup">What do all three calls have in common?</NextPart>
 </section>

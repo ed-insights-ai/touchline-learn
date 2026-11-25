@@ -1,5 +1,7 @@
 ---
 import { states, stateOptions } from "../../lib/states";
+import { story } from "../../lib/coverage";
+import { pipeline, spell } from "../../lib/cases";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
 
@@ -17,14 +19,14 @@ const stages = [
 const learnPrompt = `I'm learning how to tell whether a data collection is complete. Teach me with one running example that is not about sports.
 
 1. What an expected set is, and why it has to be written before the collection runs and from outside it.
-2. Coverage as what arrived divided by what was expected, and why the unit I count in (sources, records, rows) changes the answer.
-3. The difference between a source that is empty, one I could not reach, and one I have no way to read, and what each lets me claim.
+2. Coverage as what I have divided by what I expected, and why the unit I count in (pages, records, fields) changes the answer.
+3. The difference between a page that is empty, one I could not reach, and one I have no way to read, and what each lets me claim.
 4. Missing completely at random, missing at random, and missing not at random, with one example of each.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
 
 const q = [
-  { key: "timeout", text: "Pinecrest's results page timed out on every try.", answer: "unavailable", why: "Unavailable. It was requested and didn't arrive, and the reason is recorded." },
-  { key: "header", text: "Oakfield's forfeits page arrived, confirms this season, and its table has a header with no rows.", answer: "empty", why: "Empty. Fetched and verified, and it genuinely contains no rows, so zero forfeits is true." },
+  { key: "timeout", text: "Pinecrest's results page timed out on every try.", answer: "unavailable", why: "Unavailable. It was requested and never answered, and the reason is recorded." },
+  { key: "header", text: "Oakfield's forfeits page was saved, confirms this season, and its table has a header with no rows.", answer: "empty", why: "Empty. Saved and verified, and it genuinely contains no rows, so zero forfeits is true." },
   { key: "scans", text: "The league posts its judges' score sheets as scanned images, and the collector has no way to read them.", answer: "no-collector", why: "No collector. Retrying won't help until someone builds a reader for that format." },
 ];
 const captions = [
@@ -37,20 +39,24 @@ const captions = [
 
 <section id="coverage">
   <PartHead id="coverage">The idea: coverage</PartHead>
-  <p>All three voicemails point back to one concept. Here it is up front so you can spot it in each case.</p>
+  <p>All three voicemails trace back to one idea.</p>
+  <p>Kick reported {story.counted} matches. Is that good news? You can't tell. It depends on how many matches had finished, and nothing in Kick's run recorded that number. A count means little until you know what it should have been.</p>
 
   <div class="cv-define">
-    <p><dfn>Completeness</dfn> asks: is everything here? <dfn>Coverage</dfn> is how you measure it, by comparing what actually arrived against what you expected to find.</p>
-    <p class="cv-formula"><span>coverage</span> = <span>what arrived</span> ÷ <span>what was expected</span>, counted in the same unit</p>
+    <p><dfn>Completeness</dfn> asks whether everything you need is here. <dfn>Coverage</dfn> puts a number on it: what you have, divided by what you expected, counted in the same unit.</p>
+    <p class="cv-formula"><span>coverage</span> = <span>what you have</span> ÷ <span>what you expected</span></p>
   </div>
-  <p>Three rules keep that ratio honest:</p>
-  <ul class="cv-three">
-    <li><b>Define the expected set first, from outside the run.</b><span>Write the list of what should exist before fetching, using an independent source like a membership list or competition format. If you build the denominator from what arrived, silent sources disappear from their own count.</span></li>
-    <li><b>Count in the unit of your claim.</b><span>Count pages and one silent site is 1 gap. Count matches and that same site may cost 7. Always match the unit to the claim you are making.</span></li>
-    <li><b>Assign a state to every expected item.</b><span>A collector produces two outputs: the data itself, and a <strong>coverage record</strong> listing every expected item and what happened to it.</span></li>
-  </ul>
+  <p>Take the schedule pages. The conference membership list names {spell(pipeline.asked)} schools, and each school has a schedule page. Those {spell(pipeline.asked)} pages are the <strong>expected set</strong>: the list of what should exist. Its size is the denominator. Kick saved {spell(pipeline.saved)}, so schedule-page coverage on Friday was {pipeline.saved} of {pipeline.asked}.</p>
+  <p>Be exact about what each side counts. For page coverage, the top is the expected schedule pages Kick saved. For the standings, the bottom is every finished conference match, and the top is the matches counted in the table using a score found on a saved page. A match whose score is still unknown counts only on the bottom: it was played, but nobody can count it.</p>
 
-  <p>Every item you request ends in one of four states:</p>
+  <p>Three rules keep that number honest.</p>
+  <ol class="cv-rules">
+    <li><b>Write the expected set before the run, from a source outside it.</b> Take it from something the run can't change, such as the membership list or the competition format. If you build the page list from whatever was saved, Dunmore drops out of its own count and the gap disappears with it.</li>
+    <li><b>Count in the unit of analysis, the thing your claim counts.</b> A standings table makes claims about matches, not pages. Counted in pages, Dunmore is one gap in {spell(pipeline.asked)}. Counted in matches, that one page may cost several results. Case 1 works out how many.</li>
+    <li><b>Keep a coverage record beside the data.</b> A <strong>coverage record</strong> is an inventory of what you set out to collect, with what happened to each one. For pages, every entry ends in a state. A state describes the whole page, so a Complete page can still hold a row with a blank score. Case 3 shows one.</li>
+  </ol>
+
+  <p>Every page in the expected set ends in one of four states, including pages the collector has no reader for:</p>
   <div class="cv-states">
     {states.map((s) => (
       <div class={`cv-state is-${s.key}`}>
@@ -65,11 +71,11 @@ const captions = [
       <p><b>What you can claim:</b> Nothing, until an expected set written outside the run shows it is missing.</p>
     </div>
   </div>
-  <p>Both <em>unavailable</em> and <em>no collector</em> mean the value is <strong>unknown</strong>: the first might clear on a retry, while the second requires new code. Unknown is never zero.</p>
+  <p>Both <em>Unavailable</em> and <em>No collector</em> mean the value is <strong>unknown</strong>: the first might clear on a retry, while the second needs new code. Unknown is never zero.</p>
 
+  <p>Kick's scraper had five stages, and Touchline uses seven steps. Kick's Build splits in two. Prove and Check are added, because Kick skipped them. Report moves out of the line to become the coverage record, kept beside every step. Each case names the Kick stage where it broke and the Touchline step that handles it.</p>
   <details class="cv-more">
-    <summary>How Kick's 5 stages map to the Touchline pipeline</summary>
-    <p>The video showed Kick's five stages. The full Touchline platform uses seven steps across the course, and Kick's “Build” stage combines two of them.</p>
+    <summary>How Kick's five stages map to Touchline's seven steps</summary>
     <div class="cv-scroll">
       <table class="cv-stagemap">
         <caption>Kick's stages compared to the platform's steps</caption>
@@ -94,7 +100,7 @@ const captions = [
   </details>
 
   <h4 class="cv-try">Check your understanding: a debate league</h4>
-  <p>A school debate league has six schools, and each hosts every other school once. Three debates haven't happened yet. A collector fetches each school's results page and reads each debate from its host's page. Five pages arrive with 22 finished debates. Pinecrest's site times out, and Pinecrest has hosted five finished debates.</p>
+  <p>A school debate league has six schools, and each hosts every other school once. Three debates haven't happened yet. A collector fetches each school's results page and reads each debate from its host's page. Five pages are saved, with 22 finished debates on them. Pinecrest's site doesn't answer, and Pinecrest has hosted five finished debates.</p>
   <div class="cv-check" data-once="idea">
     <p class="cv-kind">Knowledge check</p>
     <div data-q data-type="number" data-answer="30" data-why="30. Six hosts, each with five visitors: 6 × 5, based on the league's format.">
@@ -110,7 +116,7 @@ const captions = [
         <p class="cv-fb" role="status"></p>
       </div>
     ))}
-    <div class="cv-line" data-q data-type="select" data-answer="named" data-why="22 of 27 finished, with the silent page named. Not 30, because three debates haven't happened yet. Not 27 of 27: Pinecrest's debates happened, and we haven't read them." data-wrong={JSON.stringify({ found: "A raw count with no denominator hides what's missing.", scheduled: "Three of the 30 haven't happened yet, so they can't be missing.", whole: "Pinecrest's five debates happened. Its page is unavailable: unknown, not zero." })}>
+    <div class="cv-line" data-q data-type="select" data-answer="named" data-why="22 of 27 finished, with the page that didn't answer named. Not 30, because three debates haven't happened yet. Not 27 of 27: Pinecrest's debates happened, and we haven't read them." data-wrong={JSON.stringify({ found: "A raw count with no denominator hides what's missing.", scheduled: "Three of the 30 haven't happened yet, so they can't be missing.", whole: "Pinecrest's five debates happened. Its page is unavailable: unknown, not zero." })}>
       <label><span>Which caption belongs under the league table?</span>
         <select data-save="idea-caption"><option value="">Choose</option>{captions.map(([k, t]) => <option value={k}>{t}</option>)}</select>
       </label>
@@ -119,7 +125,7 @@ const captions = [
     <p class="cv-once">Answer all five, then check your answers.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>That's the whole framework: an expected set defined outside the run, a count in the unit of your claim, and a state for every expected item. Next, let's see what broke when Kick skipped each one.</p></div>
+    <div class="cv-reveal"><p>That is the whole idea: an expected set written outside the run, a count in the unit of analysis, and a state for every expected page.</p></div>
   </div>
-  <NextPart from="coverage">Next, the expected set Kick never wrote.</NextPart>
+  <NextPart from="coverage">How many conference matches had finished by Friday?</NextPart>
 </section>

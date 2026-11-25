@@ -1,9 +1,10 @@
 ---
 import { partAt } from "../../lib/parts";
 
-interface Props { part: string; name: "Look" | "Name it" | "What Touchline does" | "Your claim" }
-const { part, name } = Astro.props;
+interface Props { part: string; name: "Look" | "Name it" | "What Touchline does" | "Your claim"; title: string }
+const { part, name, title } = Astro.props;
 const slug = name.toLowerCase().replace(/[^a-z]+/g, "-");
 ---
 
-<h3 class="cv-beat" id={`${part}-${slug}`}><span class="sr-only">{partAt(part).short}, </span>{name}</h3>
+<p class="cv-beat" aria-hidden="true">{name}</p>
+<h3 class="cv-beat-title" id={`${part}-${slug}`} data-rail-name={name}><span class="sr-only">{partAt(part).short}, {name}: </span>{title}</h3>

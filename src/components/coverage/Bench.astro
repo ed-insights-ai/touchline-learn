@@ -59,7 +59,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
       )}
       {controls.includes("pages") && (
         <div class="bn-group">
-          <p class="bn-label" id={`${id}-pages`}>Schedule pages <span>Click any school to toggle its site offline or online.</span></p>
+          <p class="bn-label" id={`${id}-pages`}>Schedule pages <span>Click any school to switch whether its site answers.</span></p>
           <div class="bn-btns bn-pages" role="group" aria-labelledby={`${id}-pages`}>
             {benchData.schools.map((s) => {
               const up = !state.down.includes(s.slug);
@@ -131,7 +131,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
     <div class="bn-table">
       <div class="bn-scroll" data-bn-standings hidden={out.stopped}>
         <table>
-          <caption>The table Kick builds. P is played, GD is goal difference, Pts is points. The last column compares each row with the table on all {out.scored} finished matches that have a score.</caption>
+          <caption>The table Kick builds. P is played, GD is goal difference, Pts is points. The last column compares each row with a reference table. The reference table uses {out.scored} scored matches. One of the {out.finished} finished matches has no score on either schedule.</caption>
           <thead>
             <tr>
               <th scope="col"><abbr title="Place">#</abbr></th>
@@ -139,7 +139,7 @@ const config = JSON.stringify({ data: benchData, state, withFill });
               <th scope="col"><abbr title="Played">P</abbr></th>
               <th scope="col"><abbr title="Goal difference">GD</abbr></th>
               <th scope="col"><abbr title="Points">Pts</abbr></th>
-              <th scope="col">vs. all {out.scored} scored matches</th>
+              <th scope="col">vs. reference</th>
             </tr>
           </thead>
           <tbody data-bn-table set:html={tableRows(out)} />

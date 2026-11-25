@@ -8,14 +8,14 @@ const report = [
   { key: "rosters", text: "Rosters were collected for all seven schools.", answer: "strike", why: `Strike. Dunmore's roster is no collector. Rosters are held for ${unseen.rosters} of 7.` },
   { key: "held", text: `No Dunmore page was read for 2025, and the season file still holds ${unseen.dunmoreHeld} Dunmore matches.`, answer: "keep", why: `Keep. All ${unseen.dunmoreHeld} came from opponents' pages, and the sentence says how many are held without claiming that is all of them.` },
   { key: "boxes", text: `Box scores are held for ${unseen.withBox} of ${unseen.held} conference matches, so the 2025 season is short of ${unseen.held - unseen.withBox} box scores.`, answer: "strike", why: `Strike. The first half is true of the file. The second half is a claim about the season, which holds ${unseen.expected} matches, so as many as ${unseen.expected - unseen.withBox} are without a box score. A denominator taken from the run cannot show what the run missed.` },
-  { key: "why", text: "Eastbrook State's own box-score pages could not be listed, because its schedule could not be proved.", answer: "keep", why: "Keep. The record gives exactly that reason, and the sentence claims nothing about the matches themselves." },
+  { key: "why", text: "Eastbrook State's own box-score pages could not be listed, because its schedule could not be verified.", answer: "keep", why: "Keep. The record gives exactly that reason, and the sentence claims nothing about the matches themselves." },
   { key: "zero", text: "Dunmore's site returned no conference matches for 2025.", answer: "strike", why: "Strike. Nothing was returned because nothing could be read, which is a different fact from “none.”" },
 ];
 ---
 
 <section id="prove-it">
   <PartHead id="prove-it">Prove it: the season nobody called about</PartHead>
-  <p>Here is the sample's coverage record for the previous season: Prairie Lakes men, 2025. Hartwell Tech hadn't joined yet, and the conference used the same format. Conference matches are missing from this season too, and no coach called about them.</p>
+  <p>Here is Touchline's coverage record for the previous season: Prairie Lakes men, 2025. Hartwell Tech hadn't joined yet, and the conference used the same format. Conference matches are missing from this season too, and no coach called about them.</p>
   <p>On Friday, Riley's readers acted as the monitoring system. A coverage record catches gaps <em>before</em> anything gets published. Click the incomplete squares below to see why each one failed.</p>
   <CoverageGrid rows={unseen.grid} caption="Coverage record, Prairie Lakes men, 2025" id="past" />
 
@@ -24,7 +24,7 @@ const report = [
   <div class="cv-check" data-once="report">
     <p class="cv-kind">Assessment</p>
     <div data-q data-type="number" data-answer={unseen.expected} data-why={`${unseen.expected}. Seven schools each host the other six: 7 × 6, from the membership list and competition format.`}>
-      <label for="cv-expected">How many conference matches are in the 2025 season?</label>
+      <label for="cv-expected">How many conference matches did the 2025 format schedule?</label>
       <input id="cv-expected" inputmode="numeric" autocomplete="off" data-save="q-expected" />
       <p class="cv-fb" role="status"></p>
     </div>
@@ -48,7 +48,7 @@ const report = [
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>Three different counts describe this season, and all three are true: {unseen.schedules} of 7 schedules, {unseen.held} of {unseen.expected} matches, and box scores for {unseen.withBox} of {unseen.expected}. Each measures a different unit. “{unseen.withBox} of {unseen.held}” is true of the file, yet misleading if read as the whole season. Any count derived from collected data only belongs alongside the count against the expected set, with gaps named.</p>
+      <p>Three different counts describe this season, and all three are true: {unseen.schedules} of 7 schedules, {unseen.held} of {unseen.expected} matches, and box scores for {unseen.withBox} of {unseen.expected}. Each measures something different: schedule pages, matches, and box scores. “{unseen.withBox} of {unseen.held}” is true of the file, yet misleading if read as the whole season. Any count derived from collected data only belongs alongside the count against the expected set, with gaps named.</p>
     </div>
   </div>
 

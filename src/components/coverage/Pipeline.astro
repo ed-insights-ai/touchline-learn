@@ -10,7 +10,7 @@ const steps: { key: Step; name: string; what: string; out: string; loss?: string
   { key: "scrape", name: "Scrape", what: `ask for ${pipeline.asked} schedules`, out: `${pipeline.silent} site does not answer`, loss: `${pipeline.silent} page lost here` },
   { key: "store", name: "Store", what: `${pipeline.saved} pages saved`, out: "plus a log of requests" },
   { key: "parse", name: "Parse", what: "tables into rows", out: "date, opponent, score" },
-  { key: "build", name: "Build", what: "host's page per match", out: `${story.counted} matches, ${pipeline.rows} rows`, loss: `${bounds.unseen} matches lost here` },
+  { key: "build", name: "Build", what: "host's page per match", out: `${story.counted} matches, ${pipeline.rows} rows`, loss: `${bounds.unseen} Dunmore home matches lost here` },
   { key: "report", name: "Report", what: "counts and errors", out: "“no errors”", loss: "neither loss is mentioned" },
 ];
 const litName = steps.find((s) => s.key === lit)?.name;
@@ -35,6 +35,6 @@ const litName = steps.find((s) => s.key === lit)?.name;
         </li>
       ))}
     </ol>
-    <figcaption>What Kick built from one sentence, with what left each step. The report comes from the last step and says nothing about the first or the fourth.</figcaption>
+    <figcaption>The five stages of Kick's scraper, with where Dunmore's page and its matches were lost. The report comes from the last stage and says nothing about the first or the fourth.</figcaption>
   </figure>
 )}

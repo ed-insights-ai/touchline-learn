@@ -2,15 +2,15 @@
 import Beat from "./Beat.astro";
 import { journeyModules } from "../../data/journey";
 
-interface Props { part: string; at: string[]; note: string }
-const { part, at, note } = Astro.props;
+interface Props { part: string; at: string[]; note: string; title: string }
+const { part, at, note, title } = Astro.props;
 
 const steps = [...new Set(journeyModules.map((m) => m.step))].filter((s) => s !== "All steps");
 const unknown = at.filter((s) => !steps.includes(s));
 if (unknown.length) throw new Error(`Touchline has no step called ${unknown.join(", ")}`);
 ---
 
-<Beat part={part} name="What Touchline does" />
+<Beat part={part} name="What Touchline does" title={title} />
 <div class="cv-touchline">
   <div class="cv-platform">
     <ol aria-label={`Touchline's pipeline. ${note}`}>
