@@ -66,3 +66,11 @@ export const donePrompt = `I'm learning how to hand a data collection job to an 
 3. What a reconciliation report looks like: expected, collected, recovered from another source, and still missing, with each gap named and the reason for it. Show a short example.
 4. How I check that report before I use the output: which claims I should trace back to a source myself, and which decisions are still mine to make rather than the agent's.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
+export const claimsPrompt = `I'm learning how to check whether a written claim about a dataset is supported by the record of how the data was collected. Often the sentences I'm checking were drafted by an AI assistant. Teach me with one running example that is not about sports or healthcare.
+
+1. How a sentence can be true of the collected file but false about the real world, and how to tell which of the two a sentence is claiming. Show a few sentences of each kind.
+2. Why the denominator matters: show the same count reported against what was collected and against what was expected, and what a reader can conclude from each.
+3. Why "the source returned nothing" and "the source has nothing" are different claims, and what evidence each one needs.
+4. How to write a short caption for a published table built from incomplete data: what it must state, what it must not claim, and an example.
+5. End with three questions that check my understanding. Wait for my answers before you give yours.`;

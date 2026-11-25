@@ -1,0 +1,283 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { claimsPrompt } from "../../lib/primer";
+
+const libs = [
+  { id: "A", visits: 1500 }, { id: "B", visits: 1400 }, { id: "C", visits: 1300 }, { id: "D", visits: 1200 }, { id: "E", visits: 1100 },
+  { id: "F", visits: 800 }, { id: "G", visits: 600 }, { id: "H", visits: 500 }, { id: "I", visits: null as number | null }, { id: "J", visits: null as number | null },
+];
+const bar = 1000;
+const fmt = (n: number) => n.toLocaleString("en-US");
+const seen = libs.flatMap((l) => (l.visits === null ? [] : [l.visits]));
+const expected = libs.length;
+const collected = seen.length;
+const high = seen.filter((v) => v >= bar).length;
+const total = seen.reduce((a, b) => a + b, 0);
+const avg = total / collected;
+const pct = (n: number, d: number) => `${Math.round((n / d) * 1000) / 10}%`;
+const tone = (v: number | null) => (v === null ? "is-missing" : v >= bar ? "is-high" : "is-low");
+const missing = libs.filter((l) => l.visits === null).map((l) => l.id);
+
+const claims = [
+  [`${collected === 8 ? "Eight" : collected} library reports were collected.`, "Dataset", "Yes"],
+  [`Five collected reports show at least ${fmt(bar)} visitors.`, "Dataset", "Yes"],
+  [`The highest recorded visitor count was ${fmt(Math.max(...seen))}.`, "Dataset", "Yes"],
+  ["Only eight libraries received visitors.", "Real world", "No"],
+  [`Exactly five libraries had at least ${fmt(bar)} visitors.`, "Real world", "Not established"],
+  ["Library A was the city's busiest library.", "Real world", "Not established"],
+];
+const chip: Record<string, string> = { Yes: "is-ok", No: "is-bad", "Not established": "is-warn" };
+
+const words = [
+  ["Highest recorded", "Highest overall"],
+  ["Among reporting libraries", "Across all libraries"],
+];
+
+const log = [
+  ["Request attempted", "Yes", "Yes"],
+  ["HTTP response", "200 OK", "Timeout"],
+  ["Report rows retrieved", "0", "Unknown"],
+  ["Valid weekly report obtained", "No", "No"],
+  ["Actual visitor count", "Unknown", "Unknown"],
+];
+
+const ladder = [
+  ["The source returned nothing.", "A claim about the collection attempt.", "Evidence might include the saved response, request parameters, status code and parser output."],
+  ["The source has nothing.", "A claim about the records available at the source.", "This needs evidence that the correct, authoritative source was examined completely and holds no records for the requested period."],
+  ["The library had no visitors.", "A claim about the real world.", "This needs stronger evidence, such as a valid weekly report that explicitly records zero visitors, from a reporting process you trust."],
+];
+
+const metrics = [
+  ["Expected library reports", fmt(expected)],
+  ["Collected library reports", fmt(collected)],
+  ["Total recorded visitors", fmt(total)],
+  ["Average visitors per reporting library", fmt(avg)],
+  [`Reporting libraries with ${fmt(bar)}+ visitors`, pct(high, collected)],
+];
+
+const layers = [
+  ["Published claim", "What exactly is being asserted?"],
+  ["Calculated statistic", "Is the calculation, and its denominator, correct?"],
+  ["Collected records and run log", "What was obtained, and what was missing?"],
+  ["Expected set and original sources", "What should have been collected?"],
+];
+
+const checks = [
+  ["Scope of a claim", `An AI assistant writes, “Library H was the least visited library in the city, with ${fmt(500)} visitors.” Every collected record is accurate. Why is this sentence still unsupported, and how would you rewrite it?`],
+  ["The denominator", `Five of eight collected library reports show at least ${fmt(bar)} visitors, but ten reports were expected. What is the difference between reporting ${pct(high, collected)} and ${pct(high, expected)}? Can either number be presented as the exact percentage of all libraries that had at least ${fmt(bar)} visitors?`],
+  ["Evidence and publication", "The pipeline retrieves a webpage for Library I, but its report table is empty. An AI assistant records zero visitors and includes that value in the citywide average. What is wrong with this decision, what additional evidence would justify recording zero, and how would you disclose the gap in a published table?"],
+];
+---
+
+<PrimerChat
+  prompt={claimsPrompt}
+  back="../01-collection/#prove-it"
+  about="This is a reply an AI assistant gave to Module 1's claim-checking study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 8 and red-pen Kick's report."
+>
+  <h2 class="pr-title">From collected data to defensible claims</h2>
+  <p>Collecting data and writing about data are two different tasks. An AI assistant can summarize a dataset accurately and still draw a conclusion about the world that the dataset doesn't support.</p>
+  <p class="pr-pull">The skill you are learning is checking whether the evidence supports the scope of the claim.</p>
+
+  <h2>1. True of the dataset versus true of the real world</h2>
+  <p>Imagine you are collecting weekly visitor statistics from a city's {expected} public libraries. The city publishes a schedule requiring every library to submit one weekly report. Your collection pipeline produces these results.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Weekly library visitor collection</p>
+    <div class="pr-tiles is-three">
+      <p><b>{expected}</b>Expected reports</p>
+      <p><b>{collected}</b>Collected reports</p>
+      <p><b>{pct(collected, expected)}</b>Coverage</p>
+    </div>
+    <ol class="pr-libs">
+      {libs.map((l) => (
+        <li class={tone(l.visits)}>
+          <span>Library {l.id}</span>
+          <b>{l.visits === null ? "—" : fmt(l.visits)}</b>
+          <small>{l.visits === null ? "Missing" : l.visits >= bar ? `${fmt(bar)}+` : `Under ${fmt(bar)}`}</small>
+        </li>
+      ))}
+    </ol>
+    <figcaption>Five of the eight collected reports show at least {fmt(bar)} visitors. Libraries {missing.join(" and ")} have no report.</figcaption>
+  </figure>
+  <p>Now imagine an AI assistant writes a summary.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Sentence</th><th scope="col">What it claims about</th><th scope="col">Supported?</th></tr></thead>
+      <tbody>{claims.map(([s, w, ok]) => <tr><th scope="row">{s}</th><td>{w}</td><td><span class:list={["pr-chip", chip[ok]]}>{ok}</span></td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>The last three statements might happen to be true, but the collected evidence can't establish them. Either missing library could have had 2,000 visitors.</p>
+  <p>Small wording changes alter the claim:</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-words">
+      <thead><tr><th scope="col">Describes the evidence</th><th scope="col">Describes the whole population</th></tr></thead>
+      <tbody>{words.map(([a, b]) => <tr><td><b>{a}</b></td><td><b>{b}</b></td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>When you review AI-generated prose, watch for words such as <em>all, only, none, every, highest, lowest</em> and <em>complete</em>. They often imply knowledge beyond what was collected.</p>
+
+  <h2>2. Why the denominator matters</h2>
+  <p>Five libraries reported at least {fmt(bar)} visitors. What percentage does that represent?</p>
+  <div class="pr-twin">
+    <figure>
+      <p class="pr-label">Against collected reports · {high} of {collected}</p>
+      <p class="pr-big">{pct(high, collected)}</p>
+      <p class="pr-cells" aria-hidden="true">{libs.filter((l) => l.visits !== null).map((l) => <i class={tone(l.visits)} />)}</p>
+      <figcaption>{pct(high, collected)} of reporting libraries had at least {fmt(bar)} visitors.</figcaption>
+    </figure>
+    <figure>
+      <p class="pr-label">Against expected reports · {high} of {expected}</p>
+      <p class="pr-big">{pct(high, expected)}</p>
+      <p class="pr-cells" aria-hidden="true">{libs.map((l) => <i class={tone(l.visits)} />)}</p>
+      <figcaption>{pct(high, expected)} of all expected libraries are confirmed to have had at least {fmt(bar)} visitors.</figcaption>
+    </figure>
+  </div>
+  <p>Both calculations are correct. They answer different questions. The first describes the collected dataset. The second describes how much of the expected population is confirmed to meet the condition.</p>
+  <p>If the collected reports are accurate, the true share across all {expected} libraries is somewhere between {pct(high, expected)} and {pct(high + missing.length, expected)}. The missing reports decide where.</p>
+  <figure class="pr-card pr-lab" data-share-lab data-known={high} data-total={expected}>
+    <p class="pr-label">Fill in the missing reports</p>
+    {missing.map((id) => (
+      <fieldset class="pr-seg">
+        <legend>Library {id}</legend>
+        {[["unknown", "Unknown"], ["high", `${fmt(bar)}+`], ["low", `Under ${fmt(bar)}`]].map(([v, t]) => <label><input type="radio" name={`pr-lib-${id}`} value={v} checked={v === "unknown"} /><span>{t}</span></label>)}
+      </fieldset>
+    ))}
+    <div class="pr-range" role="img" data-share="track" aria-label={`Possible citywide share: ${pct(high, expected)} to ${pct(high + missing.length, expected)}`}>
+      <i data-share="band" style={`left:${(high / expected) * 100}%;width:${(missing.length / expected) * 100}%`}></i>
+      <span style="left:0%">0%</span><span style="left:50%">50%</span><span style="left:100%">100%</span>
+    </div>
+    <p class="pr-lab-foot"><span>Citywide share with {fmt(bar)}+ visitors <b data-share="out">{pct(high, expected)} to {pct(high + missing.length, expected)}</b></span></p>
+    <p class="pr-run-note">The {pct(high, collected)} from collected reports is not a possible citywide value: with {expected} libraries, the share moves in steps of {pct(1, expected)}.</p>
+  </figure>
+  <p>Reporting {pct(high, collected)} as a citywide figure would assume the reporting libraries represent the missing ones. Nothing has established that.</p>
+  <p class="pr-pull">Whenever you see a percentage, ask: percentage of what?</p>
+
+  <h2>3. “The source returned nothing” versus “the source has nothing”</h2>
+  <p>Now look at the collection log for the two missing libraries.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Collection evidence</th><th scope="col">Library I</th><th scope="col">Library J</th></tr></thead>
+      <tbody>{log.map(([e, i, j]) => <tr><th scope="row">{e}</th><td>{i}</td><td>{j}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>Library I returned a webpage with an empty report table. Library J didn't respond. Neither shows that the library had zero visitors.</p>
+  <ol class="pr-ladder">
+    {ladder.map(([claim, kind, need]) => <li><b>{claim}</b><span>{kind}</span><small>{need}</small></li>)}
+  </ol>
+  <p>Each step needs stronger evidence than the one before. An empty webpage might come from the wrong filters, delayed publication, a JavaScript rendering problem or a change in the site's structure. Even a successful HTTP response doesn't prove the requested data was obtained.</p>
+  <p class="pr-pull">A collection log tells you what happened during collection. It doesn't tell you what happened in the real world.</p>
+
+  <h2>4. Writing a caption for incomplete data</h2>
+  <p>Suppose you decide to publish this table.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <caption class="pr-label">Weekly library visitor statistics</caption>
+      <thead><tr><th scope="col">Metric</th><th scope="col">Result</th></tr></thead>
+      <tbody>{metrics.map(([m, r]) => <tr><th scope="row">{m}</th><td>{r}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>A useful caption states the reporting period, the expected population, the collected population, the known gaps and how missing values were treated. It also makes clear whether the statistics describe the collected records or the whole population.</p>
+  <div class="pr-twin pr-captions">
+    <div class="is-poor">
+      <p class="pr-summary-head"><b>Poor caption</b><span class="pr-chip is-bad">Overclaims</span></p>
+      <p class="pr-quote">The city's libraries received {fmt(total)} visitors this week, averaging {fmt(avg)} visitors per library.</p>
+      <p class="pr-note">It sounds natural and authoritative, and presents incomplete figures as complete citywide results.</p>
+    </div>
+    <div class="is-better">
+      <p class="pr-summary-head"><b>Better caption</b><span class="pr-chip is-ok">Scoped</span></p>
+      <p class="pr-quote">Weekly statistics based on {collected} of {expected} expected library reports ({pct(collected, expected)} coverage). Library I returned an empty report table, and Library J could not be reached. Missing values were excluded, not estimated or treated as zero. Totals and averages describe reporting libraries only.</p>
+      <p class="pr-note">It doesn't make the data less useful. It states the conditions under which the data is useful.</p>
+    </div>
+  </div>
+
+  <h3>Checking AI-generated claims</h3>
+  <p>When you review a sentence written by an AI assistant, trace it through four layers of evidence.</p>
+  <ol class="pr-funnel pr-layers">
+    {layers.map(([name, q]) => <li><b>{name}</b><small>{q}</small></li>)}
+  </ol>
+  <p>A claim can fail at any of these layers, even when every calculation is correct.</p>
+  <p>The library example uses invented data and an assumed reporting requirement. In a real project, you would check that requirement and the original reports yourself before making claims about the whole population.</p>
+  <p class="pr-pull">A claim should never be broader than the evidence that supports it.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Kick's drafted report in Part 8 mixes the same two kinds of sentence. The 2025 record counts three different things, schedule pages, matches and box scores, each against its own expected total. Before you keep a sentence, ask what it counts, and out of what.</p>
+    <p>One difference: the reply's expected set rests on an assumed reporting requirement. Touchline's comes from the membership list and the competition format, so in Part 8 you can work it out before you judge a single sentence.</p>
+  </aside>
+
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>Answer these in your own words. I'll review your reasoning before giving the answers.</p>
+</PrimerChat>
+
+<script>
+  const lab = document.querySelector<HTMLElement>("[data-share-lab]");
+  if (lab) {
+    const known = Number(lab.dataset.known);
+    const total = Number(lab.dataset.total);
+    const band = lab.querySelector<HTMLElement>('[data-share="band"]')!;
+    const track = lab.querySelector<HTMLElement>('[data-share="track"]')!;
+    const out = lab.querySelector<HTMLElement>('[data-share="out"]')!;
+    lab.addEventListener("change", () => {
+      const picks = [...lab.querySelectorAll<HTMLInputElement>("input:checked")].map((i) => i.value);
+      const low = known + picks.filter((p) => p === "high").length;
+      const high = low + picks.filter((p) => p === "unknown").length;
+      const text = low === high ? `${(low / total) * 100}%` : `${(low / total) * 100}% to ${(high / total) * 100}%`;
+      band.style.left = `${(low / total) * 100}%`;
+      band.style.width = `${((high - low) / total) * 100}%`;
+      band.classList.toggle("is-point", low === high);
+      out.textContent = text;
+      track.setAttribute("aria-label", `Possible citywide share: ${text}`);
+    });
+  }
+</script>
+
+<style is:global>
+  .pr-libs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.45rem; margin: 0.7rem 0; padding: 0; list-style: none; }
+  .pr-libs li { display: grid; justify-items: center; gap: 0.05rem; padding: 0.5rem 0.3rem; border: 1px solid var(--tl-line); border-top: 4px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); text-align: center; }
+  .pr-libs span, .pr-libs small { color: var(--tl-muted); font-size: 0.78rem; }
+  .pr-libs b { color: var(--sl-color-white); font-size: 1.2rem; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .pr { --pr-blue: #3a78c4; }
+  .pr-libs .is-low { border-top-color: var(--pr-blue); }
+  .pr-libs .is-missing { border: 1.5px dashed var(--pr-yellow); border-top-width: 4px; background: transparent; }
+  .pr-libs .is-missing b { color: var(--tl-muted); }
+
+  .pr-twin figure { margin: 0; padding: 0.75rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
+  .pr-twin figcaption { color: var(--tl-muted); font-size: 0.85rem; }
+  .pr .pr-cells { display: flex; gap: 3px; margin: 0 0 0.5rem; }
+  .pr-cells i { flex: 1; height: 0.9rem; border-radius: 3px; }
+  .pr-cells .is-high { background: var(--pr-green); }
+  .pr-cells .is-low { background: var(--pr-blue); }
+  .pr-cells .is-missing { border: 1.5px dashed var(--pr-yellow); }
+
+  .pr-range { position: relative; height: 0.8rem; margin: 0.6rem 0 1.6rem; border-radius: 999px; background: var(--tl-bg); box-shadow: inset 0 0 0 1px var(--tl-line); }
+  .pr-range i { position: absolute; top: 0; bottom: 0; min-width: 0.8rem; border-radius: 999px; background: var(--pr-yellow); transition: left 0.2s, width 0.2s; }
+  .pr-range i.is-point { margin-left: -0.4rem; background: var(--pr-green); }
+  .pr-range span { position: absolute; top: 1.05rem; color: var(--tl-muted); font-size: 0.75rem; transform: translateX(-50%); }
+  .pr-range span:first-of-type { transform: none; }
+  .pr-range span:last-of-type { transform: translateX(-100%); }
+
+  .pr-words td { width: 50%; }
+  .pr-words td:first-child b { color: var(--pr-green); }
+  .pr-words td:last-child b { color: var(--pr-yellow); }
+  :root[data-theme="light"] .pr-words td:last-child b { color: #8a6a1f; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .pr-words td:last-child b { color: #8a6a1f; } }
+
+  .pr-ladder { display: grid; gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pr-ladder li { display: grid; gap: 0.1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--pr-ai); border-radius: 8px; background: var(--tl-card); }
+  .pr-ladder li:nth-child(2) { margin-left: 1.25rem; }
+  .pr-ladder li:nth-child(3) { margin-left: 2.5rem; }
+  .pr-ladder b { color: var(--sl-color-white); }
+  .pr-ladder span { color: var(--pr-ai); font-size: 0.85rem; font-weight: 700; }
+  .pr-ladder small { color: var(--tl-muted); font-size: 0.88rem; }
+
+  .pr-captions .is-poor { border-color: color-mix(in srgb, var(--pr-red) 45%, var(--tl-line)); }
+  .pr-captions .is-better { border-color: var(--pr-green); }
+  .pr .pr-quote { color: var(--sl-color-white); font-style: italic; }
+  .pr .pr-captions .pr-note { margin: 0; }
+  .pr-table caption.pr-label { caption-side: top; text-align: left; }
+
+  .pr .pr-layers { gap: 1.2rem; }
+  .pr-layers li { display: grid; gap: 0.1rem; }
+  .pr .pr-layers li + li::before { top: -1.15rem; }
+  .pr-layers small { color: var(--tl-muted); font-size: 0.85rem; }
+</style>

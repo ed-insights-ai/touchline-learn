@@ -3,6 +3,8 @@ import CoverageGrid from "../CoverageGrid.astro";
 import { unseen } from "../../lib/coverage";
 import PartHead from "./PartHead.astro";
 import NextPart from "./NextPart.astro";
+import AiStudy from "./AiStudy.astro";
+import { claimsPrompt } from "../../lib/primer";
 
 const report = [
   { key: "rosters", text: "Rosters were collected for all seven schools.", answer: "strike", why: `Strike. Dunmore's roster is no collector. Rosters are held for ${unseen.rosters} of 7.` },
@@ -18,6 +20,13 @@ const report = [
   <p>Here is Touchline's coverage record for the previous season: Prairie Lakes men, 2025. Hartwell Tech hadn't joined yet, and the conference used the same format. Conference matches are missing from this season too, and no coach called about them.</p>
   <p>In the original Friday run, Riley's readers acted as the monitoring system. A coverage record catches gaps <em>before</em> anything gets published. Click the incomplete squares below to see why each one failed.</p>
   <CoverageGrid rows={unseen.grid} caption="Coverage record, Prairie Lakes men, 2025" id="past" />
+  <AiStudy
+    id="prove-ai-study"
+    title="Does the record support the sentence?"
+    note="Send this prompt to read the reply an AI assistant gave, or copy it into your own. Then come back and red-pen Kick's report."
+    prompt={claimsPrompt}
+    href="../01-collection-ai-claims/"
+  />
 
   <h4 class="cv-try">Red-pen the report</h4>
   <p>The 2025 season file contains {unseen.held} conference matches, with box scores for {unseen.withBox} of them. Kick drafted five statements about the season. Answer the first question, then mark each statement <strong>Keep</strong> if the record supports it, or <strong>Strike</strong> if it doesn't.</p>
