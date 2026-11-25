@@ -1,0 +1,240 @@
+---
+import PrimerChat from "./PrimerChat.astro";
+import { carryPrompt } from "../../lib/primer";
+
+const houses = [["North", 120], ["South", 80]] as const;
+const known = houses.reduce((a, [, n]) => a + n, 0);
+const ceiling = 50;
+const top = Math.max(...houses.map(([, n]) => n));
+const w = (n: number) => `${(n / top) * 100}%`;
+
+const worlds = {
+  a: { tab: "A · Confirmed zero", value: "0", chip: "is-ok", status: "Confirmed zero", note: "West's own dispatch system confirmed that no orders were dispatched on November 20. The collection record explains why West has no row.", total: `${known}`, gap: false },
+  b: { tab: "B · Never responded", value: "?", chip: "is-bad", status: "No response", note: "West's system timed out. There is no evidence of how many orders it dispatched.", total: `At least ${known}`, gap: true },
+  c: { tab: "C · Can't be verified", value: "?", chip: "is-warn", status: "Reported 0, date unknown", note: "West returned a report showing zero orders, but the report has no date, so nothing shows that it describes November 20.", total: `At least ${known}`, gap: true },
+};
+const first = worlds.a;
+
+const claims = [
+  [`Collected orders total ${known}`, "Yes", "Yes", "Yes"],
+  [`The company dispatched exactly ${known}`, "Yes", "No", "No"],
+  [`The company dispatched at least ${known}`, "Yes", "Yes", "Yes"],
+  ["West dispatched zero", "Yes", "Unknown", "Unknown"],
+  ["Every expected source is accounted for, with verified data or a verified zero", "Yes", "No", "No"],
+];
+const chip: Record<string, string> = { Yes: "is-ok", No: "is-bad", Unknown: "is-warn" };
+
+const conditions = [
+  ["Confirmed absence", "The authoritative source confirms there were no qualifying records for the requested period.", "Yes"],
+  ["No response", "The source provided no information.", "No"],
+  ["Unverifiable response", "Information arrived, but you can't establish that it matches the requested scope.", "No"],
+];
+
+const bounds = [...houses.map(([name, n]) => [name, n, n] as const), ["West", 0, ceiling] as const];
+
+const lo = 150;
+const hi = 300;
+const at = (n: number) => `${((n - lo) / (hi - lo)) * 100}%`;
+const narrow = [
+  ["Confirmed zero", `Exactly ${known}`, "is-point", `left:${at(known)}`],
+  ["Missing, no known upper limit", `${known} or more`, "is-open", `left:${at(known)};right:0`],
+  [`Missing, verified upper limit of ${ceiling}`, `${known} to ${known + ceiling}`, "is-band", `left:${at(known)};width:calc(${at(known + ceiling)} - ${at(known)})`],
+];
+
+const fields = [
+  ["Source identifier", "Identifies the expected warehouse or system."],
+  ["Expected scope", "Sets the period, record type and collection criteria."],
+  ["Collection attempts", "Records when requests were made, retries and outcomes."],
+  ["Response received", "Describes what the source actually returned."],
+  ["Validation result", "Shows whether the response matches the expected scope."],
+  ["Collection status", "Separates collected, confirmed empty, unavailable and unverifiable."],
+  ["Accepted count", "Records the verified value, including a genuine zero."],
+  ["Gap explanation", "Explains why expected information is absent or excluded."],
+  ["Known constraints", "Records independently supported lower or upper limits."],
+  ["Evidence reference", "Points to the original response, log or supporting record."],
+];
+
+const record = [
+  ["Expected period", "Nov 20", "Nov 20", "Nov 20"],
+  ["Response", "Zero orders", "Timeout", "Zero orders"],
+  ["Period verified", "Yes", "No", "No"],
+  ["Accepted count", "0", "NULL", "NULL"],
+  ["Gap reason", "None", "Request failed", "Date absent"],
+  ["Evidence", "Dated report", "Request logs", "Undated report"],
+];
+const status = [["Confirmed empty", "is-ok"], ["Unavailable", "is-bad"], ["Unverifiable", "is-warn"]];
+
+const checks = [
+  ["Manufacturing", "A company has four factories. Three report a combined production of 900 units. The fourth returns an empty report, but the report doesn't identify the production date. Can the company publish 900 as its exact daily production total? What additional evidence would allow it to?"],
+  ["Education", "A university is counting scholarship awards across five departments. Four departments report 180 awards in total. The fifth never responds, but an independently verified policy limits that department to 30 awards. What range can the university publish? Would reporting the midpoint of that range as its estimated total be justified?"],
+  ["Environmental monitoring", "A researcher collects daily rainfall from ten weather stations. Eight provide valid readings, one confirms zero rainfall, and one fails to respond. How should the collection record tell these three conditions apart? What would be misleading about entering zero for both of the last two stations?"],
+];
+---
+
+<PrimerChat
+  prompt={carryPrompt}
+  back="../01-collection/#carry-it-recap"
+  about="This is a reply an AI assistant gave to Module 1's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and finish the module."
+>
+  <h2 class="pr-title">Same data, different conclusions</h2>
+  <p>A dataset tells you what was collected. The collection record tells you what those numbers are entitled to represent.</p>
+  <p>Two people can receive identical files, calculate identical totals, and still have very different grounds for publishing those totals. The difference isn't in the arithmetic. It is in the evidence around the collection.</p>
+
+  <h2>1. Identical rows, three different situations</h2>
+  <p>Imagine a distribution company with three warehouses. You are collecting the number of orders dispatched on November 20. An independent company registry establishes that three warehouses are expected: North, South and West.</p>
+  <p>Your collected dataset has a row for North ({houses[0][1]} orders) and South ({houses[1][1]}), {known} in total. There is no row for West. Pick an explanation for West's missing row.</p>
+  <figure class="pr-card pr-worlds" data-worlds={JSON.stringify(worlds)}>
+    <fieldset class="pr-seg">
+      <legend>Why West has no row</legend>
+      {Object.entries(worlds).map(([k, v]) => <label><input type="radio" name="pr-west" value={k} checked={k === "a"} /><span>{v.tab}</span></label>)}
+    </fieldset>
+    <ol class="pr-bars">
+      {houses.map(([name, n]) => <li><span>{name}</span><i style={`--w:${w(n)}`}></i><b>{n}</b></li>)}
+      <li data-west-row><span>West</span><i style="--w:0%"></i><b data-west="value">{first.value}</b></li>
+    </ol>
+    <p class="pr-west-note"><span class:list={["pr-chip", first.chip]} data-west="chip">{first.status}</span> <span data-west="note">{first.note}</span></p>
+    <div class="pr-west-total" aria-live="polite">
+      <p class="pr-label">Company-wide total</p>
+      <p class="pr-big" data-west="total">{first.total}</p>
+    </div>
+  </figure>
+  <p>The collected dataset never changes. Only the evidence about West does.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-claims">
+      <thead><tr><th scope="col">Claim</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th></tr></thead>
+      <tbody>{claims.map(([c, ...v]) => <tr><th scope="row">{c}</th>{v.map((x) => <td><span class:list={["pr-chip", chip[x]]}>{x}</span></td>)}</tr>)}</tbody>
+    </table>
+  </div>
+  <p>These conclusions assume North's and South's counts are verified, no order is counted twice, and the warehouse registry is complete.</p>
+  <p class="pr-pull">Identical data doesn't necessarily justify identical conclusions.</p>
+
+  <h2>2. Confirmed absence, no response and an unverifiable response</h2>
+  <p>These three conditions describe different states of knowledge.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Condition</th><th scope="col">What you know</th><th scope="col">Can you report zero?</th></tr></thead>
+      <tbody>{conditions.map(([c, k, z]) => <tr><th scope="row">{c}</th><td>{k}</td><td><span class:list={["pr-chip", chip[z]]}>{z}</span></td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>Even a successful response containing an empty list isn't automatically evidence of zero orders. You must establish that the request covered the right warehouse, period and record type, and that the response was complete.</p>
+  <ul>
+    <li><strong>Confirmed absence:</strong> evidence that nothing happened.</li>
+    <li><strong>No response:</strong> no evidence about what happened.</li>
+    <li><strong>Unverifiable response:</strong> evidence that can't reliably answer your question.</li>
+  </ul>
+  <p class="pr-pull">Only the first establishes a zero.</p>
+
+  <h2>3. Turning “at least” into a range</h2>
+  <p>Return to Situation B, where West never responded. Without more information, you know only that the company dispatched at least {known} orders.</p>
+  <p>Now suppose an independent order allocation register shows that West had only {ceiling} orders eligible for dispatch that day. Company rules prevent a warehouse from dispatching unallocated orders, and each order can be counted only once. You now have a defensible upper limit.</p>
+  <div class="pr-scroll">
+    <table class="pr-table pr-num">
+      <thead><tr><th scope="col">Warehouse</th><th scope="col">Minimum</th><th scope="col">Maximum</th></tr></thead>
+      <tbody>
+        {bounds.map(([name, a, b]) => <tr><th scope="row">{name}</th><td>{a}</td><td>{b}</td></tr>)}
+        <tr class="pr-total"><th scope="row">Company total</th><td>{known}</td><td>{known + ceiling}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure class="pr-card">
+    <p class="pr-label">How the evidence narrows the possibilities</p>
+    <ol class="pr-narrow">
+      {narrow.map(([name, value, kind, style]) => (
+        <li class={kind}>
+          <p class="pr-narrow-head"><span>{name}</span><b>{value}</b></p>
+          <p class="pr-track" aria-hidden="true"><i style={style}></i></p>
+        </li>
+      ))}
+    </ol>
+    <p class="pr-axis" aria-hidden="true">{[150, 200, 250, 300].map((n) => <span style={`left:${at(n)}`}>{n}</span>)}</p>
+  </figure>
+  <p>You can now publish:</p>
+  <blockquote class="pr-quote">The company dispatched between {known} and {known + ceiling} orders on November 20. Of these, {known} are directly verified. West warehouse's dispatch count is unavailable, but independent allocation records establish a maximum of {ceiling} additional orders.</blockquote>
+  <p>You have improved what you know without recovering a single dispatch record.</p>
+  <p>The range does <strong>not</strong> make {known + ceiling / 2} the most likely total, or 25 the likely count for West. Every value in the range remains possible on the evidence you have.</p>
+  <p>The upper limit must also be a genuine constraint, not a historical average, a typical workload or an estimated capacity.</p>
+
+  <h2>4. What a per-source collection record must hold</h2>
+  <p>A well-designed pipeline produces two outputs: the dataset, and a record of how that dataset was obtained. The record has an entry for every expected source, including sources that produced no usable data.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Field</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>{fields.map(([f, p]) => <tr><th scope="row">{f}</th><td>{p}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <p>West's entry looks different in each of the three situations.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <caption class="pr-label">Collection record entry for West</caption>
+      <thead><tr><th scope="col">Field</th><th scope="col">Situation A</th><th scope="col">Situation B</th><th scope="col">Situation C</th></tr></thead>
+      <tbody>
+        {record.slice(0, 3).map(([f, ...v]) => <tr><th scope="row">{f}</th>{v.map((x) => <td>{x}</td>)}</tr>)}
+        <tr><th scope="row">Status</th>{status.map(([s, c]) => <td><span class:list={["pr-chip", c]}>{s}</span></td>)}</tr>
+        {record.slice(3).map(([f, ...v]) => <tr><th scope="row">{f}</th>{v.map((x) => <td>{x}</td>)}</tr>)}
+      </tbody>
+    </table>
+  </div>
+  <p>Situation C keeps the fact that West returned zero, but refuses to treat that zero as a verified observation. Don't discard evidence because it is unusable, and don't promote it into verified data either.</p>
+  <p>The warehouse example uses a fixed registry and counts that can't be negative or overlap. Other data, such as financial adjustments that can be negative, may need different rules for setting bounds.</p>
+  <p class="pr-pull">The strength of a published claim depends on the collected values and on the evidence about their completeness, validity and scope.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Part 9's three worlds are these three situations. World A's two clinics sent header-only files and their closure notices are on file, so zero is true. World B's never answered. World C's files can't show which week they cover.</p>
+    <p>The reply gives Situation C its own status, Unverifiable. Touchline folds that case into Unavailable and records the reason, the same rule it applies to a schedule page that can't verify its season. Either way, it is reported as unknown, never as zero.</p>
+    <p>Part 9's clinic range uses section 3's move. The licence cap is a rule, not an average, so it is the kind of upper limit the reply asks for.</p>
+  </aside>
+
+  <h2>5. Check your understanding</h2>
+  <p>These questions use three different fields, so you apply the principle rather than repeat the warehouse example.</p>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>Answer these in your own words. I'll review your reasoning before giving the answers.</p>
+</PrimerChat>
+
+<script>
+  const box = document.querySelector<HTMLElement>("[data-worlds]");
+  if (box) {
+    const worlds = JSON.parse(box.dataset.worlds!) as Record<string, { value: string; chip: string; status: string; note: string; total: string; gap: boolean }>;
+    const part = (name: string) => box.querySelector<HTMLElement>(`[data-west="${name}"]`)!;
+    const row = box.querySelector<HTMLElement>("[data-west-row]")!;
+    box.addEventListener("change", (event) => {
+      const v = worlds[(event.target as HTMLInputElement).value];
+      if (!v) return;
+      part("value").textContent = v.value;
+      part("chip").textContent = v.status;
+      part("chip").className = `pr-chip ${v.chip}`;
+      part("note").textContent = v.note;
+      part("total").textContent = v.total;
+      row.classList.toggle("is-gap", v.gap);
+    });
+  }
+</script>
+
+<style is:global>
+  .pr .pr-worlds .pr-seg { margin-bottom: 0.8rem; }
+  .pr-bars .is-gap i { box-shadow: inset 0 0 0 1.5px var(--pr-yellow); }
+  .pr-bars .is-gap b { color: var(--pr-yellow); }
+  :root[data-theme="light"] .pr-bars .is-gap b { color: #8a6a1f; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .pr-bars .is-gap b { color: #8a6a1f; } }
+  .pr .pr-west-note { margin: 0 0 0.6rem; color: var(--tl-muted); font-size: 0.88rem; }
+  .pr .pr-west-total p { margin: 0; }
+
+  .pr-claims td { text-align: center; }
+  .pr-table .pr-total th, .pr-table .pr-total td { border-top: 2px solid var(--tl-line); color: var(--sl-color-white); font-weight: 700; }
+
+  .pr .pr-narrow { display: grid; gap: 0.9rem; margin: 0.3rem 0 0; padding: 0; list-style: none; }
+  .pr .pr-narrow li { margin: 0; }
+  .pr .pr-narrow p { margin: 0; }
+  .pr .pr-narrow-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1rem; color: var(--tl-muted); font-size: 0.86rem; }
+  .pr-narrow-head b { color: var(--sl-color-white); font-variant-numeric: tabular-nums; }
+  .pr .pr-track { position: relative; height: 0.8rem; margin-top: 0.3rem; border-radius: 999px; background: var(--tl-bg); box-shadow: inset 0 0 0 1px var(--tl-line); }
+  .pr-track i { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
+  .is-point .pr-track i { width: 0.8rem; margin-left: -0.4rem; background: var(--pr-green); }
+  .is-open .pr-track i { background: linear-gradient(to right, var(--pr-yellow), color-mix(in srgb, var(--pr-yellow) 10%, transparent)); }
+  .is-band .pr-track i { background: var(--pr-ai); }
+  .pr .pr-axis { position: relative; height: 1.1rem; margin: 0.35rem 0 0; }
+  .pr-axis span { position: absolute; color: var(--tl-muted); font-size: 0.75rem; transform: translateX(-50%); }
+  .pr-axis span:first-child { transform: none; }
+  .pr-axis span:last-child { transform: translateX(-100%); }
+  .pr blockquote.pr-quote { margin: 0 0 1rem; padding: 0.6rem 0.9rem; border-left: 4px solid var(--pr-green); background: var(--tl-card); border-radius: 0 8px 8px 0; }
+</style>

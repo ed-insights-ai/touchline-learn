@@ -300,4 +300,15 @@
       }
     } catch {}
   });
+
+  const entry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+  if (location.hash && entry?.type === "navigate") {
+    const settle = () => {
+      let target: HTMLElement | null = null;
+      try { target = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch {}
+      if (target && target.offsetParent !== null) target.scrollIntoView({ block: "start" });
+    };
+    if (document.readyState === "complete") requestAnimationFrame(settle);
+    else addEventListener("load", () => requestAnimationFrame(settle), { once: true });
+  }
 </script>

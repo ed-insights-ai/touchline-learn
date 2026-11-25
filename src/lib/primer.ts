@@ -74,3 +74,11 @@ export const claimsPrompt = `I'm learning how to check whether a written claim a
 3. Why "the source returned nothing" and "the source has nothing" are different claims, and what evidence each one needs.
 4. How to write a short caption for a published table built from incomplete data: what it must state, what it must not claim, and an example.
 5. End with three questions that check my understanding. Wait for my answers before you give yours.`;
+
+export const carryPrompt = `I'm learning to carry one idea to new kinds of data: the same collected numbers can support different conclusions, depending on the record of how they were collected. Teach me with one running example that is not about sports, healthcare or public libraries.
+
+1. Show one dataset arriving in three situations where the rows are identical but what is known about the missing sources differs, and what I can honestly report in each.
+2. Explain the difference between a source that confirmed it had nothing for the period, a source that never answered, and a source whose reply can't be checked against the period. Say which of them, if any, lets me report zero.
+3. Show how a known upper limit on a missing source turns "at least" into a range, and work one example through.
+4. Explain what a per-source collection record (what was expected, what arrived, and why anything is missing) has to hold so a reader can tell the three situations apart.
+5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`;
