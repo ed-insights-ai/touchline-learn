@@ -2,8 +2,10 @@
 import { partAt } from "../../lib/parts";
 
 interface Props { from: string }
-const { next } = partAt(Astro.props.from);
-if (!next) throw new Error(`${Astro.props.from} is the last part of Module 1`);
+if (!partAt(Astro.props.from).next) throw new Error(`${Astro.props.from} is the last part of Module 1`);
 ---
 
-<p class="cv-next"><span><slot /></span><a href={`#${next.id}`}>{next.name}</a></p>
+<p class="cv-next">
+  <span class="cv-next-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span class="cv-next-text"><slot /></span>
+</p>
