@@ -21,8 +21,8 @@ const stages = [
 
 const q = [
   { key: "timeout", text: "Pinecrest's results page timed out on every try.", answer: "unavailable", why: "Unavailable. It was requested and never answered, and the reason is recorded." },
-  { key: "header", text: "Oakfield's forfeits page was saved, confirms this season, and its table has a header with no rows.", answer: "empty", why: "Empty. Saved and verified, and it genuinely contains no rows, so zero forfeits is true." },
-  { key: "scans", text: "The league posts its judges' score sheets as scanned images, and the collector has no way to read them.", answer: "no-collector", why: "No collector. Retrying won't help until someone builds a reader for that format." },
+  { key: "header", text: "Oakfield's forfeits page was saved, confirms this season, and says “No forfeits this season” under an empty table.", answer: "empty", why: "Empty. Saved and verified, and it genuinely contains no rows, so zero forfeits is true." },
+  { key: "scans", text: "The league's score-sheet page is a scanned image, and the collector has no way to read it.", answer: "no-collector", why: "No collector. Retrying won't help until someone builds a reader for that format." },
 ];
 const captions = [
   ["found", "22 debates"],
@@ -41,17 +41,37 @@ const captions = [
     <p><dfn>Completeness</dfn> asks whether everything you need is here. <dfn>Coverage</dfn> puts a number on it: what you have, divided by what you expected, counted in the same unit.</p>
     <p class="cv-formula"><span>coverage</span> = <span>what you have</span> ÷ <span>what you expected</span></p>
   </div>
-  <p>Take the schedule pages. The conference membership list names {spell(pipeline.asked)} schools, and each school has a schedule page. Those {spell(pipeline.asked)} pages are the <strong>expected set</strong>: the list of what should exist. Its size is the denominator. Kick saved {spell(pipeline.saved)}, so schedule-page coverage on Friday was {pipeline.saved} of {pipeline.asked}.</p>
-  <p>Be exact about what each side counts. For page coverage, the top is the expected schedule pages Kick saved. For the standings, the bottom is every finished conference match, and the top is the matches counted in the table using a score found on a saved page. A match whose score is still unknown counts only on the bottom: it was played, but nobody can count it.</p>
+  <p>Take the schedule pages. The conference membership list names {spell(pipeline.asked)} schools, and each school has a schedule page. Those {spell(pipeline.asked)} pages are the <strong>expected set</strong>: the list of what should exist. Its size goes on the bottom of the fraction. Here is Kick's Friday summary, counted that way.</p>
+  <div class="cv-recount" role="region" aria-label="Kick's Friday summary, counted as coverage">
+    <div class="cv-chat-bar">
+      <span class="cv-agent-badge">Kick · Friday's summary</span>
+      <span class="cv-recount-tag">Recounted</span>
+    </div>
+    <p class="cv-recount-was">“All eight school sites, {story.counted} conference matches, no errors.”</p>
+    <div class="cv-recount-row">
+      <p class="cv-recount-unit">Schedule pages</p>
+      <p class="cv-frac"><span>{pipeline.saved} saved</span><span>{pipeline.asked} on the membership list</span></p>
+      <p class="cv-recount-val">{pipeline.saved} of {pipeline.asked}</p>
+    </div>
+    <div class="cv-recount-row is-open">
+      <p class="cv-recount-unit">Finished matches</p>
+      <p class="cv-frac"><span>{story.counted} counted in the table</span><span>? finished by Friday</span></p>
+      <p class="cv-recount-val">{story.counted} of ?</p>
+    </div>
+    <p class="cv-recount-foot">A match counts on top only if its score was found on a saved page. A match whose score is still unknown counts only on the bottom: it was played, but nobody can count it.</p>
+  </div>
 
   <p>Three rules keep that number honest.</p>
   <ol class="cv-rules">
-    <li><b>Write the expected set before the run, from a source outside it.</b> Take it from something the run can't change, such as the membership list or the competition format. If you build the page list from whatever was saved, Dunmore drops out of its own count and the gap disappears with it.</li>
-    <li><b>Count in the unit of analysis, the thing your claim counts.</b> A standings table makes claims about matches, not pages. Counted in pages, Dunmore is one gap in {spell(pipeline.asked)}. Counted in matches, that one page may cost several results. Case 1 works out how many.</li>
-    <li><b>Keep a coverage record beside the data.</b> A <strong>coverage record</strong> is an inventory of what you set out to collect, with what happened to each one. For pages, every entry ends in a state. A state describes the whole page, so a Complete page can still hold a row with a blank score. Case 3 shows one.</li>
+    <li><b>Write the expected set before the run, from a source outside it.</b> Take it from something the run can't change, such as the membership list or the competition format. If you build the page list from whatever was saved, Dunmore drops out of its own count and the gap disappears with it.
+      <p class="cv-rule-call"><span>Dunmore athletics</span>“We've played thirteen.”<em>Case 1</em></p></li>
+    <li><b>Count in the unit of analysis, the thing your claim counts.</b> A standings table makes claims about matches, not pages. Counted in pages, Dunmore is one gap in {spell(pipeline.asked)}. Counted in matches, that one page may cost several results. Case 2 works out how many.
+      <p class="cv-rule-call"><span>Coach Dolan, Hartwell</span>“Seven-nothing. You've got us fourth.”<em>Case 2</em></p></li>
+    <li><b>Keep a coverage record beside the data.</b> A <strong>coverage record</strong> is an inventory of what you set out to collect, with what happened to each one. For pages, every entry ends in a state.
+      <p class="cv-rule-call"><span>Cedar Grove men's soccer</span>“That game happened. It's not in the standings.”<em>Case 3</em></p></li>
   </ol>
 
-  <p>Every page in the expected set ends in one of four states, including pages the collector has no reader for:</p>
+  <p>Every page in the expected set ends in exactly one of four states. A page left off the list has none.</p>
   <div class="cv-states">
     {states.map((s) => (
       <div class={`cv-state is-${s.key}`}>
@@ -62,19 +82,21 @@ const captions = [
     ))}
     <div class="cv-state is-not-asked">
       <h4><i aria-hidden="true"></i>No state: never asked</h4>
-      <p>Anything left off your list has no state at all, so no log will ever mention it.</p>
+      <p>Anything left off your list has no state at all, so this run's coverage record has no entry for it.</p>
       <p><b>What you can claim:</b> Nothing, until an expected set written outside the run shows it is missing.</p>
     </div>
   </div>
-  <p>Both <em>Unavailable</em> and <em>No collector</em> mean the value is <strong>unknown</strong>: the first might clear on a retry, while the second needs new code. Unknown is never zero.</p>
+  <p>Both <em>Unavailable</em> and <em>No collector</em> mean the value is <strong>unknown</strong>: the first might clear on a retry, while the second needs new code.</p>
+  <p class="cv-rule">Unknown is never zero.</p>
+  <p>A state describes the whole page, so a Complete page can still hold a row with a blank score. Case 3 shows one.</p>
 
   <p>Kick's scraper had five stages, and Touchline uses seven steps. Kick's Build splits in two. Prove and Check are added, because Kick skipped them. Report moves out of the line to become the coverage record, kept beside every step. Each case names the Kick stage where it broke and the Touchline step that handles it.</p>
   <details class="cv-more">
     <summary>How Kick's five stages map to Touchline's seven steps</summary>
     <div class="cv-scroll">
       <table class="cv-stagemap">
-        <caption>Kick's stages compared to the platform's steps</caption>
-        <thead><tr><th scope="col">Kick</th><th scope="col">Platform</th><th scope="col">What it does</th><th scope="col">Module</th></tr></thead>
+        <caption>Kick's stages compared to Touchline's steps</caption>
+        <thead><tr><th scope="col">Kick</th><th scope="col">Touchline</th><th scope="col">What it does</th><th scope="col">Module</th></tr></thead>
         <tbody>
           {stages.map(([kick, step, what, mod]) => (
             <tr class:list={{ "is-skipped": !kick, "is-here": mod.startsWith("1,") }}><td>{kick || <span class="cv-none">skipped</span>}</td><th scope="row">{step}</th><td>{what}</td><td>{mod}</td></tr>

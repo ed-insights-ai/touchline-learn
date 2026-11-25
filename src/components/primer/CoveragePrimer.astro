@@ -31,19 +31,19 @@ const branchStatus = [
 ];
 
 const mcar = [[34, 0], [52, 1], [28, 0], [46, 0], [61, 0], [39, 1], [55, 0], [31, 0], [48, 0], [27, 1], [58, 0], [42, 0], [36, 0], [50, 1], [44, 0], [29, 0]] as const;
-const marLarge = [[62, 0], [55, 0], [70, 1], [58, 0], [66, 0], [51, 0], [64, 0], [59, 0], [68, 1], [57, 0], [61, 0], [53, 0]] as const;
+const marLarge = [[62, 0], [55, 0], [70, 0], [58, 1], [66, 0], [51, 0], [64, 0], [59, 0], [68, 0], [57, 0], [61, 1], [53, 0]] as const;
 const marSmall = [[24, 1], [31, 0], [19, 1], [27, 0], [22, 1], [33, 0], [26, 1], [21, 0], [29, 1], [18, 0], [25, 1], [30, 0]] as const;
-const mnar = [[8, 1], [12, 1], [15, 1], [19, 1], [23, 1], [27, 1], [31, 0], [35, 0], [40, 0], [44, 0], [49, 0], [53, 0], [58, 0], [62, 0]] as const;
+const mnar = [[8, 1], [12, 1], [15, 1], [19, 1], [23, 0], [27, 1], [31, 1], [35, 0], [40, 0], [44, 0], [49, 0], [53, 0], [58, 0], [62, 0]] as const;
 const scale = (rows: readonly (readonly [number, number])[]) => Math.max(...rows.map(([v]) => v));
 
 const mechanisms = [
   ["MCAR", "Neither observed nor missing values", "Random software fault"],
-  ["MAR", "Observed information", "Branch reporting software"],
+  ["MAR", "Observed information", "The branch: small branches run older software"],
   ["MNAR", "Unobserved information, potentially the missing value itself", "Low attendance deliberately omitted"],
 ];
 
-const base = [44, 40, 36, 32, 26, 22, 15, 12];
-const offsets = [-6, 3, 8, -2, 5];
+const base = [36, 34, 32, 30, 28, 26, 24, 22];
+const offsets = [-11, 3, 10, -4, 7];
 const programs = base.flatMap((b) => offsets.map((o) => b + o));
 const lowest = [...programs.keys()].sort((a, b) => programs[a] - programs[b] || a - b).slice(0, 10);
 const collections = [
@@ -131,6 +131,7 @@ const checks = [
         </li>
       ))}
     </ul>
+    <figcaption>Field values: every one of the 30 records has its program ID and date (60), and 24 have attendance, so 84 of 120.</figcaption>
   </figure>
   <p>All four measurements describe the same collection, but they answer different questions.</p>
   <div class="pr-scroll">
@@ -179,6 +180,10 @@ const checks = [
   <p>Notice how zero and unknown are different values. In Python, you might represent zero as <code>0</code> and unknown as <code>None</code>.</p>
   <p>Also, a parser returning an empty list does not automatically mean the source is empty. The parser may simply have failed to locate the table. If the independent registry expects programs from that branch, an apparently empty report should trigger further investigation.</p>
   <p class="pr-pull">Absence of data is not evidence of absence.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Module 1 names these states a little differently. <b>Empty</b> is the same. <b>Unreachable</b> is one kind of <b>Unavailable</b>, which also covers a page that answered but could not be verified as the one you asked for. <b>Unreadable</b> is <b>No collector</b>.</p>
+  </aside>
 
   <h2>4. Understanding why data is missing</h2>
   <p>Knowing how much data is missing is only part of the problem. You also need to understand why it is missing.</p>
@@ -253,10 +258,10 @@ const checks = [
     ))}
     <p class="pr-legend"><span class="is-seen">Kept</span><span class="is-gone">Lost</span></p>
   </figure>
-  <p><strong>Collection A</strong> lost ten programs at random. Its average is close to the truth. It simply rests on fewer programs.</p>
-  <p><strong>Collection B</strong> lost the two smallest branches. Every program it kept is real, but it says nothing about small branches, and its average leans toward the large ones. Because you know which branches are missing, you can report the gap or adjust for it.</p>
-  <p><strong>Collection C</strong> lost the ten least-attended programs. Its average is too high, and nothing in the 30 records it kept shows that anything is wrong.</p>
-  <p class="pr-pull">Coverage tells you how much is missing. Only the pattern of what is missing tells you whether what remains still represents the whole.</p>
+  <p><strong>Collection A</strong> lost ten programs at random. In this example its average lands close to the truth. It simply rests on fewer programs.</p>
+  <p><strong>Collection B</strong> lost the two smallest branches. Every program it kept is real, but it has no records at all from those two branches, so its average leans toward the larger ones. You know exactly where the gap is and can report it, but the large branches cannot stand in for the small ones.</p>
+  <p><strong>Collection C</strong> lost the ten least-attended programs, spread across seven branches. Its coverage is the same 75%, but nothing in the 30 records it kept shows that its average is too high.</p>
+  <p class="pr-pull">Coverage tells you how much is missing. The pattern of what is missing tells you whether what remains can still stand for the whole.</p>
 
   <h2>6. Check your understanding</h2>
   <p>Answer these three questions in your own words. I'll review your reasoning before providing the answers.</p>
@@ -368,6 +373,8 @@ const checks = [
   .pr-legend span.is-gone::before { border: 1.5px dashed #d9822b; background: transparent; }
   .pr .pr-axis { display: flex; justify-content: space-between; margin: 0.25rem 0 0; color: var(--tl-muted); font-size: 0.8rem; }
 
+  .pr .pr-course { padding: 0.7rem 0.9rem; border: 1px dashed var(--tl-muted); border-radius: 8px; font-size: 0.92rem; }
+  .pr .pr-course p:last-child { margin: 0; }
   .pr-coll + .pr-coll { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--tl-line); }
   .pr .pr-coll-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.6rem; margin: 0 0 0.4rem; }
   .pr-coll-head b { color: var(--sl-color-white); }
