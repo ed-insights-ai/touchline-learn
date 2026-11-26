@@ -70,11 +70,12 @@ const checks = [
   <p>A <strong>re-fetch</strong> asks the archive for a fresh copy. By this morning, a volunteer has approved the pending page and added a newly transcribed page that was also approved. The live source now has {words[today.rows.length]} records, {words[today.total]} of them approved. Your fixed code reports <strong>{today.total}</strong>.</p>
   <p class="pr-pull">Comparing yesterday’s {before} with today’s {today.total} mixes two changes.</p>
   <p>The fix removes {words[-fromCode]} page from yesterday’s count, and the live updates add {words[today.total - replay]} approved pages. Live records can also be edited, deleted, or backdated between fetches. Even if two totals match, the records behind them may have changed.</p>
-  <figure class="pr-card pa-rf" aria-live="polite">
+  <figure class="pr-card pa-rf">
     <fieldset class="pa-rf-controls">
       <legend>What changed at the source since yesterday</legend>
       {changes.map((c) => <label><input type="checkbox" value={c.key} checked /> <span>{c.label}</span></label>)}
     </fieldset>
+    <div aria-live="polite">
     <div class="pa-lanes">
       <div class="pa-lane is-old">
         <p class="pa-lane-head"><b>Yesterday's report</b><span>saved copy, old code</span></p>
@@ -95,6 +96,7 @@ const checks = [
           <p class="pa-lane-diff">{st.diff}</p>
         </div>
       ))}
+    </div>
     </div>
     <figcaption>Shaded rows differ from yesterday's saved record or count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with one change switched off its total matches yesterday's while the records behind it differ.</figcaption>
   </figure>

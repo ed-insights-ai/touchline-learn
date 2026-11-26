@@ -26,8 +26,7 @@ reply text inside the primer component and keep or rewrite its Course note.
 Notes on individual replies:
 
 - **Six replies were rerun** after the first council round changed their prompts, each
-  in a fresh session with the same model and settings on the same date. Prove it keeps its
-  first reply.
+  in a fresh session with the same model and settings on the same date.
   - **The idea** asks for two outputs that disagree with the record that explains why, and
     item 3 names both unrecoverable cases: a version never saved, and a saved copy later
     overwritten. It was run twice in round 2 and again after round 7. The first rerun's examples were one or two
@@ -54,13 +53,19 @@ Notes on individual replies:
   in a city's permit offices, right after Prove it's city electricity reports. The second rerun
   excluded four fields by name; the prompt now names its setting instead, a coffee roaster
   importing its suppliers' shipment weights, and the page shows that third reply.
-- **Rewind** has had three replies. The first used a library example, the third in
+- **Rewind** has had four replies. The first used a library example, the third in
   Module 2 after Module 1 used one throughout. The second used a street-tree inventory.
-  The page shows the third (lab sensor readings), which also includes a sample report.
+  The third (lab sensor readings) built its sample report around a corrected input file,
+  which Riley's criteria would not accept as a replay. After the tenth council round the
+  prompt says the rebuild follows a fix to the averaging code over the same saved files, and
+  the page shows that fourth reply: a blank reading the old code divided by.
 - **Case 3**: the reply hashes a whole source file, comments included. The Course note
   ties it to Touchline's whole-module parser fingerprint.
 - **The decision**: the reply's "fingerprint" means a content hash of a file. The Course
   note says how the course uses the two words.
-- **Prove it**: the reply uses "fingerprint" for an artifact's whole provenance. The
-  Course note says how the course's narrower meaning relates, and states the staleness
-  rule in full.
+- **Prove it** was rerun after the tenth council round. Its first reply picked city
+  electricity meter readings, right after Rewind's sensor readings, and showed no worked
+  numbers. The prompt now names its setting, a food bank network's monthly household counts
+  per pantry, and asks for one output's numbers before and after the fix. The reply uses
+  "fingerprint" for an output's whole provenance; the Course note says how the course's
+  narrower meaning relates.

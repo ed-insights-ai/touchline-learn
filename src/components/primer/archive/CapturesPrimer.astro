@@ -41,11 +41,12 @@ const checks = [
   <h2>1. What each policy lets you rebuild</h2>
   <p><strong>Keep only the latest copy.</strong> Tuesday’s fetch overwrites Monday’s. You can use the saved page to rebuild a report from Tuesday’s listings. To rebuild Monday’s report, you’d need another copy of Monday’s page.</p>
   <p><strong>Keep every copy with its fetch time.</strong> You can retrieve Monday’s page and use it to rebuild a report from the listings your archive saw that morning. The fetch time tells you when you observed the page. If the seat count changed Monday afternoon and changed again before Tuesday’s fetch, the archive would have no record of those changes.</p>
-  <figure class="pr-card pa-cap" aria-live="polite">
+  <figure class="pr-card pa-cap">
     <fieldset class="pr-seg">
       <legend>Archive policy</legend>
       {policies.map((p, i) => <label><input type="radio" name="pa-cap-policy" value={p.id} checked={i === 0} /><span>{p.name}</span></label>)}
     </fieldset>
+    <div aria-live="polite">
     {policies.map((p) => (
       <div class="pa-cap-view" data-policy={p.id}>
         <p class="pr-label">The archive after Tuesday's fetch</p>
@@ -70,6 +71,7 @@ const checks = [
         </ul>
       </div>
     ))}
+    </div>
     <figcaption>These answers are about the pages. A rebuild also needs the code and configuration each report used, as section 4 shows.</figcaption>
   </figure>
 

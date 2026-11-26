@@ -72,25 +72,27 @@ const checks = [
   <h2>2. Classroom grades: an overwrite loses the earlier scores</h2>
   <p>A teacher exports two quiz scores, <code>{first[0]}</code> and <code>{first[1]}</code>. With equal weights, the derived average is <code>({first.join(" + ")}) ÷ {first.length} = {avg(first)}</code>.</p>
   <p>Later the teacher corrects the first score to <code>{corrected[0]}</code>. The new export contains <code>{corrected[0]}</code> and <code>{corrected[1]}</code>, and the average becomes <code>({corrected.join(" + ")}) ÷ {corrected.length} = {avg(corrected)}</code>. If the import overwrites the archived first export, replay can still produce <code>{avg(corrected)}</code>, but it can’t recover the original scores. Even if the old average of <code>{avg(first)}</code> survives, <code>{sameAvg[1][0]}</code> and <code>{sameAvg[1][1]}</code> would also average to <code>{avg(first)}</code>. Keeping both raw exports under separate revision IDs would let you reproduce either result.</p>
-  <figure class="pr-card pa-water" aria-live="polite">
+  <figure class="pr-card pa-grades">
     <fieldset class="pr-seg">
       <legend>What the archive holds</legend>
       {states.map((st, i) => <label><input type="radio" name="pa-raw-grades" value={st.id} checked={i === 0} /><span>{st.label}</span></label>)}
     </fieldset>
+    <div aria-live="polite">
     {states.map((st) => (
-      <div class="pa-water-view" data-water={st.id}>
+      <div class="pa-grades-view" data-grades={st.id}>
         <ul class="pa-rows">
           {[first, corrected].map((ex, i) => {
             const kept = st.held.includes(ex);
             return <li class={kept ? "" : "is-gone"}><span>Export {i + 1}: {kept ? ex.join(" and ") : "overwritten"}</span><b>{kept ? `replays to ${avg(ex)}` : "can't replay"}</b></li>;
           })}
         </ul>
-        <p class="pa-water-say">{st.id === "kept"
+        <p class="pa-grades-say">{st.id === "kept"
           ? "Either average can be reproduced from its own export."
           : `The old average of ${avg(first)} may survive as a number, but each of these score pairs gives it:`}</p>
         {st.id === "over" && <ul class="pa-pairs">{sameAvg.map((p) => <li><code>{p.join(" and ")}</code></li>)}</ul>}
       </div>
     ))}
+    </div>
     <figcaption>An average of {avg(first)} leaves several possible score pairs, so only the saved export says which pair it was.</figcaption>
   </figure>
 
@@ -127,17 +129,17 @@ const checks = [
   .pa-prov dd { margin: 0; }
   .pa-prov .is-diff { background: color-mix(in srgb, #d9822b 18%, transparent); font-weight: 600; }
   :global(.pr) .pa-prov-sum { margin: 0.45rem 0 0; color: var(--tl-muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
-  .pa-water .pr-seg { margin-bottom: 0.7rem; }
-  .pa-water-view { display: none; }
-  .pa-water:has([value="kept"]:checked) [data-water="kept"],
-  .pa-water:has([value="over"]:checked) [data-water="over"] { display: block; }
+  .pa-grades .pr-seg { margin-bottom: 0.7rem; }
+  .pa-grades-view { display: none; }
+  .pa-grades:has([value="kept"]:checked) [data-grades="kept"],
+  .pa-grades:has([value="over"]:checked) [data-grades="over"] { display: block; }
   .pa-rows { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-rows li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-rows li b { color: var(--sl-color-white); font-variant-numeric: tabular-nums; }
   .pa-rows li.is-fix { box-shadow: inset 0 0 0 1px var(--pr-green); }
   .pa-rows li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; color: var(--tl-muted); }
   .pa-rows li.is-gone b { color: var(--tl-muted); font-weight: 600; }
-  :global(.pr) .pa-water-say { margin: 0.6rem 0 0; font-size: 0.9rem; }
+  :global(.pr) .pa-grades-say { margin: 0.6rem 0 0; font-size: 0.9rem; }
   .pa-pairs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.45rem 0 0; padding: 0; list-style: none; }
   .pa-pairs li { padding: 0.2rem 0.55rem; border: 1px solid var(--tl-line); border-radius: 999px; font-size: 0.85rem; }
 </style>

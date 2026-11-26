@@ -61,11 +61,12 @@ const checks = [
 
   <h2>2. Replay from the last layer before the damage</h2>
   <p>Suppose the museum saves a copy after each step:</p>
-  <figure class="pr-card pa-keep" aria-live="polite">
+  <figure class="pr-card pa-keep">
     <fieldset class="pr-seg">
       <legend>Where the bug runs</legend>
       {bugSteps.map((b, i) => <label><input type="radio" name="pa-keep-bug" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
     </fieldset>
+    <div aria-live="polite">
     {bugSteps.map((b) => (
       <div class="pa-ladder-view" data-bug={b.id}>
       <ol class="pa-ladder">
@@ -83,6 +84,7 @@ const checks = [
       <label class="pa-reveal"><input type="checkbox" /> <span>Predict which copies can verify the fix, then show them</span></label>
       </div>
     ))}
+    </div>
     <figcaption>Move the bug and the last clean copy moves with it. The raw response comes before every step, so wherever the bug runs, a replay can start from it.</figcaption>
   </figure>
   <p>The <strong>extracted fields</strong> are the last saved copy before the bug. They still contain the blank, so the museum can feed them into the fixed count parser and check that the result is missing, then run the downstream steps again. A test record with an explicit <code>0</code> should still produce zero.</p>

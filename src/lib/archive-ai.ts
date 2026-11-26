@@ -52,7 +52,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and count how many inputs differ from Tuesday's run in two others: Friday's pages with Tuesday's rule and a new alias list, and a fresh fetch with the fixed rule and the new alias list.",
+    returnTask: "Then come back and classify two new runs against Tuesday's: Friday's pages with a new alias list, and a fresh fetch with the fixed rule.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -64,7 +64,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: `Then come back and place one more bug on the grid: the build step gives Cedar Grove's ${win.away_score}–${win.home_score} win at Hartwell Tech two points.`,
+    returnTask: `Then come back and place one more bug on the grid: the build step gives Cedar Grove's ${win.away_score}–${win.home_score} win over Hartwell Tech two points.`,
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -76,7 +76,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and try one more preset: a site's ten pages read one local settings file, and you edit it. Predict how many pages rebuild and how many are fetched.",
+    returnTask: "Then come back and set one more case beside the bench's presets: a site generator builds ten pages from one settings file, and you edit that file. How many pages rebuild, and how many are fetched?",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -93,22 +93,22 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   rewind: {
     slug: "02-archive-ai-criteria",
     title: "Making a rebuild checkable",
-    prompt: `I'm learning how to ask an AI coding agent to rebuild a dataset from saved inputs so I can check what it did. Teach me how to write acceptance criteria for a reproducible rebuild, with one running example: rebuilding a research lab's table of daily sensor readings.
+    prompt: `I'm learning how to ask an AI coding agent to rebuild a dataset from saved inputs after I fix a bug in my code, so I can check what it did. Teach me how to write acceptance criteria for a reproducible rebuild, with one running example: a research lab's table of daily sensor readings, rebuilt from the same saved files after a fix to its averaging code.
 
 1. What a rebuild report should list about its inputs: which saved files it read, each identified by a content hash, and which expected inputs were missing.
 2. How to identify the code and configuration that produced the output, for example a commit and a fingerprint.
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
-4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
+4. How a diff between the old output and the rebuild should explain every changed value when the inputs are unchanged and only the code was fixed, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
     returnTask: "Then come back and write one criterion for a rebuild of your own, and find the closest line in Kick's report.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",
     title: "Turning a recovery plan into a prompt",
-    prompt: `I'm learning how to hand a bug fix to an AI coding agent when the bug is found months after the data was published. Help me turn a recovery plan into a prompt for the agent, with one running example that is not about sports.
+    prompt: `I'm learning how to hand a bug fix to an AI coding agent when the bug is found months after the data was published. Help me turn a recovery plan into a prompt for the agent, with one running example with small numbers: a food bank network that publishes how many households each pantry served each month.
 
 1. What to replay, and how the agent decides which outputs are stale from a fingerprint rather than a guess about which records the bug touched.
-2. What to republish, and what to leave alone because the bug never reached it.
+2. What to republish, and what to leave alone because the bug never reached it. Show one output's numbers before and after the fix.
 3. What to tell the people who used the published output: a correction note that names what changed and why.
 4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
 5. ${close}`,

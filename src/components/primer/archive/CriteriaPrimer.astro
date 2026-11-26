@@ -5,78 +5,47 @@ import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 const card = archiveAi.rewind;
 
 const criteria = [
-  ["Account for every expected input.", "The report names the saved manifest that defines the expected files. For every file the rebuild reads, it records the relative path and the SHA-256 hash of the exact bytes read. It lists missing files separately and states the effect of each absence. For example, a missing required sensor export fails the run. A missing optional calibration file may allow the run to proceed under a documented rule."],
-  ["Identify the code and effective configuration.", "Record the full Git commit and verify that the code used for the rebuild matches it. Record a SHA-256 fingerprint of the effective configuration after resolving defaults and overrides, and save that configuration in a stable format so you can recompute the fingerprint. For daily readings, the timezone, rounding rule, and missing-value policy can all affect the output. Record the runtime and dependency lockfile hash if they can affect the result."],
-  ["Make “no network requests” observable.", "Run the rebuild and its child processes in an environment that blocks network access. Save evidence that the restriction was active and an audit log that records attempted network access, including attempts that were blocked. A passing report shows zero attempts and complete audit coverage for the run. A missing audit makes the claim unverified. A blocked attempt means the restriction worked, but the zero-attempt criterion failed."],
-  ["Explain every output difference.", "Identify the saved baseline and rebuilt output by hash. Compare rows by a stable key such as (sensor_id, date_utc), reject duplicate keys, and report added rows, removed rows, and changed cells. For each changed cell, show the old and new values, cite the source records or rule change, and give enough detail to verify the calculation. An unexplained change means the rebuild failed acceptance. It does not establish the cause of the discrepancy."],
+  ["Account for every input.", "Require a manifest of the saved files actually read, with a relative path and SHA-256 hash of each file’s bytes. Compare it with the expected-input list and report every missing file. Say which missing inputs are allowed and how they affect the output. A missing required file should fail the rebuild."],
+  ["Identify what produced the output.", "Record the Git commit, whether the working tree was clean, the exact rebuild command, and the runtime or pinned environment. Fingerprint the effective configuration after defaults and overrides have been applied. Specify how that fingerprint is computed, such as SHA-256 over canonical JSON. A second run with the same inputs, code, configuration, and environment should produce the same output hash."],
+  ["Attach evidence for “no network requests.”", "Run the rebuild and its child processes with network access blocked, and retain an audit log that records attempted connections, including blocked ones. Require zero attempts in that log. A network block establishes that connections could not succeed. The audit establishes whether the code tried."],
+  ["Explain every output difference.", "First verify that the old and new runs used the same input hashes and effective configuration. Compare rows by a stable key, such as (sensor_id, date), and report added or removed rows and changed values. For each changed value, give the old value, the new value, and the calculation or rule that connects the change to the fix. An unexplained difference means the rebuild has failed acceptance until you can account for it. It could point to another code change, a hidden input, or nondeterminism."],
 ];
 
 const audits = [
-  ["coverage: full run · attempts: 0", "Pass", "is-ok", "Zero attempts, and the audit covers the whole run."],
-  ["coverage: full run · attempts: 1 (blocked)", "Fail", "is-bad", "The restriction worked, but the zero-attempt criterion did not."],
-  ["network-audit.json not saved", "Unverified", "is-warn", "Without an audit, the claim has no evidence."],
+  ["sandbox: network blocked · audit log: none", "Unverified", "is-warn", "Connections could not succeed, but nothing shows whether the code tried."],
+  ["sandbox: network blocked · audit: 1 attempt, blocked", "Fail", "is-bad", "The block worked, but the zero-attempt criterion did not."],
+  ["sandbox: network blocked · audit: full run, 0 attempts", "Pass", "is-ok", "The block and the audit together cover the claim."],
 ];
 
-const baseline = [19.0, 21.0];
-const rebuilt = [19.0, 23.0];
-const mean = (xs: number[]) => (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1);
-const f1 = (n: number) => n.toFixed(1);
-const readings: (number | null)[] = [19.0, null, 21.0];
-const asZero = mean(readings.map((r) => r ?? 0));
-const skipBlank = mean(readings.filter((r): r is number => r !== null));
-const shown = (r: number | null) => (r === null ? "blank" : f1(r));
+const readings: (number | null)[] = [10, null, 20];
+const valid = readings.filter((r): r is number => r !== null);
+const sum = valid.reduce((a, b) => a + b, 0);
+const oldMean = (sum / readings.length).toFixed(1);
+const newMean = (sum / valid.length).toFixed(1);
+const commits = { old: "8e4c57f", fixed: "a91d2c7" };
+const listed = readings.map((r) => (r === null ? "blank" : String(r)));
 
-const report = `Run: daily-readings-042
-Result: PASS
+const report: [string, string][] = [
+  ["Inputs read", "saved/S1-2026-01-05.csv had SHA-256 9f2c4d7b8a1e6053d9c0b4f268a3e175c6d8f092b547ae31e0d9c6a54b738f21. The baseline manifest records the same path and hash. The expected optional file saved/S2-2026-01-05.csv was absent in both runs. Both runs omit the S2 row under the configured missing-file rule. All required inputs were present."],
+  ["Code and configuration", `Baseline commit ${commits.old}, rebuild commit ${commits.fixed}. Both used clean checkouts, Python 3.12.8, the same dependency lockfile, and python rebuild.py --config rebuild.json. Both used the same effective configuration fingerprint, SHA-256 4b806e32df21a759c4e06b8313da5f79a8b2d4c69fe1037a2e58b9c0d614f782, computed from canonical JSON after applying defaults. The configuration uses UTC dates and excludes blank readings from the mean.`],
+  ["Network evidence", "The rebuild and its child processes ran in a network-disabled sandbox. The attached network-audit.log covers the full run and records zero connection attempts, including blocked attempts."],
+  ["Output diff", `No rows were added or removed. The only changed cell was daily_mean for (S1, 2026-01-05), from ${oldMean} to ${newMean}. The saved readings were ${listed.slice(0, -1).join(", ")}, and ${listed[listed.length - 1]}. The old code divided the sum by all ${readings.length} rows, giving ${sum} ÷ ${readings.length} = ${oldMean}. The fix divides by the ${valid.length} valid readings, giving ${sum} ÷ ${valid.length} = ${newMean}. Every other cell matched.`],
+  ["Repeatability", "A second run under the same conditions produced the same output SHA-256, d74e50b1926fc083a31d58ce60fb24794da71c5b9f02e63881ad4357be6092fc. The rebuild passed."],
+];
 
-Saved inputs read (SHA-256 of file bytes)
-  inputs/manifest.json
-    12af45b812af45b812af45b812af45b812af45b812af45b812af45b812af45b8
-  inputs/sensor-17/2026-11-20.csv
-    9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad
-
-Expected input missing
-  inputs/calibration/2026-11-20.csv
-  Optional per manifest. Effective config applies a 0.0 °C offset.
-
-Code and configuration
-  Git commit: 8f24c6a571b02ce683bd993036e63dadd75c4537
-  Source checkout verified clean.
-  Saved effective config: evidence/effective-config.json
-  Config SHA-256: 62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b
-  Effective settings: UTC days, arithmetic mean, round to one decimal.
-
-Network
-  evidence/sandbox.json confirms networking was blocked for the
-  rebuild and its child processes.
-  evidence/network-audit.json covers the full run: 0 attempts.
-
-Comparison
-  SHA-256 for baseline.csv and rebuilt.csv: evidence/output-hashes.txt
-  Row key: (sensor_id, date_utc). Duplicate keys: 0.
-  Added rows: 0. Removed rows: 0. Changed cells: 1.
-  S17, 2026-11-20, mean_temp_c: ${mean(baseline)} → ${mean(rebuilt)}.
-  The archived baseline input had readings of ${baseline.map(f1).join(" and ")}.
-  The rebuild input, lines 2–3, has ${rebuilt.map(f1).join(" and ")}.
-  The lab’s correction record confirms ${f1(baseline[1])} → ${f1(rebuilt[1])} for the
-  second reading. Under the same averaging rule, the means are
-  (${baseline.map(f1).join(" + ")}) / 2 = ${mean(baseline)} and (${rebuilt.map(f1).join(" + ")}) / 2 = ${mean(rebuilt)}.
-  Evidence: archived baseline manifest and corrections/S17-2026-11-20.json.
-  Unexplained changes: 0.`;
-
-const short = ["Every expected input", "Code and configuration", "No network requests", "Every difference explained"];
+const short = ["Every input", "What produced the output", "No network requests", "Every difference explained"];
 const breaks: { id: string; label: string; line: string; fails: number; skip?: number[]; why: string }[] = [
-  { id: "none", label: "Change nothing", line: "Unexplained changes: 0.", fails: -1, why: "Every criterion has its evidence, so the run passes." },
-  { id: "missing", label: "A required sensor export is missing", line: "Expected input missing: inputs/sensor-17/2026-11-20.csv (required)", fails: 0, skip: [3], why: "The manifest expects it, and a missing required export fails the run before any diff is made." },
-  { id: "dirty", label: "The checkout has uncommitted edits", line: "Source checkout: 1 uncommitted change, in the aggregation code that ran", fails: 1, why: "The code that ran no longer matches the recorded commit." },
-  { id: "attempt", label: "The audit shows one blocked attempt", line: "evidence/network-audit.json covers the full run: 1 attempt, blocked.", fails: 2, why: "The restriction worked, but the zero-attempt criterion did not." },
-  { id: "cell", label: "A second cell changed with no correction record", line: "Changed cells: 2. Unexplained changes: 1.", fails: 3, why: "An unexplained change means the rebuild failed acceptance." },
+  { id: "none", label: "Change nothing", line: "Every other cell matched.", fails: -1, why: "Every criterion has its evidence, so the rebuild passes." },
+  { id: "missing", label: "The S1 file is missing", line: "Expected required input saved/S1-2026-01-05.csv: missing", fails: 0, skip: [3], why: "A missing required file fails the rebuild before there is an output to compare." },
+  { id: "dirty", label: "The working tree has an edit", line: `Rebuild commit ${commits.fixed}, working tree not clean: 1 uncommitted change in the averaging code`, fails: 1, why: "The code that ran is not the code the commit records." },
+  { id: "attempt", label: "The audit shows one blocked attempt", line: "network-audit.log covers the full run: 1 connection attempt, blocked.", fails: 2, why: "The block worked, but the zero-attempt criterion did not." },
+  { id: "cell", label: "A second cell changed, unexplained", line: "Changed cells: 2. One has no calculation that connects it to the fix.", fails: 3, why: "An unexplained difference fails acceptance until someone accounts for it." },
 ];
 
 const checks = [
-  ["Same path, new hash", "If two rebuilds read a file with the same path but different SHA-256 hashes, what can you conclude about their inputs, and what would you check next?"],
-  ["One blocked attempt", "If the sandbox blocked one outbound connection attempt, did the run satisfy the zero-attempt criterion? Which evidence would you use to decide?"],
-  ["“The input file was updated”", "If a daily average changes and the report says only “the input file was updated,” what evidence would you require before accepting the rebuild?"],
+  ["Same name, new hash", "If a saved file has the same name in both runs but a different content hash, what can you conclude about the inputs?"],
+  ["The sandbox alone", "Why does a network-disabled sandbox alone fall short of proving that the code made no connection attempts?"],
+  ["No blanks", "If a daily mean changes for a sensor whose saved readings contain no blanks, what evidence would you need before accepting that change?"],
 ];
 ---
 
@@ -88,59 +57,49 @@ const checks = [
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
-  <p class="pr-pull">Write each acceptance criterion as a pass/fail check.</p>
-  <p>Name what the rebuild report must show, what evidence you can inspect, and what would make the rebuild fail acceptance.</p>
+  <p class="pr-pull">Write acceptance criteria so someone else can check the rebuild from the saved files, the output, and the evidence attached to the report.</p>
 
-  <h2>1. Acceptance criteria for daily sensor readings</h2>
+  <h2>1. Four criteria for the sensor table</h2>
   <ol class="pa-criteria">{criteria.map(([head, body]) => <li><b>{head}</b> {body}</li>)}</ol>
   <figure class="pr-card">
-    <p class="pr-label">Criterion 3: three network audits, judged</p>
+    <p class="pr-label">Criterion 3: three runs, judged</p>
     <ul class="pa-audit">{audits.map(([what, v, tone, why]) => <li><code>{what}</code><span class:list={["pr-chip", tone]}>{v}</span><small>{why}</small></li>)}</ul>
   </figure>
 
   <h2>2. Example rebuild report</h2>
-  <p>This example uses illustrative hashes and artifact names.</p>
-  <div class="pr-code"><p class="pr-label">Rebuild report</p><pre>{report}</pre></div>
-  <figure class="pr-card pa-break" aria-live="polite">
-    <fieldset class="pr-seg">
-      <legend>Break one line of the report</legend>
-      {breaks.map((b, i) => <label><input type="radio" name="pa-crit-break" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
-    </fieldset>
-    {breaks.map((b) => (
-      <div class="pa-break-view" data-break={b.id}>
-        <p class="pa-break-line"><span>Report line</span><code>{b.line}</code></p>
-        {b.fails >= 0 && <label class="pa-reveal"><input type="checkbox" /> <span>Predict which criterion fails, then show the audit</span></label>}
-        <ul class="pa-audit">{short.map((c, i) => <li><span>{c}</span><span class:list={["pr-chip", i === b.fails ? "is-bad" : b.skip?.includes(i) ? "is-quiet" : "is-ok"]}>{i === b.fails ? "Fail" : b.skip?.includes(i) ? "Not reached" : "Pass"}</span></li>)}</ul>
-        <p class="pa-break-result"><b>Result: {b.fails < 0 ? "PASS" : "FAIL"}</b> {b.why}</p>
-      </div>
-    ))}
+  <p><em>Illustrative report for a lab’s daily sensor table. The hashes and commit IDs are example values.</em></p>
+  <figure class="pr-card pa-report">
+    <p class="pr-label">Rebuild report</p>
+    <dl>{report.map(([head, body]) => <div><dt>{head}</dt><dd>{body}</dd></div>)}</dl>
   </figure>
   <figure class="pr-card">
     <p class="pr-label">The one changed cell, checked</p>
     <div class="pa-cell">
-      <div><p class="pa-cell-head">Baseline</p><p>{baseline.map(f1).join(" · ")}</p><p class="pa-cell-mean">mean {mean(baseline)}</p></div>
-      <div class="is-new"><p class="pa-cell-head">Rebuild</p><p>{f1(rebuilt[0])} · <mark>{f1(rebuilt[1])}</mark></p><p class="pa-cell-mean">mean {mean(rebuilt)}</p></div>
+      <div><p class="pa-cell-head">{commits.old}, every row</p><p>{readings.map((r, i) => <span>{i > 0 && " · "}{r === null ? <mark>blank</mark> : r}</span>)}</p><p class="pa-cell-mean">{sum} ÷ {readings.length} = {oldMean}</p></div>
+      <div class="is-new"><p class="pa-cell-head">{commits.fixed}, valid readings</p><p>{valid.join(" · ")}</p><p class="pa-cell-mean">{sum} ÷ {valid.length} = {newMean}</p></div>
     </div>
-    <figcaption>One input value changed, and a correction record says why. The same averaging rule turns it into exactly the change the diff reports, so nothing is left unexplained.</figcaption>
+    <figcaption>Same file, same hash, same configuration: only the commit differs, so the change must trace to the code. The configuration already said to leave blanks out of the mean; the old code divided by every row anyway.</figcaption>
   </figure>
-  <figure class="pr-card">
-    <p class="pr-label">Excerpt: the same four criteria on a code-only fix</p>
-    <ul class="pa-audit">
-      <li><code>inputs/sensor-17/2026-11-20.csv  4e71c0b9…  same hash as the baseline run</code><span class="pr-chip is-ok">Pass</span></li>
-      <li><code>Git commit: d05a3e2…  (baseline 71c8f9a…)</code><span class="pr-chip is-ok">Pass</span></li>
-      <li><code>network-audit.json: full run, 0 attempts</code><span class="pr-chip is-ok">Pass</span></li>
-      <li><code>Changed cells: 1. S17 mean_temp_c {asZero} → {skipBlank}; traced to d05a3e2.</code><span class="pr-chip is-ok">Pass</span></li>
-    </ul>
-    <div class="pa-cell">
-      <div><p class="pa-cell-head">71c8f9a, blank as 0</p><p>{readings.map((r) => f1(r ?? 0)).join(" · ")}</p><p class="pa-cell-mean">mean {asZero}</p></div>
-      <div class="is-new"><p class="pa-cell-head">d05a3e2, blank skipped</p><p>{readings.map(shown).join(" · ")}</p><p class="pa-cell-mean">mean {skipBlank}</p></div>
+  <figure class="pr-card pa-break">
+    <fieldset class="pr-seg">
+      <legend>Break one line of the report</legend>
+      {breaks.map((b, i) => <label><input type="radio" name="pa-crit-break" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
+    </fieldset>
+    <div aria-live="polite">
+      {breaks.map((b) => (
+        <div class="pa-break-view" data-break={b.id}>
+          <p class="pa-break-line"><span>Report line</span><code>{b.line}</code></p>
+          {b.fails >= 0 && <label class="pa-reveal"><input type="checkbox" /> <span>Predict which criterion fails, then show the audit</span></label>}
+          <ul class="pa-audit">{short.map((c, i) => <li><span>{c}</span><span class:list={["pr-chip", i === b.fails ? "is-bad" : b.skip?.includes(i) ? "is-quiet" : "is-ok"]}>{i === b.fails ? "Fail" : b.skip?.includes(i) ? "Not reached" : "Pass"}</span></li>)}</ul>
+          <p class="pa-break-result"><b>Result: {b.fails < 0 ? "PASS" : "FAIL"}</b> {b.why}</p>
+        </div>
+      ))}
     </div>
-    <figcaption>The same saved readings, by hash, under two commits. Only the code changed, so the one changed cell must trace to it, and the two calculations show that it does.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply ties a commit to the running code with a clean checkout. Kick's fingerprint and build revision hash the source and config files on disk instead; they don't show those files were committed, or cover libraries and the interpreter.</p>
-    <p>The reply's changed cell comes from a corrected input, so under Riley's criteria it would not count as a replay of Friday's pages. Kick's replay holds them fixed, so its one changed cell must trace to the code. Kick's zero requests covers the socket calls its counter patches, in its own process, during the replay.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Dunmore's page is the reply's missing S2 file: expected, absent, and listed with its effect. The reply ties a commit to the running code with a clean checkout and a pinned environment. Kick's fingerprint and build revision hash the source and config files on disk instead; they don't show those files were committed, or cover libraries and the interpreter.</p>
+    <p>Like the reply's rebuild, Kick's replay holds the saved inputs fixed, so its one changed cell must trace to the code. Kick's zero requests covers the socket calls its counter patches, in its own process, during the replay; the reply's sandbox and audit would also cover child processes.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
@@ -155,6 +114,10 @@ const checks = [
   .pa-audit { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-audit li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-audit small { flex-basis: 100%; color: var(--tl-muted); font-size: 0.82rem; }
+  .pa-report dl { display: grid; gap: 0.5rem; margin: 0; }
+  .pa-report dl div { display: grid; gap: 0.15rem; padding: 0.45rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
+  .pa-report dt { color: var(--sl-color-white); font-weight: 700; font-size: 0.9rem; }
+  .pa-report dd { margin: 0; font-size: 0.88rem; overflow-wrap: anywhere; }
   .pa-break .pr-seg { margin-bottom: 0.7rem; }
   .pa-break-view { display: none; }
   .pa-break-view:has(.pa-reveal):not(:has(.pa-reveal input:checked)) .pa-audit,
@@ -171,7 +134,6 @@ const checks = [
   :global(.pr) .pa-break-result { margin: 0.6rem 0 0; font-size: 0.9rem; }
   .pa-break-result b { color: var(--sl-color-white); }
   .pa-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  .pa-audit + .pa-cell { margin-top: 0.6rem; }
   .pa-cell > div { padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-family: var(--sl-font-mono); font-size: 0.9rem; }
   .pa-cell > div.is-new { border-color: var(--pr-green); }
   :global(.pr) .pa-cell p { margin: 0 0 0.2rem; }

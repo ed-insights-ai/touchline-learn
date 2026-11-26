@@ -12,7 +12,7 @@ const shipments = [kg.whole, kg.fraction];
 const revised = 12.4;
 const kgs = (x: number) => `${x} kg`;
 const bound = (x: number) => `${Math.floor(x)} to under ${Math.floor(x) + 1} kg`;
-type Fate = "exact" | "bound" | "lost";
+type Fate = "exact" | "bound" | "row" | "file";
 const worlds: { id: string; tab: string; kept: string; recover: string; needed: string; claim: [string, string]; fates: [Fate, Fate] }[] = [
   {
     id: "every",
@@ -30,7 +30,7 @@ const worlds: { id: string; tab: string; kept: string; recover: string; needed: 
     recover: `It can flag rows imported during the affected period. A stored ${kgs(kg.whole)} means the supplier reported at least ${kgs(kg.whole)} and less than ${kgs(kg.whole + 1)}. The row may already be correct if the supplier reported exactly ${kgs(kg.whole)}. The roaster can calculate bounds for totals, but any single estimate requires assumptions about the missing fractions. The exact reported weights are lost from this archive.`,
     needed: "It needed the original reported weights linked to the processed rows. To recover earlier versions too, it needed to retain each version and its import time.",
     claim: ["Bounded", "is-bad"],
-    fates: ["lost", "bound"],
+    fates: ["row", "bound"],
   },
   {
     id: "over",
@@ -39,7 +39,7 @@ const worlds: { id: string; tab: string; kept: string; recover: string; needed: 
     recover: `It can recover exact weights as reported in the surviving files. If the surviving file says ${kgs(revised)}, that establishes the revised weight. The earlier weight could have been ${kgs(kg.fraction)}, but the surviving file cannot establish it. Where an older processed row survives, the roaster can still flag it and give the same rounding bounds.`,
     needed: "It needed to keep each resubmission as a separate version and record which file version each import used.",
     claim: ["Partly exact", "is-warn"],
-    fates: ["lost", "exact"],
+    fates: ["file", "exact"],
   },
 ];
 const versions = [
@@ -49,7 +49,8 @@ const versions = [
 const fateText = (f: Fate, w: number): [string, string] =>
   f === "exact" ? [`${kgs(w)}, from its file`, "is-ok"]
   : f === "bound" ? [`${bound(w)}, from its rounded row`, "is-warn"]
-  : ["Unavailable: replaced by the resubmission", "is-bad"];
+  : f === "row" ? ["Unavailable: its row now holds the resubmission", "is-bad"]
+  : ["Unavailable: its file was overwritten, its row updated", "is-bad"];
 
 const checks = [
   ["Weather monitoring", "A station’s importer rounded rainfall readings down to whole millimeters. It kept every raw upload and a log of when each version was used. What can it reconstruct about last spring’s readings, including later revisions?"],
@@ -86,12 +87,13 @@ const checks = [
     </div>
     <figcaption>The stored value fixes a range, not a weight: the shaded kilogram. That range is all a processed table can offer.</figcaption>
   </figure>
-  <figure class="pr-card pa-worlds" aria-live="polite">
+  <figure class="pr-card pa-worlds">
     <p class="pr-label">One shipment, revised once: what each archive can give back</p>
     <fieldset class="pr-seg">
       <legend>What the roaster kept</legend>
       {worlds.map((w, i) => <label><input type="radio" name="pa-carry-world" value={w.id} checked={i === 0} /><span>{w.tab}</span></label>)}
     </fieldset>
+    <div aria-live="polite">
     {worlds.map((w) => (
       <div class="pa-world" data-world={w.id}>
         <p class="pa-world-head"><span class="pa-world-kept">{w.kept}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
@@ -106,6 +108,7 @@ const checks = [
         <p>{w.needed}</p>
       </div>
     ))}
+    </div>
   </figure>
 
   <h2>2. What to put in a correction note</h2>
