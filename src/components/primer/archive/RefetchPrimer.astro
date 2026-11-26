@@ -40,15 +40,13 @@ const states = subsets.map((on) => {
 });
 const today = states[states.length - 1];
 if (states.some((st) => st.total - replay !== changes.filter((c) => st.key.includes(c.key)).reduce((n, c) => n + delta(c), 0))) throw new Error("source changes are not additive");
-const laneCss = states
-  .map((st) => `.pa-rf${changes.map((c) => (st.key.includes(c.key) ? `:has([value="${c.key}"]:checked)` : `:not(:has([value="${c.key}"]:checked))`)).join("")} [data-s="${st.key}"]`)
-  .join(",\n") + " { display: grid; }";
+if (states.map((st) => st.key).sort().join() !== "0,a,an,n") throw new Error("lane styles expect the change keys a and n");
 const n = (s: Status) => saved.filter((r) => r.status === s).length;
 
 const checks = [
-  ["The fix alone", "You want to show that the bug fix alone changes yesterday’s count. Which records and which versions of the code would you use?"],
-  [`${today.total} against ${before}`, `The fixed code reports ${today.total} after a re-fetch. What accounts for the difference between that and yesterday’s published ${before}?`],
-  ["Today and yesterday", "A volunteer asks for today’s count, and you still need to be able to verify yesterday’s corrected report. What would you fetch, and what would you keep?"],
+  ["The fix alone", "You want to show that the bug fix alone changes yesterday's count. Which records and which versions of the code would you use?"],
+  [`${today.total} against ${before}`, `The fixed code reports ${today.total} after a re-fetch. What accounts for the difference between that and yesterday's published ${before}?`],
+  ["Today and yesterday", "A volunteer asks for today's count, and you still need to be able to verify yesterday's corrected report. What would you fetch, and what would you keep?"],
 ];
 ---
 
@@ -68,8 +66,8 @@ const checks = [
 
   <h2>2. Re-fetch the live source</h2>
   <p>A <strong>re-fetch</strong> asks the archive for a fresh copy. By this morning, a volunteer has approved the pending page and added a newly transcribed page that was also approved. The live source now has {words[today.rows.length]} records, {words[today.total]} of them approved. Your fixed code reports <strong>{today.total}</strong>.</p>
-  <p class="pr-pull">Comparing yesterday’s {before} with today’s {today.total} mixes two changes.</p>
-  <p>The fix removes {words[-fromCode]} page from yesterday’s count, and the live updates add {words[today.total - replay]} approved pages. Live records can also be edited, deleted, or backdated between fetches. Even if two totals match, the records behind them may have changed.</p>
+  <p class="pr-pull">Comparing yesterday's {before} with today's {today.total} mixes two changes.</p>
+  <p>The fix removes {words[-fromCode]} page from yesterday's count, and the live updates add {words[today.total - replay]} approved pages. Live records can also be edited, deleted, or backdated between fetches. Even if two totals match, the records behind them may have changed.</p>
   <figure class="pr-card pa-rf">
     <fieldset class="pa-rf-controls">
       <legend>What changed at the source since yesterday</legend>
@@ -102,14 +100,14 @@ const checks = [
   </figure>
 
   <h2>3. What a re-fetch overwrites</h2>
-  <p>If you keep only the latest source copy, the re-fetch replaces the {words[saved.length]}-record snapshot. You lose the saved evidence that the pending page was still pending and the sixth page was absent. Yesterday’s published total of <strong>{before}</strong> may still exist, but you can no longer use that snapshot to reproduce it or verify the corrected <strong>{replay}</strong>.</p>
+  <p>If you keep only the latest source copy, the re-fetch replaces the {words[saved.length]}-record snapshot. You lose the saved evidence that the pending page was still pending and the sixth page was absent. Yesterday's published total of <strong>{before}</strong> may still exist, but you can no longer use that snapshot to reproduce it or verify the corrected <strong>{replay}</strong>.</p>
 
   <h2>4. When to re-fetch</h2>
-  <p>Re-fetch when you need today’s count, when the archive has corrected its own records, or when yesterday’s fetch was incomplete. If the source offers historical snapshots, you can also request the version from yesterday at 6 p.m.</p>
-  <p>Make the fetch a deliberate step. In this example, first replay yesterday’s saved copy to verify the corrected <strong>{replay}</strong>, then fetch today’s records and save them as a new snapshot to report <strong>{today.total}</strong>. Each result answers a different question.</p>
+  <p>Re-fetch when you need today's count, when the archive has corrected its own records, or when yesterday's fetch was incomplete. If the source offers historical snapshots, you can also request the version from yesterday at 6 p.m.</p>
+  <p>Make the fetch a deliberate step. In this example, first replay yesterday's saved copy to verify the corrected <strong>{replay}</strong>, then fetch today's records and save them as a new snapshot to report <strong>{today.total}</strong>. Each result answers a different question.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>The reply's “archive” is the volunteer project, the source being fetched. In this course the archive is what you saved. Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again.</p>
+    <p>The reply's “archive” is the volunteer project, the source being fetched. In this course the archive is what you saved. Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again. The school sites offer no past versions to request, unlike the reply's snapshots, so Friday's saved pages are the only copy of what they showed.</p>
     <p>Like the reply's {before} against {today.total}, a re-fetched table set beside Tuesday's would mix the tidy-rule fix with whatever the sites published after Friday, and nothing in Part 1 shows what that was. That is why its prediction's honest answer is “can't tell”.</p>
   </aside>
 
@@ -117,9 +115,12 @@ const checks = [
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
-<Fragment set:html={`<style>${laneCss}</style>`} />
 
 <style>
+  .pa-rf:not(:has([value="a"]:checked)):not(:has([value="n"]:checked)) [data-s="0"],
+  .pa-rf:has([value="a"]:checked):not(:has([value="n"]:checked)) [data-s="a"],
+  .pa-rf:not(:has([value="a"]:checked)):has([value="n"]:checked) [data-s="n"],
+  .pa-rf:has([value="a"]:checked):has([value="n"]:checked) [data-s="an"] { display: grid; }
   .pa-rf-controls { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0 0 0.7rem; padding: 0; border: 0; font-size: 0.9rem; }
   .pa-rf-controls legend { width: 100%; margin-bottom: 0.3rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
   .pa-rf-controls label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 40px; cursor: pointer; }

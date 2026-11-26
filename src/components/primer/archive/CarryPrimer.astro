@@ -35,7 +35,7 @@ const worlds: { id: string; tab: string; kept: string; recover: string; needed: 
   {
     id: "over",
     tab: "Overwritten on resubmission",
-    kept: "Raw files, with each resubmission overwriting that supplier’s previous file",
+    kept: "Raw files, with each resubmission overwriting that supplier's previous file",
     recover: `It can recover exact weights as reported in the surviving files. If the surviving file says ${kgs(revised)}, that establishes the revised weight. The earlier weight could have been ${kgs(kg.fraction)}, but the surviving file cannot establish it. Where an older processed row survives, the roaster can still flag it and give the same rounding bounds.`,
     needed: "It needed to keep each resubmission as a separate version and record which file version each import used.",
     claim: ["Partly exact", "is-warn"],
@@ -53,9 +53,9 @@ const fateText = (f: Fate, w: number): [string, string] =>
   : ["Unavailable: its file was overwritten, its row updated", "is-bad"];
 
 const checks = [
-  ["Weather monitoring", "A station’s importer rounded rainfall readings down to whole millimeters. It kept every raw upload and a log of when each version was used. What can it reconstruct about last spring’s readings, including later revisions?"],
+  ["Weather monitoring", "A station's importer rounded rainfall readings down to whole millimeters. It kept every raw upload and a log of when each version was used. What can it reconstruct about last spring's readings, including later revisions?"],
   ["Payroll", "An importer rounded hours down to whole hours. Only the processed table survives, and one row shows 7 hours. What can you say about the original entry, and what would you need to calculate the exact pay correction?"],
-  ["Library inventory", "An importer rounded replacement costs down to whole dollars. Each branch’s latest upload overwrote its previous file. A surviving file lists a book at $18.75, and an older processed row shows $18. What would you say in a correction note about those two records?"],
+  ["Library inventory", "An importer rounded replacement costs down to whole dollars. Each branch's latest upload overwrote its previous file. A surviving file lists a book at $18.75, and an older processed row shows $18. What would you say in a correction note about those two records?"],
 ];
 ---
 
@@ -67,7 +67,7 @@ const checks = [
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">One bug, three archives</h2>
-  <p>For six months, a coffee roaster’s importer rounded every shipment weight <strong>down</strong> to a whole kilogram. A supplier’s <code>{kgs(kg.fraction)}</code> became <code>{kgs(kg.whole)}</code>. The roaster fixes the importer so it preserves the reported weight.</p>
+  <p>For six months, a coffee roaster's importer rounded every shipment weight <strong>down</strong> to a whole kilogram. A supplier's <code>{kgs(kg.fraction)}</code> became <code>{kgs(kg.whole)}</code>. The roaster fixes the importer so it preserves the reported weight.</p>
   <p class="pr-pull">What it can correct for those six months depends on what it kept.</p>
   <h2>1. What each archive can recover</h2>
   <p>Assume the processed table has one row per shipment, with a shipment ID and an import date. Suppliers sometimes resubmitted files with revised weights.</p>
@@ -99,9 +99,8 @@ const checks = [
         <p class="pa-world-head"><span class="pa-world-kept">{w.kept}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
         <ul class="pa-versions">{versions.map((v, i) => {
           const [text, tone] = fateText(w.fates[i], v.weight);
-          return <li><span>{v.name}<span class="pa-sent"> (the supplier sent {kgs(v.weight)})</span></span><span class:list={["pr-chip", tone]}>{text}</span></li>;
+          return <li><span>{v.name}</span><span class:list={["pr-chip", tone]}>{text}</span></li>;
         })}</ul>
-        {w.fates.some((f) => f !== "exact") && <label class="pa-reveal"><input type="checkbox" /> <span>Show what the supplier actually sent</span></label>}
         <p class="pr-label">What it can honestly recover</p>
         <p>{w.recover}</p>
         <p class="pr-label">What it needed to keep for full recovery</p>
@@ -109,6 +108,7 @@ const checks = [
       </div>
     ))}
     </div>
+    <figcaption>With one row per shipment, a resubmission replaces that shipment's row too. So when a file is overwritten, no older rounded row survives to give the first submission's bounds.</figcaption>
   </figure>
 
   <h2>2. What to put in a correction note</h2>
@@ -119,7 +119,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to a coffee roaster. Every raw submission is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
-    <p>The reply's overwrite case draws the line World C's claims must respect: exact for what a surviving file holds, bounded where only a rounded row survives. The latest file is not evidence of what an earlier one held. A bound depends on what survives, in the archive's own terms. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
+    <p>The reply's overwrite case draws the line World C's claims must respect: exact for what a surviving file holds, bounded where only a rounded row survives. The latest file is not evidence of what an earlier one held. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
@@ -128,9 +128,6 @@ const checks = [
 
 <style>
   .pa-worlds .pr-seg { margin-bottom: 0.7rem; }
-  .pa-world:not(:has(.pa-reveal input:checked)) .pa-sent { display: none; }
-  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0.3rem 0 0.4rem; font-size: 0.88rem; cursor: pointer; }
-  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
   .pa-world { display: none; padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
   .pa-worlds:has([value="every"]:checked) [data-world="every"],
   .pa-worlds:has([value="table"]:checked) [data-world="table"],

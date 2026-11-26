@@ -21,7 +21,7 @@ const rows: Row[] = [
 const ids = Array.from({ length: oakJan.published }, (_, i) => i >= oakJan.published - oakJan.secondIds);
 
 const agentPrompt = `Fix the duplicate-household counting bug and prepare a correction to the
-food bank network’s published monthly pantry counts. A household should
+food bank network's published monthly pantry counts. A household should
 count once per pantry per month, even if it visited more than once.
 
 For each published pantry-month, locate its archived input snapshot and
@@ -38,9 +38,9 @@ difference. Stage replacements only for outputs whose published values
 changed. Record successful replays with unchanged values internally.
 Leave outputs with verified matching fingerprints alone.
 
-For example, Oak Pantry’s January count might change from ${oakJan.published} to ${oakJanReplayed}
-after ${oakJan.secondIds} duplicate household IDs are resolved. If Oak’s February
-count replays from 42 to 42, keep its published count. If Maple’s
+For example, Oak Pantry's January count might change from ${oakJan.published} to ${oakJanReplayed}
+after ${oakJan.secondIds} duplicate household IDs are resolved. If Oak's February
+count replays from 42 to 42, keep its published count. If Maple's
 January fingerprint matches because it used a separate importer, skip
 its replay. Verify the actual results independently of these examples.
 
@@ -53,10 +53,12 @@ and month, the old and new counts, and the cause.
 Stop after delivering the report and staged replacements. Wait for
 explicit approval before republishing or sending the correction note.`;
 
+const briefParas = agentPrompt.split(/\n\n/).map((para) => para.replace(/\s*\n\s*/g, " "));
+
 const checks = [
-  ["Oak's February", "Why is Oak’s February count replayed even though its published value stays at 42?"],
-  ["Skipping Maple", "What evidence lets the agent skip Maple’s January replay, and what should it do if that evidence is missing?"],
-  ["Already used", "What should the correction note tell someone who already used Oak’s January count in a report?"],
+  ["Oak's February", "Why is Oak's February count replayed even though its published value stays at 42?"],
+  ["Skipping Maple", "What evidence lets the agent skip Maple's January replay, and what should it do if that evidence is missing?"],
+  ["Already used", "What should the correction note tell someone who already used Oak's January count in a report?"],
 ];
 ---
 
@@ -99,23 +101,27 @@ const checks = [
       </table>
     </div>
   </figure>
-  <p>Oak’s February count shows why the fingerprint is a replay trigger. The agent checks every output that depended on the affected importer, even when there is no known duplicate in that month. It also checks downstream publications that depend on those counts.</p>
+  <p>Oak's February count shows why the fingerprint is a replay trigger. The agent checks every output that depended on the affected importer, even when there is no known duplicate in that month. It also checks downstream publications that depend on those counts.</p>
 
   <h2>2. Correction note</h2>
   <blockquote class="pa-note">
-    <p>We corrected Oak Pantry’s January count of distinct households served from {oakJan.published} to {oakJanReplayed}. The original import assigned a second ID to {spell(oakJan.secondIds)} returning households, so each was counted twice. The revised count removes those duplicates. Please use {oakJanReplayed} in reports or analyses that cite Oak Pantry’s January count.</p>
+    <p>We corrected Oak Pantry's January count of distinct households served from {oakJan.published} to {oakJanReplayed}. The original import assigned a second ID to {spell(oakJan.secondIds)} returning households, so each was counted twice. The revised count removes those duplicates. Please use {oakJanReplayed} in reports or analyses that cite Oak Pantry's January count.</p>
   </blockquote>
 
   <h2>3. Prompt to give the coding agent</h2>
-  <div class="pr-code"><p class="pr-label">Prompt</p><pre>{agentPrompt}</pre></div>
+  <figure class="pr-card pa-brief">
+    <p class="pr-label">Prompt</p>
+    {briefParas.map((para) => <p>{para}</p>)}
+  </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's fingerprint covers a whole pantry-month: its input snapshot, steps, rules and configuration. In this course a fingerprint covers one parser's code and config, and each parsed file also keeps the content hash of the page it read. Either way, a difference marks the output stale, and the replay, not the fingerprint, decides what to republish.</p>
-    <p>In Part 8 the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, like every Oak month that went through the importer. The {fresh} schedules come through their own parser and stay fresh, like Maple. The other {others} box scores are Oak's February: replayed, unchanged, nothing to republish.</p>
+    <p>In Part 8 the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, like every Oak month that went through the importer. The {fresh} schedules come through their own parser and stay fresh, like Maple. The other {others} box scores are Oak's February: replayed, unchanged, nothing to republish. Part 8's third slot asks the reply's Maple question of each published table: did the bug ever reach it?</p>
   </aside>
 
   <h2>4. Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+  <p>I'll wait for your answers before sharing mine.</p>
 </PrimerChat>
 
 <style>
@@ -135,4 +141,7 @@ const checks = [
   .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
   .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--pr-yellow); border-radius: 8px; background: var(--tl-card); font-style: normal; }
   :global(.pr) .pa-note p:last-child { margin: 0; }
+  .pa-brief { border-left: 3px solid var(--pr-ai); }
+  :global(.pr) .pa-brief p:not(.pr-label) { margin: 0 0 0.6rem; font-size: 0.92rem; }
+  :global(.pr) .pa-brief p:last-child { margin: 0; }
 </style>

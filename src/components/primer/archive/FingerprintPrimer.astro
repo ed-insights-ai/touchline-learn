@@ -36,7 +36,7 @@ const tryIt = changes.filter((c) => c !== salesFix);
 
 const checks = [
   ["A hidden setting", "A memoised function takes a price and reads the tax rate from a global setting. What should its cache key account for, and why?"],
-  ["One hash differs", "A report’s recipe fingerprint matches its stored value, but one of its input hashes differs. Should the report be reused? How might a comment-only edit behave in a system that hashes whole source files?"],
+  ["One hash differs", "A report's recipe fingerprint matches its stored value, but one of its input hashes differs. Should the report be reused? How might a comment-only edit behave in a system that hashes whole source files?"],
   ["Outdated but verified", "A notebook verifies the hash of a downloaded CSV every time it runs. How could it still show outdated data, and what additional check would catch that?"],
 ];
 ---
@@ -46,14 +46,14 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 3 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">How a cache decides what is stale</h2>
   <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
   <p>To decide whether to reuse it, compare that record with what the step would use if it ran now.</p>
 
   <h2>1. Fingerprint the recipe and its settings</h2>
-  <p>A fingerprint is a compact identifier, usually a hash, computed from the code and configuration that determine what a step does. Suppose a notebook cell reads sales data and computes monthly totals. If the cell reads a <code>timezone</code> setting, changing that setting can move a sale from one month to another. The cell’s code can stay byte-for-byte identical while its correct output changes. The timezone therefore belongs in the fingerprint.</p>
+  <p>A fingerprint is a compact identifier, usually a hash, computed from the code and configuration that determine what a step does. Suppose a notebook cell reads sales data and computes monthly totals. If the cell reads a <code>timezone</code> setting, changing that setting can move a sale from one month to another. The cell's code can stay byte-for-byte identical while its correct output changes. The timezone therefore belongs in the fingerprint.</p>
   <p>Memoisation follows the same rule. A cache for <code>monthly_totals(data, timezone)</code> can key on both arguments. If the function instead reads the timezone from a global setting, the cache still needs to account for it.</p>
 
   <h2>2. Check the recipe and the inputs</h2>
@@ -92,7 +92,7 @@ const checks = [
   <p>Some systems deliberately hash a whole source file, comments included. Hashing bytes is simple and avoids having to determine which edits affect behavior. A comment edit may cause an unnecessary rebuild, and the system accepts that cost.</p>
 
   <h2>4. A fingerprint can only describe what the system observed</h2>
-  <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday’s copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
+  <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday's copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
   <figure class="pr-card pa-fp">
     <fieldset class="pr-seg">
       <legend>Try it: sections 1 to 4 in one notebook. Make one change</legend>

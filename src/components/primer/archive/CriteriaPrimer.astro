@@ -5,7 +5,7 @@ import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 const card = archiveAi.rewind;
 
 const criteria = [
-  ["Account for every input.", "Require a manifest of the saved files actually read, with a relative path and SHA-256 hash of each file’s bytes. Compare it with the expected-input list and report every missing file. Say which missing inputs are allowed and how they affect the output. A missing required file should fail the rebuild."],
+  ["Account for every input.", "Require a manifest of the saved files actually read, with a relative path and SHA-256 hash of each file's bytes. Compare it with the expected-input list and report every missing file. Say which missing inputs are allowed and how they affect the output. A missing required file should fail the rebuild."],
   ["Identify what produced the output.", "Record the Git commit, whether the working tree was clean, the exact rebuild command, and the runtime or pinned environment. Fingerprint the effective configuration after defaults and overrides have been applied. Specify how that fingerprint is computed, such as SHA-256 over canonical JSON. A second run with the same inputs, code, configuration, and environment should produce the same output hash."],
   ["Attach evidence for “no network requests.”", "Run the rebuild and its child processes with network access blocked, and retain an audit log that records attempted connections, including blocked ones. Require zero attempts in that log. A network block establishes that connections could not succeed. The audit establishes whether the code tried."],
   ["Explain every output difference.", "First verify that the old and new runs used the same input hashes and effective configuration. Compare rows by a stable key, such as (sensor_id, date), and report added or removed rows and changed values. For each changed value, give the old value, the new value, and the calculation or rule that connects the change to the fix. An unexplained difference means the rebuild has failed acceptance until you can account for it. It could point to another code change, a hidden input, or nondeterminism."],
@@ -33,10 +33,11 @@ const report: [string, string][] = [
   ["Repeatability", "A second run under the same conditions produced the same output SHA-256, d74e50b1926fc083a31d58ce60fb24794da71c5b9f02e63881ad4357be6092fc. The rebuild passed."],
 ];
 
+const codeToken = /(\b[0-9a-f]{7,64}\b|saved\/\S+?\.csv|network-audit\.log|python rebuild\.py --config rebuild\.json|daily_mean|\(S1, 2026-01-05\))/;
 const short = ["Every input", "What produced the output", "No network requests", "Every difference explained"];
 const breaks: { id: string; label: string; line: string; fails: number; skip?: number[]; why: string }[] = [
   { id: "none", label: "Change nothing", line: "Every other cell matched.", fails: -1, why: "Every criterion has its evidence, so the rebuild passes." },
-  { id: "missing", label: "The S1 file is missing", line: "Expected required input saved/S1-2026-01-05.csv: missing", fails: 0, skip: [3], why: "A missing required file fails the rebuild before there is an output to compare." },
+  { id: "missing", label: "The S1 file is missing", line: "Expected required input saved/S1-2026-01-05.csv: missing", fails: 0, skip: [1, 2, 3], why: "A missing required file fails the rebuild before anything runs, so the other criteria are never reached." },
   { id: "dirty", label: "The working tree has an edit", line: `Rebuild commit ${commits.fixed}, working tree not clean: 1 uncommitted change in the averaging code`, fails: 1, why: "The code that ran is not the code the commit records." },
   { id: "attempt", label: "The audit shows one blocked attempt", line: "network-audit.log covers the full run: 1 connection attempt, blocked.", fails: 2, why: "The block worked, but the zero-attempt criterion did not." },
   { id: "cell", label: "A second cell changed, unexplained", line: "Changed cells: 2. One has no calculation that connects it to the fix.", fails: 3, why: "An unexplained difference fails acceptance until someone accounts for it." },
@@ -67,10 +68,10 @@ const checks = [
   </figure>
 
   <h2>2. Example rebuild report</h2>
-  <p><em>Illustrative report for a lab’s daily sensor table. The hashes and commit IDs are example values.</em></p>
+  <p><em>Illustrative report for a lab's daily sensor table. The hashes and commit IDs are example values.</em></p>
   <figure class="pr-card pa-report">
     <p class="pr-label">Rebuild report</p>
-    <dl>{report.map(([head, body]) => <div><dt>{head}</dt><dd>{body}</dd></div>)}</dl>
+    <dl>{report.map(([head, body]) => <div><dt>{head}</dt><dd>{body.split(codeToken).map((part, i) => (i % 2 ? <code>{part}</code> : part))}</dd></div>)}</dl>
   </figure>
   <figure class="pr-card">
     <p class="pr-label">The one changed cell, checked</p>

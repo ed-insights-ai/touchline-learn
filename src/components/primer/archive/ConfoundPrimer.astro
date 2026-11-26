@@ -49,15 +49,15 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 1 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">One change at a time</h2>
   <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>
-  <p>If the outcome changes, the setup gives you a reason to attribute the difference to the input you changed. If you change two inputs together, you can measure their combined effect, but you can’t tell how much each one contributed.</p>
+  <p>If the outcome changes, the setup gives you a reason to attribute the difference to the input you changed. If you change two inputs together, you can measure their combined effect, but you can't tell how much each one contributed.</p>
 
   <h2>1. Website A/B test</h2>
   <p>Suppose {rate.before}% of visitors signed up last week. This week you rewrote the headline and changed the sign-up button from blue to green. Now {rate.after}% sign up. The increase is <strong>{rate.after - rate.before} percentage points</strong>, but the headline and button color are <strong>confounded</strong>. They changed together, so the increase could come from either change or from the two working together. The mix of visitors might also have changed from one week to the next.</p>
-  <p>To isolate the headline’s effect, randomly assign visitors during the same period to two versions. Both versions use the same button, layout, and sign-up flow. One shows the old headline and the other shows the new one. Random assignment helps balance differences among visitors, and running both versions at the same time keeps them exposed to the same day-to-day conditions. Any systematic difference in sign-up rates can then be attributed to the headline, with some uncertainty from random variation.</p>
+  <p>To isolate the headline's effect, randomly assign visitors during the same period to two versions. Both versions use the same button, layout, and sign-up flow. One shows the old headline and the other shows the new one. Random assignment helps balance differences among visitors, and running both versions at the same time keeps them exposed to the same day-to-day conditions. Any systematic difference in sign-up rates can then be attributed to the headline, with some uncertainty from random variation.</p>
 
   <figure class="pr-card pa-designs">
     {designs.map((d) => (
@@ -83,7 +83,7 @@ const checks = [
   </figure>
 
   <h2>2. Laboratory experiment</h2>
-  <p>Suppose sugar dissolves in {sugar.still} seconds in cool, still water and in {sugar.stirred} seconds in warm, stirred water. Temperature and stirring changed together. Those two measurements can’t tell you how much of the {sugar.still - sugar.stirred}-second difference came from warming the water.</p>
+  <p>Suppose sugar dissolves in {sugar.still} seconds in cool, still water and in {sugar.stirred} seconds in warm, stirred water. Temperature and stirring changed together. Those two measurements can't tell you how much of the {sugar.still - sugar.stirred}-second difference came from warming the water.</p>
   <p>To isolate temperature, compare cool and warm water with no stirring in either trial. Use the same amount and grain size of sugar, the same volume of water, identical containers, and the same rule for deciding when the sugar has dissolved. Repeat each condition to see how much the times vary.</p>
   <figure class="pr-card pa-trial">
     <fieldset class="pr-seg">
@@ -124,7 +124,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Case 1 makes the reply's two comparisons from three tables. Table A, Tuesday's table, is the baseline. A against B is the controlled comparison, like the reply's three-row replay: Friday's saved pages held fixed and only the tidy rule changed, so every difference has one cause. A against C is the before and after: the code and the pages changed together.</p>
-    <p>The reply's “combined effect” holds only when nothing else changed, which is why the website caption calls its own example an observed difference. An honest changelog line is written the way the reply writes its last paragraph. It names the one input that changed, and claims nothing that input can't explain.</p>
+    <p>The reply's “combined effect” holds only when nothing else changed, which is why this page's first figure calls the website's gain an observed difference. An honest changelog line is written the way the reply writes its last paragraph. It names the one input that changed, and claims nothing that input can't explain.</p>
   </aside>
 
   <h2>4. Check your understanding</h2>

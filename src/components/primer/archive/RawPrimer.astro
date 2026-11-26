@@ -31,7 +31,7 @@ const words = (s: string) => s.split(/\s+/).length;
 
 const checks = [
   ["Only the total", `If the shop had saved only the ${usd(sum(v1))} total, why would the corrected code need the original receipt to calculate the right total?`],
-  [`The old ${avg(first)}`, `Why can the teacher’s old average of ${avg(first)} survive even though replay can’t recover the original scores?`],
+  [`The old ${avg(first)}`, `Why can the teacher's old average of ${avg(first)} survive even though replay can't recover the original scores?`],
   ["Two word counts", "Two word counts disagree for the same saved draft. What would you check in their records to find out why?"],
 ];
 ---
@@ -44,7 +44,7 @@ const checks = [
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">Raw data, derived data and replay</h2>
-  <p><strong>Raw data</strong> is what your system receives from a source. Save an exact copy before your processing code reads it, so a parsing or cleaning bug can’t change the only copy. <strong>Derived data</strong> is what your code calculates from that copy. You can delete and rebuild it if you keep the raw inputs, the code version, and the settings that produced it.</p>
+  <p><strong>Raw data</strong> is what your system receives from a source. Save an exact copy before your processing code reads it, so a parsing or cleaning bug can't change the only copy. <strong>Derived data</strong> is what your code calculates from that copy. You can delete and rebuild it if you keep the raw inputs, the code version, and the settings that produced it.</p>
   <p>A <strong>replay</strong> runs the calculation again on saved inputs. Use the original code and settings to reproduce an old result, or use corrected code to regenerate it.</p>
   <p class="pr-pull">Each output should carry a record of its exact input versions, code version, and settings so you can tell which run produced it.</p>
 
@@ -71,7 +71,7 @@ const checks = [
 
   <h2>2. Classroom grades: an overwrite loses the earlier scores</h2>
   <p>A teacher exports two quiz scores, <code>{first[0]}</code> and <code>{first[1]}</code>. With equal weights, the derived average is <code>({first.join(" + ")}) ÷ {first.length} = {avg(first)}</code>.</p>
-  <p>Later the teacher corrects the first score to <code>{corrected[0]}</code>. The new export contains <code>{corrected[0]}</code> and <code>{corrected[1]}</code>, and the average becomes <code>({corrected.join(" + ")}) ÷ {corrected.length} = {avg(corrected)}</code>. If the import overwrites the archived first export, replay can still produce <code>{avg(corrected)}</code>, but it can’t recover the original scores. Even if the old average of <code>{avg(first)}</code> survives, <code>{sameAvg[1][0]}</code> and <code>{sameAvg[1][1]}</code> would also average to <code>{avg(first)}</code>. Keeping both raw exports under separate revision IDs would let you reproduce either result.</p>
+  <p>Later the teacher corrects the first score to <code>{corrected[0]}</code>. The new export contains <code>{corrected[0]}</code> and <code>{corrected[1]}</code>, and the average becomes <code>({corrected.join(" + ")}) ÷ {corrected.length} = {avg(corrected)}</code>. If the import overwrites the archived first export, replay can still produce <code>{avg(corrected)}</code>, but it can't recover the original scores. Even if the old average of <code>{avg(first)}</code> survives, <code>{sameAvg[1][0]}</code> and <code>{sameAvg[1][1]}</code> would also average to <code>{avg(first)}</code>. Keeping both raw exports under separate revision IDs would let you reproduce either result.</p>
   <figure class="pr-card pa-grades">
     <fieldset class="pr-seg">
       <legend>What the archive holds</legend>
@@ -97,7 +97,7 @@ const checks = [
   </figure>
 
   <h2>3. Publishing: a replay can only use the draft that was saved</h2>
-  <p>An editor wants to count the words in each draft of a headline. The writer says the first draft had {["no", "one", "two", "three"][reported]} words, but only the later draft, <code>{saved}</code>, was saved. Replaying the word counter can produce <code>{words(saved)}</code> for the saved draft. It can’t recover the earlier wording because that version never entered the archive. The writer’s recollection can supply a reported count of <code>{reported}</code>, but there’s no saved first draft to run the counter on.</p>
+  <p>An editor wants to count the words in each draft of a headline. The writer says the first draft had {["no", "one", "two", "three"][reported]} words, but only the later draft, <code>{saved}</code>, was saved. Replaying the word counter can produce <code>{words(saved)}</code> for the saved draft. It can't recover the earlier wording because that version never entered the archive. The writer's recollection can supply a reported count of <code>{reported}</code>, but there's no saved first draft to run the counter on.</p>
   <figure class="pr-card">
     <p class="pr-label">What the word counter can run on</p>
     <ul class="pa-rows">
@@ -108,8 +108,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the receipt's: one code change, replayed over the same saved input.</p>
-    <p>Dunmore's page is like the reply's unsaved first draft: the site never answered on Friday, so there is no copy for a replay to run on. Unlike the writer's recollection, though, its results are still on record: the visitors' saved pages show them, as they did on Monday.</p>
-    <p>For the research team's chart question, sort its four kept things the reply's way: which is the raw input, which is code, and which are derived.</p>
+    <p>Dunmore's page is like the reply's unsaved first draft: the site never answered on Friday, so there is no copy for a replay to run on. Unlike the writer's recollection, though, its results are still on record: its opponents' saved pages show them, as they did on Monday.</p>
   </aside>
 
   <h2>4. Check your understanding</h2>

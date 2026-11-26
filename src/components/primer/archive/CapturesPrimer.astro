@@ -22,9 +22,9 @@ const questions = [
 ];
 
 const checks = [
-  ["A Wednesday dispute", "On Wednesday, someone disputes Monday’s seat count. What could you check under each of the two storage policies?"],
-  ["Only the hash", "If Monday’s page was overwritten but you still have its hash, what could you do with a file someone claims is Monday’s page? What could you do with the hash alone?"],
-  ["Fewer courses", "You have Monday’s exact page, but the report now lists fewer courses. What else would you look for to reproduce Monday’s output?"],
+  ["A Wednesday dispute", "On Wednesday, someone disputes Monday's seat count. What could you check under each of the two storage policies?"],
+  ["Only the hash", "If Monday's page was overwritten but you still have its hash, what could you do with a file someone claims is Monday's page? What could you do with the hash alone?"],
+  ["Fewer courses", "You have Monday's exact page, but the report now lists fewer courses. What else would you look for to reproduce Monday's output?"],
 ];
 ---
 
@@ -36,11 +36,11 @@ const checks = [
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">How much history should an archive keep?</h2>
-  <p>Suppose your archive fetches the university’s course listings every morning. On Monday, it sees that Chemistry 101 has {seats.monday} open seats. On Tuesday, it sees {seats.tuesday}.</p>
+  <p>Suppose your archive fetches the university's course listings every morning. On Monday, it sees that Chemistry 101 has {seats.monday} open seats. On Tuesday, it sees {seats.tuesday}.</p>
 
   <h2>1. What each policy lets you rebuild</h2>
-  <p><strong>Keep only the latest copy.</strong> Tuesday’s fetch overwrites Monday’s. You can use the saved page to rebuild a report from Tuesday’s listings. To rebuild Monday’s report, you’d need another copy of Monday’s page.</p>
-  <p><strong>Keep every copy with its fetch time.</strong> You can retrieve Monday’s page and use it to rebuild a report from the listings your archive saw that morning. The fetch time tells you when you observed the page. If the seat count changed Monday afternoon and changed again before Tuesday’s fetch, the archive would have no record of those changes.</p>
+  <p><strong>Keep only the latest copy.</strong> Tuesday's fetch overwrites Monday's. You can use the saved page to rebuild a report from Tuesday's listings. To rebuild Monday's report, you'd need another copy of Monday's page.</p>
+  <p><strong>Keep every copy with its fetch time.</strong> You can retrieve Monday's page and use it to rebuild a report from the listings your archive saw that morning. The fetch time tells you when you observed the page. If the seat count changed Monday afternoon and changed again before Tuesday's fetch, the archive would have no record of those changes.</p>
   <figure class="pr-card pa-cap">
     <fieldset class="pr-seg">
       <legend>Archive policy</legend>
@@ -76,16 +76,16 @@ const checks = [
   </figure>
 
   <h2>2. What a hash can tell you</h2>
-  <p>A hash is a short fingerprint computed from the page’s bytes. If someone later gives you a file they believe is Monday’s page, you can hash it and compare it with the recorded Monday hash. A match is strong evidence that the bytes are the same. A mismatch tells you they differ.</p>
-  <p class="pr-pull">The hash itself can’t restore Monday’s page.</p>
-  <p>Many different files can share a hash because the hash has a fixed length. It doesn’t contain the course names, seat counts, or other information needed to reconstruct the page.</p>
+  <p>A hash is a short fingerprint computed from the page's bytes. If someone later gives you a file they believe is Monday's page, you can hash it and compare it with the recorded Monday hash. A match is strong evidence that the bytes are the same. A mismatch tells you they differ.</p>
+  <p class="pr-pull">The hash itself can't restore Monday's page.</p>
+  <p>Many different files can share a hash because the hash has a fixed length. It doesn't contain the course names, seat counts, or other information needed to reconstruct the page.</p>
 
   <h2>3. How to choose how much history to keep</h2>
   <p>Start with the questions your archive needs to answer. If people only ask, “What did the latest fetch show?”, keeping the latest copy is enough. If someone might dispute a Monday report and ask, “What did the archive see when it produced that result?”, keep the snapshots for as long as you expect to resolve those disputes.</p>
   <p>Compare that retention period with the storage cost. If the page often stays the same, you can store one copy of the identical bytes and record each fetch time separately. That preserves the record of what you saw each morning without paying to store duplicate pages.</p>
 
   <h2>4. What an exact rebuild needs</h2>
-  <p>Imagine Monday’s report showed only courses with at least {threshold.then} open seats. A month later, the threshold changes to {threshold.later}, and the parser also changes how it handles cross-listed courses. Running today’s code and settings on Monday’s saved page could produce a different report.</p>
+  <p>Imagine Monday's report showed only courses with at least {threshold.then} open seats. A month later, the threshold changes to {threshold.later}, and the parser also changes how it handles cross-listed courses. Running today's code and settings on Monday's saved page could produce a different report.</p>
   <figure class="pr-card">
     <p class="pr-label">Monday's saved page, two rule sets</p>
     <ul class="pa-cap-qs">
@@ -94,12 +94,12 @@ const checks = [
     </ul>
     <figcaption>The same page with {seats.monday} open seats gives two different reports. The saved page alone can't say which one Monday published.</figcaption>
   </figure>
-  <p>To rebuild the report exactly, record which snapshot, code version, and configuration produced it. Preserve any other input that can affect the output too, such as dependency versions or the report date if it’s printed in the file.</p>
+  <p>To rebuild the report exactly, record which snapshot, code version, and configuration produced it. Preserve any other input that can affect the output too, such as dependency versions or the report date if it's printed in the file.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume every past run's code and config are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
     <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like Monday's seat count, Harbor Point's result cell for November 21 had changed by Tuesday, from blank to a result, and under latest only a Tuesday re-fetch would replace Friday's capture of it.</p>
-    <p>Different pages can share a hash in principle, which is why the reply calls a match strong evidence rather than proof. The reply calls a page's hash a “fingerprint”; this course calls it a content hash, and keeps “fingerprint” for the hash of the parser code and its config.</p>
+    <p>The reply calls a matching hash strong evidence; Part 6 treats it as proof that a page is unchanged, which is how SHA-256 is used in practice. The reply's “fingerprint” of a page is this course's content hash; the course keeps “fingerprint” for the hash of the parser code and its config.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
