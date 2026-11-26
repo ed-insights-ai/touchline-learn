@@ -9,20 +9,21 @@ const { boxScores, withOvertime } = proveIt.slots.replay;
 const boxes = spell(boxScores);
 const others = spell(boxScores - withOvertime);
 
+const conv = { faulty: "v2", fixed: "v3" };
 type Artifact = { id: string; name: string; rec: string; used: boolean | null; changed?: boolean };
 const artifacts: Artifact[] = [
-  { id: "report", name: "Citywide report", rec: "Meter readings snapshot → unit conversion → monthly totals", used: true, changed: true },
-  { id: "dash", name: "Dashboard download", rec: "Citywide report's monthly totals → export", used: true, changed: true },
-  { id: "count", name: "Meters reporting, by month", rec: "Converted readings → count of meters that reported", used: true, changed: false },
-  { id: "inventory", name: "Building inventory", rec: "Facilities register → inventory build, no unit conversion", used: false },
+  { id: "report", name: "Citywide report", rec: `Meter readings snapshot → unit conversion ${conv.faulty} → monthly totals`, used: true, changed: true },
+  { id: "dash", name: "Dashboard download", rec: `Citywide report's monthly totals (conversion ${conv.faulty}) → export`, used: true, changed: true },
+  { id: "count", name: "Meters reporting, by month", rec: `Readings after unit conversion ${conv.faulty} → count of meters that reported`, used: true, changed: false },
+  { id: "inventory", name: "Building inventory", rec: "Facilities register → inventory build, with no unit conversion step", used: false },
   { id: "unknown", name: "A download with no manifest", rec: "No record", used: null },
 ];
-const yesNo = (b: boolean | undefined) => (b === undefined ? "Not replayed" : b ? "Yes" : "No");
+const replayLine = (a: Artifact) => (!a.used ? "Not replayed" : a.changed ? "Monthly totals differ" : "Identical published content");
 const action = (a: Artifact): [string, string, string] =>
-  a.used === null ? ["Unknown", "is-warn", "Hold for investigation."]
-  : !a.used ? ["Unaffected", "is-ok", "Leave alone: a separate pipeline."]
-  : a.changed ? ["Republish", "is-bad", "Replayed, and its published figures changed."]
-  : ["Keep", "is-ok", "Replayed with identical published content: record the verification."];
+  a.used === null ? ["Unknown", "is-warn", "Hold for investigation: nothing shows which conversion it used."]
+  : !a.used ? ["Unaffected", "is-ok", "Leave alone: its manifest has no conversion step."]
+  : a.changed ? ["Republish", "is-bad", `Its manifest names conversion ${conv.faulty}, and the replay changed its published figures.`]
+  : ["Keep", "is-ok", `Its manifest names conversion ${conv.faulty}, so it was stale and replayed, but its published content is identical: record the verification.`];
 
 const agentPrompt = `Fix the watt-hour to kilowatt-hour conversion bug in the city electricity
 reporting pipeline and stage a correction for the January–March releases.
@@ -85,6 +86,7 @@ const checks = [
   <p>Then compare each rebuilt artifact against the published version. Compare the data people use, such as CSV values or report totals, independently of incidental differences such as a fresh generation timestamp. Republish the report and dashboard download if their figures changed. Leave the building inventory alone if its fingerprint shows that it came from a separate pipeline.</p>
   <p class="pr-pull">If a replayed artifact has identical published content, record the verification and keep the existing publication.</p>
   <figure class="pr-card pa-cls" aria-live="polite">
+    <p class="pr-label">The faulty conversion is {conv.faulty}; the fix is {conv.fixed}</p>
     <fieldset class="pr-seg">
       <legend>Classify one artifact</legend>
       {artifacts.map((a, i) => <label><input type="radio" name="pa-rec-art" value={a.id} checked={i === 0} /><span>{a.name}</span></label>)}
@@ -94,10 +96,10 @@ const checks = [
       return (
         <div class="pa-cls-view" data-art={a.id}>
           <ul class="pa-cls-steps">
-            <li><span>Provenance record</span><b>{a.rec}</b></li>
-            <li><span>Used the faulty conversion?</span><b>{a.used === null ? "Can't tell" : a.used ? "Yes" : "No"}</b></li>
-            <li><span>Replay changed published values?</span><b>{a.used ? yesNo(a.changed) : "Not replayed"}</b></li>
+            <li><span>Build manifest</span><b>{a.rec}</b></li>
+            <li><span>Replay with {conv.fixed}, compared with published</span><b>{replayLine(a)}</b></li>
           </ul>
+          <label class="pa-reveal"><input type="checkbox" /> <span>Classify it yourself, then show the verdict</span></label>
           <p class="pa-cls-verdict"><span class:list={["pr-chip", tone]}>{verdict}</span> {why}</p>
         </div>
       );
@@ -142,6 +144,9 @@ const checks = [
   .pa-cls-steps span { color: var(--tl-muted); }
   .pa-cls-steps b { color: var(--sl-color-white); font-weight: 600; }
   :global(.pr) .pa-cls-verdict { margin: 0.6rem 0 0; font-size: 0.9rem; }
+  .pa-cls-view:not(:has(.pa-reveal input:checked)) .pa-cls-verdict { display: none; }
+  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0.5rem 0 0; font-size: 0.88rem; cursor: pointer; }
+  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
   .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--pr-yellow); border-radius: 8px; background: var(--tl-card); font-style: normal; }
   :global(.pr) .pa-note p:last-child { margin: 0; }
   .pa-note strong { color: var(--sl-color-white); }

@@ -21,6 +21,10 @@ const baseline = [19.0, 21.0];
 const rebuilt = [19.0, 23.0];
 const mean = (xs: number[]) => (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1);
 const f1 = (n: number) => n.toFixed(1);
+const readings: (number | null)[] = [19.0, null, 21.0];
+const asZero = mean(readings.map((r) => r ?? 0));
+const skipBlank = mean(readings.filter((r): r is number => r !== null));
+const shown = (r: number | null) => (r === null ? "blank" : f1(r));
 
 const report = `Run: daily-readings-042
 Result: PASS
@@ -122,16 +126,20 @@ const checks = [
   <figure class="pr-card">
     <p class="pr-label">Excerpt: the same four criteria on a code-only fix</p>
     <ul class="pa-audit">
-      <li><code>inputs/sensor-17/2026-11-20.csv  4e71c0b9…  matches manifest</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>inputs/sensor-17/2026-11-20.csv  4e71c0b9…  same hash as the baseline run</code><span class="pr-chip is-ok">Pass</span></li>
       <li><code>Git commit: d05a3e2…  (baseline 71c8f9a…)</code><span class="pr-chip is-ok">Pass</span></li>
       <li><code>network-audit.json: full run, 0 attempts</code><span class="pr-chip is-ok">Pass</span></li>
-      <li><code>Changed cells: 1. Inputs identical; traced to d05a3e2.</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>Changed cells: 1. S17 mean_temp_c {asZero} → {skipBlank}; traced to d05a3e2.</code><span class="pr-chip is-ok">Pass</span></li>
     </ul>
-    <figcaption>One line per criterion; the full report would also carry the input manifest, the effective config and the diff evidence, as the reply's does. When the inputs are held fixed, the only line allowed to change is the code, so every changed cell must trace to it.</figcaption>
+    <div class="pa-cell">
+      <div><p class="pa-cell-head">71c8f9a, blank as 0</p><p>{readings.map((r) => f1(r ?? 0)).join(" · ")}</p><p class="pa-cell-mean">mean {asZero}</p></div>
+      <div class="is-new"><p class="pa-cell-head">d05a3e2, blank skipped</p><p>{readings.map(shown).join(" · ")}</p><p class="pa-cell-mean">mean {skipBlank}</p></div>
+    </div>
+    <figcaption>The same saved readings, by hash, under two commits. Only the code changed, so the one changed cell must trace to it, and the two calculations show that it does.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply ties a commit to the running code with a clean checkout. Kick's fingerprint and build revision hash the bytes that ran instead; they don't show those bytes were committed, or cover libraries and the interpreter.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply ties a commit to the running code with a clean checkout. Kick's fingerprint and build revision hash the source and config files on disk instead; they don't show those files were committed, or cover libraries and the interpreter.</p>
     <p>The reply's changed cell comes from a corrected input, so under Riley's criteria it would not count as a replay of Friday's pages. Kick's replay holds them fixed, so its one changed cell must trace to the code. Kick's zero requests covers the socket calls its counter patches, in its own process, during the replay.</p>
   </aside>
 
@@ -163,6 +171,7 @@ const checks = [
   :global(.pr) .pa-break-result { margin: 0.6rem 0 0; font-size: 0.9rem; }
   .pa-break-result b { color: var(--sl-color-white); }
   .pa-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .pa-audit + .pa-cell { margin-top: 0.6rem; }
   .pa-cell > div { padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-family: var(--sl-font-mono); font-size: 0.9rem; }
   .pa-cell > div.is-new { border-color: var(--pr-green); }
   :global(.pr) .pa-cell p { margin: 0 0 0.2rem; }

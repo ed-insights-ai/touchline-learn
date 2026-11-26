@@ -28,7 +28,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Which of the two can reproduce yesterday's output exactly with the old code, or correct it with the fixed code, and what a re-fetch overwrites if I keep only the latest copy of each source.
 4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
 5. ${close}`,
-    returnTask: "Then come back and name one site change since Friday that could move Saint Lambert's numbers.",
+    returnTask: "Then come back and name one change a live site could have made since Friday, and say which of Saint Lambert's numbers it would move.",
   },
   idea: {
     slug: "02-archive-ai-raw",
@@ -40,7 +40,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
 4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
 5. ${close}`,
-    returnTask: "Then come back and answer the research team's reviewer question.",
+    returnTask: "Then come back and answer the research team's question: what must it keep so a reviewer can see how a chart's number was produced?",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
@@ -52,7 +52,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify two comparisons with Tuesday's table: a replay with the old rule and a new alias list, and a re-fetch with both.",
+    returnTask: "Then come back and count how many inputs differ from Tuesday's run in two others: Friday's pages with Tuesday's rule and a new alias list, and a fresh fetch with the fixed rule and the new alias list.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -76,7 +76,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and try one more preset: a site's ten pages read one local settings file, and you edit it.",
+    returnTask: "Then come back and try one more preset: a site's ten pages read one local settings file, and you edit it. Predict how many pages rebuild and how many are fetched.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -112,7 +112,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What to tell the people who used the published output: a correction note that names what changed and why.
 4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
 5. ${close}`,
-    returnTask: "Then come back and find the finished prompt's step that decides what is stale, and say whether it uses a fingerprint or a guess.",
+    returnTask: "Then come back and check the finished prompt against Part 8's four slots: for each slot, find the step that answers it.",
   },
   "carry-it": {
     slug: "02-archive-ai-carry",
@@ -124,7 +124,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "Then come back and ask each world whether it can show a clinic's form from before a resubmission.",
+    returnTask: "Then come back and give each of the three worlds one question its archive can't answer, or say it has none.",
   },
 };
 

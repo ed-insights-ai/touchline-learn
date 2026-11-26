@@ -64,7 +64,7 @@ const checks = [
   <figure class="pr-card pa-keep" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Where the bug runs</legend>
-      {bugSteps.map((b, i) => <label><input type="radio" name="pa-keep-bug" value={b.id} checked={i === 1} /><span>{b.label}</span></label>)}
+      {bugSteps.map((b, i) => <label><input type="radio" name="pa-keep-bug" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
     </fieldset>
     {bugSteps.map((b) => (
       <div class="pa-ladder-view" data-bug={b.id}>
