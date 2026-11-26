@@ -24,7 +24,7 @@ const silentSites = tableA.gaps.filter((g) => g.kind === "unavailable").length;
 
 const kickThoughts = [
   `Saint Lambert is right. The fix is one line in the parser: “St.” in front of a name means Saint.`,
-  "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule. The cleanest way to be sure every row goes through the fixed parser is to start from fresh pages.",
+  "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule. Friday's pages are from before the weekend, though, and readers want the table as it stands now, so fresh pages are better.",
   `Fresh pages help in other ways too. Dunmore didn't answer on Friday, so it's worth asking again, and if any site has posted a result since, the table picks that up as well. Re-fetching!`,
 ];
 
@@ -66,7 +66,6 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       <p class="cv-who">Saint Lambert soccer</p>
     </div>
     <p class="cv-vm-line">“Saint, as in the saint. Your table says State Lambert. We are not a state school. Please fix it.”</p>
-    <button type="button" class="cv-vm-play" data-ar-vm={film("monday-then-tuesday.mp4")} data-start="44.07" data-end="53.85" aria-label="Play the voicemail from Saint Lambert soccer" aria-pressed="false" hidden>Listen</button>
   </div>
 
   <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
@@ -92,7 +91,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       ))}
     </ol>
   </div>
-  <p>The film showed the rule on the published table. Kick actually wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before any table is built.</p>
+  <p>Every step sounds sensible. The film showed the rule on the published table. Kick actually wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before any table is built.</p>
 
   <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
   <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>
@@ -149,30 +148,6 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     window.addEventListener("load", sync);
     sync();
   });
-
-  let media: HTMLAudioElement | null = null;
-  let end = 0;
-  document.querySelectorAll<HTMLButtonElement>("[data-ar-vm]").forEach((button) => {
-    button.hidden = false;
-    const reset = () => button.setAttribute("aria-pressed", "false");
-    button.addEventListener("click", () => {
-      if (!media) {
-        media = new Audio();
-        media.preload = "metadata";
-        media.src = button.dataset.arVm!;
-        media.addEventListener("timeupdate", () => { if (media!.currentTime >= end) media!.pause(); });
-        media.addEventListener("pause", reset);
-        media.addEventListener("ended", reset);
-      }
-      if (!media.paused) { media.pause(); return; }
-      end = Number(button.dataset.end);
-      const start = Number(button.dataset.start);
-      button.setAttribute("aria-pressed", "true");
-      if (media.readyState >= HTMLMediaElement.HAVE_METADATA) media.currentTime = start;
-      else media.addEventListener("loadedmetadata", () => { media!.currentTime = start; }, { once: true });
-      media.play().catch(() => { reset(); button.textContent = "Audio could not play here"; });
-    });
-  });
 </script>
 
 <style>
@@ -191,9 +166,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-gaps { margin: 0 0 1rem !important; padding: 0 !important; list-style: none; color: var(--tl-muted); font-size: 0.85rem; }
   .ar-gaps li { margin: 0.1rem 0; }
   .ar-gaps b { font-weight: 700; }
-  .ar-vm { margin: 0 0 1rem; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1rem; }
-  .ar-vm .cv-vm-line { grid-column: 1 / -1; grid-row: 2; }
-  .ar-vm .cv-vm-play { grid-column: 2; grid-row: 1; align-self: center; }
+  .ar-vm { margin: 0 0 1rem; }
   .ar-plan-meta { color: var(--tl-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
   .ar-plan .is-waiting .cv-kplan-text { color: var(--tl-muted); }
   .ar-plan-wait { width: 1.1rem; height: 1.1rem; margin-top: 0.12rem; border: 2px dashed var(--tl-muted); border-radius: 50%; box-sizing: border-box; }

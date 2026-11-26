@@ -125,7 +125,7 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table, which Fri
       return (
         <g>
           {lane.write && <path class="ar-write" d={`M${xr - 4} ${ym(p)} H${xr} V${ym(a)} H${xr - 2}`} marker-end="url(#ar-ah-nr)" />}
-          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "schedule pages overwritten" : "raw archive unchanged"}</text>
+          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "pages would be overwritten" : "raw archive unchanged"}</text>
         </g>
       );
     })}

@@ -33,14 +33,14 @@ const terms = [
 ];
 
 const bakes = [
-  { recipe: "Old recipe", cells: [{ text: "Bake again today", was: "Last week's loaf", is: "test" }, { text: "Not baked", is: "skip" }] },
-  { recipe: "New recipe", cells: [{ text: "Bake today", is: "test" }, { text: "Today's loaf", is: "now" }] },
+  { recipe: "Old recipe", cells: [{ text: "Test loaf, old recipe", was: "Last week's loaf", is: "test" }, { text: "Not baked", is: "skip" }] },
+  { recipe: "New recipe", cells: [{ text: "Test loaf, new recipe", is: "test" }, { text: "Today's loaf", is: "now" }] },
 ];
 
 const rules = [
   { rule: "Save the bytes before any code parses them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt. A site can also change or remove its page, so your copy may be the only one left.", clause: "from the pages you kept", where: "Case 2" },
   { rule: "Change one thing at a time.", then: "Not asking a site again is what keeps the pages fixed. The config stays the same too, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Note which exact pages produced each output and which code and config ran. Friday's run already noted, for every page it saved, a hash of its bytes: its content hash. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
+  { rule: "Record what produced each output.", then: `Note which exact pages produced each output and which code and config ran. Friday's run already noted a hash of every page it saved, a code computed from the page's bytes. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
 ];
 
 const loop = [
@@ -87,7 +87,7 @@ const items: [string, string][] = [
   </ol>
 
   <h3 id="idea-lanes">Replay or re-fetch</h3>
-  <p>Kick's plan and Riley's question both end with the fixed parser and a new table. Compare what each one changes on the way, and what each one leaves in the archive.</p>
+  <p>A re-fetch asks the sites again and saves what they send now. Kick's plan and Riley's question both end with the fixed parser and a new table. Compare what each one changes on the way, and what each one leaves in the archive.</p>
   <TwoLanes />
   <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption="Replay, Don't Refetch." />
 
@@ -114,7 +114,7 @@ const items: [string, string][] = [
   <div class="cv-define">
     <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
-  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on new pages. A replay is the old oven column: the old code and the fixed code each run on Friday's pages, and unlike bread, the same code and config on the same pages give the same table every time. It works only because Friday's pages were kept.</p>
+  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on new pages. Comparing Tuesday's table with a replay is the old oven column: the buggy code and the fixed code each run on Friday's pages, and unlike bread, the same code and config on the same pages give the same table every time. It works only because Friday's pages were kept.</p>
 
   <h3 id="idea-rules">Three rules, one for each clause</h3>
   <ol class="cv-rules">
@@ -126,7 +126,7 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only what lines 1 to 3 saved, including which pages were unavailable, plus the code and the config. A parser fix reruns lines 4 to 6 over the pages the archive holds: that is a replay. Running line 2 again is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only what lines 1 to 3 saved, including which pages were unavailable, plus the code and the config. A parser fix reruns lines 4 to 6 over the pages the archive holds: that is a replay. Running lines 2 and 3 again is a re-fetch, and line 3 replaces Friday's copy.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s results still come from the other schools' pages, as they did on Monday.</p>
@@ -207,7 +207,7 @@ const items: [string, string][] = [
   .ar-bake .ar-was { display: block; width: fit-content; margin: 0 0 0.35rem; padding: 0.05rem 0.4rem; border: 2px dashed var(--tl-muted); border-radius: 4px; color: var(--tl-muted); font-size: 0.8rem; font-weight: 650; }
   .ar-bake tbody td.is-now { border: 2px dashed var(--tl-muted); color: var(--sl-color-white); font-weight: 650; }
   .ar-bake tbody td.is-test { border: 2px solid var(--sl-color-accent); color: var(--sl-color-white); font-weight: 650; }
-  .ar-bake tbody td.is-skip { border: 1px dashed var(--tl-line); background: none; color: var(--tl-muted); font-style: italic; }
+  .ar-bake tbody td.is-skip { border: 1px solid var(--tl-line); background: none; color: var(--tl-muted); font-style: italic; }
   .ar-bake figcaption { padding-left: 2px; display: grid; gap: 0.25rem; margin-top: 0.35rem; color: var(--tl-muted); font-size: 0.88rem; }
   .ar-bake figcaption span { display: flex; align-items: baseline; gap: 0.5rem; }
   .ar-bake figcaption i { flex: none; width: 1.1rem; height: 0.7rem; border-radius: 3px; }
