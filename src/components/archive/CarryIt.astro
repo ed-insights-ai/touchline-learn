@@ -53,7 +53,7 @@ const worlds: { key: string; name: string; kept: string; answer: string; why: st
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
     wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A recount needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
   { key: "c", name: "World C", kept: "Kept each clinic's file for every month, but a resubmitted file overwrote the one before it.", answer: "recount",
-    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so the published figure and the recount differ by two changes: Case 1's two causes, and Part 6's latest only.",
+    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so any difference between the published figure and the recount has two possible causes: Case 1's two causes, and Part 6's latest only.",
     wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be recounted.", none: "The raw forms that survive still have the box. Replay can recount every month." } },
 ];
 const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
@@ -88,7 +88,7 @@ const staleOpts: [string, string][] = [
       why="Every mapped record. Each carries the old fingerprint, and the mapping step's fingerprint changed, including forms with the box left blank. Rebuilding them all costs minutes; rebuilding too few publishes a wrong count with no error."
       wrong={{ ticked: "That picks stale records by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either one makes a mapped record stale." }} />
     <Fragment slot="reveal">
-      <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can recount March, but not from the forms March's report read, so it can't reproduce that report or show what the fix alone did to it. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
+      <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can recount March, but not from Northside's original file, so it can't replay March's report or isolate the fix's effect on it. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
     </Fragment>
   </Check>
   <AiCard part="carry-it" />

@@ -19,7 +19,6 @@ const after = rowOf(tableC.rows);
 const cols: [Column, string][] = [["name", "Team"], ["p", "P"], ["w", "W"], ["d", "D"], ["l", "L"], ["gf", "GF"], ["ga", "GA"], ["gd", "GD"], ["pts", "Pts"]];
 const head = Object.fromEntries(cols);
 const change = (c: Column) => `${head[c]} ${before[c]} → ${after[c]}`;
-const byCode = lambert.columns.filter((c) => c === "name").map(change);
 const byPages = lambert.columns.filter((c) => c !== "name").map(change);
 const sites = spell(tuesdayManifest.pages.filter((p) => p.kind === "schedule").length);
 const lambertWin = saturday.find((s) => s.home === "st-lambert" || s.away === "st-lambert")!;
@@ -73,9 +72,9 @@ const calls = [
     <p data-when={refetchPredict.key} hidden><span data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}></span></p>
     <p data-when={refetchPredict.key} data-is="" hidden>You skipped it. It is still there in Setup.</p>
   </div>
-  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had posted since Friday. If no site had posted or changed a result since Friday, only the name would change. If one had, the numbers would move too. A replay has no such unknown: its pages are Friday's, byte for byte.</p>
+  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had posted since Friday. If no site had posted or changed a result since Friday, only the name would change. If one had posted or changed a result this row counts, the numbers would move too. A replay has no such unknown: its pages are Friday's, byte for byte.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
-  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. Five pages had changed, and one of them posted a result this row counts.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. {spell(changed.length, true)} pages had changed, and one of them posted a result this row counts.</p>
 
   <p>Case 1 captured Tuesday's pages apart from the archive to see what the re-fetch would have read. On Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons.</p>
   <div class="cv-scroll">
@@ -93,7 +92,7 @@ const calls = [
     <thead><tr><th scope="col">Cell</th><th scope="col">Tuesday</th><th scope="col">Re-fetch</th><th scope="col">Changed by</th></tr></thead>
     <tbody>{lambert.columns.map((c) => <tr><th scope="row">{head[c]}</th><td>{before[c]}</td><td class:list={{ "is-code": c === "name", "is-pages": c !== "name" }}>{after[c]}</td><td>{c === "name" ? "the code" : "the pages"}</td></tr>)}</tbody>
   </table>
-  <p class="ar-key"><span><span class="ar-swatch is-code"></span><span><b>Changed by the code:</b> {byCode.join("; ")}</span></span><span><span class="ar-swatch is-pages"></span><span><b>Changed by the pages:</b> {byPages.join("; ")}</span></span></p>
+  <p class="ar-key"><span><span class="ar-swatch is-code"></span><span><b>Changed by the code:</b> the name</span></span><span><span class="ar-swatch is-pages"></span><span><b>Changed by the pages:</b> {spell(byPages.length)} numbers</span></span></p>
   <p class="cv-label">“St. Lambert” is the school as its own pages write it. “State Lambert” is the bug's display name and “Saint Lambert” the fix's.</p>
   <p>That is the visible cost: a diff with two causes.</p>
 

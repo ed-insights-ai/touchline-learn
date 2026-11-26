@@ -22,7 +22,7 @@ const short: [string, string][] = [["manifest", "1 · Friday's manifest"], ["req
 const label = Object.fromEntries(short);
 const lines = [
   { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every schedule page the manifest lists as saved was replayed, and each matched the hash Friday recorded." },
-  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: "The counter caught both test attempts, then counted no network attempt during the replay." },
+  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: "The counter caught both test requests, then recorded zero attempts during the lab's replay." },
   { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
   { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
@@ -100,7 +100,7 @@ const draft: [string, string][] = [
         ))}
         <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
           options={draft} answer="counter"
-          why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then counted no network attempt during the replay."
+          why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then recorded zero attempts during the lab's replay."
           wrong={{ reads: "A replay reads saved pages from disk. A request goes over the network, and the point is that there were none.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
         <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
       </Check>
