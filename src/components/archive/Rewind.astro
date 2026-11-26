@@ -18,11 +18,11 @@ const criteria = [
 
 const find = (test: (l: string) => boolean, what: string) => rewind.lines.find(test) ?? (() => { throw new Error(`the replay report has no ${what} line`); })();
 const tidy = (l: string) => l.trim().replace(/\s+:\s/, ": ").replace(/\s{2,}/g, " ");
-const short: [string, string][] = [["manifest", "1 · Friday's manifest"], ["requests", "2 · Zero requests"], ["code", "3 · The code"], ["diff", "4 · The diff"]];
+const short: [string, string][] = [["manifest", "1 · Pins the inputs"], ["requests", "2 · Measures the network"], ["code", "3 · Identifies the code"], ["diff", "4 · Explains the change"]];
 const label = Object.fromEntries(short);
 const lines = [
   { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every schedule page the manifest lists as saved was replayed, and each matched the hash Friday recorded." },
-  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: "The counter caught both test requests, then recorded zero attempts during the lab's replay." },
+  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: `The counter caught both test requests, then recorded ${rewind.requests} attempts during the lab's replay.` },
   { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
   { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "It names the fixed parser and its config, beside Tuesday's." },
@@ -31,7 +31,7 @@ const lines = [
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
 const draft: [string, string][] = [
-  ["sites", "Riley needs the requests listed by site, not a total."],
+  ["pages", `It should give a count for each of Friday's ${rewind.schedulesSaved} pages, not a total.`],
   ["counter", "Nothing shows the counter would have noticed a request, so its 0 means nothing."],
   ["fingerprint", "The fingerprint already shows nothing was fetched, so the line is redundant."],
   ["offline", "A replay can't make requests at all, so the line belongs nowhere in the report."],
@@ -41,7 +41,7 @@ const draft: [string, string][] = [
 <section id="rewind" class="ar-part">
   <PartHead id="rewind">Rewind: Tuesday with a replay requirement</PartHead>
   <p>In Module 1's Rewind, one added sentence gave Kick <strong>acceptance criteria</strong>: conditions its work had to meet before Riley would accept it. Riley's Tuesday question doesn't have any yet.</p>
-  <p>The rebuild target is Monday's table, the one readers have, with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” where Tuesday's table says “{story.tuesdayName}”.</p>
+  <p>The rebuild target is Monday's table, the one readers have, built from Friday's pages, with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” where Tuesday's table says “{story.tuesdayName}”.</p>
   <div class="cv-user-prompt" role="region" aria-label="Riley's question on Tuesday">
     <div class="cv-chat-bar">
       <span class="cv-chat-badge">Prompt</span>
@@ -84,7 +84,7 @@ const draft: [string, string][] = [
           <span class="cv-agent-badge">Kick · Coding agent</span>
           <span class="cv-status-ok">{rewind.requests} requests · {rewind.cellsChanged} cell changed</span>
         </div>
-        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-kv": /^\s*\S.*\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
+        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
       <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the hash Git computes from the bytes of the program that built the table (its blob hash), so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code, run the same way, gives the same table.</p>
 
@@ -101,8 +101,8 @@ const draft: [string, string][] = [
         ))}
         <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
           options={draft} answer="counter"
-          why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then recorded zero attempts during the lab's replay."
-          wrong={{ sites: "With zero requests there is nothing to list. The question is whether the 0 can be trusted.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
+          why={`The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then recorded ${rewind.requests} attempts during the lab's replay.`}
+          wrong={{ pages: "A replay reads saved pages from disk. The count is of network attempts, and splitting a 0 by page doesn't make it more trustworthy.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
         <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
       </Check>
       <AiCard part="rewind" />
@@ -125,6 +125,7 @@ const draft: [string, string][] = [
   .ar-report code { padding: 0; background: none; white-space: pre-wrap; }
   .ar-ln { display: block; }
   .ar-ln.is-kv { padding-left: 17ch; text-indent: -17ch; }
+  .ar-ln.is-sub { padding-left: 2ch; text-indent: -2ch; }
   @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } }
   .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
   .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }

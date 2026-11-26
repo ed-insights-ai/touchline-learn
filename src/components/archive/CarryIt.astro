@@ -11,6 +11,7 @@ import { outcomes } from "../../lib/archive-parts";
 import { fridayManifest, fridayPages, rawRows } from "../../lib/archive";
 import { journey } from "../../data/journey";
 import { modulePageExists } from "../../lib/lessons";
+import { spell } from "../../lib/cases";
 
 const nextModule = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "03-provenance")!;
 const takeaway = "Can you rebuild this from saved inputs, with no new requests, and show me what changed and why?";
@@ -41,12 +42,12 @@ const sideRows: [string, string][] = [
 
 const claims: [string, string, string][] = [
   ["none", "The published reports can't be corrected from what was kept. Asking the clinics to resubmit is a new fetch, and the correction must say so", "Not from what was kept"],
-  ["full", "Every month's report can be corrected from the forms it read, and each change has one cause: the fix", "Every report, one cause"],
+  ["full", "Every month's report can be replayed from the forms it read, so the fix's diff has one cause", "Every report, one cause"],
   ["nopast", "This month's figures can be fixed, but no past month can be corrected", "This month only"],
   ["recount", "Every month can be replayed from the files kept, but March at Northside replays a different file than its report read", "Every month, March confounded"],
 ];
 const worlds: { key: string; name: string; kept: string; answer: string; why: string; wrong: Record<string, string> }[] = [
-  { key: "a", name: "World A", kept: "Kept every file, each resubmitted file stored beside the one it replaced.", answer: "full",
+  { key: "a", name: "World A", kept: "Kept every file, each resubmitted file stored beside the original.", answer: "full",
     why: "The raw forms still have the box as the clinic ticked it, and each report's record names its files. March's report is replayed from Northside's original file, so the replay changes one input, the code, and the diff has one cause. The resubmission can then be applied as a second, separately attributed change.",
     wrong: { recount: "Nothing was replaced. March's report can be replayed from the very file it read.", nopast: "Every month's forms are kept, so every month can be replayed.", none: "The raw forms keep the follow-up box. Only the mapped table lost it." } },
   { key: "b", name: "World B", kept: "Kept only the mapped table. A form ticked “follow-up visit” and one ticked “new patient” both sit in it as new patient.", answer: "none",
@@ -72,16 +73,16 @@ const staleOpts: [string, string][] = [
   <p>One more event: in May, the Northside clinic resubmitted its March file with corrected forms, after March's report had been built.</p>
   <p class="cv-qlabel">What every world records:</p>
   <ul>
-    <li>Each monthly report records the content hash of every file it read.</li>
+    <li>Each monthly report records the content hash of every raw clinic file the mapping step read for it.</li>
     <li>Each mapped record carries the fingerprint of the mapping code that wrote it.</li>
     <li>Every form received so far has been mapped.</li>
-    <li>The report code and its config are kept in version control.</li>
+    <li>The mapping code, the report code and their config are kept in version control.</li>
   </ul>
   <p>Only what was kept differs.</p>
   <div class="cv-twins">
     {worlds.map((w) => <div><h4>{w.name}</h4><p>{w.kept}</p></div>)}
   </div>
-  <Check once="carry-worlds" kind="Transfer" note="Answer all four, then check.">
+  <Check once="carry-worlds" kind="Transfer" note={`Answer all ${spell(worlds.length + 1)}, then check.`}>
     <p class="cv-qlabel">Four recovery claims:</p>
     <ol class="ar-claims">{claims.map(([, text]) => <li>{text}.</li>)}</ol>
     {worlds.map((w) => <Choice save={`carry-${w.key}`} label={`${w.name}: what is the strongest honest claim about correcting the published reports?`} options={claimOpts} placeholder="Choose a claim" answer={w.answer} why={`${claimOpts[claimNo(w.answer) - 1][1]}. ${w.why}`} wrong={Object.fromEntries(Object.entries(w.wrong).map(([k, v]) => [k, `${claimOpts[claimNo(k) - 1][1]}: ${v}`]))} />)}
@@ -132,7 +133,7 @@ const staleOpts: [string, string][] = [
   <div class="ar-title" data-when="carry-season" hidden>
     <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The URLs say which season was asked for and which address answered. The page can disagree with them, and this one does.</p>
     <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>The URLs say which season was asked for and which address answered, and the sidecar says nothing else about the season. The page can disagree with them, and this one does.</p>
-    <p class="ar-said" data-when="carry-season" data-is="no" hidden>Its URLs name no other season. The page itself does, and its hash matches a page Friday already saved.</p>
+    <p class="ar-said" data-when="carry-season" data-is="no" hidden>Only if you compare its hash with Friday's manifest. The sidecar alone names {asked} twice. The page itself names another season.</p>
     <p>Open the saved bytes. The page's own title says:</p>
     <p class="cv-mono ar-title-line">&lt;title&gt;{title}&lt;/title&gt;</p>
     <p>Its content hash is the one Friday's manifest recorded for Cedar Grove's {titled} page: byte for byte, the same page. The archive did its job and kept exactly what arrived. A pipeline that believed the URLs would file this as {asked}, and every replay with that code would rebuild the same wrong season, faithfully.</p>
@@ -147,7 +148,6 @@ const staleOpts: [string, string][] = [
   <aside class="cv-next-card" aria-label="Next module">
     <p class="cv-next-eyebrow">Up next · Module {nextModule.n}</p>
     <p class="cv-next-q">{nextModule.question}</p>
-    <p>Module {nextModule.n}'s lab refuses this page. The module asks why.</p>
     <a class="cv-next-cta" href="../03-provenance/">Continue to Module {nextModule.n}: {nextModule.name} →</a>
   </aside>
 
