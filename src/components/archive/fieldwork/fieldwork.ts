@@ -132,7 +132,7 @@ export type Scope = "fn" | "module" | "lab" | "none";
 export const scopeNames: [Scope, string][] = [
   ["fn", "The tidy function alone"],
   ["module", "The parser's whole module"],
-  ["lab", "Module, page reader and config"],
+  ["lab", "The lab's fingerprint"],
   ["none", "None of the three"],
 ];
 type Edit = { id: string; label: string; where: string; before: ReturnType<typeof scopes>; after: ReturnType<typeof scopes>; rows: number | null; rowsNote: string };
@@ -229,6 +229,10 @@ check(labRun.map((s) => s.text).join("\n\n") === run, "the quoted lab run does n
 check(run.endsWith(replayReport), "the quoted lab run and the lesson's replay report differ; regenerate both quotes");
 /** The tail of `python labs/m02_archive.py --missing hartwell-tech` from its replay report. */
 export const missingReport = quote("m02_archive.missing-report.txt");
+const missingRun = quote("m02_archive.missing-run.txt");
+check(missingRun.endsWith(missingReport), "the two --missing quotes come from different runs; regenerate both");
+/** The --missing run's manifest check, which counts the deleted page and lets it through. */
+export const missingHashes = missingRun.split("\n").find((l) => l.startsWith("content hashes : ")) ?? fail("the --missing run has no content hashes line");
 check(missingReport.startsWith("Replay report: ") && /^replayed {7}: 6 of the 7 schedules/m.test(missingReport), "the quoted --missing report does not start at its heading");
 const MISSING = "hartwell-tech";
 const elsewhere = new Set(fridayPages.filter((p) => p.slug !== MISSING).flatMap((p) => rawRows(p.html).map((r) => r.fixture)));
