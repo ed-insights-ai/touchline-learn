@@ -1,0 +1,227 @@
+{
+ "schema": "learn.capture-manifest/1",
+ "run": "2026-11-20-friday",
+ "season": 2026,
+ "gender": "men",
+ "conference": "PLC",
+ "scope": "schedule pages and Alder Ridge's box scores",
+ "started_at": "2026-11-20T12:30:00+00:00",
+ "finished_at": "2026-11-20T12:30:57+00:00",
+ "requested": 20,
+ "saved": 19,
+ "unavailable": [
+  "dunmore"
+ ],
+ "pages": [
+  {
+   "programme": "alder-ridge",
+   "kind": "schedule",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:00+00:00",
+   "bytes": 3008,
+   "sha256": "e05499e8e7e495c1f7e722308bf5f9fb7296805960565016c3e1d8de8fa2d429"
+  },
+  {
+   "programme": "brightwater-state",
+   "kind": "schedule",
+   "requested_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/brightwater-state/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:03+00:00",
+   "bytes": 2856,
+   "sha256": "7726cd71f2ed66c815229386816929acf9ac9d62825e7d6f4dc80c213262088f"
+  },
+  {
+   "programme": "cedar-grove",
+   "kind": "schedule",
+   "requested_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/cedar-grove/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:06+00:00",
+   "bytes": 2747,
+   "sha256": "6d6d02cd4de212ace7c2568ee6d8c87d2e3b2d0c1a6b8dbb78b63abcec765bcc"
+  },
+  {
+   "programme": "dunmore",
+   "kind": "schedule",
+   "requested_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "state": "unavailable",
+   "tries": 3,
+   "reason": "site did not answer after 3 tries"
+  },
+  {
+   "programme": "eastbrook-state",
+   "kind": "schedule",
+   "requested_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/eastbrook-state/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:12+00:00",
+   "bytes": 2639,
+   "sha256": "59e6006c7e95ca7ba70bcdb5965976eba2688080806994b79570e8dccd454d04"
+  },
+  {
+   "programme": "harbor-point",
+   "kind": "schedule",
+   "requested_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/harbor-point/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:15+00:00",
+   "bytes": 2591,
+   "sha256": "ea3eec77d4dfab62add622f71b2a8e24f0d1ffd169df4d9fb10bc2ec40b282af"
+  },
+  {
+   "programme": "hartwell-tech",
+   "kind": "schedule",
+   "requested_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/hartwell-tech/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:18+00:00",
+   "bytes": 2853,
+   "sha256": "d493fba94d9e301ec10af8886de22ceddb8c7f94bb0ac7c461a83fec997d7f80"
+  },
+  {
+   "programme": "st-lambert",
+   "kind": "schedule",
+   "requested_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/st-lambert/2026-men-schedule.html",
+   "fetched_at": "2026-11-20T12:30:21+00:00",
+   "bytes": 2539,
+   "sha256": "7891ad401dc0e5c061e0ecb8f5cbe2ebc65acf7e0b150a9a78f055fec9c38a1e"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8199",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/westbrook-state/boxscore/8199",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8199.html",
+   "fetched_at": "2026-11-20T12:30:24+00:00",
+   "bytes": 1647,
+   "sha256": "da8ffe78a8dc9482b752b82a161a4abbe8e0bee0baabdddb230c952d336eb4d0"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8200",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/westbrook-state/boxscore/8200",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8200.html",
+   "fetched_at": "2026-11-20T12:30:27+00:00",
+   "bytes": 2165,
+   "sha256": "8800753cfe1d2ab51b716a9638aec98eff7e9c271fc33c222a1c7a12aef08979"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8201",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/pine-barrens/boxscore/8201",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8201.html",
+   "fetched_at": "2026-11-20T12:30:30+00:00",
+   "bytes": 2962,
+   "sha256": "f5436bdfcb19d7c1f5e647c0676fc322a4fda6ce204c4c3f234e114acf89604e"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8202",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/st-brendan/boxscore/8202",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8202.html",
+   "fetched_at": "2026-11-20T12:30:33+00:00",
+   "bytes": 1655,
+   "sha256": "d7f5ab69a1df71e689dca97ad7991b2e2a03ca363f6aa6b06378160ba3581ff2"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8203",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/hartwell-tech/boxscore/8203",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8203.html",
+   "fetched_at": "2026-11-20T12:30:36+00:00",
+   "bytes": 1784,
+   "sha256": "7c98371fa1150e78ddd3e805c27872652640e2447488e13a6bdbec5733cdb4b9"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8204",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/harbor-point/boxscore/8204",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8204.html",
+   "fetched_at": "2026-11-20T12:30:39+00:00",
+   "bytes": 1700,
+   "sha256": "fdad9eae58852bb994833b761ae932e0fd6c56011ea15e5e889a5211cea7bc53"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8205",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/dunmore/boxscore/8205",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8205.html",
+   "fetched_at": "2026-11-20T12:30:42+00:00",
+   "bytes": 1760,
+   "sha256": "df6d4e7a06d63a30e96d86150b4d8a559ebc0f43dd8a1d18cdcbfc684974336f"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8206",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/brightwater-state/boxscore/8206",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8206.html",
+   "fetched_at": "2026-11-20T12:30:45+00:00",
+   "bytes": 2557,
+   "sha256": "b647b761830dfad9d6bf1f9df7bbfd40c1cfd936809f4962dbd1ffd7617db2c2"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8207",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/st-lambert/boxscore/8207",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8207.html",
+   "fetched_at": "2026-11-20T12:30:48+00:00",
+   "bytes": 1808,
+   "sha256": "a2c06a29b6a22aa2010ec781f4bad6f0f9e38d7b8c363ca4b9b60d16e7b6bfc7"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8208",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/eastbrook-state/boxscore/8208",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8208.html",
+   "fetched_at": "2026-11-20T12:30:51+00:00",
+   "bytes": 1517,
+   "sha256": "fbf92947af0ff0d595f91c7877eb086fe909afa8630c671a8db0deccca152165"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8209",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/cedar-grove/boxscore/8209",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8209.html",
+   "fetched_at": "2026-11-20T12:30:54+00:00",
+   "bytes": 2593,
+   "sha256": "48a2cb31064ef4a295832a378098b1c079458072b3ffca239693862d415edab1"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "box_score",
+   "fixture": "tally:alder-ridge:8210",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/eastbrook-state/boxscore/8210",
+   "state": "saved",
+   "path": "raw_html/alder-ridge/2026-men-box-tally-alder-ridge-8210.html",
+   "fetched_at": "2026-11-20T12:30:57+00:00",
+   "bytes": 3020,
+   "sha256": "a0daadca2ebd1e3831e5c6ae001ec66900164520dd7d172f34e9785f541e57e0"
+  }
+ ]
+}

@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/st-lambert/boxscore/8207",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/st-lambert/boxscore/8207",
  "status": 200,
- "etag": "\"a2c06a29b6a22aa2\""
+ "fetched_at": "2026-11-20T12:30:48+00:00",
+ "etag": "\"a2c06a29b6a22aa2\"",
+ "sha256": "a2c06a29b6a22aa2010ec781f4bad6f0f9e38d7b8c363ca4b9b60d16e7b6bfc7"
 }

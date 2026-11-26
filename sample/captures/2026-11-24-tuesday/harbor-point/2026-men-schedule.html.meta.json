@@ -1,0 +1,8 @@
+{
+ "requested_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2026",
+ "final_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2026",
+ "status": 200,
+ "fetched_at": "2026-11-24T09:15:15+00:00",
+ "etag": "\"74450876b32f04e8\"",
+ "sha256": "74450876b32f04e89ca455b772fc85f95b93f193f7d0d5a2898cd1b4006b0a99"
+}

@@ -36,6 +36,8 @@ sample/
       aliases.json            the starting spelling list for the identity lab
     sample.json               a manifest: every file with its size and SHA-256
   raw_html/                   the raw zone: pages as a site would serve them
+  manifests/                  what each capture run asked for and saved, by content hash
+  captures/                   Tuesday's later capture of the schedule pages, for Module 2
   shadow/                     a second pipeline's copy, for the parity lab
 ```
 
@@ -105,7 +107,7 @@ python sample/generate.py --check
 ```
 
 ```
-70 files generated, 0 differ from disk
+86 files generated, 0 differ from disk
 ```
 
 That is the platform's determinism rule, applied to this

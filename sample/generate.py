@@ -34,6 +34,11 @@ SEASONS = (2025, 2026)
 GENDERS = ("men", "women")
 COLLECTED = {2025: "2025-12-16T12:30:00+00:00", 2026: "2026-11-20T12:30:00+00:00"}
 SHADOW_COLLECTED = "2026-11-23T09:05:00+00:00"
+# Capture runs of the 2026 men's raw zone. Friday's is the one Monday's table was built from.
+FRIDAY, TUESDAY = "2026-11-20-friday", "2026-11-24-tuesday"
+FRIDAY_AT, TUESDAY_AT, LATER_AT = "2026-11-20T12:30", "2026-11-24T09:15", "2026-11-25T08:05"
+DOWN_ON = {FRIDAY: "dunmore", TUESDAY: "dunmore"}
+TRIES = 3
 
 # slug: (display name, abbreviation, nickname, city, platform, names as published)
 MEMBERS = {
@@ -722,38 +727,97 @@ def build() -> dict[str, bytes]:
     fx = u["fixtures"]["fixtures"]
     by_id = {f["id"]: f for f in fx}
 
-    def page(path, body, requested, final, etag_of=None):
-        files[f"raw_html/{path}"] = body.encode()
-        files[f"raw_html/{path}.meta.json"] = dump({
-            "requested_url": requested, "final_url": final, "status": 200,
-            "etag": '"' + hashlib.sha256((etag_of or body).encode()).hexdigest()[:16] + '"'})
+    def stamp_at(run_at, n):
+        """The nth request of a run, three seconds apart."""
+        h, m = int(run_at[11:13]), int(run_at[14:16]) + n * 3 // 60
+        return f"{run_at[:11]}{h + m // 60:02d}:{m % 60:02d}:{n * 3 % 60:02d}+00:00"
+
+    def page(path, body, requested, final, fetched_at, root="raw_html"):
+        files[f"{root}/{path}"] = body.encode()
+        files[f"{root}/{path}.meta.json"] = dump({
+            "requested_url": requested, "final_url": final, "status": 200, "fetched_at": fetched_at,
+            "etag": '"' + hashlib.sha256(body.encode()).hexdigest()[:16] + '"',
+            "sha256": hashlib.sha256(body.encode()).hexdigest()})
+
+    def manifest(run, run_at, root, boxes, scope):
+        """What one capture run asked for and what it saved, by content hash."""
+        pages, n = [], 0
+        for slug in sorted(MEMBERS):
+            url = f"{site(slug)}/sports/mens-soccer/schedule/2026"
+            entry = {"programme": slug, "kind": "schedule", "requested_url": url}
+            if slug == DOWN_ON[run]:
+                entry.update(state="unavailable", tries=TRIES, reason=f"site did not answer after {TRIES} tries")
+            else:
+                path = f"{root}/{slug}/2026-men-schedule.html"
+                entry.update(state="saved", path=path, fetched_at=stamp_at(run_at, n),
+                             bytes=len(files[path]), sha256=hashlib.sha256(files[path]).hexdigest())
+            n += 1
+            pages.append(entry)
+        for fid, path in boxes:
+            pages.append({"programme": fid.split(":")[1], "kind": "box_score", "fixture": fid,
+                          "requested_url": json.loads(files[path + ".meta.json"])["requested_url"],
+                          "state": "saved", "path": path, "fetched_at": stamp_at(run_at, n),
+                          "bytes": len(files[path]), "sha256": hashlib.sha256(files[path]).hexdigest()})
+            n += 1
+        saved = [p for p in pages if p["state"] == "saved"]
+        return {"schema": "learn.capture-manifest/1", "run": run, "season": 2026, "gender": "men",
+                "conference": CONF, "scope": scope, "started_at": stamp_at(run_at, 0),
+                "finished_at": stamp_at(run_at, n - 1), "requested": len(pages), "saved": len(saved),
+                "unavailable": [p["programme"] for p in pages if p["state"] == "unavailable"], "pages": pages}
 
     for slug in MEMBERS:
         base = f"{site(slug)}/sports/mens-soccer/schedule"
         # Brightwater State redirects the current season to the URL with no year.
         final = base if slug == "brightwater-state" else f"{base}/2026"
-        page(f"{slug}/2026-men-schedule.html", schedule_page(slug, "men", 2026, fx), f"{base}/2026", final)
+        # Dunmore never answered on Friday. Its page on disk is a later capture, made after Tuesday.
+        at = stamp_at(LATER_AT, 0) if slug == DOWN_ON[FRIDAY] else stamp_at(FRIDAY_AT, sorted(MEMBERS).index(slug))
+        page(f"{slug}/2026-men-schedule.html", schedule_page(slug, "men", 2026, fx), f"{base}/2026", final, at)
     # Two requests for 2019 that were answered with something else, both with HTTP 200.
     base = f"{site('cedar-grove')}/sports/mens-soccer/schedule"
     page("cedar-grove/2019-men-schedule.html", schedule_page("cedar-grove", "men", 2026, fx),
-         f"{base}/2019", f"{base}/2019")
+         f"{base}/2019", f"{base}/2019", stamp_at(LATER_AT, 1))
     base = f"{site('dunmore')}/sports/mens-soccer/schedule"
     page("dunmore/2019-men-schedule.html", schedule_page("dunmore", "men", 2026, fx, title_year=False),
-         f"{base}/2019", base)
+         f"{base}/2019", base, stamp_at(LATER_AT, 2))
 
     # A 2025 page whose address and title are right, with 2026 events embedded in it.
     base = f"{site('alder-ridge')}/sports/mens-soccer/schedule"
     page("traps/alder-ridge-2025-embedded.html",
          schedule_page("alder-ridge", "men", 2025, units[(2025, "men")]["fixtures"]["fixtures"], payload=fx),
-         f"{base}/2025", f"{base}/2025")
+         f"{base}/2025", f"{base}/2025", stamp_at(LATER_AT, 3))
 
     boxes = [i for i in u["matches"]["matches"] if i.split(":")[1] == "alder-ridge"]
+    box_paths = []
     for n, fid in enumerate(boxes):
         box = u["matches"]["matches"][fid]
         num = fid.rsplit(":", 1)[1]
-        page(f"alder-ridge/2026-men-box-tally-alder-ridge-{num}.html",
-             box_page(by_id[fid], box, "men", layout=2 if n % 3 == 2 else 1),
-             box["source_url"], box["source_url"])
+        path = f"alder-ridge/2026-men-box-tally-alder-ridge-{num}.html"
+        page(path, box_page(by_id[fid], box, "men", layout=2 if n % 3 == 2 else 1),
+             box["source_url"], box["source_url"], stamp_at(FRIDAY_AT, len(MEMBERS) + n))
+        box_paths.append((fid, f"raw_html/{path}"))
+    files[f"manifests/{FRIDAY}.json"] = dump(manifest(
+        FRIDAY, FRIDAY_AT, "raw_html", box_paths, "schedule pages and Alder Ridge's box scores"))
+
+    # Tuesday's capture: the same sites after the weekend. Saturday's two conference
+    # results and Sunday's championship are posted; nothing else on any page moves.
+    games = {g["id"]: g for g in u["games"] if g.get("id")}
+    weekend = {f["id"] for f in fx if f["date"] in ("2026-11-21", "2026-11-22")}
+    assert weekend == u["late"], "Tuesday's new results are exactly the games still to play on Friday"
+    tuesday_fx = [dict(f) for f in fx]
+    for f in tuesday_fx:
+        if f["id"] in weekend:
+            f["status"] = "final"
+            f["home_score"], f["away_score"] = games[f["id"]]["home_score"], games[f["id"]]["away_score"]
+    root = f"captures/{TUESDAY}"
+    for slug in sorted(MEMBERS):
+        if slug == DOWN_ON[TUESDAY]:
+            continue
+        base = f"{site(slug)}/sports/mens-soccer/schedule"
+        final = base if slug == "brightwater-state" else f"{base}/2026"
+        page(f"{slug}/2026-men-schedule.html", schedule_page(slug, "men", 2026, tuesday_fx), f"{base}/2026", final,
+             stamp_at(TUESDAY_AT, sorted(MEMBERS).index(slug)), root=root)
+    files[f"manifests/{TUESDAY}.json"] = dump(manifest(
+        TUESDAY, TUESDAY_AT, root, [], "schedule pages only"))
     # A page that is not a box score for two teams. A reader must refuse it.
     fid = boxes[0]
     files["raw_html/traps/three-team-box.html"] = box_page(
@@ -763,7 +827,6 @@ def build() -> dict[str, bytes]:
     # have since been played, and one old score disagrees.
     shadow = json.loads(files["data/fixtures/2026-men-plc.json"])
     shadow["collected_at"] = SHADOW_COLLECTED
-    games = {g["id"]: g for g in u["games"] if g.get("id")}
     for f in shadow["fixtures"]:
         if f["id"] in u["late"]:
             f["status"] = "final"
@@ -793,7 +856,7 @@ def main() -> int:
     files = build()
     if args.check:
         on_disk = {p.relative_to(ROOT).as_posix(): p.read_bytes()
-                   for d in ("data", "raw_html", "shadow") for p in (ROOT / d).rglob("*") if p.is_file()}
+                   for d in ("data", "raw_html", "shadow", "manifests", "captures") for p in (ROOT / d).rglob("*") if p.is_file()}
         bad = sorted(k for k in files.keys() | on_disk.keys() if files.get(k) != on_disk.get(k))
         for k in bad:
             print(f"differs: sample/{k}")

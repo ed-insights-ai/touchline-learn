@@ -1,0 +1,8 @@
+{
+ "requested_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+ "final_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+ "status": 200,
+ "fetched_at": "2026-11-24T09:15:18+00:00",
+ "etag": "\"d93434fd20d785cf\"",
+ "sha256": "d93434fd20d785cf4b11bf9a5530abb20f3cf5f78ec5852c47bcb6048aa023ee"
+}

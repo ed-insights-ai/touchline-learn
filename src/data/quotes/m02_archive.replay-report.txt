@@ -1,0 +1,16 @@
+Replay report: Tuesday's table rebuilt from Friday's pages
+----------------------------------------------------------
+manifest       : sample/manifests/2026-11-20-friday.json
+replayed       : 7 of the 7 schedules it lists as saved, 7 matching their content hash
+listed         : Dunmore, unavailable: site did not answer after 3 tries
+requests       : 0, counted by a counter that caught a test request
+fingerprint    : afc9e93d45fe, the fixed parser (source, aliases.json, membership.json, season 2026)
+build revision : 750588a5f8e2, git blob of labs/m02_archive.py
+table          : 53 of 54 finished matches before and 53 of 54 finished matches after
+cells changed  : 1
+  Saint Lambert   name 'State Lambert' -> 'Saint Lambert': the tidy rule, the only input that changed
+unchanged      : the other 79 cells, every place and number
+named gap      : 2026-09-21 Cedar Grove v Saint Lambert finished with no score
+named gap      : Dunmore's page unavailable, its home results read from visitors' pages
+
+RESULT: rebuilt by replay with 0 requests; only Saint Lambert's name changed

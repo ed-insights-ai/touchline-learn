@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
  "final_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule",
  "status": 200,
- "etag": "\"7726cd71f2ed66c8\""
+ "fetched_at": "2026-11-20T12:30:03+00:00",
+ "etag": "\"7726cd71f2ed66c8\"",
+ "sha256": "7726cd71f2ed66c815229386816929acf9ac9d62825e7d6f4dc80c213262088f"
 }

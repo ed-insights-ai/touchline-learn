@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/harbor-point/boxscore/8204",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/harbor-point/boxscore/8204",
  "status": 200,
- "etag": "\"fdad9eae58852bb9\""
+ "fetched_at": "2026-11-20T12:30:39+00:00",
+ "etag": "\"fdad9eae58852bb9\"",
+ "sha256": "fdad9eae58852bb994833b761ae932e0fd6c56011ea15e5e889a5211cea7bc53"
 }

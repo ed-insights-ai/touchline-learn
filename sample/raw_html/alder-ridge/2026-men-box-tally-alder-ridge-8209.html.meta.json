@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/cedar-grove/boxscore/8209",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/cedar-grove/boxscore/8209",
  "status": 200,
- "etag": "\"48a2cb31064ef4a2\""
+ "fetched_at": "2026-11-20T12:30:54+00:00",
+ "etag": "\"48a2cb31064ef4a2\"",
+ "sha256": "48a2cb31064ef4a295832a378098b1c079458072b3ffca239693862d415edab1"
 }

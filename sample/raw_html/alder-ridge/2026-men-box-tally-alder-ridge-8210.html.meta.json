@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/eastbrook-state/boxscore/8210",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/eastbrook-state/boxscore/8210",
  "status": 200,
- "etag": "\"a0daadca2ebd1e38\""
+ "fetched_at": "2026-11-20T12:30:57+00:00",
+ "etag": "\"a0daadca2ebd1e38\"",
+ "sha256": "a0daadca2ebd1e3831e5c6ae001ec66900164520dd7d172f34e9785f541e57e0"
 }

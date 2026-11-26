@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/westbrook-state/boxscore/8199",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/westbrook-state/boxscore/8199",
  "status": 200,
- "etag": "\"da8ffe78a8dc9482\""
+ "fetched_at": "2026-11-20T12:30:24+00:00",
+ "etag": "\"da8ffe78a8dc9482\"",
+ "sha256": "da8ffe78a8dc9482b752b82a161a4abbe8e0bee0baabdddb230c952d336eb4d0"
 }
