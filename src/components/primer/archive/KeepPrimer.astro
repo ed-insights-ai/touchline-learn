@@ -5,31 +5,36 @@ import { noScore } from "../../../lib/cases";
 
 const card = archiveAi["case-kept"];
 
+const record = `<p class="maker">Émilie du Pré</p>
+<p class="object-count"></p>`;
+const flow = `Raw response → Extracted fields → Parsed counts → Published catalog
+                                    blank → 0`;
+
 const layers = [
-  { name: "Raw vendor file", holds: "The original file, with the count blank", use: "Rerun the whole import and check what the vendor actually sent.", state: "clean" },
-  { name: "Parsed rows", holds: "Fields extracted from the file, with the blank still intact", use: "Start here to test the corrected cleaning step on the same input it originally received.", state: "last" },
-  { name: "Cleaned rows", holds: "A 0 where the cleaner mistakenly converted the blank", use: "Compare old and corrected results. This copy already carries the bug.", state: "bug", bug: true },
-  { name: "Published catalog", holds: "“0 copies available”", use: "Check what readers saw and verify that republishing displays “Availability unknown.”", state: "bug" },
+  { name: "Raw response", holds: "The markup, accents and the blank count, as received", verdict: ["Verifies the fix by replaying the whole import", "is-ok"] },
+  { name: "Extracted fields", holds: "The fields pulled from the markup, with the count still blank", verdict: ["Last layer before the damage", "is-ok"], last: true },
+  { name: "Parsed counts", holds: "A 0 where the count was blank", verdict: ["Carries the bug", "is-bad"], bug: true },
+  { name: "Published catalog", holds: "Zero objects, where the partner supplied no count", verdict: ["Carries the bug", "is-bad"] },
 ];
-const chips: Record<string, [string, string]> = {
-  clean: ["Before the damage", "is-ok"],
-  last: ["Last layer before the damage", "is-ok"],
-  bug: ["Carries the bug", "is-bad"],
-};
+
+const merges = [
+  { from: ["blank count", "literal 0"], to: "0" },
+  { from: ["Émilie du Pré", "another original spelling"], to: "Emilie du Pre" },
+];
 
 const receipt = [
-  ["Source and request details, such as the URL, branch filter, and page number", "Identify which feed and slice the file represents."],
-  ["Fetch timestamp in UTC", "Establish when the library retrieved the file and help match it to a run or incident."],
-  ["Vendor snapshot ID or file version, if supplied", "Identify which edition the vendor served. A retry can retrieve the same edition at a later time."],
-  ["Response status, content type, and encoding, if supplied", "Help distinguish a catalog file from an error response and explain how the file should be read."],
-  ["Import run ID and fetcher version", "Tie the file to the logs and the code that retrieved it."],
-  ["File size and checksum", "Check whether the archived bytes still match what was saved."],
+  ["Requested URL and final URL if redirected", "Shows what the museum asked for and where the response came from."],
+  ["Fetch timestamp in UTC", "Places the response in the nightly history and helps match it to logs."],
+  ["Import run ID", "Connects the file to other pages from the same run and to the catalog built from them."],
+  ["HTTP status", "Helps distinguish a successful download from a saved error response."],
+  ["Reported content type and encoding, when provided", "Helps a future importer interpret the saved bytes, including characters such as É."],
+  ["File size and SHA-256 hash", "Help check whether the archived bytes still match what was originally saved."],
 ];
 
 const checks = [
-  "If the parser turns blanks into zeros before saving the parsed rows, which saved copy would you replay from, and why?",
-  "If all you have is a cleaned row with a count of 0, what can you conclude about what the vendor sent?",
-  "If the library fetches the same vendor snapshot twice, which receipt field tells you it was the same edition, and which field distinguishes the two fetches?",
+  ["A crash", "The importer crashes halfway through tonight’s download processing. What can the museum recover if it saved the raw response before cleaning started?"],
+  ["Where to replay from", "If the count parser has the blank-to-zero bug, which saved copy is the quickest starting point for verifying the fix, and why can’t the published catalog serve as that input?"],
+  ["A new question", "A curator wants to know whether the partner marked a maker’s name as uncertain last year. The published catalog contains only standardized names. Where would you look, and what would you look for?"],
 ];
 ---
 
@@ -38,73 +43,81 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-kept")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-zone study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 2 and place one more bug on the grid: the tidy rule that turned “St. Brendan” into “State Brendan”."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and place one more bug on the grid: the table builder gave a draw two points. Which archives can verify the fix?"
 >
-  <h2 class="pr-title">{card.title}</h2>
-  <p>Imagine a public library imports a nightly catalog file from a vendor. One row lists the author as <code>García, Ana</code>, the title as <code>&lt;i&gt;River Maps&lt;/i&gt;</code>, and the available-copy count as blank. In this feed, a blank means the vendor hasn’t reported a count. A <code>0</code> means it reported that no copies are available.</p>
+  <h2 class="pr-title">What a museum's archive must keep</h2>
+  <p>Every night, a museum downloads collection records from a partner’s website. One night, the partner sends a record that looks like this:</p>
+  <div class="pr-code"><p class="pr-label">The partner's record</p><pre>{record}</pre></div>
+  <p>The museum’s import strips the HTML, standardizes the maker’s name, and parses the object count. A bug turns the blank count into <code>0</code>, so the catalog reports that the museum has zero objects where the partner supplied no count.</p>
 
-  <h2>1. Save what arrived before cleaning it</h2>
-  <p>The <strong>raw zone</strong>, also called the <strong>bronze layer</strong>, stores the file as received, including its original spelling, markup, blanks, and even malformed rows. The library saves it before cleaning starts so the original survives if the cleaning step crashes, skips rows, or quietly changes a value. The vendor might replace the file the next night, so fetching it again could give the library a different starting point.</p>
+  <h2>1. Save the raw response first</h2>
+  <p>The <strong>raw zone</strong>, also called the <strong>bronze layer</strong> in this archive, holds the response body as the museum received it, along with a small record of the fetch. It keeps the markup, accents, blank fields, and any malformed records.</p>
+  <p>The museum writes this copy before cleaning starts. If the importer crashes or quietly changes a value, the original input is already saved. Downloading the same URL tomorrow may give the museum a different version of the record.</p>
 
-  <h2>2. Replay from the last saved layer before the bug</h2>
-  <p>Suppose the library saves a copy at each stage.</p>
+  <h2>2. Replay from the last layer before the damage</h2>
+  <p>Suppose the museum saves a copy after each step:</p>
+  <div class="pr-code"><pre>{flow}</pre></div>
   <ol class="pa-ladder">
     {layers.map((l) => (
-      <li class={`is-${l.state}`}>
-        <p class="pa-ladder-head"><b>{l.name}</b><span class:list={["pr-chip", chips[l.state][1]]}>{chips[l.state][0]}</span></p>
+      <li class:list={[{ "is-last": l.last, "is-bug": l.bug, "is-carry": l.verdict[1] === "is-bad" }]}>
+        {l.bug && <p class="pa-ladder-step">The count parser's bug runs here</p>}
+        <p class="pa-ladder-head"><b>{l.name}</b><span class:list={["pr-chip", l.verdict[1]]}>{l.verdict[0]}</span></p>
         <p class="pa-ladder-holds">{l.holds}</p>
-        <p>{l.use}</p>
-        {l.bug && <p class="pa-ladder-step">The cleaner's bug runs here</p>}
       </li>
     ))}
   </ol>
-  <p>The parsed rows are the <strong>last saved layer before the damage</strong>. Replay means feeding those rows through the corrected cleaner and rerunning the downstream steps. To verify the fix, check both a row with a blank and a row with an explicit <code>0</code>. They should come out differently.</p>
+  <p>The <strong>extracted fields</strong> are the last saved copy before the bug. They still contain the blank, so the museum can feed them into the fixed count parser and check that the result is missing, then run the downstream steps again. A test record with an explicit <code>0</code> should still produce zero.</p>
+  <p>The <strong>raw response</strong> can also verify the fix by replaying the whole import. The <strong>old parsed counts</strong> and <strong>published catalog</strong> already carry the incorrect zero. They help show what went wrong and compare old and corrected results. On their own, they cannot tell the fixed parser which zeros came from blanks.</p>
 
-  <h2>3. Keep the details future questions may depend on</h2>
-  <p>Once the cleaner turns both blank and <code>0</code> into <code>0</code>, the cleaned value alone can’t tell you which input produced it. The same goes for a plain title after markup removal or an author name after rewriting. Several different originals can produce the same cleaned value. You need an earlier copy that still preserves the distinction.</p>
-  <figure class="pr-card pa-merge">
-    <div class="pa-merge-in">
-      <p><code>blank</code><span>not reported</span></p>
-      <p><code>0</code><span>none available</span></p>
-    </div>
-    <p class="pr-arrow"><span>cleaner</span></p>
-    <div class="pa-merge-out"><p><code>0</code><span>which one was it?</span></p></div>
+  <h2>3. Keep information you might need later</h2>
+  <p class="pr-pull">When different inputs produce the same output, the output alone cannot tell you which input you started with.</p>
+  <figure class="pr-card pa-merges">
+    {merges.map((m) => (
+      <div class="pa-merge">
+        <div class="pa-merge-in">{m.from.map((f) => <p><code>{f}</code></p>)}</div>
+        <p class="pr-arrow"><span>import</span></p>
+        <div class="pa-merge-out"><p><code>{m.to}</code><span>which one was it?</span></p></div>
+      </div>
+    ))}
   </figure>
-  <p>The raw file can also answer questions that never came up when the pipeline was designed. Months later, the library might ask whether the vendor left copy counts blank more often for e-books than for print books. If the feed included format and the original count, the archived files let the library investigate even if nobody tracked that metric at the time.</p>
+  <p>An empty field and a literal <code>0</code> both became <code>0</code>. Two original spellings might become <code>Emilie du Pre</code>. Different HTML tags and attributes can produce the same plain text.</p>
+  <p>The raw copy also preserves evidence for questions the museum hasn’t thought to ask. Months later, a curator might ask when the partner began marking some maker names with a <code>data-attribution="uncertain"</code> attribute. The museum can inspect its archived responses to see when that attribute first appeared in a nightly download, even if the importer never extracted it.</p>
 
-  <h2>4. Save a small receipt beside each raw file</h2>
+  <h2>4. Save a small fetch record beside each file</h2>
   <div class="pr-scroll">
     <table class="pr-table">
-      <thead><tr><th scope="col">Field</th><th scope="col">Why it’s worth keeping</th></tr></thead>
+      <thead><tr><th scope="col">Field</th><th scope="col">Why keep it</th></tr></thead>
       <tbody>{receipt.map(([f, w]) => <tr><th scope="row">{f}</th><td>{w}</td></tr>)}</tbody>
     </table>
   </div>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>The reply's blank read as zero is {noScore.home} v {noScore.away} on {noScore.day}: a bare “Final” with no score, read as a scoreless draw.</p>
-    <p>In the reply, the blank survives parsing because the bug is in the cleaner, so the parsed rows are the last layer before the damage. Kick's tidy rule ran inside the parser, so Kick's parsed rows already carry it. And Kick's tidied HTML looks raw, but the tidy step ran before the saver wrote it, so it is a cleaned layer too.</p>
-    <p>The reply's receipt is what Touchline calls the sidecar: the requested and final URL, the fetch time, the status and a content hash of the bytes.</p>
+    <p>The museum's blank count is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which Kick's parser read as a scoreless draw.</p>
+    <p>One difference decides Case 2. In the museum, the bug is in a step after extraction, so the extracted fields are the last layer before the damage. Kick's tidy rule ran inside the parser, so Kick's parsed rows already carry it. Kick's tidied HTML looks raw, but the tidy step ran before it was saved, so it is a cleaned copy too. Ask of any bug which step did the damage, then look for the last copy saved before that step.</p>
+    <p>The reply's fetch record is what Case 2 calls the sidecar.</p>
   </aside>
 
-  <h2>Check your understanding</h2>
-  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
 <style>
   .pa-ladder { display: grid; gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
-  .pa-ladder li { padding: 0.6rem 0.85rem; border: 1px solid var(--tl-line); border-left-width: 4px; border-radius: 8px; background: var(--tl-card); }
-  .pa-ladder li.is-clean { border-left-color: var(--tl-raw-edge); }
+  .pa-ladder li { padding: 0.55rem 0.85rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--tl-raw-edge); border-radius: 8px; background: var(--tl-card); }
   .pa-ladder li.is-last { border-left-color: var(--pr-green); box-shadow: 0 0 0 1px var(--pr-green); }
-  .pa-ladder li.is-bug { border-left-color: var(--pr-red); }
+  .pa-ladder li.is-carry { border-left-color: var(--pr-red); }
   :global(.pr) .pa-ladder p { margin: 0 0 0.2rem; font-size: 0.9rem; }
+  :global(.pr) .pa-ladder p:last-child { margin: 0; }
   :global(.pr) .pa-ladder-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem 0.6rem; }
   .pa-ladder-head b { color: var(--sl-color-white); font-size: 1rem; }
   :global(.pr) .pa-ladder-holds { color: var(--tl-muted); }
-  :global(.pr) .pa-ladder-step { color: var(--pr-red); font-size: 0.78rem !important; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
-  .pa-merge { display: grid; gap: 0.5rem; align-items: center; }
+  :global(.pr) .pa-ladder-step { color: var(--pr-red); font-size: 0.76rem !important; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  :global(:root:not([data-theme="light"])) :global(.pr) .pa-ladder-step { color: #ef7b68; }
+  .pa-merges { display: grid; gap: 0.8rem; }
+  .pa-merge { display: grid; gap: 0.4rem; align-items: center; }
   @media (min-width: 46rem) { .pa-merge { grid-template-columns: 1fr auto 1fr; } }
   .pa-merge-in, .pa-merge-out { display: grid; gap: 0.35rem; }
   :global(.pr) .pa-merge-in p, :global(.pr) .pa-merge-out p { display: flex; justify-content: space-between; gap: 0.5rem; margin: 0; padding: 0.4rem 0.7rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-size: 0.88rem; }
   :global(.pr) .pa-merge-out p { border: 1.5px dashed var(--pr-red); }
-  .pa-merge span { color: var(--tl-muted); }
+  .pa-merge-out span { color: var(--tl-muted); }
 </style>

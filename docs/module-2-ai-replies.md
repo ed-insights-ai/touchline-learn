@@ -25,11 +25,28 @@ reply text inside the primer component and keep or rewrite its Course note.
 
 Notes on individual replies:
 
-- **Rewind** was run twice. The first reply was sound but used a library example, the
-  third library example in Module 2's replies after Module 1 used one throughout.
-  The prompt now asks for an example "not about sports or libraries", and the page
-  shows the second reply (a street-tree inventory).
-- **Case 3**: the reply's "hash a whole file on purpose" is about a data file. The
-  Course note carries it to Touchline's whole-module code fingerprint.
+- **Six replies were rerun** after the first council round changed their prompts, each
+  in a fresh session with the same model and settings on the same date. Setup, Prove
+  it and Carry it keep their first replies.
+  - **The idea** asks for three fields that are not sports or libraries, one shown with
+    numbers, and for two outputs that disagree with the record that explains why. Item 3
+    now names both unrecoverable cases: a version never saved, and a saved copy later
+    overwritten.
+  - **Case 1** asks for a before-and-after example with numbers in the pipeline item.
+  - **Case 2** uses one running example, a museum's nightly import from a partner site.
+  - **Case 3** asks why some systems hash a whole source file on purpose, so a comment
+    edit triggers a rebuild.
+  - **The decision** uses one running example, a shop's price list fetched every morning,
+    and asks what a recorded hash can show about a copy and why it cannot bring one back.
+  - **Rewind** uses one running example, a research lab's daily sensor readings, and asks
+    for an example report that meets every criterion.
+- **Rewind** has had three replies. The first used a library example, the third in
+  Module 2 after Module 1 used one throughout. The second used a street-tree inventory.
+  The page shows the third (lab sensor readings), which also includes a sample report.
+- **Case 3**: the reply hashes a whole source file, comments included. The Course note
+  ties it to Touchline's whole-module parser fingerprint.
+- **The decision**: the reply's "fingerprint" means a content hash of a file. The Course
+  note says how the course uses the two words.
 - **Prove it**: the reply uses "fingerprint" for an artifact's whole provenance. The
-  Course note says how the course's narrower meaning relates.
+  Course note says how the course's narrower meaning relates, and states the staleness
+  rule in full.

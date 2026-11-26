@@ -11,18 +11,24 @@ const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
 const worlds = [
   {
+    id: "every",
+    tab: "Every version",
     kept: "Every raw file, including resubmissions, with receipt times and publication cutoffs",
     recover: "It can select the same inputs used for each original release, rerun the corrected importer, and calculate exactly how much each month was understated.",
     needed: "This archive is sufficient, assuming the city can still apply the original file selection and reporting rules.",
     claim: ["Exact", "is-ok"],
   },
   {
+    id: "table",
+    tab: "Processed table only",
     kept: "Only the processed table",
     recover: `It can flag the six months as exposed to the bug. For a month with ${perMonth.toLocaleString("en-US")} payments, the missing cents total somewhere between $0 and ${money(bound)}. That’s a bound. A point estimate would require assumptions about how often payments included cents and how large those amounts were. The original payment amounts and exact corrected totals are lost.`,
     needed: "It needed the original payment amounts at full precision, plus a record of which submissions fed each release.",
     claim: ["Bounded", "is-bad"],
   },
   {
+    id: "over",
+    tab: "Overwritten on resubmission",
     kept: "Raw files, with each resubmission overwriting the previous file for that office and month",
     recover: "It can calculate exact totals for the versions it still has. It can also rebuild an original release exactly wherever it can verify that the surviving files are the ones that fed that release. If a later submission replaced a file used for publication, the earlier payment amounts are lost. The city can flag the gap and use the published count to bound the cents dropped, but the surviving replacement alone cannot establish the exact correction.",
     needed: "It needed to retain each file version under a distinct identifier and record which versions fed each release.",
@@ -48,26 +54,29 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("carry-it")}`}
   about="This is a reply an AI assistant gave to Module 2's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and finish the module."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and check World C's claim against what the reply says about overwritten files."
 >
-  <h2 class="pr-title">{card.title}</h2>
-  <p>Fixing the code tells you how the data should have been processed. The archive determines which past results you can rebuild.</p>
+  <h2 class="pr-title">One bug, three archives</h2>
+  <p class="pr-pull">Fixing the code tells you how the data should have been processed. The archive determines which past results you can rebuild.</p>
 
-  <h2>One bug across three archives</h2>
+  <h2>1. One bug across three archives</h2>
   <p>A city publishes monthly totals for fees collected by its permit offices. Each office uploads a file of individual payments. If an office resubmits a file, the latest version received before publication is the one that counts.</p>
   <p>For six months, the importer dropped the cents from every payment before adding them up. A payment of ${payment.paid} contributed ${payment.counted} to the published total. The processed table records each month’s total and payment count.</p>
-  <ol class="pa-worlds">
+  <figure class="pr-card pa-worlds">
+    <fieldset class="pr-seg">
+      <legend>What the city kept</legend>
+      {worlds.map((w, i) => <label><input type="radio" name="pa-carry-world" value={w.id} checked={i === 0} /><span>{w.tab}</span></label>)}
+    </fieldset>
     {worlds.map((w) => (
-      <li>
-        <p class="pa-world-head"><span class="pr-label">What the city kept</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
-        <p class="pa-world-kept">{w.kept}</p>
+      <div class="pa-world" data-world={w.id}>
+        <p class="pa-world-head"><span class="pa-world-kept">{w.kept}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
         <p class="pr-label">What it can recover after the fix</p>
         <p>{w.recover}</p>
         <p class="pr-label">What it needed for full recovery</p>
         <p>{w.needed}</p>
-      </li>
+      </div>
     ))}
-  </ol>
+  </figure>
   <figure class="pr-card">
     <p class="pr-label">Where the bound comes from</p>
     <div class="pr-eq">
@@ -81,27 +90,30 @@ const checks = [
   </figure>
   <p>The third case gives you two different questions to ask. “What total do the latest files support?” can have an exact answer even when “What would we have published that day with the fixed code?” cannot.</p>
 
-  <h2>What to put in a correction note</h2>
+  <h2>2. What to put in a correction note</h2>
   <p>Name the affected period and the error. Then describe the inputs behind any replacement figures and identify what the archive can no longer establish.</p>
   <ul class="pa-notes">{notes.map(([k, v]) => <li><b>{k}</b><span>{v}</span></li>)}</ul>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to permit offices. Every version retained is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
-    <p>The reply's third case splits one question in two, which is the line between World C's honest claims: what the surviving files support, and what was published at the time.</p>
+    <p>The reply's third case splits one question in two, and that split is the line World C's claims must respect. Exact totals from the surviving files are honest. What the city would have published that day with the fixed code is not, wherever a resubmission overwrote the file that fed the release.</p>
   </aside>
 
-  <h2>Check your understanding</h2>
+  <h2>3. Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([field, q]) => <li><b>{field}</b><span>{q}</span></li>)}</ol>
   <p>I’ll wait for your answers before giving mine.</p>
 </PrimerChat>
 
 <style>
-  .pa-worlds { display: grid; gap: 0.6rem; margin: 0 0 1rem; padding: 0; list-style: none; }
-  .pa-worlds li { padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-card); }
+  .pa-worlds .pr-seg { margin-bottom: 0.7rem; }
+  .pa-world { display: none; padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
+  .pa-worlds:has([value="every"]:checked) [data-world="every"],
+  .pa-worlds:has([value="table"]:checked) [data-world="table"],
+  .pa-worlds:has([value="over"]:checked) [data-world="over"] { display: block; }
   :global(.pr) .pa-worlds p { margin: 0 0 0.5rem; font-size: 0.92rem; }
   :global(.pr) .pa-worlds p:last-child { margin: 0; }
   :global(.pr) .pa-worlds .pr-label { margin: 0 0 0.15rem; }
-  :global(.pr) .pa-world-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem; margin: 0 !important; }
+  :global(.pr) .pa-world-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 0.6rem; margin: 0 0 0.6rem !important; }
   :global(.pr) .pa-world-kept { color: var(--sl-color-white); font-weight: 700; }
   .pa-notes { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
   .pa-notes li { display: grid; gap: 0.2rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); }

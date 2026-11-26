@@ -3,34 +3,29 @@ import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.decision;
-const rebate = { monday: 500, tuesday: 350 };
-const mornings = 20;
+const price = { monday: 40, tuesday: 35 };
+const cutoff = 40;
+const disputeDays = 90;
+const inReport = (p: number) => p < cutoff;
 
+const days = [
+  { day: "Monday", price: price.monday },
+  { day: "Tuesday", price: price.tuesday },
+];
 const policies = [
-  {
-    name: "Latest only",
-    slots: [
-      { day: "Monday", amount: rebate.monday, kept: false },
-      { day: "Tuesday", amount: rebate.tuesday, kept: true },
-    ],
-    answer: `Can't say why the calculator showed $${rebate.monday} on Monday`,
-    tone: "is-bad",
-  },
-  {
-    name: "Every capture",
-    slots: [
-      { day: "Monday", amount: rebate.monday, kept: true },
-      { day: "Tuesday", amount: rebate.tuesday, kept: true },
-    ],
-    answer: "Can retrieve Monday's CSV and the build that used it",
-    tone: "is-ok",
-  },
+  { id: "latest", name: "Latest only", kept: ["Tuesday"] },
+  { id: "every", name: "Every capture", kept: ["Monday", "Tuesday"] },
+];
+const questions = [
+  { q: "What prices did we see in the latest fetch?", needs: "Tuesday" },
+  { q: "Rebuild Tuesday's report", needs: "Tuesday" },
+  { q: "Why was the kettle missing from Monday's report?", needs: "Monday" },
 ];
 
 const checks = [
-  "If Tuesday’s CSV overwrote Monday’s and you kept Monday’s hash, what could you do if a resident sent you a file they said was Monday’s CSV? What could you do with the hash alone?",
-  "If disputes can be filed for 90 days and most daily fetches return identical bytes, what would you retain to answer those disputes while controlling storage costs?",
-  "You recovered Monday’s exact CSV, but rerunning the build produces a different rebate. What else would you look for in Monday’s build record?",
+  ["Overwritten", "Tuesday’s fetch overwrites Monday’s list. Which morning’s report can you rebuild from the saved list, assuming you have the code and configuration for both days?"],
+  ["A recorded hash", "You kept Monday’s hash and someone sends you a file they say is Monday’s list. What can the hash help you check, and what could it do if nobody had a copy of the file?"],
+  ["A dispute window", `The shop can dispute reports for up to ${disputeDays} days. What would you retain for that period so you could reproduce a disputed report even after the cutoff rule changes?`],
 ];
 ---
 
@@ -39,83 +34,79 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("decision")}`}
   about="This is a reply an AI assistant gave to Module 2's archive-history study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to The decision and name the question that decides the league office's call."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and name the question that decides the league office's call."
 >
-  <h2 class="pr-title">{card.title}</h2>
-  <p>Imagine a city publishes a CSV of home energy rebate amounts. Your archive fetches it every morning, and your code uses it to generate a public rebate calculator. On Monday, the CSV lists a ${rebate.monday} rebate for attic insulation. On Tuesday, it lists ${rebate.tuesday}. A resident later asks why the calculator showed ${rebate.monday} on Monday.</p>
+  <h2 class="pr-title">How much history should an archive keep?</h2>
+  <p>Suppose your archive fetches an online shop’s price list every morning at 8 a.m. On Monday, a kettle costs ${price.monday}. On Tuesday, it costs ${price.tuesday}. Your archive uses each morning’s list to publish a report of items under ${cutoff}.</p>
 
   <h2>1. What each policy can rebuild</h2>
-  <div class="pr-scroll">
-    <table class="pr-table">
-      <thead><tr><th scope="col">Archive policy</th><th scope="col">What you can rebuild later</th></tr></thead>
-      <tbody>
-        <tr><th scope="row">Keep only the latest copy, overwriting it after each successful fetch</th><td>You can rebuild from the latest archived CSV. Once Tuesday’s fetch overwrites Monday’s, the archive no longer has the CSV that produced Monday’s result.</td></tr>
-        <tr><th scope="row">Keep every copy with its fetch time</th><td>You can retrieve the CSV your archive captured on Monday. If you also record which snapshot each calculator build used, you can identify the exact input for the disputed result.</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <figure class="pr-card pa-policies">
+  <p>If you <strong>keep only the latest copy</strong>, Tuesday’s fetch overwrites Monday’s. You can use the saved list to rebuild Tuesday’s report. If someone later asks whether the kettle appeared in Monday’s report, Tuesday’s list can’t tell you.</p>
+  <p>If you <strong>keep every copy with its fetch time</strong>, you can retrieve the Monday and Tuesday lists and use each to rebuild that morning’s report. The timestamps tell you when your archive observed each price. A price change between morning fetches could go entirely unrecorded.</p>
+  <figure class="pr-card pa-cap">
+    <fieldset class="pr-seg">
+      <legend>Archive policy</legend>
+      {policies.map((p, i) => <label><input type="radio" name="pa-cap-policy" value={p.id} checked={i === 0} /><span>{p.name}</span></label>)}
+    </fieldset>
     {policies.map((p) => (
-      <div class="pa-policy">
-        <p class="pa-policy-head"><b>{p.name}</b><span class:list={["pr-chip", p.tone]}>{p.answer}</span></p>
-        <ol>
-          {p.slots.map((s) => (
-            <li class={s.kept ? "is-kept" : "is-gone"}>
-              <span>{s.day}'s fetch</span>
-              <b>${s.amount}</b>
-              <small>{s.kept ? "in the archive" : "overwritten"}</small>
-            </li>
-          ))}
+      <div class="pa-cap-view" data-policy={p.id}>
+        <p class="pr-label">The archive on Wednesday</p>
+        <ol class="pa-cap-days">
+          {days.map((d) => {
+            const kept = p.kept.includes(d.day);
+            return (
+              <li class={kept ? "is-kept" : "is-gone"}>
+                <span>{d.day} 8 a.m.</span>
+                <b>Kettle ${d.price}</b>
+                <small>{kept ? (inReport(d.price) ? "in the archive · kettle in that report" : "in the archive · kettle not in that report") : "overwritten by Tuesday's fetch"}</small>
+              </li>
+            );
+          })}
         </ol>
+        <p class="pr-label">Can it answer?</p>
+        <ul class="pa-cap-qs">
+          {questions.map((q) => {
+            const ok = p.kept.includes(q.needs);
+            return <li><span>{q.q}</span><span class:list={["pr-chip", ok ? "is-ok" : "is-bad"]}>{ok ? "Yes" : "No"}</span></li>;
+          })}
+        </ul>
       </div>
     ))}
-    <figcaption>The archive on Wednesday morning, after the resident's question arrives.</figcaption>
-  </figure>
-  <p>A fetch timestamp tells you when <strong>your archive observed</strong> a version. If the city changed the CSV three times between your morning fetches, your archive may have missed all three intermediate versions.</p>
-
-  <h2>2. What a hash can tell you</h2>
-  <p>Suppose you recorded the SHA-256 hash of Monday’s CSV in a trusted build log. If someone later gives you a candidate copy, you can hash it and compare. A match is strong evidence that it contains the same bytes your build recorded. A mismatch establishes that the bytes differ. The log supplies the context about when the hash was recorded and which build used it.</p>
-  <p>A hash is a fixed-size fingerprint. Many possible files map to the same digest, so the digest alone cannot uniquely specify the original bytes. If Monday’s CSV was overwritten, its hash can help you <strong>verify a copy you find elsewhere</strong>.</p>
-  <div class="pr-twin">
-    <div><p><b>A hash can</b></p><p>Verify a candidate copy against the bytes your build recorded.</p></div>
-    <div><p><b>A hash can't</b></p><p>Uniquely specify the original bytes, so it can't recover an overwritten copy.</p></div>
-  </div>
-
-  <h2>3. Choose based on the questions you need to answer</h2>
-  <p>If the archive only needs to answer “What rebate does the latest captured CSV list?”, keeping the latest copy may be enough. If it must answer “Why did this resident see ${rebate.monday} on Monday?”, keep the snapshots and build records for as long as you expect to handle disputes.</p>
-  <p>Estimate storage from the file size, fetch frequency, how often the contents change, and how long you need to retain them. If the city publishes the same bytes for {mornings} mornings, you can store one copy and keep {mornings} timestamped fetch records pointing to it. That preserves each observation while avoiding {mornings} copies of the same file.</p>
-  <figure class="pr-card">
-    <div class="pr-tiles is-three">
-      <p><b>{mornings}</b>mornings fetched, same bytes</p>
-      <p><b>1</b>copy stored</p>
-      <p><b>{mornings}</b>fetch records pointing to it</p>
-    </div>
   </figure>
 
-  <h2>4. Preserve the code and configuration too</h2>
-  <p>Imagine Monday’s calculator showed the CSV amount directly, but Tuesday’s code started applying a cap set in configuration. Running Tuesday’s code and settings on Monday’s CSV could yield a different result even though you recovered the exact source file.</p>
-  <p>For each build, record the source snapshot, code revision, and configuration it actually used. Preserve any other inputs that can affect the output, such as dependency versions or a build timestamp embedded in the page. An exact rebuild needs the data and the rules that turned it into the original output.</p>
+  <h2>2. What a hash can show</h2>
+  <p>A hash is a short fingerprint computed from the bytes of a file. If you record Monday’s hash and someone later hands you a candidate copy of Monday’s list, you can hash it and compare. A match with a strong hash is strong evidence that the bytes match what you originally hashed. A mismatch means the bytes differ, even if the only change was formatting.</p>
+  <p>If Monday’s list was overwritten, its hash can still help you check a copy found elsewhere. It can’t recreate the list.</p>
+  <p class="pr-pull">The fingerprint is much shorter than the file and doesn’t contain the information needed to recover it.</p>
+
+  <h2>3. Let the questions drive retention</h2>
+  <p>If the archive only needs to answer “What prices did we see in the latest fetch?”, keeping the latest copy is enough. If it also needs to answer “Why was this kettle missing from Monday’s report?”, it needs the inputs from that day.</p>
+  <p>Start with how far back those questions can reach. If disputes can be raised for {disputeDays} days, you might keep {disputeDays} days of snapshots and compare the storage cost with the cost of being unable to resolve a dispute. If many days have identical lists, you can store the identical bytes once and keep a record of every fetch time. That preserves the history while reducing storage.</p>
+
+  <h2>4. The list is only one ingredient</h2>
+  <p>Suppose Monday’s code used “under ${cutoff},” but the rule later changed to “${cutoff} or less.” Running today’s code on Monday’s saved list would include the ${price.monday} kettle, even though Monday’s report excluded it. The same problem can happen if the rule stayed in the code but the cutoff changed in a configuration file.</p>
+  <p>For an exact rebuild, record which source snapshot, code version, and configuration each report used. Preserve any other inputs that affect the result, such as the report date or the dependency versions, if they can change the output.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Touchline runs the reply's first policy, with the fetch time kept beside each capture. The parser, build code and config of every past run are in version control, which is the reply's section 4. So on Tuesday the pages are the only input whose past can be lost.</p>
-    <p>The reply's one-copy-many-records idea is one way to make keeping every capture cheaper. Weigh it the way section 3 says: by the questions the archive must answer.</p>
+    <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume the parser, build code and config of every past run are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
+    <p>The reply's word “fingerprint” here means a content hash of a file. In this course a fingerprint is the hash of the parser code and its config; a content hash identifies a saved page.</p>
   </aside>
 
-  <h2>Check your understanding</h2>
-  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
 <style>
-  .pa-policies { display: grid; gap: 0.6rem; }
-  @media (min-width: 46rem) { .pa-policies { grid-template-columns: 1fr 1fr; } .pa-policies figcaption { grid-column: 1 / -1; } }
-  .pa-policy { padding: 0.6rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); }
-  :global(.pr) .pa-policy-head { display: grid; gap: 0.3rem; justify-items: start; margin: 0 0 0.5rem; }
-  .pa-policy-head b { color: var(--sl-color-white); }
-  .pa-policy-head :global(.pr-chip) { white-space: normal; }
-  .pa-policy ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
-  .pa-policy li { display: grid; gap: 0.1rem; padding: 0.45rem 0.6rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-card); font-size: 0.84rem; }
-  .pa-policy li b { color: var(--sl-color-white); font-size: 1.25rem; }
-  .pa-policy li small { color: var(--tl-muted); }
-  .pa-policy li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; }
-  .pa-policy li.is-gone b { color: var(--tl-muted); text-decoration: line-through; }
+  .pa-cap .pr-seg { margin-bottom: 0.7rem; }
+  .pa-cap-view { display: none; }
+  .pa-cap:has([value="latest"]:checked) [data-policy="latest"],
+  .pa-cap:has([value="every"]:checked) [data-policy="every"] { display: block; }
+  .pa-cap-days { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+  .pa-cap-days li { display: grid; gap: 0.1rem; padding: 0.5rem 0.7rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); font-size: 0.85rem; }
+  .pa-cap-days li span { color: var(--tl-muted); }
+  .pa-cap-days li b { color: var(--sl-color-white); font-size: 1.15rem; }
+  .pa-cap-days li small { color: var(--tl-muted); }
+  .pa-cap-days li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; }
+  .pa-cap-days li.is-gone b { color: var(--tl-muted); text-decoration: line-through; }
+  .pa-cap-qs { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-cap-qs li { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; background: var(--tl-bg); }
 </style>

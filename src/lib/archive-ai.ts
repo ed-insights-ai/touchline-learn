@@ -20,19 +20,19 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Which of the two can rebuild yesterday's output exactly, and what a re-fetch overwrites if I keep only the latest copy of each source.
 4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
 5. ${close}`,
-    returnTask: "Then come back and name one thing that could have changed on a school's site between Friday's fetch and Tuesday's.",
+    returnTask: "Then come back to your prediction about Saint Lambert's row and ask whether anything on the page shows what the sites published after Friday.",
   },
   idea: {
     slug: "02-archive-ai-raw",
-    title: "Raw and derived, outside sports",
-    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three short examples, each from a different field, none of them sports.
+    title: "Want raw and derived outside sports?",
+    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three short examples, each from a different field, none of them sports or libraries. Show one of them with numbers.
 
 1. What raw data is, and why it is saved exactly as received, before any of my code reads it.
 2. What derived data is, and why it can be deleted and rebuilt as long as the raw data and the code and settings that produced it are kept.
-3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a source that was never saved, or one that has changed since it was saved.
-4. Why each output should record which raw inputs, which version of the code and which settings produced it.
+3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
+4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
 5. ${close}`,
-    returnTask: "Then come back to the research team's check and say which of the things it kept the team could rebuild if it lost them.",
+    returnTask: "Then come back to the research team's check and say what the team needs to answer the reviewer who asks how a chart number was produced.",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
@@ -42,21 +42,21 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 1. What a controlled comparison is, and why it changes one input at a time.
 2. What it means for two effects to be confounded, with a before-and-after comparison where two things changed together and the difference can't be split between them.
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
-4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones.
+4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back to table C and say why its Saint Lambert row alone can't tell you whether the fixed rule changed any numbers.",
+    returnTask: "Then come back to your changelog line for table B and check that it claims only what the one changed input can explain.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
     title: "What a raw zone keeps",
-    prompt: `I'm learning what a data archive must keep so a bug can be fixed later. Teach me with one running example that is not about sports.
+    prompt: `I'm learning what a data archive must keep so a bug can be fixed later. Teach me with one running example: a museum that imports its collection records from a partner's website every night.
 
 1. What a raw zone (also called a bronze layer) holds, and why it is written before any cleaning step runs.
 2. What "replay from the last layer before the damage" means: when a bug is in one particular step, which saved copies can verify the fix and which already carry the bug.
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: "Then come back and place one more bug on the grid: the same tidy rule turned the opponent “St. Brendan” into “State Brendan”. Which of the three archives can verify the fix?",
+    returnTask: "Then come back and place one more bug on the grid: the table builder gave a draw two points. Which archives can verify the fix?",
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -65,18 +65,18 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 
 1. What a fingerprint of code and configuration is, and why the settings a step reads belong in it, not only its code.
 2. Why an output is stale when either its stored fingerprint or the hash of the input it read differs from now, so nobody has to guess which outputs a change touched.
-3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole file on purpose.
+3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back to the second preset and say why a comment edit rebuilds every parsed schedule, and why that is the safe mistake.",
+    returnTask: "Then come back to the comment-edit preset and say why it rebuilds every parsed schedule, and why that is the safe mistake.",
   },
   decision: {
     slug: "02-archive-ai-captures",
     title: "Latest only or every capture?",
-    prompt: `I'm learning how much history a data archive should keep of a source that changes. Teach me with one running example that is not about sports.
+    prompt: `I'm learning how much history a data archive should keep of a source that changes. Teach me with one running example: an online shop whose price list my archive fetches every morning.
 
 1. Two policies: keeping only the latest copy of each source, overwritten by every new fetch, and keeping every copy with the time it was fetched. What each can rebuild later.
-2. What a recorded hash can prove about a copy, and why it can never recover a copy that has been overwritten.
+2. What a recorded hash can show about a copy, and why it can never bring back a copy that has been overwritten.
 3. How to choose a policy from the questions the archive will have to answer, such as disputes about past results, weighed against what storage costs.
 4. Why the code and configuration also need their own history for a rebuild of a past output to be exact.
 5. ${close}`,
@@ -85,18 +85,18 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   rewind: {
     slug: "02-archive-ai-criteria",
     title: "Making a rebuild checkable",
-    prompt: `I'm learning how to ask an AI coding agent to rebuild a dataset from saved inputs so I can check what it did. Teach me how to write acceptance criteria for a reproducible rebuild, with one running example that is not about sports or libraries.
+    prompt: `I'm learning how to ask an AI coding agent to rebuild a dataset from saved inputs so I can check what it did. Teach me how to write acceptance criteria for a reproducible rebuild, with one running example: rebuilding a research lab's table of daily sensor readings.
 
 1. What a rebuild report should list about its inputs: which saved files it read, each identified by a content hash, and which expected inputs were missing.
 2. How to identify the code and configuration that produced the output, for example a commit and a fingerprint.
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
-4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me.
+4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
-    returnTask: "Then come back to the criterion you wrote and name the line in a report that would show it was met.",
+    returnTask: "Then come back to the criterion you wrote and name the line in Kick's replay report that meets it.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",
-    title: "Write the recovery plan as a prompt",
+    title: "Turning a recovery plan into a prompt",
     prompt: `I'm learning how to hand a bug fix to an AI coding agent when the bug is found months after the data was published. Help me turn a recovery plan into a prompt for the agent, with one running example that is not about sports.
 
 1. What to replay, and how the agent decides which outputs are stale from a fingerprint rather than a guess about which records the bug touched.
@@ -104,7 +104,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What to tell the people who used the published output: a correction note that names what changed and why.
 4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
 5. ${close}`,
-    returnTask: "Then come back and check its finished prompt against the slots you filled: what to replay, what is stale, what to republish and what to tell readers.",
+    returnTask: "Then come back and check its finished prompt against the slots you filled.",
   },
   "carry-it": {
     slug: "02-archive-ai-carry",
@@ -116,7 +116,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "It moves the three worlds to a city's permit offices and ends with three new questions, each in a different field.",
+    returnTask: "Then come back and check World C's claim against what the reply says about overwritten files.",
   },
 };
 

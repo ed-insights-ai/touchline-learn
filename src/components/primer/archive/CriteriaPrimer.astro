@@ -3,22 +3,67 @@ import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.rewind;
-const attempts = 1;
 
-const network = [
-  ["Zero successful requests", "Holds", "is-ok", "The restriction blocked the lookup, so nothing got through."],
-  ["Zero attempted requests", "Fails", "is-bad", `The audit log shows ${attempts} denied attempt.`],
+const criteria = [
+  ["Account for every expected input.", "The report names the saved manifest that defines the expected files. For every file the rebuild reads, it records the relative path and the SHA-256 hash of the exact bytes read. It lists missing files separately and states the effect of each absence. For example, a missing required sensor export fails the run. A missing optional calibration file may allow the run to proceed under a documented rule."],
+  ["Identify the code and effective configuration.", "Record the full Git commit and verify that the code used for the rebuild matches it. Record a SHA-256 fingerprint of the effective configuration after resolving defaults and overrides, and save that configuration in a stable format so you can recompute the fingerprint. For daily readings, the timezone, rounding rule, and missing-value policy can all affect the output. Record the runtime and dependency lockfile hash if they can affect the result."],
+  ["Make “no network requests” observable.", "Run the rebuild and its child processes in an environment that blocks network access. Save evidence that the restriction was active and an audit log that records attempted network access, including attempts that were blocked. A passing report shows zero attempts and complete audit coverage for the run. A missing audit makes the claim unverified. A blocked attempt means the restriction worked, but the zero-attempt criterion failed."],
+  ["Explain every output difference.", "Identify the saved baseline and rebuilt output by hash. Compare rows by a stable key such as (sensor_id, date_utc), reject duplicate keys, and report added rows, removed rows, and changed cells. For each changed cell, show the old and new values, cite the source records or rule change, and give enough detail to verify the calculation. An unexplained change means the rebuild failed acceptance. It does not establish the cause of the discrepancy."],
 ];
 
-const diff = [
-  { field: "species", old: "red maple", now: "Acer rubrum", why: "The saved lookup table maps the common name to the scientific name, and the configuration selects scientific names.", ok: true },
-  { field: "inspection_date", old: "changed", now: "changed", why: "No saved input or rule accounts for it.", ok: false },
+const audits = [
+  ["Audit shows zero attempts, full coverage", "Pass", "is-ok"],
+  ["Audit shows one blocked attempt", "Fail: the restriction worked, the zero-attempt criterion did not", "is-bad"],
+  ["No audit saved", "Unverified", "is-warn"],
 ];
+
+const baseline = [19.0, 21.0];
+const rebuilt = [19.0, 23.0];
+const mean = (xs: number[]) => (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(1);
+const f1 = (n: number) => n.toFixed(1);
+
+const report = `Run: daily-readings-042
+Result: PASS
+
+Saved inputs read (SHA-256 of file bytes)
+  inputs/manifest.json
+    12af45b812af45b812af45b812af45b812af45b812af45b812af45b812af45b8
+  inputs/sensor-17/2026-11-20.csv
+    9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad9ce402ad
+
+Expected input missing
+  inputs/calibration/2026-11-20.csv
+  Optional per manifest. Effective config applies a 0.0 °C offset.
+
+Code and configuration
+  Git commit: 8f24c6a571b02ce683bd993036e63dadd75c4537
+  Source checkout verified clean.
+  Saved effective config: evidence/effective-config.json
+  Config SHA-256: 62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b62d71a0b
+  Effective settings: UTC days, arithmetic mean, round to one decimal.
+
+Network
+  evidence/sandbox.json confirms networking was blocked for the
+  rebuild and its child processes.
+  evidence/network-audit.json covers the full run: 0 attempts.
+
+Comparison
+  SHA-256 for baseline.csv and rebuilt.csv: evidence/output-hashes.txt
+  Row key: (sensor_id, date_utc). Duplicate keys: 0.
+  Added rows: 0. Removed rows: 0. Changed cells: 1.
+  S17, 2026-11-20, mean_temp_c: ${mean(baseline)} → ${mean(rebuilt)}.
+  The archived baseline input had readings of ${baseline.map(f1).join(" and ")}.
+  The rebuild input, lines 2–3, has ${rebuilt.map(f1).join(" and ")}.
+  The lab’s correction record confirms ${f1(baseline[1])} → ${f1(rebuilt[1])} for the
+  second reading. Under the same averaging rule, the means are
+  (${baseline.map(f1).join(" + ")}) / 2 = ${mean(baseline)} and (${rebuilt.map(f1).join(" + ")}) / 2 = ${mean(rebuilt)}.
+  Evidence: archived baseline manifest and corrections/S17-2026-11-20.json.
+  Unexplained changes: 0.`;
 
 const checks = [
-  "The report gives a hash for every file it read. What else does it need to establish whether any expected files were missing?",
-  "The rebuild ran with network access blocked and logged one denied connection attempt. Which network claim can you make, and which claim fails?",
-  "A tree’s inspection date differs from the old output, and the report cannot trace the change to a saved input or rule. What should the acceptance decision be, and what does the difference tell you?",
+  ["Same path, new hash", "If two rebuilds read a file with the same path but different SHA-256 hashes, what can you conclude about their inputs, and what would you check next?"],
+  ["One blocked attempt", "If the sandbox blocked one outbound connection attempt, did the run satisfy the zero-attempt criterion? Which evidence would you use to decide?"],
+  ["“The input file was updated”", "If a daily average changes and the report says only “the input file was updated,” what evidence would you require before accepting the rebuild?"],
 ];
 ---
 
@@ -27,66 +72,52 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("rewind")}`}
   about="This is a reply an AI assistant gave to Module 2's rebuild-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Rewind and name the line in a report that would show your own criterion was met."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and name the line in Kick's replay report that meets the criterion you wrote."
 >
-  <h2 class="pr-title">{card.title}</h2>
-  <p>Write acceptance criteria so someone else can decide whether the rebuild passed using the report and its evidence. For example, suppose you’re rebuilding a city’s street-tree inventory from saved survey files and a species lookup table.</p>
+  <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
+  <p class="pr-pull">Write each acceptance criterion as a pass/fail check.</p>
+  <p>Name what the rebuild report must show, what evidence you can inspect, and what would make the rebuild fail acceptance.</p>
 
-  <h2>1. Account for every expected input</h2>
-  <p class="pa-criterion"><strong>Acceptance criterion.</strong> The report lists every saved file the rebuild read, with its relative path and the SHA-256 hash of the exact bytes used. It also checks those files against an expected-input manifest and lists every missing file, whether it was required, and how its absence was handled.</p>
-  <p>For the tree inventory, the report would record hashes for <code>surveys/north.csv</code> and <code>species_lookup.csv</code>. If <code>surveys/south.csv</code> was required and missing, the rebuild fails acceptance. If an optional corrections file was missing, the report records that the rebuild proceeded without applying corrections.</p>
-
-  <h2>2. Identify the code and effective configuration</h2>
-  <p class="pa-criterion"><strong>Acceptance criterion.</strong> The report records the full Git commit, the rebuild command, and a fingerprint of the effective configuration after defaults and overrides are applied. The report includes the configuration itself or points to a saved copy so another person can rerun it. Require a clean checkout if the commit is meant to identify all the code used. Capture the runtime and dependency versions when they can affect the result.</p>
-  <p>For the tree inventory, the configuration might specify how to parse survey dates, normalize species names, and sort rows. Hashing a consistently serialized copy of those effective settings lets a reviewer check that a rerun used the same rules.</p>
-
-  <h2>3. Make the network claim verifiable</h2>
-  <p class="pa-criterion"><strong>Acceptance criterion.</strong> Run the rebuild in an environment that blocks network access for the rebuild and its child processes. Save evidence that the restriction was active throughout the run. If the requirement also forbids <em>attempted</em> requests, capture an audit log that records denied attempts and require it to show zero.</p>
-  <p>These are two different checks. A blocked lookup for an unfamiliar species is consistent with zero successful requests, but it fails a requirement of zero attempts. State which claim your evidence supports.</p>
+  <h2>1. Acceptance criteria for daily sensor readings</h2>
+  <ol class="pa-criteria">{criteria.map(([head, body]) => <li><b>{head}</b> {body}</li>)}</ol>
   <figure class="pr-card">
-    <p class="pr-label">One blocked species lookup, two claims</p>
-    <div class="pr-scroll">
-      <table class="pr-table">
-        <thead><tr><th scope="col">Claim</th><th scope="col">Verdict</th><th scope="col">Evidence</th></tr></thead>
-        <tbody>{network.map(([c, v, tone, e]) => <tr><th scope="row">{c}</th><td><span class:list={["pr-chip", tone]}>{v}</span></td><td>{e}</td></tr>)}</tbody>
-      </table>
-    </div>
+    <p class="pr-label">Criterion 3: which network claims pass</p>
+    <ul class="pa-audit">{audits.map(([what, v, tone]) => <li><span>{what}</span><span class:list={["pr-chip", tone]}>{v}</span></li>)}</ul>
   </figure>
 
-  <h2>4. Explain every difference from the old output</h2>
-  <p class="pa-criterion"><strong>Acceptance criterion.</strong> Record hashes for the old and rebuilt outputs. Compare rows by a stable key such as <code>tree_id</code>, and report every added or removed row and every changed field. For each changed value, show the old and new values and identify the saved input or transformation rule that explains the change. A single explanation can cover many changes if the report identifies every affected row and field.</p>
-  <p>For example, tree <code>T-104</code> changes from <code>red maple</code> to <code>Acer rubrum</code> because the saved lookup table maps the common name to the scientific name and the rebuild configuration selects scientific names. If its <code>inspection_date</code> also changes and no saved input or rule accounts for it, acceptance fails. The unexplained change tells you the evidence is incomplete. Further investigation is needed to determine whether the cause is a bug, an untracked input or setting, nondeterminism, or a problem with the baseline.</p>
+  <h2>2. Example rebuild report</h2>
+  <p>This example uses illustrative hashes and artifact names.</p>
+  <div class="pr-code"><p class="pr-label">Rebuild report</p><pre>{report}</pre></div>
   <figure class="pr-card">
-    <p class="pr-label">Diff for tree <code>T-104</code></p>
-    <ul class="pa-diff">
-      {diff.map((d) => (
-        <li class={d.ok ? "is-ok" : "is-bad"}>
-          <p><code>{d.field}</code>{d.ok ? <span><s>{d.old}</s> → <b>{d.now}</b></span> : <span>value changed</span>}<span class:list={["pr-chip", d.ok ? "is-ok" : "is-bad"]}>{d.ok ? "Explained" : "Unexplained"}</span></p>
-          <p>{d.why}</p>
-        </li>
-      ))}
-    </ul>
-    <figcaption>One unexplained change is enough to fail the rebuild, however plausible the new value looks.</figcaption>
+    <p class="pr-label">The one changed cell, checked</p>
+    <div class="pa-cell">
+      <div><p class="pa-cell-head">Baseline</p><p>{baseline.map(f1).join(" · ")}</p><p class="pa-cell-mean">mean {mean(baseline)}</p></div>
+      <div class="is-new"><p class="pa-cell-head">Rebuild</p><p>{f1(rebuilt[0])} · <mark>{f1(rebuilt[1])}</mark></p><p class="pa-cell-mean">mean {mean(rebuilt)}</p></div>
+    </div>
+    <figcaption>One input value changed, and a correction record says why. The same averaging rule turns it into exactly the change the diff reports, so nothing is left unexplained.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Rewind ask for the reply's four things: a capture manifest that identifies each saved schedule by content hash and lists Dunmore as unavailable, the parser fingerprint beside the build revision, zero network requests, and a diff of Tuesday's table against the rebuild that explains every changed cell.</p>
-    <p>For the network claim, Kick's lab takes the reply's stricter path. It counts every connection attempt, and it first shows the counter catching a test request, so its zero is evidence rather than silence.</p>
+    <p>Riley's criteria in Part 7 ask for the reply's four things: a capture manifest that identifies each saved schedule by content hash and lists Dunmore as unavailable, zero network requests, the fingerprint of the fixed parser, and a diff of Tuesday's table against the rebuild that explains every changed cell. Kick's replay report adds the build revision beside the fingerprint, the reply's Git commit.</p>
+    <p>For the network claim, Kick's lab takes the reply's stricter criterion: it intercepts connection attempts from its own process rather than only blocking them, and it first shows the counter catching a test request, so its zero is evidence rather than silence.</p>
   </aside>
 
-  <h2>Check your understanding</h2>
-  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+  <h2>3. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
 <style>
-  :global(.pr) .pa-criterion { padding: 0.6rem 0.85rem; border-left: 3px solid var(--tl-derived-edge); border-radius: 6px; background: var(--tl-card); }
-  .pa-diff { display: grid; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
-  .pa-diff li { padding: 0.55rem 0.8rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); font-size: 0.9rem; }
-  .pa-diff li.is-bad { border: 1.5px dashed var(--pr-red); }
-  :global(.pr) .pa-diff p { margin: 0 0 0.2rem; }
-  :global(.pr) .pa-diff p:first-child { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.7rem; }
-  :global(.pr) .pa-diff p:last-child { margin: 0; color: var(--tl-muted); }
-  .pa-diff s { color: var(--tl-muted); }
-  .pa-diff b { color: var(--sl-color-white); }
-  .pa-diff .pr-chip, .pa-diff :global(.pr-chip) { margin-left: auto; }
+  .pa-criteria { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding-left: 1.4rem; }
+  .pa-criteria li { padding-left: 0.2rem; }
+  .pa-criteria b { color: var(--sl-color-white); }
+  .pa-audit { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-audit li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
+  .pa-audit :global(.pr-chip) { white-space: normal; }
+  .pa-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .pa-cell > div { padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-family: var(--sl-font-mono); font-size: 0.9rem; }
+  .pa-cell > div.is-new { border-color: var(--pr-green); }
+  :global(.pr) .pa-cell p { margin: 0 0 0.2rem; }
+  :global(.pr) .pa-cell-head { color: var(--tl-muted); font-family: var(--sl-font); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  :global(.pr) .pa-cell-mean { margin: 0; color: var(--sl-color-white); font-size: 1.15rem; }
+  .pa-cell mark { padding: 0 0.2rem; border-radius: 3px; background: color-mix(in srgb, #d9822b 30%, transparent); color: inherit; }
 </style>

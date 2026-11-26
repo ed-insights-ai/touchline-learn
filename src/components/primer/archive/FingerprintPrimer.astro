@@ -4,30 +4,34 @@ import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi["case-fingerprint"];
 
-const cells = [
-  { name: "Revenue cell", code: "revenue code", setting: "currency", input: "sales.csv" },
-  { name: "Inventory cell", code: "inventory code", setting: null, input: "inventory.csv" },
+type Output = { name: string; code: string; setting?: string; input: string };
+const outputs: Output[] = [
+  { name: "Monthly totals", code: "totals cell", setting: "timezone", input: "sales.csv" },
+  { name: "Sales chart", code: "chart cell", input: "sales.csv" },
+  { name: "Inventory report", code: "inventory cell", input: "inventory.csv" },
 ];
-type Change = { label: string; touches: string; seen: boolean };
+type Change = { id: string; label: string; touches?: string; comment?: boolean; upstream?: boolean };
 const changes: Change[] = [
-  { label: "Edit the revenue cell's code", touches: "revenue code", seen: true },
-  { label: "Switch currency from USD to EUR", touches: "currency", seen: true },
-  { label: "Edit the local sales.csv", touches: "sales.csv", seen: true },
-  { label: "Edit the local inventory.csv", touches: "inventory.csv", seen: true },
-  { label: "The server updates sales.csv; nothing fetches it", touches: "sales.csv", seen: false },
+  { id: "tz", label: "Change the timezone setting", touches: "timezone" },
+  { id: "sales", label: "Correct sales.csv", touches: "sales.csv" },
+  { id: "comment", label: "Edit a comment in the totals cell", touches: "totals cell", comment: true },
+  { id: "none", label: "Change nothing" },
+  { id: "upstream", label: "Upstream sales.csv changes, nobody fetches it", touches: "sales.csv", upstream: true },
 ];
-const verdict = (c: Change, cell: (typeof cells)[number]) => {
-  const fingerprint = c.touches === cell.code || c.touches === cell.setting;
-  const input = c.touches === cell.input;
-  if (!fingerprint && !input) return ["Reuse", "is-quiet", ""];
-  if (!c.seen) return ["Reuse", "is-bad", "stale, unseen"];
-  return ["Rebuild", "is-ok", fingerprint ? "fingerprint differs" : "input hash differs"];
+const verdict = (c: Change, o: Output): [string, string, string] => {
+  const recipe = c.touches === o.code || c.touches === o.setting;
+  const input = c.touches === o.input;
+  if (c.upstream && input) return ["Reuse", "is-warn", "The local copy's hash still matches. The newer upstream file is invisible."];
+  if (recipe && c.comment) return ["Rebuild", "is-ok", "The fingerprint differs. The output will come out the same."];
+  if (recipe) return ["Rebuild", "is-ok", "The recipe fingerprint differs."];
+  if (input) return ["Rebuild", "is-ok", "The input hash differs."];
+  return ["Reuse", "is-quiet", "Fingerprint and input hash both match."];
 };
 
 const checks = [
-  "A notebook cell’s code and CSV are unchanged, but the cell now reads currency=EUR instead of currency=USD. What should change in the cache records, and why?",
-  "A step hashes an entire CSV but uses only one column. Someone edits an unused column. What will the cache do, and what is the cost of that decision?",
-  "A report uses a local copy of a remote file. The remote file changes, but the local copy’s hash still matches. What would the system need to check to discover the change?",
+  ["A hidden setting", "A memoised function takes a price and reads the tax rate from a global setting. What should its cache key account for, and why?"],
+  ["One hash differs", "A report’s recipe fingerprint matches its stored value, but one of its input hashes differs. Should the report be reused? How might a comment-only edit behave in a system that hashes whole source files?"],
+  ["Outdated but verified", "A notebook verifies the hash of a downloaded CSV every time it runs. How could it still show outdated data, and what additional check would catch that?"],
 ];
 ---
 
@@ -36,63 +40,77 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 3 and say why the comment-edit preset rebuilds every parsed schedule, and why that is the safe mistake."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and say why the comment-edit preset rebuilds every parsed schedule, and why that is the safe mistake."
 >
-  <h2 class="pr-title">{card.title}</h2>
-  <p>A cache answers one question: <strong>Would running this step today produce the same result as last time?</strong> Build tools approximate the answer by recording what the step ran and what it read.</p>
+  <h2 class="pr-title">How a cache decides what is stale</h2>
+  <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
+  <p>To decide whether to reuse it, compare that record with what the step would use if it ran now.</p>
 
-  <h2>1. Fingerprint the code and the settings it uses</h2>
-  <p>A <strong>fingerprint</strong> is a compact identifier, usually a hash, computed from the code and configuration that determine a step’s behavior. Imagine a notebook cell that reads <code>sales.csv</code> and calculates revenue. If it reads a <code>currency</code> setting, switching from USD to EUR can change the result even when the cell and CSV stay byte-for-byte identical. The currency setting belongs in the fingerprint.</p>
-  <p>The same idea applies to memoisation. A function that formats dates can cache results by <code>(date, locale)</code>. If it reads the locale from a global setting and caches by <code>date</code> alone, changing the locale can leave it serving dates in the old format.</p>
+  <h2>1. Fingerprint the recipe and its settings</h2>
+  <p>A fingerprint is a compact identifier, usually a hash, computed from the code and configuration that determine what a step does. Suppose a notebook cell reads sales data and computes monthly totals. If the cell reads a <code>timezone</code> setting, changing that setting can move a sale from one month to another. The cell’s code can stay byte-for-byte identical while its correct output changes. The timezone therefore belongs in the fingerprint.</p>
+  <p>Memoisation follows the same rule. A cache for <code>monthly_totals(data, timezone)</code> can key on both arguments. If the function instead reads the timezone from a global setting, the cache still needs to account for it.</p>
 
-  <h2>2. Compare what the step ran and what it read</h2>
-  <p>Suppose the notebook cache records the cell’s fingerprint and the hash of <code>sales.csv</code> when the cell runs. On the next run, either difference makes the cached output stale:</p>
+  <h2>2. Check the recipe and the inputs</h2>
+  <p>When the step runs, store its fingerprint and the hash of each input it actually used. On a later run, mark the output stale if <strong>either</strong> comparison differs.</p>
   <ul>
-    <li>A <strong>different fingerprint</strong> means the calculation or its settings changed.</li>
-    <li>A <strong>different input hash</strong> means the data the calculation read changed.</li>
+    <li>Same sales file, different timezone → the recipe fingerprint changed.</li>
+    <li>Same code and timezone, corrected sales file → the input hash changed.</li>
+    <li>Both match → the cached output can be reused, assuming the record covers everything that affects the result.</li>
   </ul>
-  <p>Recording these dependencies lets the system decide which outputs to rebuild. A cell that reads <code>sales.csv</code> can be invalidated automatically when the file changes, while a cell that reads only <code>inventory.csv</code> can reuse its own result if its other dependencies still match.</p>
-  <figure class="pr-card">
-    <p class="pr-label">The notebook's two cells after one change</p>
-    <div class="pr-scroll">
-      <table class="pr-table pa-stale">
-        <thead><tr><th scope="col">Change</th>{cells.map((c) => <th scope="col">{c.name}<small>{[c.code, c.setting, c.input].filter(Boolean).join(" · ")}</small></th>)}</tr></thead>
-        <tbody>
-          {changes.map((ch) => (
-            <tr>
-              <th scope="row">{ch.label}</th>
-              {cells.map((cell) => { const [v, tone, why] = verdict(ch, cell); return <td><span class:list={["pr-chip", tone]}>{v}</span>{why && <small>{why}</small>}</td>; })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <figcaption>Each cell keeps a fingerprint of its code and settings and a hash of the file it read. The last row is section 4: the local copy never changed, so nothing looks stale.</figcaption>
+  <p>This lets a build tool make the decision for each output from its recorded dependencies. If two reports read the sales file and a third reads only inventory, a sales correction invalidates the two sales reports.</p>
+  <figure class="pr-card pa-fp">
+    <fieldset class="pr-seg">
+      <legend>Make one change</legend>
+      {changes.map((c, i) => <label><input type="radio" name="pa-fp-change" value={c.id} checked={i === 0} /><span>{c.label}</span></label>)}
+    </fieldset>
+    {changes.map((c) => (
+      <ul class="pa-fp-out" data-change={c.id}>
+        {outputs.map((o) => {
+          const [v, tone, why] = verdict(c, o);
+          return (
+            <li>
+              <p class="pa-fp-head"><b>{o.name}</b><span class:list={["pr-chip", tone]}>{v}</span></p>
+              <p class="pa-fp-deps">{[o.code, o.setting, o.input].filter(Boolean).join(" · ")}</p>
+              <p>{why}</p>
+            </li>
+          );
+        })}
+      </ul>
+    ))}
+    <figcaption>Each output keeps the fingerprint of its code and settings, and the hash of the file it read. Only a difference in one of those triggers a rebuild.</figcaption>
   </figure>
-  <p>Classic <code>make</code> applies the same dependency idea using file modification times by default. For <code>report.html: sales.csv render.py</code>, it rebuilds a missing report or one older than either prerequisite. If the renderer also reads <code>report.toml</code>, declaring that file as a prerequisite lets <code>make</code> notice when it changes.</p>
+  <p><code>make</code> illustrates the dependency rule. By default, it compares file modification times. If a declared prerequisite is newer than its target, <code>make</code> rebuilds the target. A configuration file can be declared as a prerequisite so its edits trigger the same check. Content-based build tools use hashes to make a similar decision.</p>
 
-  <h2>3. Extra rebuilds and missed rebuilds have different costs</h2>
-  <p>For a deterministic step, rebuilding unnecessarily costs time and compute. Reusing a stale result can quietly give you the wrong answer. A report in yesterday’s currency can still open and look perfectly valid.</p>
-  <div class="pr-twin">
-    <div><p><b>Rebuild too much</b></p><p>Costs time and compute.</p></div>
-    <div><p><b>Rebuild too little</b></p><p>Can quietly give you the wrong answer.</p></div>
-  </div>
-  <p>That asymmetry is why some caches hash a whole file on purpose. If a calculation uses one column of <code>sales.csv</code>, a change to an unused column can trigger an extra rebuild. Hashing the whole file keeps the dependency check simple and also catches changes to headers, row order, or other details the calculation might rely on.</p>
+  <h2>3. Extra rebuilds cost time. Missed rebuilds can silently give wrong answers.</h2>
+  <p>For a repeatable build step, an unnecessary rebuild spends time and compute to produce a result you could have reused. A missed rebuild can leave an old report in place and let the run finish successfully. Anyone reading the report may assume it reflects the latest inputs.</p>
+  <p>Some systems deliberately hash a whole source file, comments included. Hashing bytes is simple and avoids having to determine which edits affect behavior. A comment edit may cause an unnecessary rebuild, and the system accepts that cost.</p>
 
-  <h2>4. A fingerprint can only capture what the system observes</h2>
-  <p>Suppose the notebook downloaded <code>sales.csv</code> on Monday and still has that local copy on Wednesday. If the server updated the file on Tuesday, hashing the local copy on Wednesday still gives Monday’s hash. The cache needs a fresh fetch or a check against a remote version identifier to discover the update. The same blind spot applies to untracked dependencies such as a notebook variable, an environment variable, or the current date.</p>
+  <h2>4. A fingerprint can only describe what the system observed</h2>
+  <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday’s copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Touchline's fingerprint hashes the parser's whole module plus the config it reads: the alias list, the membership file and the season. That is the reply's whole-file choice, applied to code instead of data. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
-    <p>The reply's section 4 is Case 3's last preset: a live site that changed since Friday stays invisible until something fetches it.</p>
+    <p>Touchline's fingerprint hashes the parser's whole module plus the config it reads: the alias list, the membership file and the season. That is the reply's whole-source-file choice. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
+    <p>Case 3's last preset is the reply's section 4. Harbor Point's site posted a result after Friday, but the saved page did not change, so its hash still matches and nothing looks stale until something fetches it.</p>
   </aside>
 
-  <h2>Check your understanding</h2>
-  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
 <style>
-  .pa-stale th small, .pa-stale td small { display: block; color: var(--tl-muted); font-size: 0.75rem; font-weight: 500; letter-spacing: 0; text-transform: none; }
-  .pa-stale td small { margin-top: 0.2rem; }
-  .pa-stale :global(.pr-chip.is-quiet) { background: transparent; border: 1px solid var(--tl-line); color: var(--tl-muted); }
+  .pa-fp .pr-seg { margin-bottom: 0.7rem; }
+  .pa-fp-out { display: none; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 46rem) { .pa-fp-out { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .pa-fp:has([value="tz"]:checked) [data-change="tz"],
+  .pa-fp:has([value="sales"]:checked) [data-change="sales"],
+  .pa-fp:has([value="comment"]:checked) [data-change="comment"],
+  .pa-fp:has([value="none"]:checked) [data-change="none"],
+  .pa-fp:has([value="upstream"]:checked) [data-change="upstream"] { display: grid; }
+  .pa-fp-out li { padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-size: 0.88rem; }
+  :global(.pr) .pa-fp-out p { margin: 0 0 0.25rem; }
+  :global(.pr) .pa-fp-out p:last-child { margin: 0; }
+  :global(.pr) .pa-fp-head { display: flex; justify-content: space-between; align-items: center; gap: 0.4rem; }
+  .pa-fp-head b { color: var(--sl-color-white); }
+  :global(.pr) .pa-fp-deps { color: var(--tl-muted); font-size: 0.78rem; }
+  .pa-fp-out :global(.pr-chip.is-quiet) { border: 1px solid var(--tl-line); background: transparent; color: var(--tl-muted); }
 </style>
