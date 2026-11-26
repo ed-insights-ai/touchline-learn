@@ -20,14 +20,8 @@ const dash = (s: string) => s.replace(/(\d)-(\d)/g, "$1–$2");
 const match = dash(slots.tell.match);
 const boxEntry = fridayManifest.pages.find((p) => p.fixture === proveIt.fixture)!;
 const savedOn = new Date(boxEntry.fetched_at!).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
-if (slots.replay.withOvertime !== 1 || ot !== 3 || slots.stale.boxScores !== boxes || slots.stale.schedules !== 0 || slots.republish.standings || !slots.republish.matchDetail) throw new Error("Prove it's slot answers changed; rewrite its explanations");
+if (slots.replay.withOvertime !== 1 || slots.replay.boxScores !== boxes || ot !== 3 || slots.stale.boxScores !== boxes || slots.stale.schedules !== 0 || slots.republish.standings || !slots.republish.matchDetail) throw new Error("Prove it's slot answers changed; rewrite its explanations");
 
-const replay: [string, string][] = [
-  ["one", `Box ${box} only, the one with the wrong score`],
-  ["refetch", `Box ${box}, fetched again from ${home.name}'s site`],
-  ["all", `All ${n} saved ${slots.replay.school} box scores`],
-  ["everything", `All ${n} box scores and the ${fresh} saved schedules`],
-];
 const stale: [string, string][] = [
   ["ot", `Only box ${box}'s: it is the only one with an OT column`],
   ["hash", "Only those whose saved page changed since they were parsed: the page hash decides"],
@@ -98,14 +92,17 @@ const tell: [string, string][] = [
     <li>The standings are built from the parsed schedules, which show this match as {cells}, and they count only regular-season conference matches.</li>
   </ul>
 
-  <p class="cv-label">The fingerprints in question 2 are real hashes of Module 4's box-score parser, <code>labs/m04_parse.py</code>, and its page reader, standing in for the story's parser, before and after a simulated one-line edit. Which files go stale is modelled; no lab runs this fix.</p>
+  <p class="cv-label">The fingerprints are real hashes of Module 4's box-score parser, before and after a simulated one-line edit. Which files go stale is simulated.</p>
   <Check once="prove-recover" kind="Assessment" note="Answer all four, then check.">
-    <Choice save="prove-replay" label="1. Under the fingerprint rule, what is the least you must replay?" options={replay} answer="all"
-      why={`All ${n}. Every box score went through the parser that changed, so each is replayed from its saved page. The replay then shows which scores actually change; guessing that first is the mistake Case 3 warned about.`}
-      wrong={{ one: `That is the match you know about. The parser that changed read all ${n}, and replaying all of them is what shows which outputs change.`, refetch: "The saved page already has the right numbers. A fetch brings back only whatever the site shows now, and replaces Friday's capture.", everything: "The schedule parser didn't change, so its output is still fresh. Replaying its pages costs time and changes nothing." }} />
-    <Choice save="prove-stale" label={`2. Each parsed box score records ${fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is ${fp.after}. Which parsed files are stale, and what tells you?`} options={stale} answer="fp"
+    <Choice save="prove-stale" label={`1. Each parsed box score records ${fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is ${fp.after}. Which parsed files are stale, and what tells you?`} options={stale} answer="fp"
       why={`All ${n} parsed box scores, because each records ${fp.before} and the parser is now ${fp.after}. The fingerprint decides, not a guess about what the bug touched. The ${fresh} parsed schedules record the schedule parser's fingerprint, which didn't change.`}
       wrong={{ ot: "The OT column says where the bug showed, not which files the old parser wrote. The fingerprint decides: every file this parser wrote is stale.", hash: "A changed page is one reason a parsed file goes stale. Changed code is the other, and that is this case.", all: "Each parser has its own fingerprint. The schedule parser's didn't change." }} />
+    <div class="cv-line" data-q data-type="number" data-answer={slots.replay.withOvertime}
+      data-why={`${spell(slots.replay.withOvertime, true)}: box ${box}'s, the only one with an ${scoreByPeriod.head[ot]} column. The other ${spell(boxes - slots.replay.withOvertime)} come out as they were. You replay all ${n} anyway, because the fingerprint says they are stale and only the replay shows which outputs change.`}>
+      <label for="ar-prove-count">2. You replay all {n} saved {slots.replay.school} box scores with the fixed parser. How many match details change?</label>
+      <input id="ar-prove-count" inputmode="numeric" autocomplete="off" data-save="prove-count" />
+      <p class="cv-fb" role="status"></p>
+    </div>
     <Choice save="prove-republish" label="3. What do you republish?" options={republish} answer="detail"
       why={`The match detail only. It is the one product built from the box score. The standings are built from the schedules, which already show ${published.home}–${published.away}, and a ${round} isn't a regular-season conference match.`}
       wrong={{ both: `The standings never used this box score: a ${round} isn't a conference match, and the schedules had the right score.`, standings: "The standings were right. The wrong number is in the match detail.", nothing: "The schedules were right, but readers saw the match detail, and it was wrong." }} />

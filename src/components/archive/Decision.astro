@@ -60,13 +60,14 @@ if (grid.map((q) => q.answer).join() !== "both,every,every") throw new Error("Th
 const calls = [
   { key: "hashes", text: "Latest only, with each capture's content hash recorded in the run's manifest" },
   { key: "season", text: "Every capture for the current season, then only the latest of each page" },
+  { key: "forever", text: "Every capture, kept for every season" },
   { key: "tables", text: "Latest only, plus a saved copy of every week's published table" },
 ];
 ---
 
 <section id="decision" class="ar-part">
   <PartHead id="decision">The decision: what a re-fetch would have cost</PartHead>
-  <p>In Setup, before you knew what the sites had posted since Friday, you predicted what Kick's re-fetch would do to St. Lambert's row.</p>
+  <p>In Setup, before you knew what the sites had posted since Friday, you predicted what Kick's re-fetch would do to Saint Lambert's row.</p>
   <div class="cv-say cv-yours">
     <p class="cv-who">Your prediction from Setup</p>
     <p data-when={refetchPredict.key} hidden><span data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}></span></p>
@@ -145,15 +146,15 @@ const calls = [
   <AiCard part="decision" />
 
   <h3 id="decision-your-call">Your call: the league office</h3>
-  <p>The conference office publishes the standings every week. Until the season ends, a coach can dispute any week's table, and the office must then show the pages that table was built from. After the season, the office keeps one copy of each page for its records. Its storage can hold every capture of one season, but not of every season.</p>
+  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage can hold every capture of one season, but not of every season.</p>
   <Check once="decide-call" kind="Your call" note="Pick one policy, then check." button="Check answer">
     <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
-      why="Every capture for the season. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, the older captures are only cost."
-      wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", tables: "A saved table shows what was published, not what it was built from. That is Case 2's lesson: an output can't stand in for its inputs." }} />
+      why="Every capture for the season, then the latest. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, only the final table is questioned, and it read the latest captures."
+      wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", tables: "A saved table shows what was published, not what it was built from. That is Case 2's lesson: an output can't stand in for its inputs.", forever: "It answers every dispute, but storage holds one season of captures, not every season's. After the season closes, the older captures answer no question anyone asks." }} />
     <p slot="reveal">The policy follows from the questions the archive must answer, and for how long. A table needs its pages for as long as somebody may ask what it was built from.</p>
   </Check>
 
-  <NextPart from="decision">Riley's question has three clauses. What evidence would make each one checkable?</NextPart>
+  <NextPart from="decision">Riley's question asks for the right thing. What would Riley need to see to check it?</NextPart>
 </section>
 
 <style>

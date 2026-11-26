@@ -51,9 +51,9 @@ const worlds: { key: string; name: string; kept: string; answer: string; why: st
     wrong: { recount: "Nothing was replaced. March's report can be replayed from the very file it read.", nopast: "Every month's forms are kept, so every month can be replayed.", none: "The raw forms keep the follow-up box. Only the mapped table lost it." } },
   { key: "b", name: "World B", kept: "Kept only the mapped table. A form ticked “follow-up visit” and one ticked “new patient” both sit in it as new patient.", answer: "none",
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
-    wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A recount needs the forms, and none were kept.", nopast: "Even this month needs the raw forms, and none were kept." } },
+    wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A recount needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
   { key: "c", name: "World C", kept: "Kept each clinic's file for every month, but a resubmitted file overwrote the one before it.", answer: "recount",
-    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's new count reflects two changes at once, the fix and the resubmission, and the comparison can't separate them: Case 1's confounding, and Part 6's latest only.",
+    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's report can't be replayed from the forms it read. Its published figure and the recount differ by two changes, the fix and the resubmission: Case 1's two causes, and Part 6's latest only.",
     wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be recounted.", none: "The raw forms that survive still have the box. Replay can recount every month." } },
 ];
 const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
@@ -68,7 +68,7 @@ const staleOpts: [string, string][] = [
 <section id="carry-it" class="ar-part">
   <PartHead id="carry-it">Carry it: same fix, three archives</PartHead>
   <p>The same rules work outside sports: keep the inputs before any code reads them, replay instead of fetching again, and let a fingerprint say what is stale.</p>
-  <p>Module 1's health network is back. Each clinic sends one file of visit forms a month. A mapping step reads the forms into a table, and each monthly report is built from that table and records the content hash of every file it read. The mapping step stamps every record it writes with a fingerprint of its code. For six months the mapping step filed the form's “follow-up visit” box as “new patient”. In May, the Northside clinic resubmitted its March file with corrected forms, after March's report had been built. The fix is one line, the same in every world. Only what was kept differs.</p>
+  <p>Module 1's health network is back. Each clinic sends one file of visit forms a month. A mapping step reads each file into a table as it arrives, so every form received so far is mapped, and each monthly report is built from that table and records the content hash of every file it read. The mapping step stamps every record it writes with a fingerprint of its code. For six months the mapping step filed the form's “follow-up visit” box as “new patient”. In May, the Northside clinic resubmitted its March file with corrected forms, after March's report had been built. The fix is one line, the same in every world. Only what was kept differs.</p>
   <div class="cv-twins">
     {worlds.map((w) => <div><h4>{w.name}</h4><p>{w.kept}</p></div>)}
   </div>
@@ -80,7 +80,7 @@ const staleOpts: [string, string][] = [
       why="Every mapped record. Each carries the old fingerprint, and the mapping step's fingerprint changed, including forms with the box left blank. Rebuilding them all costs minutes; rebuilding too few publishes a wrong count with no error."
       wrong={{ ticked: "That picks stale records by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either one makes a mapped record stale." }} />
     <Fragment slot="reveal">
-      <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can correct the numbers but can't say how much of March's change is the fix. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
+      <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can recount March, but not from the forms March's report read, so it can't reproduce that report or show what the fix alone did to it. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
     </Fragment>
   </Check>
   <AiCard part="carry-it" />
@@ -121,15 +121,15 @@ const staleOpts: [string, string][] = [
     <label><input type="radio" name="ar-carry-season" value="unknown" data-save="carry-season" /><span>Not on its own</span></label>
   </fieldset>
   <div class="ar-title" data-when="carry-season" hidden>
-    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The URLs are one witness: they say what was asked for and where the answer came from. The page itself is another, and the sidecar doesn't hold it.</p>
-    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>Right. The URLs are one witness: they say what was asked for and where the answer came from. The page itself is another, and the sidecar doesn't hold it.</p>
+    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The requested URL says only what was asked for. The final URL is one witness to what came back. The page itself is the other, and the sidecar doesn't hold it.</p>
+    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>Right. The requested URL says only what was asked for. The final URL is one witness to what came back. The page itself is the other, and the sidecar doesn't hold it.</p>
     <p class="ar-said" data-when="carry-season" data-is="no" hidden>Nothing in the sidecar names another season. The page itself does.</p>
     <p>Open the saved bytes. The page's own title says:</p>
     <p class="cv-mono ar-title-line">&lt;title&gt;{title}&lt;/title&gt;</p>
     <p>Its content hash is the one Friday's manifest recorded for Cedar Grove's {titled} page: byte for byte, the same page. The archive did its job and kept exactly what arrived. A pipeline that believed the URLs would file this as {asked}, and every replay with that code would rebuild the same wrong season, faithfully.</p>
     <div class="cv-say cv-riley">
       <p class="cv-who">Riley</p>
-      <p>A {titled} page, filed as {asked}, and nothing complained. How would we have known if nobody had opened the file?</p>
+      <p>A {titled} page, filed as {asked}, and nothing complained. If it hadn't been byte for byte a page we already had, how would we have known without opening it?</p>
     </div>
   </div>
 
