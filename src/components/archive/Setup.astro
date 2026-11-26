@@ -101,18 +101,18 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   <p>By “Friday's table”, Riley means the standings built from Friday's {spell(fridayPages.length)} saved schedule pages: Monday's {monday}, the numbers readers have had since Monday, now with the name spelled “{story.fixedName}”.</p>
 
   <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
-  <fieldset class="cv-choice" data-gate data-ar-lock>
+  <fieldset class="cv-choice" data-ar-lock>
     <legend><span class="cv-kind">Prediction <span>not graded</span></span>Suppose Riley hadn't stopped it. If Kick had re-fetched all {spell(story.sites)} sites on Tuesday and rebuilt with the fixed rule, what would Saint Lambert's row show?</legend>
     {refetchPredict.options.map(([value, label]) => (
-      <label><input type="radio" name="ar-refetch-predict" value={value} data-save={refetchPredict.key} /><span>{label}</span></label>
+      <label><input type="radio" name="ar-refetch-predict" value={value} /><span>{label}</span></label>
     ))}
   </fieldset>
-  <div class="ar-lockrow">
+  <div class="ar-lockrow" data-gate>
     <button type="button" data-ar-lock-btn disabled>Lock in my prediction</button>
-    <input type="hidden" data-save="setup-locked" data-ar-locked />
+    <input type="hidden" data-save={refetchPredict.key} data-ar-locked />
   </div>
-  <p class="ar-saved" data-when="setup-locked" hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
-  <p class="cv-once" data-when="setup-locked" data-is="">Pick a prediction, then lock it in. We'll come back to it in The decision.</p>
+  <p class="ar-saved" data-when={refetchPredict.key} hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
+  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick a prediction, then lock it in. We'll come back to it in The decision.</p>
 
   <AiCard part="setup" />
   <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>
@@ -125,14 +125,18 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     const btn = row.querySelector<HTMLButtonElement>("[data-ar-lock-btn]")!;
     const flag = row.querySelector<HTMLInputElement>("[data-ar-locked]")!;
     const sync = () => {
-      const locked = flag.value === "1" && radios.some((r) => r.checked);
-      radios.forEach((r) => { r.disabled = locked && !r.checked; });
+      const saved = flag.value;
+      const locked = radios.some((r) => r.value === saved);
+      if (locked) radios.forEach((r) => { r.checked = r.value === saved; r.disabled = !r.checked; });
       btn.disabled = locked || !radios.some((r) => r.checked);
+      row.classList.toggle("is-open", locked);
       row.hidden = locked;
     };
     radios.forEach((r) => r.addEventListener("change", () => setTimeout(sync)));
     btn.addEventListener("click", () => {
-      flag.value = "1";
+      const picked = radios.find((r) => r.checked);
+      if (!picked) return;
+      flag.value = picked.value;
       flag.dispatchEvent(new Event("input"));
       sync();
     });

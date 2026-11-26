@@ -45,11 +45,11 @@ const nbox = (l: number, i: number) => ({ x: nx(l) + 9, w: N.cw - 22, y: ny(i) +
 const tagW = (tag: string) => 16 + tag.length * 7.4;
 const tone = (tag: string) => (tag === "same" ? "same" : "changed");
 
-const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, what Riley asked for: Friday's ${fridayPages.length} saved schedule pages stay the same and are only read, the fixed parser is the one input that changes, and Friday's schedule pages are still in the archive afterwards. Re-fetch, Kick's plan, which Riley stopped: the sites would be asked again, so Tuesday's pages and the fixed parser would both change, and each new schedule page would be saved in place of Friday's copy.`;
+const label = `Two ways to fix Tuesday, compared with Tuesday's table, which Friday's pages and the buggy tidy rule produced. Replay, what Riley asked for: Friday's ${fridayPages.length} saved schedule pages stay the same and are only read, the fixed parser is the one input that changes, and Friday's schedule pages are still in the archive afterwards. Re-fetch, Kick's plan, which Riley stopped: the sites would be asked again, so Tuesday's pages and the fixed parser would both change, and each new schedule page would be saved in place of Friday's copy.`;
 ---
 
 <figure class="ar-lanes" aria-labelledby="ar-lanes-title">
-  <figcaption id="ar-lanes-title"><span>Two ways to fix Tuesday</span> Each lane is compared with Tuesday's table. The re-fetch lane is Kick's plan, which Riley stopped, so it shows what would have happened.</figcaption>
+  <figcaption id="ar-lanes-title"><span>Two ways to fix Tuesday</span> Each lane is compared with Tuesday's table, which Friday's pages and the buggy tidy rule produced. The re-fetch lane is Kick's plan, which Riley stopped, so it shows what would have happened.</figcaption>
 
   <svg class="ar-wide" viewBox={`0 0 ${wideW} ${wideH}`} role="img" aria-label={label}>
     <defs>
@@ -125,7 +125,7 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, w
       return (
         <g>
           {lane.write && <path class="ar-write" d={`M${xr - 4} ${ym(p)} H${xr} V${ym(a)} H${xr - 2}`} marker-end="url(#ar-ah-nr)" />}
-          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "would save over Friday's" : "read only, nothing saved"}</text>
+          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "would save over Friday's" : "raw archive unchanged"}</text>
         </g>
       );
     })}

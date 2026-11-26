@@ -40,16 +40,16 @@ const bakes = [
 const rules = [
   { rule: "Save the bytes before any code parses them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt.", clause: "from the pages you kept", where: "Case 2" },
   { rule: "Change one thing at a time.", then: "In Riley's replay the pages and config stay fixed, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Record which exact pages produced each output, by a content hash of their bytes (a short code that changes if any byte does), and which code and config ran. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
+  { rule: "Record what produced each output.", then: `Record which exact pages produced each output, by a content hash of their bytes (a short code computed from the bytes), and which code and config ran. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
 ];
 
 const loop = [
   ["for page in expected_pages:", "fetch"],
   ["    raw = fetch(page)", "fetch"],
   ["    save(page, raw, fetched_at=now())  # or record it unavailable", "fetch"],
-  ["rows = [parse(saved, code, config) for saved in archive]", "replay"],
+  ["rows = [parse(raw, code, config) for raw in archive.schedules]", "replay"],
   ["table = build(rows)", "replay"],
-  ["record(table, pages=hashes(archive), code=version(code, config))", "replay"],
+  ["record(table, pages=hashes(archive.schedules), code=version(code, config))", "replay"],
 ];
 
 const items: [string, string][] = [
@@ -107,15 +107,15 @@ const items: [string, string][] = [
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-two" aria-hidden="true"></i>Today's loaf against last week's: the recipe and the oven both changed.</span>
+      <span><i class="is-two" aria-hidden="true"></i>Today's loaf against last week's, which was old recipe, old oven: the recipe and the oven both changed.</span>
       <span><i class="is-one" aria-hidden="true"></i>The two old oven loaves, baked side by side from the same flour: only the recipe differs.</span>
     </figcaption>
   </figure>
-  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To find out, bake both recipes side by side in the old oven, if the bakery still has it, from the same flour on the same afternoon. Only the recipe differs between those two loaves, so any difference is the recipe's.</p>
+  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To test the recipe, bake both recipes side by side in the old oven, if the bakery still has it, from the same flour on the same afternoon. Only the recipe differs between those two loaves, so any difference between them is the recipe's.</p>
   <div class="cv-define">
     <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
-  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on new pages. A replay is the old oven column: the old code and the fixed code each run on Friday's pages. Code is easier than bread here, because the same code on the same pages gives the same table every time. It works only because Friday's pages were kept, like an old oven nobody threw out.</p>
+  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on new pages. A replay is the old oven column: the old code and the fixed code each run on Friday's pages. Code is easier than bread here, because the same code and config on the same pages give the same table every time. It works only because Friday's pages were kept, like an old oven nobody threw out.</p>
 
   <h3 id="idea-rules">Three rules, one for each clause</h3>
   <ol class="cv-rules">
@@ -163,7 +163,7 @@ const items: [string, string][] = [
     <Choice save="idea-how" label="A reviewer with access to the team's files asks how one number on the published chart was produced, and wants to reproduce it exactly. What should the team give them?"
       options={[
         ["sheet", "The cleaned spreadsheet the chart was drawn from"],
-        ["current", "The current script, rerun on today's spreadsheet"],
+        ["current", "The saved export and the script as it is today"],
         ["fresh", "A new export, cleaned and charted again today"],
         ["record", "Which export and script version made the chart"],
       ]}
@@ -171,7 +171,7 @@ const items: [string, string][] = [
       why="Which export, by content hash, and which version of the script made the chart. Rerunning exactly those inputs gives the same number, and anyone can check it."
       wrong={{
         sheet: "The spreadsheet shows the cleaned rows, not which export and which version of the script produced them.",
-        current: "The script may have changed since the chart was made, so today's run may not be the one that made the number.",
+        current: "The export is the right one, but the script may have changed since the chart was made. Today's version may not be the one that produced the number.",
         fresh: "A new export could hold different responses, so its number may answer a different question.",
       }} />
     <p slot="reveal">The vendor deleting responses is rule 1: save the bytes, because the source can take them away. The bug fix is rule 2: replay the saved export, so the code is the only thing that changes. The reviewer is rule 3: record what produced each output. The same three rules hold for Friday's pages.</p>
