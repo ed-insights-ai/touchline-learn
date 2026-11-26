@@ -7,69 +7,76 @@ import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
 import FilmSlot from "../lesson/FilmSlot.astro";
 import { outcomes } from "../../lib/archive-parts";
-import { rawRows } from "../../lib/archive";
+import { fridayPages, rawRows } from "../../lib/archive";
 import { journey } from "../../data/journey";
 import { modulePageExists } from "../../lib/lessons";
 
-const modules = journey.flatMap((stage) => stage.modules);
-const nextModule = modules.find((m) => m.slug === "03-provenance")!;
+const nextModule = journey.flatMap((stage) => stage.modules).find((m) => m.slug === "03-provenance")!;
 const takeaway = "Can you rebuild this from saved inputs, with no new requests, and show me what changed and why?";
 
 const saved = (...p: string[]) => join(process.cwd(), "sample", "raw_html", ...p);
-const page2019 = readFileSync(saved("cedar-grove", "2019-men-schedule.html"), "utf-8");
-const sidecar = JSON.parse(readFileSync(saved("cedar-grove", "2019-men-schedule.html.meta.json"), "utf-8")) as { requested_url: string; final_url: string; status: number; fetched_at: string };
+const page = readFileSync(saved("cedar-grove", "2019-men-schedule.html"), "utf-8");
+const sidecar = JSON.parse(readFileSync(saved("cedar-grove", "2019-men-schedule.html.meta.json"), "utf-8")) as { requested_url: string; final_url: string; status: number; fetched_at: string; sha256: string };
 const decode = (s: string) => s.replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
-const title = decode(page2019.match(/<title>([^<]*)<\/title>/)?.[1] ?? "");
-const rows = rawRows(page2019).length;
-const yearOf = (s: string) => s.match(/\b(20\d\d)\b/)?.[1];
-if (sidecar.status !== 200 || yearOf(sidecar.requested_url.split("/").pop()!) !== "2019" || sidecar.final_url !== sidecar.requested_url || yearOf(title) !== "2026" || rows === 0) {
-  throw new Error("Cedar Grove's 2019 capture no longer sets up Module 3: a 200, both URLs 2019, a full table, a 2026 title");
+const title = decode(page.match(/<title>([^<]*)<\/title>/)?.[1] ?? "");
+const rows = rawRows(page).length;
+const yearOf = (s: string) => s.match(/\b(20\d\d)\b/)?.[1] ?? "";
+const asked = yearOf(sidecar.requested_url.split("/").pop()!);
+const titled = yearOf(title);
+const friday2026 = fridayPages.find((p) => p.slug === "cedar-grove")!;
+if (sidecar.status !== 200 || !asked || sidecar.final_url !== sidecar.requested_url || !titled || titled === asked || rows === 0 || sidecar.sha256 !== friday2026.sha256) {
+  throw new Error("Cedar Grove's 2019 capture no longer sets up Module 3: a 200, both URLs the requested year, a full table, another year in the title, the same bytes as Friday's page");
 }
 const sideRows: [string, string][] = [
   ["requested_url", sidecar.requested_url],
   ["final_url", sidecar.final_url],
   ["status", String(sidecar.status)],
   ["fetched_at", sidecar.fetched_at],
+  ["sha256", `${sidecar.sha256.slice(0, 12)}…`],
 ];
 
-const claims = [
-  ["full", "Fully recoverable: every past report can be rebuilt exactly"],
-  ["today", "Partly: today's figures can be fixed, some past reports can't be rebuilt"],
-  ["none", "Not from what was kept: flag six months of counts as unreliable"],
-  ["ask", "Ask the clinics to resubmit: the same as a replay"],
-] as [string, string][];
-const worlds: { key: string; name: string; kept: string; answer: string; why: string; wrong: Record<string, string> }[] = [
-  { key: "a", name: "World A", kept: "Kept every raw submission, each with the time it arrived.", answer: "full",
-    why: "Fully recoverable. The raw forms still have the box as the clinic ticked it. Replay rebuilds every report from the forms it read, and the diff shows each count that moves.",
-    wrong: { today: "Nothing was overwritten, so every report's inputs are still there.", none: "The raw forms keep the follow-up box. Only the mapped table lost it.", ask: "A resubmission is a re-fetch: forms edited since would change the numbers for a second reason." } },
-  { key: "b", name: "World B", kept: "Kept only the mapped table.", answer: "none",
-    why: "Not recoverable from what was kept. The mapping ran before anything was saved, so every follow-up is already stored as a new patient. It is Case 2's parsed rows: the damage is in the only copy.",
-    wrong: { full: "There is nothing to replay. The table is the damaged layer.", today: "Even today's figures need the raw forms, and none were kept.", ask: "Asking again is the only route left, but it is a re-fetch, not a replay: the clinics' records may have changed since, so the claim must say so." } },
-  { key: "c", name: "World C", kept: "Kept raw submissions, but a clinic's resubmitted file overwrote its earlier one.", answer: "today",
-    why: "Partly recoverable. Replaying the latest files fixes today's figures. Any past report built from a file that was later replaced can't be rebuilt exactly: it is Part 6's latest only.",
-    wrong: { full: "The overwritten files were the inputs to some past reports. Those reports can't be rebuilt exactly.", none: "The raw forms that survive still have the box. Replay can fix today's figures.", ask: "A resubmission is a re-fetch, and it would overwrite the files again." } },
+const claims: [string, string][] = [
+  ["none", "Not from what was kept. Asking the clinics to resubmit is a new fetch, and the claim must say so"],
+  ["full", "Every month's report can be corrected from the forms it read, and each change has one cause: the fix"],
+  ["nopast", "This month's figures can be fixed, but no past month can be corrected"],
+  ["recount", "Every month can be recounted, but where a clinic resubmitted, a change can't be put down to the fix alone"],
 ];
-const staleOpts = [
+const worlds: { key: string; name: string; kept: string; answer: string; why: string; wrong: Record<string, string> }[] = [
+  { key: "a", name: "World A", kept: "Kept every submission, each resubmission stored beside the file it replaced.", answer: "full",
+    why: "Every report can be corrected from the forms it read. The raw forms still have the box as the clinic ticked it, and each report's record names its files, so the replay changes one input, the code, and the diff has one cause.",
+    wrong: { recount: "Nothing was replaced. March's report can be replayed from the very file it read.", nopast: "Every month's forms are kept, so every month can be replayed.", none: "The raw forms keep the follow-up box. Only the mapped table lost it." } },
+  { key: "b", name: "World B", kept: "Kept only the mapped table. A form ticked “follow-up visit” and one ticked “new patient” both sit in it as new patient.", answer: "none",
+    why: "Not from what was kept. The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
+    wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A recount needs the forms, and none were kept.", nopast: "Even this month needs the raw forms, and none were kept." } },
+  { key: "c", name: "World C", kept: "Kept raw submissions, but a resubmitted file overwrote the one before it.", answer: "recount",
+    why: "Every month can be recounted from the files that survive, but Northside's March count now reflects two changes at once, the fix and the resubmission: Case 1's confounding. It is Part 6's latest only.",
+    wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be recounted.", none: "The raw forms that survive still have the box. Replay can recount every month." } },
+];
+const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
+const claimOpts: [string, string][] = claims.map(([k], i) => [k, `Claim ${i + 1}`]);
+const staleOpts: [string, string][] = [
   ["ticked", "Only the records of forms with the follow-up box ticked"],
-  ["all", "Every mapped record, because the mapping step's fingerprint changed"],
   ["none", "None, until a clinic resubmits"],
-] as [string, string][];
+  ["all", "Every mapped record, because the mapping step's fingerprint changed"],
+];
 ---
 
-<section id="carry-it">
+<section id="carry-it" class="ar-part">
   <PartHead id="carry-it">Carry it: same fix, three archives</PartHead>
   <p>The same rules work outside sports: keep the inputs before any code reads them, replay instead of fetching again, and let a fingerprint say what is stale.</p>
-  <p>Module 1's health network is back. Each clinic sends a visit form; a mapping step reads the forms into a table, and the monthly reports are built from that table. For six months the mapping step filed the form's “follow-up visit” box as “new patient”. The fix is one line, the same in every world. Only what was kept differs.</p>
+  <p>Module 1's health network is back. Each clinic sends a visit form, a mapping step reads the forms into a table, and each monthly report is built from that table and records which files it read. For six months the mapping step filed the form's “follow-up visit” box as “new patient”. In May, the Northside clinic resubmitted its March file, after March's report had been built. The fix is one line, the same in every world. Only what was kept differs.</p>
   <div class="cv-twins">
     {worlds.map((w) => <div><h4>{w.name}</h4><p>{w.kept}</p></div>)}
   </div>
   <Check once="carry-worlds" kind="Transfer" note="Answer all four, then check.">
-    {worlds.map((w) => <Choice save={`carry-${w.key}`} label={`${w.name}: which recovery claim is honest?`} options={claims} answer={w.answer} why={w.why} wrong={w.wrong} />)}
+    <p class="cv-qlabel">Four recovery claims:</p>
+    <ol class="ar-claims">{claims.map(([, text]) => <li>{text}.</li>)}</ol>
+    {worlds.map((w) => <Choice save={`carry-${w.key}`} label={`${w.name}: which claim is honest?`} options={claimOpts} placeholder="Choose a claim" answer={w.answer} why={`Claim ${claimNo(w.answer)}. ${w.why}`} wrong={Object.fromEntries(Object.entries(w.wrong).map(([k, v]) => [k, `Claim ${claimNo(k)}: ${v}`]))} />)}
     <Choice save="carry-stale" label="World A, after the fix: which mapped records are stale?" options={staleOpts} answer="all"
-      why="Every mapped record. The mapping step's fingerprint changed, so everything it wrote is stale, including forms with the box left blank. Rebuilding them all is minutes; rebuilding too few publishes a wrong count with no error."
-      wrong={{ ticked: "That picks the stale files by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either makes a mapped record stale." }} />
+      why="Every mapped record, because the mapping step's fingerprint changed, including forms with the box left blank. Rebuilding them all costs minutes; rebuilding too few publishes a wrong count with no error."
+      wrong={{ ticked: "That picks stale records by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either one makes a mapped record stale." }} />
     <Fragment slot="reveal">
-      <p>Same bug, same one-line fix, three different claims. World A can prove its correction. World B can only say what it doesn't know. World C can fix the present but not every past report. The fix didn't decide what could be recovered. The archive did, long before anyone found the bug.</p>
+      <p>Same bug, same one-line fix, three different claims. World A can prove its correction. World C can correct the numbers but can't say how much of each change is the fix. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
     </Fragment>
   </Check>
   <AiCard part="carry-it" />
@@ -91,38 +98,41 @@ const staleOpts = [
     <button type="button" data-copy data-label="Copy prompt">Copy prompt</button>
   </div>
 
-  <h3 id="carry-it-2019">Then, past seasons</h3>
-  <p>The table is rebuilt and Riley wants context: how did these schools do in earlier seasons? Kick goes back to the sites and saves the old schedules, each page with its sidecar, exactly as received. Cedar Grove's 2019 request comes back clean.</p>
-  <div class="cv-agent-reply" role="region" aria-label="The sidecar Kick saved for Cedar Grove's 2019 page">
+  <h3 id="carry-it-seasons">Then, past seasons</h3>
+  <p>The table is rebuilt, and Riley wants context: how did these schools do in earlier seasons? Kick asks each site for its old schedules and saves every page as received, with a sidecar. Cedar Grove's {asked} request comes back with a success code.</p>
+  <div class="cv-agent-reply" role="region" aria-label={`The sidecar Kick saved for Cedar Grove's ${asked} request`}>
     <div class="cv-chat-bar">
       <span class="cv-agent-badge">Kick · Saved</span>
-      <span class="cv-status-ok">Cedar Grove 2019 · {sidecar.status} · {rows} matches</span>
+      <span class="cv-status-ok">Cedar Grove {asked} · {sidecar.status} · {rows} matches</span>
     </div>
     <table class="cv-log ar-sidecar">
-      <caption>Sidecar for <code>cedar-grove/2019-men-schedule.html</code></caption>
+      <caption>Sidecar for <code>cedar-grove/{asked}-men-schedule.html</code></caption>
       <tbody>{sideRows.map(([k, v]) => <tr><th scope="row"><code>{k}</code></th><td><code>{v}</code></td></tr>)}</tbody>
     </table>
   </div>
-  <p>The status is {sidecar.status}, a full table of {rows} matches saved cleanly, and both URLs, the one requested and the one that answered, say 2019.</p>
+  <p>The status is {sidecar.status}, a full table of {rows} matches saved cleanly, and both URLs, the one requested and the one that answered, say {asked}.</p>
   <fieldset class="cv-choice" data-gate>
-    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Is this Cedar Grove's 2019 schedule?</legend>
-    <label><input type="radio" name="ar-carry-2019" value="yes" data-save="carry-2019" /><span>Yes: the sidecar says 2019 twice</span></label>
-    <label><input type="radio" name="ar-carry-2019" value="no" data-save="carry-2019" /><span>No</span></label>
-    <label><input type="radio" name="ar-carry-2019" value="unknown" data-save="carry-2019" /><span>The sidecar can't tell you</span></label>
+    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Is this Cedar Grove's {asked} schedule?</legend>
+    <label><input type="radio" name="ar-carry-season" value="yes" data-save="carry-season" /><span>Yes: the sidecar says {asked} twice</span></label>
+    <label><input type="radio" name="ar-carry-season" value="no" data-save="carry-season" /><span>No</span></label>
+    <label><input type="radio" name="ar-carry-season" value="unknown" data-save="carry-season" /><span>The sidecar can't tell you</span></label>
   </fieldset>
-  <div class="ar-title" data-when="carry-2019" hidden>
+  <div class="ar-title" data-when="carry-season" hidden>
+    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>Both URLs say what was asked for and where the answer came from. Neither is the page speaking.</p>
+    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>Right, and for the same reason “Can't tell” was right in Setup. A sidecar records how a page was fetched, not what the page is.</p>
+    <p class="ar-said" data-when="carry-season" data-is="no" hidden>The sidecar alone gave you no reason to say no. The page itself does.</p>
     <p>Open the saved bytes. The page's own title says:</p>
     <p class="cv-mono ar-title-line">&lt;title&gt;{title}&lt;/title&gt;</p>
-    <p>The archive did its job: it kept exactly what arrived. A replay of this page would faithfully rebuild the wrong season. Saving the bytes made Tuesday's bug fixable. It can't make a page be the one you asked for.</p>
+    <p>And its content hash, {sidecar.sha256.slice(0, 12)}, is the one Friday's manifest recorded for Cedar Grove's {titled} page: byte for byte, the same page. The archive did its job and kept exactly what arrived. A pipeline that trusted the URLs would file this as {asked}, and every replay would rebuild that same wrong season, faithfully.</p>
   </div>
 
   <FilmSlot name="cedar-grove-2019" label="A short closing video for Module 2" caption="The 2019 page." />
 
   <aside class="cv-next-card" aria-label="Next module">
-    <p class="cv-next-eyebrow">Up next · Module 3</p>
+    <p class="cv-next-eyebrow">Up next · Module {nextModule.n}</p>
     <p class="cv-next-q">{nextModule.question}</p>
-    <p>Module 3 begins with this page: a {sidecar.status}, two URLs that say 2019, and a title that says {yearOf(title)}. Which one do you believe, and what should the pipeline do with a page that can't prove which season it is?</p>
-    <a class="cv-next-cta" href="../03-provenance/">Continue to Module 3: {nextModule.name} →</a>
+    <p>Module {nextModule.n} starts from pages like this one: a {sidecar.status}, a clean table, and URLs that say {asked}. What should a pipeline require before it believes a page is the season it asked for, and what should it do with one that can't prove it?</p>
+    <a class="cv-next-cta" href="../03-provenance/">Continue to Module {nextModule.n}: {nextModule.name} →</a>
   </aside>
 
   {modulePageExists("02-archive-field-work") && (
@@ -134,12 +144,24 @@ const staleOpts = [
 </section>
 
 <style>
+  .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
+  .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
+  .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }
+  .ar-part :global(.cv-chat-bar) { flex-wrap: wrap; row-gap: 0.35rem; }
+  .ar-claims { margin: 0 0 0.75rem; padding-left: 1.5rem; }
+  .ar-claims li { margin: 0.3rem 0; }
   .ar-sidecar { max-width: none; margin: 0; }
   .ar-sidecar caption { padding: 0.6rem 1rem 0.2rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; }
   .ar-sidecar th, .ar-sidecar td { padding-left: 1rem; }
   .ar-sidecar th { width: 1%; white-space: nowrap; }
   .ar-sidecar td code { overflow-wrap: anywhere; }
+  @media (max-width: 32rem) {
+    .ar-sidecar tr { display: grid; padding: 0.3rem 0; border-bottom: 1px solid var(--tl-line); }
+    .ar-sidecar th, .ar-sidecar td { width: auto; padding: 0.1rem 1rem; border: 0; }
+  }
   .ar-title { margin: 0 0 1.25rem; padding: 0.85rem 1rem; border-left: 4px solid var(--cv-red); background: var(--tl-card); }
   .ar-title p:last-child { margin-bottom: 0; }
+  .ar-said { font-weight: 600; }
   .ar-title-line { padding: 0.5rem 0.75rem; background: var(--tl-bg); overflow-wrap: anywhere; }
+  :global(.il-js .cv-core.is-review) .ar-title[hidden] { display: block; }
 </style>
