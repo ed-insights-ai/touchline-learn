@@ -3,43 +3,49 @@ import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.setup;
-const usd = (n: number) => `$${n}`;
-const signed = (n: number) => `${n < 0 ? "−" : "+"}${usd(Math.abs(n))}`;
-
-type Order = { name: string; amount: number; discount: number; note?: string };
-const saved: Order[] = [
-  { name: "First order", amount: 100, discount: 10 },
-  { name: "Second order", amount: 40, discount: 0 },
+type Rec = { id: string; pages: number; approved: boolean };
+const saved: Rec[] = [
+  { id: "A", pages: 4, approved: true },
+  { id: "B", pages: 3, approved: false },
+  { id: "C", pages: 2, approved: true },
 ];
-const correction: Order = { name: "Second order", amount: 35, discount: 0, note: "corrected" };
-const late: Order = { name: "Late order", amount: 20, discount: 0, note: "new" };
-
-const buggy = (rows: Order[]) => rows.reduce((n, r) => n + r.amount, 0);
-const fixed = (rows: Order[]) => rows.reduce((n, r) => n + r.amount - r.discount, 0);
-const before = buggy(saved);
-const replay = fixed(saved);
+const changes = [
+  { key: "a", label: "A grew to 5 pages", apply: (rs: Rec[]) => rs.map((r) => (r.id === "A" ? { ...r, pages: 5 } : r)) },
+  { key: "b", label: "B was approved", apply: (rs: Rec[]) => rs.map((r) => (r.id === "B" ? { ...r, approved: true } : r)) },
+  { key: "c", label: "C was deleted", apply: (rs: Rec[]) => rs.filter((r) => r.id !== "C") },
+  { key: "d", label: "D appeared, 1 page, approved", apply: (rs: Rec[]) => [...rs, { id: "D", pages: 1, approved: true }] },
+];
+const oldCode = (rs: Rec[]) => rs.reduce((n, r) => n + r.pages, 0);
+const fixedCode = (rs: Rec[]) => rs.reduce((n, r) => n + (r.approved ? r.pages : 0), 0);
+const before = oldCode(saved);
+const replay = fixedCode(saved);
 const fromCode = replay - before;
+const signed = (n: number) => (n === 0 ? "±0" : `${n < 0 ? "−" : "+"}${Math.abs(n)}`);
+const pagesOf = (r: Rec) => `${r.pages} page${r.pages === 1 ? "" : "s"}`;
 
-const today = (corr: boolean, add: boolean): Order[] => [saved[0], corr ? correction : saved[1], ...(add ? [late] : [])];
-const states = [[false, false], [true, false], [false, true], [true, true]].map(([corr, add]) => {
-  const rows = today(corr, add);
-  const total = fixed(rows);
+const subsets = Array.from({ length: 1 << changes.length }, (_, m) => changes.filter((_, i) => m & (1 << i)));
+const states = subsets.map((on) => {
+  const rows = on.reduce((rs, c) => c.apply(rs), saved);
+  const total = fixedCode(rows);
   const fromSource = total - replay;
   return {
-    key: `${+corr}${+add}`,
+    key: changes.map((c) => (on.includes(c) ? c.key : "")).join("") || "none",
     rows,
     total,
     diff: fromSource === 0
-      ? `${signed(total - before)}, all of it from the fix: the source didn't change`
-      : `${signed(total - before)} = ${signed(fromCode)} from the fix ${signed(fromSource)} from the source`,
+      ? `${signed(total - before)} from yesterday, all of it from the fix`
+      : `${signed(total - before)} from yesterday = ${signed(fromCode)} from the fix, ${signed(fromSource)} from the source`,
   };
 });
-const full = fixed(today(true, true));
+const today = states[states.length - 1];
+const laneCss = states
+  .map((st) => `.pa-rf${changes.map((c) => (st.key.includes(c.key) ? `:has([value="${c.key}"]:checked)` : `:not(:has([value="${c.key}"]:checked))`)).join("")} [data-s="${st.key}"]`)
+  .join(",\n") + " { display: grid; }";
 
 const checks = [
-  ["Isolating the fix", "If you want to measure only the effect of fixing the discount bug, which inputs would you use?"],
-  ["Two changes in one number", `Why does comparing yesterday’s ${usd(before)} report with today’s ${usd(full)} re-fetch fail to tell you how much the bug fix changed the total?`],
-  ["Reproducing yesterday", `What would you need to reproduce the original ${usd(before)} report exactly, and what could you lose by keeping only the latest API response?`],
+  ["Correcting yesterday", "Which input and which version of the code would you use to correct yesterday’s report? What total would you get?"],
+  ["The same number twice", `The old report and the fresh report both say ${before}. Why does that tell you so little about whether the fix worked?`],
+  ["Today and next week", "You need today’s report and want to be able to reproduce yesterday’s original report next week. What would you fetch, and what would you keep?"],
 ];
 ---
 
@@ -48,64 +54,77 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("setup")}`}
   about="This is a reply an AI assistant gave to Module 2's re-fetch study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and name one thing that could have changed on a live site since Friday, and say whether the page shows it."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and say whether the page shows what changed on the sites since Friday."
 >
   <h2 class="pr-title">Re-fetch or replay: fixing yesterday's report</h2>
-  <p>Imagine a bakery’s nightly pipeline reads orders from a supplier’s API and totals the sales. Yesterday it fetched a {usd(saved[0].amount)} order with a {usd(saved[0].discount)} discount and a second order for {usd(saved[1].amount)}. A bug caused the pipeline to ignore discounts, so it reported <strong>{usd(before)}</strong>.</p>
+  <p>Suppose you run a daily pipeline for a community archive. It fetches transcription records and reports how many pages have been approved. Yesterday you saved a copy of the records before running the pipeline.</p>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Record</th><th scope="col">Yesterday’s saved copy</th><th scope="col">Today’s live source</th></tr></thead>
+      <tbody>
+        {saved.map((r) => {
+          const t = today.rows.find((x) => x.id === r.id);
+          return <tr><th scope="row">{r.id}</th><td>{pagesOf(r)}, {r.approved ? "approved" : "pending"}</td><td>{t ? `${pagesOf(t)}, ${t.approved ? "approved" : "pending"}` : "Deleted"}</td></tr>;
+        })}
+        {today.rows.filter((t) => !saved.some((r) => r.id === t.id)).map((t) => <tr><th scope="row">{t.id}</th><td>Absent</td><td>{pagesOf(t)}, {t.approved ? "approved" : "pending"}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
+  <p>Yesterday’s code counted pending pages too, so it reported <strong>{before}</strong>. Today you fix the code to count only approved pages.</p>
 
-  <h2>1. Re-fetch versus replay</h2>
-  <p>A <strong>re-fetch</strong> asks the API for the orders again. Even if you request yesterday’s orders, the API returns whatever it currently shows for yesterday.</p>
-  <p>A <strong>replay</strong> runs the pipeline on the source responses you saved yesterday. Run the fixed code on those copies and you get <strong>{usd(replay)}</strong>.</p>
-  <p class="pr-pull">Since the inputs stayed the same, the {usd(-fromCode)} difference shows the effect of fixing the discount calculation.</p>
+  <h2>1. Replay yesterday’s copy</h2>
+  <p>A <strong>replay</strong> runs the pipeline on the input you saved earlier. With yesterday’s copy and the fixed code, you get <strong>{replay}</strong> approved pages ({saved.filter((r) => r.approved).map((r) => `${r.pages} from ${r.id}`).join(" and ")}). Because the input stayed the same, the drop from {before} to {replay} shows the effect of your fix.</p>
+  <p>You can also replay yesterday’s copy with the old code to reproduce the original <strong>{before}</strong>. Exact reproduction requires the same relevant settings, dependencies, and any other inputs the run used, such as the date if the code reads it.</p>
 
-  <h2>2. Why the live source can change</h2>
-  <p>By today, the supplier might have corrected the {usd(saved[1].amount)} order to {usd(correction.amount)} and added a {usd(late.amount)} order that arrived late. Live sources can also remove records, fill in missing fields, or change how they represent values. With those two order changes, the fixed code would report <strong>{usd(full)}</strong> after a re-fetch. Compared with yesterday’s {usd(before)}, that looks like a {usd(full - before)} increase. It combines a {usd(-fromCode)} decrease from the bug fix with a {usd(full - replay)} increase from changes to the source data.</p>
+  <h2>2. Re-fetch today’s source</h2>
+  <p>A <strong>re-fetch</strong> asks the source for a fresh copy. Since yesterday, one page count changed, a pending record was approved, a record was deleted, and a new record appeared. With the fixed code, today’s records give you <strong>{today.total}</strong> approved pages ({today.rows.filter((r) => r.approved).map((r) => `${r.pages} from ${r.id}`).join(", ").replace(/, ([^,]*)$/, ", and $1")}).</p>
+  <p class="pr-pull">Yesterday’s report and today’s fresh report both say {before}. That equality hides two changes.</p>
+  <p>The code fix brings yesterday’s total down from {before} to {replay}, and the source updates bring the corrected total back up from {replay} to {today.total}.</p>
   <figure class="pr-card pa-rf">
     <fieldset class="pa-rf-controls">
-      <legend>What changed at the supplier since yesterday</legend>
-      <label><input type="checkbox" value="corr" checked /> <span>Second order corrected to {usd(correction.amount)}</span></label>
-      <label><input type="checkbox" value="late" checked /> <span>A {usd(late.amount)} order arrived late</span></label>
+      <legend>What changed at the source since yesterday</legend>
+      {changes.map((c) => <label><input type="checkbox" value={c.key} checked /> <span>{c.label}</span></label>)}
     </fieldset>
     <div class="pa-lanes">
       <div class="pa-lane is-old">
-        <p class="pa-lane-head"><b>Yesterday's report</b><span>saved copies, buggy code</span></p>
-        <ul>{saved.map((r) => <li><span>{r.name}</span><b>{usd(r.amount)}</b></li>)}</ul>
-        <p class="pa-lane-total"><span>Total</span><b>{usd(before)}</b></p>
+        <p class="pa-lane-head"><b>Yesterday's report</b><span>saved copy, old code</span></p>
+        <ul>{saved.map((r) => <li><span>{r.id} · {r.approved ? "approved" : "pending"}</span><b>{r.pages}</b></li>)}</ul>
+        <p class="pa-lane-total"><span>Pages counted</span><b>{before}</b></p>
       </div>
       <div class="pa-lane is-replay">
-        <p class="pa-lane-head"><b>Replay</b><span>saved copies, fixed code</span></p>
-        <ul>{saved.map((r) => <li><span>{r.name}</span><b>{usd(r.amount - r.discount)}</b></li>)}</ul>
-        <p class="pa-lane-total"><span>Total</span><b>{usd(replay)}</b></p>
-        <p class="pa-lane-diff">{signed(fromCode)}, all of it from the fix</p>
+        <p class="pa-lane-head"><b>Replay</b><span>saved copy, fixed code</span></p>
+        <ul>{saved.map((r) => <li><span>{r.id} · {r.approved ? "approved" : "pending"}</span><b>{r.approved ? r.pages : 0}</b></li>)}</ul>
+        <p class="pa-lane-total"><span>Pages counted</span><b>{replay}</b></p>
+        <p class="pa-lane-diff">{signed(fromCode)} from yesterday, all of it from the fix</p>
       </div>
       {states.map((st) => (
         <div class="pa-lane is-refetch" data-s={st.key}>
           <p class="pa-lane-head"><b>Re-fetch</b><span>today's source, fixed code</span></p>
-          <ul>{st.rows.map((r) => <li><span>{r.name}{r.note && <em> · {r.note}</em>}</span><b>{usd(r.amount - r.discount)}</b></li>)}</ul>
-          <p class="pa-lane-total"><span>Total</span><b>{usd(st.total)}</b></p>
+          <ul>{st.rows.map((r) => <li><span>{r.id} · {r.approved ? "approved" : "pending"}</span><b>{r.approved ? r.pages : 0}</b></li>)}</ul>
+          <p class="pa-lane-total"><span>Pages counted</span><b>{st.total}</b></p>
           <p class="pa-lane-diff">{st.diff}</p>
         </div>
       ))}
     </div>
-    <figcaption>Switch the supplier's changes off and on. The replay never moves, because its inputs are the saved copies. The re-fetch moves with the source, and its total mixes the fix with whatever changed.</figcaption>
+    <figcaption>Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and its total mixes the fix with whatever changed.</figcaption>
   </figure>
 
-  <h2>3. What you can reproduce</h2>
-  <p>To reproduce the <strong>original {usd(before)} report</strong> exactly, replay yesterday’s saved inputs with yesterday’s code and the same settings and other inputs that affected the run. To produce the <strong>corrected report for the data you had yesterday</strong>, replay those copies with the fixed code.</p>
-  <p>If you keep only the latest copy of each source, a re-fetch replaces yesterday’s saved API response with today’s version. The old {usd(saved[1].amount)} value and the record of which orders were visible at the time are then lost from your saved copies. Keeping yesterday’s final total alone won’t let you reconstruct those inputs.</p>
+  <h2>3. What a re-fetch overwrites</h2>
+  <p>If you save the re-fetch over your only copy of the source, you replace yesterday’s snapshot with today’s. You lose the old page count for A, B’s pending status, and C’s record from that saved copy. You’d need another copy or source history to replay yesterday’s input.</p>
 
   <h2>4. When to re-fetch</h2>
-  <p>Re-fetch when you need the supplier’s latest view, including late orders and corrections, or when the saved response is missing or incomplete. If you have a usable saved copy, replay it first to measure the effect of the code fix. Then re-fetch as a separate step so you can also measure what changed in the source.</p>
+  <p>A re-fetch is the right step when you need today’s report, when the source has corrected its own data, or when your saved copy is incomplete. Treat it as a separate step so you can measure what the code fix changed on yesterday’s input, then see what the source updates changed with the fixed code.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again.</p>
-    <p>One detail matters for Tuesday. Touchline keeps the latest capture of each page, the reply's “latest copy”, so Kick's re-fetch would also have overwritten the pages Friday's table was built from. And unlike the bakery's supplier, nobody has told you what the sites changed after Friday. Does anything on the page say?</p>
-    <p>One slip in the reply: orders from a supplier are what the bakery buys, not what it sells. Read the total as the bakery's spending; the replay works the same way.</p>
+    <p>Touchline keeps the latest capture of each page, the reply's “only copy”, so Kick's re-fetch would also have overwritten the pages Friday's table was built from. The reply can also print a table of what changed at its source. A re-fetch hands back new pages, not a list of changes, so check Part 1 for anything that shows what the sites changed after Friday.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
+
+<Fragment set:html={`<style>${laneCss}</style>`} />
 
 <style>
   .pa-rf-controls { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0 0 0.7rem; padding: 0; border: 0; font-size: 0.9rem; }
@@ -118,10 +137,6 @@ const checks = [
   .pa-lane.is-old { border-top-color: var(--tl-muted); }
   .pa-lane.is-replay { border-top-color: var(--pr-green); }
   .pa-lane.is-refetch { display: none; border-top-color: #d9822b; }
-  .pa-rf:not(:has([value="corr"]:checked)):not(:has([value="late"]:checked)) [data-s="00"],
-  .pa-rf:has([value="corr"]:checked):not(:has([value="late"]:checked)) [data-s="10"],
-  .pa-rf:not(:has([value="corr"]:checked)):has([value="late"]:checked) [data-s="01"],
-  .pa-rf:has([value="corr"]:checked):has([value="late"]:checked) [data-s="11"] { display: grid; }
   :global(.pr) .pa-lane-head { display: grid; margin: 0 0 0.4rem; }
   .pa-lane-head b { color: var(--sl-color-white); }
   .pa-lane-head span { color: var(--tl-muted); font-size: 0.82rem; }

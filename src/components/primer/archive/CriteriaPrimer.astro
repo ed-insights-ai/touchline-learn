@@ -81,7 +81,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("rewind")}`}
   about="This is a reply an AI assistant gave to Module 2's rebuild-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and write one acceptance criterion, as specific as Riley's, for a rebuild in your own work."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and match each line of Kick's report to one of the reply's criteria."
 >
   <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
   <p class="pr-pull">Write each acceptance criterion as a pass/fail check.</p>
@@ -121,17 +121,17 @@ const checks = [
   <figure class="pr-card">
     <p class="pr-label">The same four criteria on a code-only fix</p>
     <ul class="pa-audit">
-      <li><span>Saved inputs: every content hash matches the archived manifest</span><span class="pr-chip is-ok">Pass</span></li>
-      <li><span>Code: new commit, new parser fingerprint</span><span class="pr-chip is-ok">Pass</span></li>
-      <li><span>Network: zero attempts, full coverage</span><span class="pr-chip is-ok">Pass</span></li>
-      <li><span>Comparison: one changed cell, traced to the code change</span><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>inputs/sensor-17/2026-11-20.csv  9ce402ad…  matches manifest</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>Git commit: 3b90e7d…  (baseline 8f24c6a…)</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>network-audit.json: full run, 0 attempts</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>Changed cells: 1. Inputs identical; traced to 3b90e7d.</code><span class="pr-chip is-ok">Pass</span></li>
     </ul>
     <figcaption>When the inputs are held fixed, the only line allowed to change is the code, so every changed cell must trace to it.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Kick's report adds the build revision beside the fingerprint, the reply's Git commit. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
-    <p>The reply's changed cell comes from a corrected input. Kick's replay holds Friday's pages fixed, so its one changed cell must trace to the code. And Kick's network counter hooks only Python's lookup and connect calls in its own process, after showing it catches a test request, so its zero says nothing about child processes or calls outside those hooks.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Part 7's replay report names the build revision beside the fingerprint, the reply's Git commit. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
+    <p>The reply's changed cell comes from a corrected input, read from the same path as the baseline's: the saved file was overwritten in place, the reply's first check question and Part 6's risk. Kick's replay holds Friday's pages fixed, so its one changed cell must trace to the code. And Kick's network counter hooks only Python's lookup and connect calls in its own process, after showing it catches a test request, so its zero says nothing about child processes or calls outside those hooks.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>

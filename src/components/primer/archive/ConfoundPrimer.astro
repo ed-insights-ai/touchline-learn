@@ -63,7 +63,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and classify tables B and C: which one changed a single input?"
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and write the changelog line that table B supports, and nothing more."
 >
   <h2 class="pr-title">One change at a time</h2>
   <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>
@@ -133,7 +133,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Case 1 makes the reply's two comparisons from three tables. Table A, Tuesday's table, is the baseline. A against B is the controlled comparison, like the reply's three-row replay: Friday's saved pages held fixed and only the tidy rule changed, so every difference has one cause. A against C is the before and after: the code and the pages changed together.</p>
-    <p>One caution on the website example: the visitors changed between the two weeks as well, so the two-point rise is an observed difference, not even the combined effect of the headline and button. Only the controlled version measures an effect.</p>
+    <p>One caution on the website example: the reply's “combined effect” holds only if nothing else changed between the two weeks. The visitors may have changed too, so the two-point rise is an observed difference. Only the controlled version measures an effect.</p>
     <p>An honest changelog line is written the way the reply writes its last paragraph. It names the one input that changed, and claims nothing that input can't explain.</p>
   </aside>
 

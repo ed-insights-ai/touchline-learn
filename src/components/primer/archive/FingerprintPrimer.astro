@@ -43,7 +43,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and say which preset a notebook comment edit matches, and predict its counts before you check."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and write a preset for the notebook when inventory.csv is corrected."
 >
   <h2 class="pr-title">How a cache decides what is stale</h2>
   <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
@@ -92,7 +92,7 @@ const checks = [
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Touchline's fingerprint hashes the parser's whole module plus the config it reads: the alias list, the membership file and the season. That is the reply's whole-source-file choice. One parser reads all {saved} saved schedules, so a comment edit in it makes all {saved} stale, where the reply's comment edit touched only one output. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
+    <p>Touchline's fingerprint hashes the parser's whole module plus the config it reads: the alias list, the membership file and the season. That is the reply's whole-source-file choice. One parser reads all {saved} saved schedules, so a comment edit in it makes all {saved} stale, where the figure's comment edit touched only one output. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
     <p>Case 3's last preset is the reply's section 4. Harbor Point's site posted a result after Friday, but the saved page did not change, so its hash still matches and nothing looks stale until something fetches it.</p>
   </aside>
 

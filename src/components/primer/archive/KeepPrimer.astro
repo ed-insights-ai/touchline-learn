@@ -20,7 +20,7 @@ const bugSteps = [
   { id: "publish", at: 3, label: "Catalog publishing", note: "Say, publishing shows a missing count as 0" },
 ];
 const layerVerdict = (j: number, at: number): [string, string] =>
-  j >= at ? ["Carries it", "is-bad"] : j === at - 1 ? ["Last before the bug", "is-ok"] : ["Full replay", "is-ok"];
+  j >= at ? ["Carries it", "is-bad"] : j === at - 1 ? ["Last before the bug", "is-ok"] : j === 0 ? ["Full replay", "is-ok"] : ["Earlier copy", "is-ok"];
 
 const merges = [
   { from: ["blank count", "literal 0"], to: "0" },
@@ -48,7 +48,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-kept")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-zone study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and place one more bug on the grid: the table builder gave a real 1–1 draw two points instead of one."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and place one more bug on the grid: a real 1–1 draw given two points."
 >
   <h2 class="pr-title">What a museum's archive must keep</h2>
   <p>Every night, a museum downloads collection records from a partner’s website. One night, the partner sends a record that looks like this:</p>

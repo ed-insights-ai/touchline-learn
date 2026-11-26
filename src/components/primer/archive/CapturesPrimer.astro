@@ -33,7 +33,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("decision")}`}
   about="This is a reply an AI assistant gave to Module 2's archive-history study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and pick a policy for the league office again, this time if disputes could only be raised within one week."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and pick the league office's policy and name the question that decides it."
 >
   <h2 class="pr-title">How much history should an archive keep?</h2>
   <p>Suppose your archive fetches the university’s course listings every morning. On Monday, it sees that Chemistry 101 has {seats.monday} open seats. On Tuesday, it sees {seats.tuesday}.</p>
@@ -96,7 +96,8 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume the parser, build code and config of every past run are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
-    <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like the reply's Monday seat count, Harbor Point's result cell for 21 November changed on Tuesday, from blank to a result, and under latest only Friday's version of it is gone.</p>
+    <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like the reply's Monday seat count, Harbor Point's result cell for 21 November changed on Tuesday, from blank to a result, and under latest only a Tuesday re-fetch would replace Friday's capture of it.</p>
+    <p>On collisions: different files can share a hash in principle, but with a strong hash such as SHA-256 nobody can find two in practice, which is why a match is strong evidence.</p>
     <p>The reply calls a hash a fingerprint. In this course a fingerprint is the hash of the parser code and its config; a content hash identifies a saved page, and that is the hash the reply means.</p>
   </aside>
 

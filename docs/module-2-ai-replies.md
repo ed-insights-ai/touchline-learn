@@ -26,8 +26,8 @@ reply text inside the primer component and keep or rewrite its Course note.
 Notes on individual replies:
 
 - **Six replies were rerun** after the first council round changed their prompts, each
-  in a fresh session with the same model and settings on the same date. Setup and Prove it
-  keep their first replies.
+  in a fresh session with the same model and settings on the same date. Prove it keeps its
+  first reply.
   - **The idea** asks for two outputs that disagree with the record that explains why, and
     item 3 names both unrecoverable cases: a version never saved, and a saved copy later
     overwritten. It was run twice in round 2. The first rerun's examples were one or two
@@ -44,6 +44,11 @@ Notes on individual replies:
     shop and sales examples, and the page shows that third reply.
   - **Rewind** uses one running example, a research lab's daily sensor readings, and asks
     for an example report that meets every criterion.
+- **Setup** was rerun after the fifth council round. Its first reply was set in a bakery,
+  and the next rerun picked a water meter, the same setting as The idea's third example. The
+  prompt now excludes sports, shops, food businesses, and meters and sensors, and item 3 asks
+  which of the two can reproduce yesterday's output exactly with the old code. The page shows
+  the third reply (a community transcription archive).
 - **Carry it** was rerun after the second council round. Its first reply was set in a
   city's permit offices, right after Prove it's city electricity reports. The prompt now
   also excludes city government, and the page shows the second reply (a coffee roaster).
