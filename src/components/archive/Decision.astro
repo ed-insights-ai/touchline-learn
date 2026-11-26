@@ -76,7 +76,7 @@ const calls = [
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. {spell(changed.length, true)} pages had changed, and one of them posted a result this row counts.</p>
 
-  <p>Tuesday's pages were captured apart from the archive (Case 1) to see what the re-fetch would have read. On Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons.</p>
+  <p>Tuesday's pages were captured apart from the archive (Case 1) to see what the re-fetch would have read. On Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons. Case 1 told them apart: the replay changed only the name, so the cells where the replay and the re-fetch differ are the pages' changes.</p>
   <div class="cv-scroll">
     <table class="cv-log ar-row">
       <caption>St. Lambert's row, Tuesday's table and the re-fetch</caption>
@@ -143,14 +143,14 @@ const calls = [
 
   <h3 id="decision-touchline">What Touchline keeps</h3>
   <div class="cv-touchline">
-    <p>Touchline keeps latest only: the newest capture of each page, with its fetch time. Friday's table could be rebuilt on Tuesday because Friday's bytes were still there: nothing had fetched those {seven} pages since. Kick's “Re-fetching!” would have replaced all {seven}, and Monday's table, the one readers have, could no longer be rebuilt.</p>
+    <p>Touchline keeps latest only: the newest capture of each page, with its fetch time. Monday's table could be rebuilt on Tuesday because the Friday bytes it read were still there: nothing had fetched those {seven} pages since. Kick's “Re-fetching!” would have replaced all {seven}, and Monday's table, the one readers have, could no longer be rebuilt.</p>
     <p>That is why a parser change re-reads the archive and never fetches, and why a re-fetch is a separate, deliberate act.</p>
   </div>
 
   <AiCard part="decision" />
 
   <h3 id="decision-your-call">Your call: the league office</h3>
-  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage holds one season of every capture, not more.</p>
+  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage holds one season of every capture; older seasons must fit in far less.</p>
   <Check once="decide-call" kind="Your call" note="Pick one policy, then check." button="Check answer">
     <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
       why="Every capture until the season closes, then the final table's. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, only the final table is questioned, and its manifest names the captures it read."

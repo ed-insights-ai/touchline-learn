@@ -121,7 +121,7 @@ const tell: [string, string][] = [
     <Fragment slot="reveal">
       <p class="cv-rule">Replay every box score the fixed parser reads, fetch nothing, republish the one product that was wrong, and say what changed and why.</p>
       <p>The saved pages show that only box {box} has an {scoreByPeriod.head[ot]} column, so under this bug and this fix it is the only match detail expected to change. Replaying all {n} is what confirms that the other {spell(boxes - slots.replay.withOvertime)} come out as they were.</p>
-      <p>Now suppose the schedules were saved as they are, but the box-score archive kept only the parsed match detail: a final score for each match, with no periods and no goal times. The score could still be corrected from the schedule's “{proveIt.schedules["alder-ridge"]}”. The period breakdown and the overtime could come back only by fetching the page again and hoping the site still shows it unchanged. No replay could recover them.</p>
+      <p>Now suppose the schedules were saved as they are, but the box-score archive kept only the parsed match detail: a final score for each match, with no periods and no goal times. The score could still be corrected from the schedule's “{proveIt.schedules["alder-ridge"]}”, and the gap from {buggy.home}–{buggy.away} points to a goal the regulation sum missed. But the period breakdown and the goal's time could come back only from another source, such as fetching the page again and hoping the site still shows it unchanged. No replay could recover them.</p>
     </Fragment>
   </Check>
   <AiCard part="prove-it" />
