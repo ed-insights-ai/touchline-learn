@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2026",
  "final_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2026",
  "status": 200,
- "etag": "\"7891ad401dc0e5c0\""
+ "fetched_at": "2026-11-20T12:30:21+00:00",
+ "etag": "\"7891ad401dc0e5c0\"",
+ "sha256": "7891ad401dc0e5c061e0ecb8f5cbe2ebc65acf7e0b150a9a78f055fec9c38a1e"
 }

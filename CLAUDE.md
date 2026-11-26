@@ -21,6 +21,7 @@ data home in `sample/`.
 python sample/generate.py --check   # the sample is exactly what the generator writes
 python labs/run_all.py              # every lab ends as expected (needs labs/requirements.txt)
 python scripts/check_lab_output.py  # output quoted in the pages is real lab output
+node scripts/check_archive.mjs      # Module 2's build-time data imports and its assertions hold
 npm run check && npm run build && python3 scripts/check_links.py
 ```
 
@@ -38,3 +39,5 @@ npm run check && npm run build && python3 scripts/check_links.py
 - Internal links in the docs are relative (`../02-archive/`), because the site
   is served under `/touchline-learn/`.
 - Labs use the standard library, DuckDB and jsonschema, and never the network.
+- Module 2's fingerprints hash `labs/common.py` and the `labs/m02_parser_*.py`
+  modules. After editing them, regenerate its quotes (`docs/module-2-data.md`).

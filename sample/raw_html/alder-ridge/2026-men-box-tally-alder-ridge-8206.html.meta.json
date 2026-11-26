@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/brightwater-state/boxscore/8206",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/brightwater-state/boxscore/8206",
  "status": 200,
- "etag": "\"b647b761830dfad9\""
+ "fetched_at": "2026-11-20T12:30:45+00:00",
+ "etag": "\"b647b761830dfad9\"",
+ "sha256": "b647b761830dfad9d6bf1f9df7bbfd40c1cfd936809f4962dbd1ffd7617db2c2"
 }

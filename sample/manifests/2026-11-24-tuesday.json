@@ -1,0 +1,96 @@
+{
+ "schema": "learn.capture-manifest/1",
+ "run": "2026-11-24-tuesday",
+ "purpose": "not part of the archive: what Kick's re-fetch on Tuesday would have saved, kept apart so Module 2 can compare it with a replay. The archive keeps the latest capture only, and Riley stopped the re-fetch.",
+ "season": 2026,
+ "gender": "men",
+ "conference": "PLC",
+ "scope": "schedule pages only",
+ "started_at": "2026-11-24T09:15:00+00:00",
+ "finished_at": "2026-11-24T09:15:21+00:00",
+ "requested": 8,
+ "saved": 7,
+ "unavailable": [
+  "dunmore"
+ ],
+ "pages": [
+  {
+   "programme": "alder-ridge",
+   "kind": "schedule",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/alder-ridge/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:00+00:00",
+   "bytes": 3013,
+   "sha256": "ada98c587d146264cc903b1fe23d82e08e93e932a4d6587343e4c05ad828b654"
+  },
+  {
+   "programme": "brightwater-state",
+   "kind": "schedule",
+   "requested_url": "https://athletics.brightwater-state.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/brightwater-state/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:03+00:00",
+   "bytes": 2856,
+   "sha256": "7726cd71f2ed66c815229386816929acf9ac9d62825e7d6f4dc80c213262088f"
+  },
+  {
+   "programme": "cedar-grove",
+   "kind": "schedule",
+   "requested_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/cedar-grove/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:06+00:00",
+   "bytes": 2747,
+   "sha256": "6d6d02cd4de212ace7c2568ee6d8c87d2e3b2d0c1a6b8dbb78b63abcec765bcc"
+  },
+  {
+   "programme": "dunmore",
+   "kind": "schedule",
+   "requested_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "state": "unavailable",
+   "tries": 3,
+   "reason": "site did not answer after 3 tries"
+  },
+  {
+   "programme": "eastbrook-state",
+   "kind": "schedule",
+   "requested_url": "https://athletics.eastbrook-state.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/eastbrook-state/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:12+00:00",
+   "bytes": 2644,
+   "sha256": "710f5f65a8709e9ea2a1c3986f7766a63f4c4ebd34540a44c2e86ca9236dd90e"
+  },
+  {
+   "programme": "harbor-point",
+   "kind": "schedule",
+   "requested_url": "https://athletics.harbor-point.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/harbor-point/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:15+00:00",
+   "bytes": 2596,
+   "sha256": "74450876b32f04e89ca455b772fc85f95b93f193f7d0d5a2898cd1b4006b0a99"
+  },
+  {
+   "programme": "hartwell-tech",
+   "kind": "schedule",
+   "requested_url": "https://athletics.hartwell-tech.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/hartwell-tech/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:18+00:00",
+   "bytes": 2858,
+   "sha256": "d93434fd20d785cf4b11bf9a5530abb20f3cf5f78ec5852c47bcb6048aa023ee"
+  },
+  {
+   "programme": "st-lambert",
+   "kind": "schedule",
+   "requested_url": "https://athletics.st-lambert.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "captures/2026-11-24-tuesday/st-lambert/2026-men-schedule.html",
+   "fetched_at": "2026-11-24T09:15:21+00:00",
+   "bytes": 2544,
+   "sha256": "892065796e45c777378664e27a9d45291a0bb137986db79b060d6e8ffdad7ad4"
+  }
+ ]
+}

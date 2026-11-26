@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/st-brendan/boxscore/8202",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/st-brendan/boxscore/8202",
  "status": 200,
- "etag": "\"d7f5ab69a1df71e6\""
+ "fetched_at": "2026-11-20T12:30:33+00:00",
+ "etag": "\"d7f5ab69a1df71e6\"",
+ "sha256": "d7f5ab69a1df71e689dca97ad7991b2e2a03ca363f6aa6b06378160ba3581ff2"
 }

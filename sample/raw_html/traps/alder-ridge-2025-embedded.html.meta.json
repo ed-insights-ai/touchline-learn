@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
  "status": 200,
- "etag": "\"d42e677367fcd25a\""
+ "fetched_at": "2026-11-25T08:05:09+00:00",
+ "etag": "\"d42e677367fcd25a\"",
+ "sha256": "d42e677367fcd25a035913fd43f7b9708fe96bdfd2bbe38129732cafed1a07b6"
 }

@@ -1,0 +1,57 @@
+{
+ "schema": "learn.capture-manifest/1",
+ "run": "2026-11-25-later",
+ "purpose": "requests made after Tuesday: Dunmore's current page, and the past seasons Riley asked for",
+ "season": null,
+ "gender": "men",
+ "conference": "PLC",
+ "scope": "Dunmore's 2026 schedule, and schedules for past seasons",
+ "started_at": "2026-11-25T08:05:00+00:00",
+ "finished_at": "2026-11-25T08:05:09+00:00",
+ "requested": 4,
+ "saved": 4,
+ "unavailable": [],
+ "pages": [
+  {
+   "programme": "dunmore",
+   "kind": "schedule",
+   "requested_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2026",
+   "state": "saved",
+   "path": "raw_html/dunmore/2026-men-schedule.html",
+   "fetched_at": "2026-11-25T08:05:00+00:00",
+   "bytes": 2750,
+   "sha256": "b9bb85e7f98a92d79765cd7c8fc8d97b0941b66502afee7a55b886f71743029f",
+   "note": "Dunmore's site had not yet posted Saturday's 21 November result when this page was saved, so its row for fixture 8779 is still blank"
+  },
+  {
+   "programme": "cedar-grove",
+   "kind": "schedule",
+   "requested_url": "https://athletics.cedar-grove.example/sports/mens-soccer/schedule/2019",
+   "state": "saved",
+   "path": "raw_html/cedar-grove/2019-men-schedule.html",
+   "fetched_at": "2026-11-25T08:05:03+00:00",
+   "bytes": 2747,
+   "sha256": "6d6d02cd4de212ace7c2568ee6d8c87d2e3b2d0c1a6b8dbb78b63abcec765bcc"
+  },
+  {
+   "programme": "dunmore",
+   "kind": "schedule",
+   "requested_url": "https://athletics.dunmore.example/sports/mens-soccer/schedule/2019",
+   "state": "saved",
+   "path": "raw_html/dunmore/2019-men-schedule.html",
+   "fetched_at": "2026-11-25T08:05:06+00:00",
+   "bytes": 2740,
+   "sha256": "59b79c6cb8d67c7d4dcb22318c393cd2bebd0ee3c9129a13754d75d75306e8d6"
+  },
+  {
+   "programme": "alder-ridge",
+   "kind": "schedule",
+   "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/schedule/2025",
+   "state": "saved",
+   "path": "raw_html/traps/alder-ridge-2025-embedded.html",
+   "fetched_at": "2026-11-25T08:05:09+00:00",
+   "bytes": 4873,
+   "sha256": "d42e677367fcd25a035913fd43f7b9708fe96bdfd2bbe38129732cafed1a07b6"
+  }
+ ]
+}

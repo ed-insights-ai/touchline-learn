@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/dunmore/boxscore/8205",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/dunmore/boxscore/8205",
  "status": 200,
- "etag": "\"df6d4e7a06d63a30\""
+ "fetched_at": "2026-11-20T12:30:42+00:00",
+ "etag": "\"df6d4e7a06d63a30\"",
+ "sha256": "df6d4e7a06d63a30e96d86150b4d8a559ebc0f43dd8a1d18cdcbfc684974336f"
 }

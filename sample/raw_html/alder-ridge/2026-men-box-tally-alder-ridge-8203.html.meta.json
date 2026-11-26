@@ -2,5 +2,7 @@
  "requested_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/hartwell-tech/boxscore/8203",
  "final_url": "https://athletics.alder-ridge.example/sports/mens-soccer/stats/2026/hartwell-tech/boxscore/8203",
  "status": 200,
- "etag": "\"7c98371fa1150e78\""
+ "fetched_at": "2026-11-20T12:30:36+00:00",
+ "etag": "\"7c98371fa1150e78\"",
+ "sha256": "7c98371fa1150e78ddd3e805c27872652640e2447488e13a6bdbec5733cdb4b9"
 }
