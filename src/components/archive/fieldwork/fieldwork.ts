@@ -22,7 +22,7 @@ const pageOf = (pages: typeof fridayPages, slug: string) => pages.find((p) => p.
 /** Known render noise: comments (render stamps), the per-visit token, and whitespace between tags. */
 export const normalise = (html: string) =>
   html.replace(/<!--[\s\S]*?-->/g, "").replace(/<meta name="visit-token"[^>]*>/g, "").replace(/>\s+</g, "><").trim();
-const signatureOf = (html: string) => short(sha(normalise(html)));
+const signatureOf = (html: string) => sha(normalise(html));
 const stampAfter = (fetchedAt: string, minutes: number) => new Date(Date.parse(fetchedAt) + minutes * 60_000).toISOString().replace(/\.\d+Z$/, "Z");
 const rerender = (html: string, stamp: string, token = sha(stamp).slice(0, 10)) =>
   html
@@ -63,15 +63,15 @@ export const hashAnswers: [HashAnswer, string][] = [
 export const signatures = {
   slug: SIG_SLUG,
   name: nameOf(SIG_SLUG),
-  friday: { bytes: Buffer.byteLength(fridayHarbor.html), byteHash: short(fridayHarbor.sha256), signature: signatureOf(fridayHarbor.html) },
+  friday: { bytes: Buffer.byteLength(fridayHarbor.html), byteHash: short(fridayHarbor.sha256), signature: short(signatureOf(fridayHarbor.html)) },
   fetches: fetches.map((f) => {
     const byteChanged = sha(f.html) !== sha(f.baseline);
     const sigChanged = signatureOf(f.html) !== signatureOf(f.baseline);
     const answer: HashAnswer = byteChanged ? (sigChanged ? "both" : "bytes") : sigChanged ? "signature" : "neither";
     return {
       id: f.id, label: f.label, what: f.what, real: f.real, name: nameOf(f.slug),
-      bytes: Buffer.byteLength(f.html), byteHash: short(sha(f.html)), signature: signatureOf(f.html),
-      baselineByteHash: short(sha(f.baseline)), baselineSignature: signatureOf(f.baseline),
+      bytes: Buffer.byteLength(f.html), byteHash: short(sha(f.html)), signature: short(signatureOf(f.html)),
+      baselineByteHash: short(sha(f.baseline)), baselineSignature: short(signatureOf(f.baseline)),
       byteChanged, sigChanged, answer, ...lineDiff(f.baseline, f.html),
     };
   }),
@@ -166,7 +166,7 @@ check(schedules.every((p) => Buffer.byteLength(pageOf(fridayPages, p.programme).
 const runDate = fridayManifest.started_at.slice(0, 10);
 const firstDate = allRaw.map((r) => r.date).sort()[0];
 const days = Math.round((Date.parse(runDate) - Date.parse(firstDate)) / 86_400_000) + 1;
-const versionsOf = (html: string) => new Set(rawRows(html).filter((r) => r.result !== "" && r.date <= runDate).map((r) => r.date)).size + 1;
+const versionsOf = (html: string) => new Set(rawRows(html).filter((r) => r.result !== "" && r.date < runDate).map((r) => r.date)).size + 1;
 const versions = fridayPages.map((p) => ({ slug: p.slug, versions: versionsOf(p.html), bytes: Buffer.byteLength(p.html) }));
 const every = days * fridaySchedBytes;
 const deduped = sum(versions.map((v) => v.versions * v.bytes));
@@ -286,3 +286,10 @@ const counter = labRun[0].text.match(/network counter: caught (\d+) of (\d+) tes
 check(counter[1] === counter[2], "the quoted run's counter missed a test request");
 /** How many test requests the lab's counter must catch before it is trusted. */
 export const testRequests = Number(counter[2]);
+
+const lab = read("labs", "m02_archive.py").toString("utf-8");
+const ALTERED = "saved pages no longer match the manifest's hash";
+check(lab.includes('RESULT: could not run, ') && lab.includes(ALTERED), "the lab no longer stops with 'could not run' when a saved page's hash differs");
+check(lab.includes('f"pages disagree on fixture {'), "the lab's table build no longer stops when two pages claim to host one match");
+/** What the lab prints when a saved page no longer matches Friday's manifest. */
+export const tamperResult = { prefix: "RESULT: could not run", reason: ALTERED };
