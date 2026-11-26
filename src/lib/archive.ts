@@ -595,21 +595,28 @@ export const presetFiles: Record<string, PresetFile[]> = Object.fromEntries(pres
 }));
 
 const resultOf = (cell: string) => (cell === "Final" ? null : score(cell) ?? fail(`unreadable result ${cell}`));
-const pointsFor = (results: (readonly [number, number] | null)[]) => results.reduce((n, s) => n + (!s ? 0 : s[0] > s[1] ? 3 : s[0] === s[1] ? 1 : 0), 0);
+const pointsFor = (results: (readonly [number, number] | null)[], draw = 1) => results.reduce((n, s) => n + (!s ? 0 : s[0] > s[1] ? 3 : s[0] === s[1] ? draw : 0), 0);
+const cellIn = (row: string) => resultOf(row.match(/<td>([WLT] \d+-\d+|Final)<\/td>/)?.[1] ?? fail("a saved row has no result cell"));
 const resultsKept: Record<Kept, (row: string) => readonly [number, number] | null> = {
   a: (row) => { const r = JSON.parse(row); return [r.home_score, r.away_score] as const; },
-  b: (row) => resultOf(row.match(/<td>([WLT] \d+-\d+|Final)<\/td>/)?.[1] ?? fail("a tidied row has no result cell")),
-  c: (row) => resultOf(row.match(/<td>([WLT] \d+-\d+|Final)<\/td>/)?.[1] ?? fail("a raw row has no result cell")),
+  b: cellIn,
+  c: cellIn,
 };
-const drawTruth = pointsFor(CASE2.map((r) => resultOf(r.result)));
-const drawPoints = Object.fromEntries(KEPT.map((k) => [k, pointsFor(archives[k].rows.map(resultsKept[k]))])) as Record<Kept, number>;
-/** Case 2's fourth bug, a build step bug: replaying the fixed scoring rule over each archive's three rows, with bug 3 still in archive (a). */
+const drawRow = cedarRows.find((r) => /^T \d+-\d+$/.test(r.result) && members.includes(nameIndex.get(r.opponent) ?? "")) ?? fail("Cedar Grove has no conference draw");
+const drawRows = [...CASE2, drawRow];
+const drawTruth = pointsFor(drawRows.map((r) => resultOf(r.result)));
+const drawPoints = Object.fromEntries(KEPT.map((k) => [k, pointsFor(drawRows.map((r) => resultsKept[k](keep[k](r))))])) as Record<Kept, number>;
+const drawBuggy = Object.fromEntries(KEPT.map((k) => [k, pointsFor(drawRows.map((r) => resultsKept[k](keep[k](r))), 2)])) as Record<Kept, number>;
+/** Case 2's fourth bug, in the build step: a draw scored two points. Case 2's rows plus one real draw, replayed with the fixed rule over each archive, with bug 3 still in archive (a). */
 export const case2Draws = {
   id: "draws" as const,
   label: "The build scored a draw as two points, not one",
+  row: { fixture: drawRow.fixture, date: drawRow.date, side: drawRow.side, opponent: drawRow.opponent, result: drawRow.result },
+  extra: Object.fromEntries(KEPT.map((k) => [k, keep[k](drawRow)])) as Record<Kept, string>,
   truth: drawTruth,
   points: drawPoints,
+  buggy: drawBuggy,
   answers: Object.fromEntries(KEPT.map((k) => [k, drawPoints[k] === drawTruth])) as Record<Kept, boolean>,
 };
-check(drawTruth === 3 && drawPoints.a === 4 && !case2Draws.answers.a && case2Draws.answers.b && case2Draws.answers.c, "Case 2's draw bug no longer gives Cedar Grove 3 points from (b) and (c) and 4 from (a)");
+check(drawTruth === 4 && drawPoints.a === 5 && drawBuggy.b === 5 && drawBuggy.c === 5 && !case2Draws.answers.a && case2Draws.answers.b && case2Draws.answers.c, "Case 2's draw bug no longer gives Cedar Grove 4 points from (b) and (c), 5 from (a) and 5 under the bug");
 check(Object.values(presetFiles).every((files) => files.length === fridayPages.length) && presetFiles["live-changed"].some((f) => f.liveContent !== f.nowContent && !f.fetched), "the bench's preset files no longer show the unseen live change");

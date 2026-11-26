@@ -14,7 +14,7 @@ const blankRow = case2.rows.find((r) => r.fixture === grid.find((b) => b.id === 
 const KEPT: Kept[] = ["a", "b", "c"];
 const what: Record<Kept, string> = {
   a: "Kick's parser read each page and saved only the rows it produced.",
-  b: "Kick's saver cleaned each page before writing it: scripts, ids and classes stripped, whitespace collapsed, names spelled out by the tidy rule. The visible cell text stays.",
+  b: "Kick's saver cleaned each page before writing it: scripts, ids and classes stripped, whitespace collapsed, names spelled out by the tidy rule. The other visible cell text stays: dates, “vs” and “at”, results.",
   c: "Kick saved each page's bytes exactly as they arrived, before any code read them, with a small record beside it.",
 };
 const reasons: Record<string, Record<Kept, [boolean, string]>> = {
@@ -38,9 +38,9 @@ grid.forEach((bug) => KEPT.forEach((k) => {
   if (reasons[bug.id]?.[k]?.[0] !== bug.answers[k]) throw new Error(`Case 2's reason for ${bug.id}/${k} disagrees with archive.ts`);
 }));
 const drawReasons: Record<Kept, [boolean, string]> = {
-  a: [false, `No. Replaying the fixed rule over (a) gives ${case2Draws.points.a} points, because bug 3's 0-0 now counts as a draw nobody saw. The true total is ${case2Draws.truth}.`],
-  b: [true, `Yes. “Final” is not a score, so the fixed rule gives ${case2Draws.points.b} points, the true total.`],
-  c: [true, `Yes. The fixed rule over the bytes gives ${case2Draws.points.c} points.`],
+  a: [false, `No. The fixed rule over (a) gives ${case2Draws.points.a}, because bug 3's 0-0 counts as a draw nobody saw. The published rows support ${case2Draws.truth}.`],
+  b: [true, `Yes. A bare “Final” has no score, so the fixed rule gives ${case2Draws.points.b}, down from ${case2Draws.buggy.b} under the bug.`],
+  c: [true, `Yes. The fixed rule over the bytes gives ${case2Draws.points.c}, down from ${case2Draws.buggy.c} under the bug.`],
 };
 KEPT.forEach((k) => { if (drawReasons[k][0] !== case2Draws.answers[k]) throw new Error(`Case 2's draw reason for ${k} disagrees with archive.ts`); });
 const yn: [string, string][] = [["yes", "Yes"], ["no", "No"]];
@@ -48,9 +48,9 @@ const label = (k: Kept) => `(${k}) ${archives[k].label.replace(/, with a sidecar
 const sidecar = archives.c.sidecar;
 const sidecarFields: [string, string, string][] = [
   ["requested_url", sidecar.requested_url, "The address Kick asked for, so the request can be repeated or questioned."],
-  ["final_url", sidecar.final_url, "The address the site answered from after any redirects. Here it matches the request. Whether that proves the page is the one asked for is Module 3's question."],
+  ["final_url", sidecar.final_url, "The address the site answered from after any redirects. Here it matches the request. Whether that shows the page is the one asked for is Module 3's question."],
   ["fetched_at", sidecar.fetched_at, "When the bytes arrived, which places the page in time: Friday's capture, not Tuesday's."],
-  ["status", String(sidecar.status), "What the site's server said about the request. 200 means it answered with a page."],
+  ["status", String(sidecar.status), `What the site's server said. ${sidecar.status} means it answered with a page.`],
   ["sha256", `${sidecar.sha256.slice(0, 16)}…`, "A hash of the saved bytes. Recompute it later, and a match shows the file is the one that arrived."],
 ];
 
@@ -138,22 +138,24 @@ const sidecarFields: [string, string, string][] = [
   <Beat part="case-kept" name="Name it" title="Raw, derived, and a loss that runs one way" />
   <p class="cv-lede">Saving after a transformation saves a derived copy, however raw it looks.</p>
   <p>Archive (b) is still HTML, so it looks raw. It isn't. The tidy step is code, and its bugs are written into every file it saved. Part 2's definitions decide it: raw data is the bytes as received, saved before any code reads them, and everything else is derived.</p>
-  <p>The loss runs one way. Once a bare “Final” is stored as 0-0, nothing in that row can say it was ever blank, because a real 0-0 looks the same. Once the vs/at cell is dropped, the row alone can't say where the match was played. A reverse rule might guess that “State Lambert” was once “St. Lambert”, but a guess is not verified. Only the bytes say what the site published.</p>
+  <p>The loss runs one way. Once a bare “Final” is stored as 0-0, nothing in that row can say it was ever blank, because a real 0-0 looks the same. Once the vs/at cell is dropped, the row can't say where the match was played. Only the bytes still say what the site published.</p>
   <p>A raw copy also answers questions nobody has asked yet. Kick saved {rewind.boxScoresSaved} box scores on Friday that no parser has read for discipline. Module 4 will want them.</p>
 
-  <p>The record beside archive (c) is a <strong>sidecar</strong>: a small file saved with each page that says how and when it was fetched. Each field earns its place.</p>
+  <p>The record beside archive (c) is a <strong>sidecar</strong>: a small file saved with each page that says how and when it was fetched. Here are the five fields the sample records, one line each.</p>
   <dl class="ar-fields">
     {sidecarFields.map(([k, , s]) => <div><dt><code>{k}</code></dt><dd>{s}</dd></div>)}
   </dl>
 
   <Touchline part="case-kept" at={["Archive"]} note="Archive writes the bytes and a sidecar before anything parses them." title="Page bytes plus a sidecar">
-    <p>Touchline saves each page's bytes as received, with a sidecar beside it. Box scores are stored next to the schedule that linked them, named by fixture id. The sidecar also records the page's coverage state from Module 1, so the archive says what was missing as well as what arrived.</p>
+    <p>Touchline saves each page's bytes as received, with a sidecar beside it. Box scores are stored next to the schedule that linked them, named by fixture id. Touchline's sidecar holds more than the sample's five fields, including the page's coverage state from Module 1, so the archive says what was missing as well as what arrived. The sample keeps that state in its capture manifest instead.</p>
   </Touchline>
 
   <AiCard part="case-kept" />
   <div class="cv-check ar-kgrid" data-once="kept-draws">
     <p class="cv-kind">One more bug</p>
-    <p class="cv-qlabel">4. {case2Draws.label}. The bug is in the build, after all three archives were written. Bug 3 is still in archive (a). Which archives can give Cedar Grove's correct points for these three rows when you replay the fixed rule?</p>
+    <p class="cv-qlabel">4. {case2Draws.label}. The bug is in the build, after all three archives were written, and bug 3 is still in archive (a). Here is one more row from Cedar Grove's page, a real draw, as each archive holds it:</p>
+    <ul class="ar-extra">{KEPT.map((k) => <li><span>{label(k)}</span><code>{case2Draws.extra[k]}</code></li>)}</ul>
+    <p class="cv-qlabel">Replay the fixed rule over each archive's four rows. Which archives give Cedar Grove the points its published rows support?</p>
     <div class="ar-kg ar-kg-one" role="group" aria-label="Bug 4 against archives">
       <div class="ar-kg-row">
         {KEPT.map((k) => (
@@ -167,12 +169,12 @@ const sidecarFields: [string, string, string][] = [
         ))}
       </div>
     </div>
-    <p class="cv-once">Answer all three, then check.</p>
+    <p class="cv-once">Answer for all three archives, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one. Damage stacks, which is why the bytes as received are the copy that is before every step.</p></div>
+    <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one. Damage stacks, so the only copy that is before every step is the bytes as received.</p></div>
   </div>
-  <NextPart from="case-kept">The bytes are kept and the parser is fixed. Which parsed files are now out of date?</NextPart>
+  <NextPart from="case-kept">The bytes are kept and the parser is fixed. Which parsed schedules are now out of date?</NextPart>
 </section>
 
 <style>
@@ -224,6 +226,10 @@ const sidecarFields: [string, string, string][] = [
   .ar-seg :global(.cv-fb) { margin: 0.25rem 0 0; font-size: 0.82rem; line-height: 1.35; }
   .ar-seg :global(.cv-fb:empty) { display: none; }
 
+  .ar-extra { display: grid; gap: 0.3rem; margin: 0.2rem 0 0.7rem; padding: 0; list-style: none; }
+  .ar-extra li { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 0.6rem; align-items: start; margin: 0; }
+  .ar-extra span { color: var(--tl-muted); font-size: 0.85rem; font-weight: 700; }
+  .ar-extra code { display: block; padding: 0.3rem 0.5rem; border-radius: 3px; background: var(--sl-color-bg); font-size: 0.76rem; white-space: pre-wrap; overflow-wrap: anywhere; }
   .ar-pattern { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
   .ar-pattern li { display: grid; margin: 0; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-line); background: var(--tl-card); }
   .ar-pattern b { color: var(--sl-color-white); font-size: 1.25rem; }
@@ -239,8 +245,8 @@ const sidecarFields: [string, string, string][] = [
     .ar-lane ol { grid-template-columns: 1fr; }
     .ar-step::after { content: " ↓"; }
     .ar-kg-head { display: none; }
-    .ar-kg-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.3rem 0.4rem; }
-    .ar-kg-bug { grid-column: 1 / -1; }
+    .ar-kg-row, .ar-kg-one .ar-kg-row { grid-template-columns: 1fr; gap: 0.4rem; }
+    .ar-extra li { grid-template-columns: 1fr; gap: 0.15rem; }
     .ar-seg-k { display: block; margin-bottom: 0.15rem; }
     .ar-fields div { grid-template-columns: 1fr; }
   }
