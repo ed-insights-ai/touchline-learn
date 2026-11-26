@@ -9,43 +9,50 @@ const at = (x: number) => `${((x - axis.lo) / (axis.hi - axis.lo)) * 100}%`;
 const ticks = Array.from({ length: axis.hi - axis.lo + 1 }, (_, i) => axis.lo + i);
 const shipments = [kg.whole, kg.fraction];
 
-const worlds = [
+const revised = 12.4;
+const kgs = (x: number) => `${x} kg`;
+const bound = (x: number) => `${Math.floor(x)} to under ${Math.floor(x) + 1} kg`;
+type Fate = "exact" | "bound" | "lost";
+const worlds: { id: string; tab: string; kept: string; recover: string; needed: string; claim: [string, string]; fates: [Fate, Fate] }[] = [
   {
     id: "every",
     tab: "Every version",
-    kept: "Every raw submission, including resubmissions",
-    recover: "It can replay the original inputs and rebuild exact shipment weights and monthly totals, provided it knows which submissions counted in each month. It can identify exactly which rows changed.",
-    needed: "The raw files plus enough history to tell when each version arrived and which version each report used.",
-    claim: ["Exact, with a record of versions used", "is-ok"],
+    kept: "Every raw submission, with its import history",
+    recover: `It can replay the submissions in order and rebuild the exact weights suppliers reported at each point in time. If a supplier first sent ${kgs(kg.fraction)} and later revised it to ${kgs(revised)}, both versions are recoverable.`,
+    needed: "It already has the essentials for this bug. The original files preserve the weights, and the import history shows which version was used when.",
+    claim: ["Exact", "is-ok"],
+    fates: ["exact", "exact"],
   },
   {
     id: "table",
     tab: "Processed table only",
     kept: "Only the processed table",
-    recover: `It can flag rows that went through the faulty importer if it can identify them. Each stored ${kg.whole} kg came from a weight of at least ${kg.whole} kg and less than ${kg.whole + 1} kg, so it can calculate bounds for the totals. It cannot tell which rows actually lost weight or recover the discarded decimals. A point estimate would require assumptions about those missing decimals.`,
-    needed: "The original decimal weight for each imported row, with enough version history to match it to the report. Keeping an unaltered copy of that field would have been enough for this bug.",
+    recover: `It can flag rows imported during the affected period. A stored ${kgs(kg.whole)} means the supplier reported at least ${kgs(kg.whole)} and less than ${kgs(kg.whole + 1)}. The row may already be correct if the supplier reported exactly ${kgs(kg.whole)}. The roaster can calculate bounds for totals, but any single estimate requires assumptions about the missing fractions. The exact reported weights are lost from this archive.`,
+    needed: "It needed the original reported weights linked to the processed rows. To recover earlier versions too, it needed to retain each version and its import time.",
     claim: ["Bounded", "is-bad"],
+    fates: ["bound", "bound"],
   },
   {
     id: "over",
     tab: "Overwritten on resubmission",
-    kept: "Raw files, but each resubmission overwrote the source’s previous file",
-    recover: "It can recover exact weights for rows it can match to the surviving versions. It cannot assume the latest file contains the same weights as an earlier one. Where an earlier raw file is gone and only its processed rows survive, it can flag those rows and bound the missing amounts, but the original decimals are lost.",
-    needed: "A separate copy of each submitted version, with a record of which version each report used.",
+    kept: "Raw files, with each resubmission overwriting that supplier’s previous file",
+    recover: `It can recover exact weights as reported in the surviving files. If the surviving file says ${kgs(revised)}, that establishes the revised weight. The earlier weight could have been ${kgs(kg.fraction)}, but the surviving file cannot establish it. Where an older processed row survives, the roaster can still flag it and give the same rounding bounds.`,
+    needed: "It needed to keep each resubmission as a separate version and record which file version each import used.",
     claim: ["Partly exact", "is-warn"],
+    fates: ["bound", "exact"],
   },
 ];
-
-const notes = [
-  ["Every submission survived", "“We corrected the six months of shipment totals by reprocessing the original file versions used in each report.”"],
-  ["Only the processed table survived", "“The importer discarded fractional kilograms. The retained table supports a range for each monthly total. The original fractional weights cannot be recovered from that table.”"],
-  ["Some submissions were overwritten", "“We corrected weights where we could match a retained source file to the version used in the original report. Earlier versions were overwritten for some submissions, so the original fractional weights for those rows could not be verified.”"],
+const versions = [
+  { name: "First submission", weight: kg.fraction },
+  { name: "Resubmission", weight: revised },
 ];
+const fateText = (f: Fate, w: number): [string, string] =>
+  f === "exact" ? [kgs(w), "is-ok"] : [bound(w), "is-bad"];
 
 const checks = [
-  ["Museum collections", "For months, an importer dropped the day from acquisition dates. The museum kept every original form, and a log identifies which form version fed each catalog entry. What can it restore exactly?"],
-  ["Manufacturing", "A sensor importer dropped the decimal part of each temperature in degrees Celsius. Only the processed table survives. If a row says 80 °C, what can you say about the original reading, and what remains unknown?"],
-  ["Publishing", "An importer dropped the cents from royalty amounts. A publisher kept only the latest raw file from each distributor, because resubmissions overwrote earlier files. How would you word a correction note for an old statement that used a version you can no longer find?"],
+  ["Weather monitoring", "A station’s importer rounded rainfall readings down to whole millimeters. It kept every raw upload and a log of when each version was used. What can it reconstruct about last spring’s readings, including later revisions?"],
+  ["Payroll", "An importer rounded hours down to whole hours. Only the processed table survives, and one row shows 7 hours. What can you say about the original entry, and what would you need to calculate the exact pay correction?"],
+  ["Library inventory", "An importer rounded replacement costs down to whole dollars. Each branch’s latest upload overwrote its previous file. A surviving file lists a book at $18.75, and an older processed row shows $18. What would you say in a correction note about those two records?"],
 ];
 ---
 
@@ -54,13 +61,12 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("carry-it")}`}
   about="This is a reply an AI assistant gave to Module 2's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and ask each of Part 9's worlds one new question: can it show what a clinic's form said before the clinic resubmitted it?"
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">One bug, three archives</h2>
-  <p class="pr-pull">A bug fix tells you how to process an input correctly. The archive tells you which past inputs you can still process.</p>
-
-  <h2>1. One bug across three archives</h2>
-  <p>Imagine a coffee roaster whose suppliers submit shipment weights in kilograms. For six months, the importer dropped the decimal part of every weight. It stored <code>{kg.fraction} kg</code> as <code>{kg.whole} kg</code>. A shipment of exactly <code>{kg.whole.toFixed(1)} kg</code> also appeared as <code>{kg.whole} kg</code>. The roaster fixes the importer and wants to correct its monthly totals.</p>
+  <p>For six months, a coffee roaster’s importer rounded every shipment weight <strong>down</strong> to a whole kilogram. A supplier’s <code>{kgs(kg.fraction)}</code> became <code>{kgs(kg.whole)}</code>. The roaster fixes the importer so it preserves the reported weight.</p>
+  <p class="pr-pull">What it can correct for those six months depends on what it kept.</p>
+  <p>Assume the processed table has one row per shipment, with a shipment ID and an import date. Suppliers sometimes resubmitted files with revised weights.</p>
   <figure class="pr-card">
     <p class="pr-label">Two weights, one stored value</p>
     <div class="pa-merge">
@@ -78,7 +84,7 @@ const checks = [
     <figcaption>The stored value fixes a range, not a weight: the shaded kilogram. That range is all a processed table can offer.</figcaption>
   </figure>
   <figure class="pr-card pa-worlds" aria-live="polite">
-    <p class="pr-label">The recovery claim each archive supports</p>
+    <p class="pr-label">One shipment, revised once: what each archive can give back</p>
     <ul class="pa-glance">{worlds.map((w) => <li><span>{w.tab}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></li>)}</ul>
     <fieldset class="pr-seg">
       <legend>What the roaster kept</legend>
@@ -87,6 +93,10 @@ const checks = [
     {worlds.map((w) => (
       <div class="pa-world" data-world={w.id}>
         <p class="pa-world-head"><span class="pa-world-kept">{w.kept}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
+        <ul class="pa-versions">{versions.map((v, i) => {
+          const [text, tone] = fateText(w.fates[i], v.weight);
+          return <li><span>{v.name}, reported {kgs(v.weight)}</span><span class:list={["pr-chip", tone]}>{text}</span></li>;
+        })}</ul>
         <p class="pr-label">What it can honestly recover</p>
         <p>{w.recover}</p>
         <p class="pr-label">What it needed to keep for full recovery</p>
@@ -96,12 +106,14 @@ const checks = [
   </figure>
 
   <h2>2. What to put in a correction note</h2>
-  <p>A correction note should describe what the archive let you verify. Here’s how the roaster could write one in each case.</p>
-  <ul class="pa-notes">{notes.map(([k, v]) => <li><b>{k}</b><span>{v}</span></li>)}</ul>
+  <p>A correction note should name the evidence behind the correction. For the archive that overwrote older files, the roaster could write:</p>
+  <blockquote class="pa-note">
+    <p>From January through June, the importer rounded shipment weights down to whole kilograms. We restored the reported precision for shipment records we could match to retained supplier files. When a supplier resubmitted a file, the archive replaced the previous version. For earlier records where only the rounded value survives, we can give a range, but the exact weight originally reported is unavailable from our archive.</p>
+  </blockquote>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to a coffee roaster. Every raw submission is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
-    <p>The reply's third row draws the line World C's claims must respect: exact where a surviving file can be matched to the version a report used, flagged where it cannot. The latest file is not evidence of what an earlier one held. A bound depends on what survives, in the archive's own terms. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
+    <p>The reply's third row draws the line World C's claims must respect: exact for what a surviving file holds, bounded where only a rounded row survives. The latest file is not evidence of what an earlier one held. A bound depends on what survives, in the archive's own terms. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
@@ -134,6 +146,10 @@ const checks = [
   .pa-line-dot small { position: absolute; bottom: 0.95rem; left: 50%; transform: translateX(-50%); color: var(--sl-color-white); font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
   .pa-line-ticks { position: relative; height: 1.4rem; margin-top: 0.5rem; }
   .pa-line-ticks span { position: absolute; transform: translateX(-50%); color: var(--tl-muted); font-size: 0.78rem; white-space: nowrap; }
+  .pa-versions { display: grid; gap: 0.3rem; margin: 0 0 0.7rem; padding: 0; list-style: none; font-size: 0.88rem; }
+  .pa-versions li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.3rem 0.55rem; border: 1px solid var(--tl-line); border-radius: 6px; }
+  .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); font-size: 0.95rem; }
+  :global(.pr) .pa-note p { margin: 0; }
   .pa-notes { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
   .pa-notes li { display: grid; gap: 0.2rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); }
   .pa-notes b { color: var(--sl-color-white); }

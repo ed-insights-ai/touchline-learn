@@ -4,34 +4,35 @@ import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.idea;
 
-const readings = [10, 14];
-const avg = readings.reduce((a, b) => a + b, 0) / readings.length;
-const f1 = (n: number) => n.toFixed(1);
-const runs = [
-  { out: `${f1((avg * 9) / 5)} °F`, code: "v1, calculated 12 × 9/5", diff: true },
-  { out: `${f1((avg * 9) / 5 + 32)} °F`, code: "v2, calculated 12 × 9/5 + 32", diff: true },
-];
-
-const scheduled = 8 * 60;
-const arrivals = ["08:02", "08:05"];
-const mins = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
-const delays = arrivals.map((t) => mins(t) - scheduled);
-const thresholds = [2, 5];
-const late = (th: number) => delays.filter((d) => d >= th).length;
-const plural = (n: number) => `${n} late arrival${n === 1 ? "" : "s"}`;
-
-const original = [4, 6];
-const revised = [4, 9];
+const lines = [10, 5];
+const off = 20;
+const cut = (x: number) => (x * (100 - off)) / 100;
+const v1 = lines.map((x, i) => (i === 0 ? cut(x) : x));
+const v2 = lines.map(cut);
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
-const states = [
-  { id: "kept", label: "Original batch saved", batch: original, gone: null },
-  { id: "over", label: "Overwritten by the revised batch", batch: revised, gone: original[1] },
+const usd = (n: number) => `$${n}`;
+const runs = [
+  { code: "v1, discounts only the first line", parts: v1 },
+  { code: "v2, discounts both lines", parts: v2 },
 ];
+
+const first = [6, 10];
+const corrected = [8, 10];
+const avg = (xs: number[]) => sum(xs) / xs.length;
+const states = [
+  { id: "kept", label: "Both exports kept", held: [first, corrected] },
+  { id: "over", label: "First export overwritten", held: [corrected] },
+];
+const sameAvg = Array.from({ length: 3 }, (_, i) => [first[0] + i, first[1] - i]).filter(([a, b]) => a <= b);
+
+const saved = "A blue moon";
+const reported = 2;
+const words = (s: string) => s.split(/\s+/).length;
 
 const checks = [
-  ["Reproduce 21.6 °F", `In the weather example, what would you need to keep to reproduce the original ${runs[0].out} output after deleting it?`],
-  ["Two counts", "In the bus example, which part of the output record explains why the two counts differ?"],
-  ["After the overwrite", "In the water-meter example, after the overwrite, what total can the fixed code calculate from the saved batch, and why can’t it recover the original total?"],
+  ["Only the total", `If the shop had saved only the ${usd(sum(v1))} total, why would the corrected code need the original receipt to calculate the right total?`],
+  [`The old ${avg(first)}`, `Why can the teacher’s old average of ${avg(first)} survive even though replay can’t recover the original scores?`],
+  ["Two word counts", "Two word counts disagree for the same saved draft. What would you check in their records to find out why?"],
 ];
 ---
 
@@ -40,80 +41,73 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("idea")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-and-derived study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and answer the research team's reviewer question: which of its four kept things show how a chart number was made?"
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">Raw data, derived data and replay</h2>
-  <p><strong>Raw data</strong> is what your system receives from a source. Save an exact copy at intake, before your processing code parses, cleans, rounds, or filters it. If that code has a bug, the saved copy gives you the original input to try again.</p>
-  <p><strong>Derived data</strong> is what your code produces from those inputs, such as a total, a conversion, or a count. You can delete and rebuild it if you keep the raw inputs, the code version, and the settings that produced it.</p>
-  <p class="pr-pull">Each output should record those three things so you can reproduce it and explain why it might differ from another output.</p>
+  <p><strong>Raw data</strong> is what your system receives from a source. Save an exact copy before your processing code reads it, so a parsing or cleaning bug can’t change the only copy. <strong>Derived data</strong> is what your code calculates from that copy. You can delete and rebuild it if you keep the raw inputs, the code version, and the settings that produced it.</p>
+  <p>A <strong>replay</strong> runs the calculation again on saved inputs. Use the original code and settings to reproduce an old result, or use corrected code to regenerate it.</p>
+  <p class="pr-pull">Each output should carry a record of its exact input versions, code version, and settings so you can tell which run produced it.</p>
 
-  <h2>1. Weather station: fixing a conversion bug</h2>
-  <p>A station sends two readings, <code>{f1(readings[0])} °C</code> and <code>{f1(readings[1])} °C</code>. You save the two messages exactly as received under <code>weather-01</code>.</p>
-  <p>The average is <code>({readings.join(" + ")}) ÷ {readings.length} = {avg} °C</code>. Your code converts the average to Fahrenheit, but version 1 forgets to add 32. You fix the formula in version 2 and replay the saved messages.</p>
+  <h2>1. Retail receipts: a replay fixes the total</h2>
+  <p>A shop receives receipt <code>R17</code> with two line amounts, <code>{usd(lines[0])}</code> and <code>{usd(lines[1])}</code>. It saves the receipt exactly as received. The discounted total is derived.</p>
   <figure class="pr-card">
-    <p class="pr-label">Two outputs and their records</p>
+    <p class="pr-label">Two derived totals and their records</p>
     <div class="pa-prov">
       {runs.map((r) => (
         <div>
-          <p class="pa-prov-head"><b>Derived output</b><strong>{r.out}</strong></p>
+          <p class="pa-prov-head"><b>Derived total</b><strong>{usd(sum(r.parts))}</strong></p>
           <dl>
-            <div><dt>Raw input</dt><dd>weather-01</dd></div>
+            <div><dt>Saved input</dt><dd><code>R17</code>, revision 1</dd></div>
             <div class="is-diff"><dt>Code</dt><dd>{r.code}</dd></div>
-            <div><dt>Settings</dt><dd>Fahrenheit, one decimal</dd></div>
+            <div><dt>Setting</dt><dd>{off}% off both lines</dd></div>
           </dl>
+          <p class="pa-prov-sum">{r.parts.map(usd).join(" + ")} = {usd(sum(r.parts))}</p>
         </div>
       ))}
     </div>
-    <figcaption>Same input, same settings. Only the code line differs between the two records.</figcaption>
+    <figcaption>Same input, same setting. Only the code line differs between the two records.</figcaption>
   </figure>
-  <p>The records show that both runs used the same input and settings. The formula change explains the disagreement. If you deleted either output, you could reproduce it by running its recorded code version with those inputs and settings.</p>
+  <p>Version 1 calculated <code>{v1.map(usd).join(" + ")} = {usd(sum(v1))}</code>. Version 2 calculated <code>{v2.map(usd).join(" + ")} = {usd(sum(v2))}</code>. The records show that the input and settings were identical, so the code change explains the difference. Since both line amounts survived in the archive, the shop can delete the incorrect total and rebuild it with v2.</p>
 
-  <h2>2. Public transit: changing a setting</h2>
-  <p>A bus feed sends two arrival times, <code>{arrivals[0]}</code> and <code>{arrivals[1]}</code>, for buses both scheduled at <code>08:00</code>. You save the feed as <code>arrivals-01</code>. The code calculates delays of {delays[0]} and {delays[1]} minutes, then counts how many meet the configured threshold.</p>
-  <figure class="pr-card pa-bus" aria-live="polite">
-    <fieldset class="pr-seg">
-      <legend>Setting: late means at least</legend>
-      {thresholds.map((th, i) => <label><input type="radio" name="pa-raw-th" value={`t${th}`} checked={i === 0} /><span>{th} minutes</span></label>)}
-    </fieldset>
-    {thresholds.map((th) => (
-      <div class="pa-bus-view" data-th={`t${th}`}>
-        <ul class="pa-rows">
-          {arrivals.map((t, i) => <li><span>Bus {i + 1} · arrived {t} · {delays[i]} min</span><span class:list={["pr-chip", delays[i] >= th ? "is-bad" : "is-ok"]}>{delays[i] >= th ? "Late" : "Not late"}</span></li>)}
-        </ul>
-        <p class="pa-total"><span>Derived output from <code>arrivals-01</code>, code v1</span><b>{plural(late(th))}</b></p>
-      </div>
-    ))}
-    <figcaption>Same input, same code. The setting is the only line of the record that differs.</figcaption>
-  </figure>
-  <p>Both counts follow their recorded settings. If the first report was supposed to use the {thresholds[1]}-minute threshold, replaying <code>arrivals-01</code> with that setting corrects the report. If the feed briefly showed <code>08:03</code> for the first bus and you never saved that version, replay has no copy of that earlier reading to work from.</p>
-
-  <h2>3. Water monitoring: losing the original input</h2>
-  <p>A water meter sends an original batch of <code>{original[0]} L</code> and <code>{original[1]} L</code>. You save it, and version 1 publishes a total of <code>{original[0]} L</code> because a bug skips the second reading. With the original batch available, version 2 could replay it and calculate <code>{original.join(" + ")} = {sum(original)} L</code>.</p>
-  <p>Now suppose a revised batch arrives with <code>{revised[0]} L</code> and <code>{revised[1]} L</code>, and you overwrite your only copy of the original. Version 2 can calculate <code>{revised.join(" + ")} = {sum(revised)} L</code> from the revised batch. The old <code>{original[0]} L</code> output gives you no way to recover the skipped <code>{original[1]} L</code>. Recording a distinct input version for each output would show which batch each run used. Keeping both versions would let you replay either one.</p>
+  <h2>2. Classroom grades: an overwrite loses the earlier scores</h2>
+  <p>A teacher exports two quiz scores, <code>{first[0]}</code> and <code>{first[1]}</code>. With equal weights, the derived average is <code>({first.join(" + ")}) ÷ {first.length} = {avg(first)}</code>.</p>
+  <p>Later the teacher corrects the first score to <code>{corrected[0]}</code>. The new export contains <code>{corrected[0]}</code> and <code>{corrected[1]}</code>, and the average becomes <code>({corrected.join(" + ")}) ÷ {corrected.length} = {avg(corrected)}</code>. If the import overwrites the archived first export, replay can still produce <code>{avg(corrected)}</code>, but it can’t recover the original scores. Even if the old average of <code>{avg(first)}</code> survives, <code>{sameAvg[1][0]}</code> and <code>{sameAvg[1][1]}</code> would also average to <code>{avg(first)}</code>. Keeping both raw exports under separate revision IDs would let you reproduce either result.</p>
   <figure class="pr-card pa-water" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>What the archive holds</legend>
-      {states.map((st, i) => <label><input type="radio" name="pa-raw-water" value={st.id} checked={i === 0} /><span>{st.label}</span></label>)}
+      {states.map((st, i) => <label><input type="radio" name="pa-raw-grades" value={st.id} checked={i === 0} /><span>{st.label}</span></label>)}
     </fieldset>
     {states.map((st) => (
       <div class="pa-water-view" data-water={st.id}>
         <ul class="pa-rows">
-          <li><span>Published by v1</span><b>{original[0]} L</b></li>
-          <li><span>Saved batch</span><b>{st.batch.map((x) => `${x} L`).join(" · ")}</b></li>
-          <li class="is-fix"><span>v2 replays the saved batch</span><b>{st.batch.join(" + ")} = {sum(st.batch)} L</b></li>
+          {[first, corrected].map((ex, i) => {
+            const kept = st.held.includes(ex);
+            return <li class={kept ? "" : "is-gone"}><span>Export {i + 1}: {kept ? ex.join(" and ") : "overwritten"}</span><b>{kept ? `replays to ${avg(ex)}` : "can't replay"}</b></li>;
+          })}
         </ul>
-        <p class="pa-water-say">{st.gone === null
-          ? `The replay corrects the very total v1 published: ${sum(original)} L.`
-          : `The replay gives the revised batch's total. The skipped ${st.gone} L reading of the original is gone, so v1's total can't be corrected.`}</p>
+        <p class="pa-water-say">{st.id === "kept"
+          ? "Either average can be reproduced from its own export."
+          : `The old average of ${avg(first)} may survive as a number, but each of these score pairs gives it:`}</p>
+        {st.id === "over" && <ul class="pa-pairs">{sameAvg.map((p) => <li><code>{p.join(" and ")}</code></li>)}</ul>}
       </div>
     ))}
-    <figcaption>Same fixed code both times. Whether it corrects v1's total depends only on which batch the archive still holds.</figcaption>
+    <figcaption>A derived value can't be run backwards. Many inputs give the same average, so only the saved export says which one it was.</figcaption>
+  </figure>
+
+  <h2>3. Publishing: a replay can only use the draft that was saved</h2>
+  <p>An editor wants to count the words in each draft of a headline. The writer says the first draft had {["no", "one", "two", "three"][reported]} words, but only the later draft, <code>{saved}</code>, was saved. Replaying the word counter can produce <code>{words(saved)}</code> for the saved draft. It can’t recover the earlier wording because that version never entered the archive. The writer’s recollection can supply a reported count of <code>{reported}</code>, but there’s no saved first draft to run the counter on.</p>
+  <figure class="pr-card">
+    <p class="pr-label">What the word counter can run on</p>
+    <ul class="pa-rows">
+      <li class="is-gone"><span>First draft · never saved</span><b>reported {reported}, not counted</b></li>
+      <li class="is-fix"><span>Later draft · <code>{saved}</code></span><b>counted {words(saved)}</b></li>
+    </ul>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the weather station's: one code change, replayed over the same saved input. An exact rebuild can also depend on more than the reply's three things, such as library versions or the date a run used.</p>
-    <p>Dunmore's page is starker than the reply's unsaved <code>08:03</code> reading: the site never answered on Friday, so there is no copy at all for a replay to read. Its results still come from the visitors' saved pages, as they did on Monday.</p>
-    <p>For the research team's check, sort its four kept things the reply's way: which is the raw input, which is code, and which are derived. Then ask which of them a reviewer needs to see how a chart number was made.</p>
+    <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the receipt's: one code change, replayed over the same saved input. An exact rebuild can also depend on more than the reply's three things, such as library versions or the date a run used.</p>
+    <p>Dunmore's page is the reply's unsaved first draft, with no writer to recall it: the site never answered on Friday, so there is no copy for a replay to read. Its results still come from the visitors' saved pages, as they did on Monday.</p>
+    <p>For the research team's reviewer question, sort its four kept things the reply's way: which is the raw input, which is code, and which are derived. Then look for the record the reply asks every output to carry.</p>
   </aside>
 
   <h2>4. Check your understanding</h2>
@@ -132,17 +126,18 @@ const checks = [
   .pa-prov dt { color: var(--tl-muted); }
   .pa-prov dd { margin: 0; }
   .pa-prov .is-diff { background: color-mix(in srgb, #d9822b 18%, transparent); font-weight: 600; }
-  .pa-bus .pr-seg, .pa-water .pr-seg { margin-bottom: 0.7rem; }
-  .pa-bus-view, .pa-water-view { display: none; }
-  .pa-bus:has([value="t2"]:checked) [data-th="t2"],
-  .pa-bus:has([value="t5"]:checked) [data-th="t5"],
+  :global(.pr) .pa-prov-sum { margin: 0.45rem 0 0; color: var(--tl-muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+  .pa-water .pr-seg { margin-bottom: 0.7rem; }
+  .pa-water-view { display: none; }
   .pa-water:has([value="kept"]:checked) [data-water="kept"],
   .pa-water:has([value="over"]:checked) [data-water="over"] { display: block; }
   .pa-rows { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-rows li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-rows li b { color: var(--sl-color-white); font-variant-numeric: tabular-nums; }
   .pa-rows li.is-fix { box-shadow: inset 0 0 0 1px var(--pr-green); }
-  :global(.pr) .pa-total { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 0.6rem; margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--tl-muted); }
-  .pa-total b { color: var(--sl-color-white); font-size: 1.2rem; }
+  .pa-rows li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; color: var(--tl-muted); }
+  .pa-rows li.is-gone b { color: var(--tl-muted); font-weight: 600; }
   :global(.pr) .pa-water-say { margin: 0.6rem 0 0; font-size: 0.9rem; }
+  .pa-pairs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.45rem 0 0; padding: 0; list-style: none; }
+  .pa-pairs li { padding: 0.2rem 0.55rem; border: 1px solid var(--tl-line); border-radius: 999px; font-size: 0.85rem; }
 </style>

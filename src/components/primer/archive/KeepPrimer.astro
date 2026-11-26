@@ -108,7 +108,7 @@ const checks = [
   </div>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>The museum's blank count is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
+    <p>Case 2's own blank count is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
     <p>One difference decides Case 2. In the museum the bug runs after extraction, so the extracted fields are the last layer before the damage. In Case 2 the tidy rule runs inside the parser, so the parsed rows already carry it, and the tidied HTML is a cleaned copy too: it was tidied before saving. Ask which step did the damage, then find the last copy saved before it.</p>
     <p>Case 2's sidecar is a smaller fetch record: the requested and final URL, status, fetch time, ETag and content hash, with no run ID or encoding. The curator example needs every nightly download; Touchline keeps only the latest capture, a choice Part 6 weighs.</p>
   </aside>

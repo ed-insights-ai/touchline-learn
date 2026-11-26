@@ -30,10 +30,11 @@ Notes on individual replies:
   first reply.
   - **The idea** asks for two outputs that disagree with the record that explains why, and
     item 3 names both unrecoverable cases: a version never saved, and a saved copy later
-    overwritten. It was run twice in round 2. The first rerun's examples were one or two
+    overwritten. It was run twice in round 2 and again after round 7. The first rerun's examples were one or two
     sentences each, and one was a shop. The prompt now asks for three worked examples with
-    small numbers, none of them sports, libraries or shops, and the page shows that third
-    reply (a weather station, a bus feed and a water meter).
+    small numbers. After the seventh council round its exclusion list was cut to sports and
+    sensors, to stop meters recurring across the module, and the page shows that fourth reply
+    (a shop receipt, a teacher's quiz scores and a headline draft).
   - **Case 1** asks for a before-and-after example with numbers in the pipeline item.
   - **Case 2** uses one running example, a museum's nightly import from a partner site.
   - **Case 3** asks why some systems hash a whole source file on purpose, so a comment
@@ -44,14 +45,15 @@ Notes on individual replies:
     shop and sales examples, and the page shows that third reply.
   - **Rewind** uses one running example, a research lab's daily sensor readings, and asks
     for an example report that meets every criterion.
-- **Setup** was rerun after the fifth council round. Its first reply was set in a bakery,
-  and the next rerun picked a water meter, the same setting as The idea's third example. The
-  prompt now excludes sports, shops, food businesses, and meters and sensors, and item 3 asks
-  which of the two can reproduce yesterday's output exactly with the old code. The page shows
-  the third reply (a community transcription archive).
-- **Carry it** was rerun after the second council round. Its first reply was set in a
-  city's permit offices, right after Prove it's city electricity reports. The prompt now
-  also excludes city government, and the page shows the second reply (a coffee roaster).
+- **Setup** was rerun after the fifth and seventh council rounds. Its first reply was set in a
+  bakery, and the next rerun picked a water meter, the same setting as The idea's examples then.
+  A list of excluded fields fixed that, but reviewers found the list odd to send, so the prompt
+  now names its setting instead: a volunteer archive's daily count of approved transcribed
+  pages. The page shows that fourth reply.
+- **Carry it** was rerun after the second and seventh council rounds. Its first reply was set
+  in a city's permit offices, right after Prove it's city electricity reports. The second rerun
+  excluded four fields by name; the prompt now names its setting instead, a coffee roaster
+  importing its suppliers' shipment weights, and the page shows that third reply.
 - **Rewind** has had three replies. The first used a library example, the third in
   Module 2 after Module 1 used one throughout. The second used a street-tree inventory.
   The page shows the third (lab sensor readings), which also includes a sample report.

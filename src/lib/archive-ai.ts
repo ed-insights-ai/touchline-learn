@@ -20,7 +20,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   setup: {
     slug: "02-archive-ai-refetch",
     title: "What is a re-fetch, and what is a replay?",
-    prompt: `I'm learning how a data pipeline recovers when a bug is found in its own code. Teach me with one running example with small numbers, not about sports, shops, food businesses, or meters and sensors.
+    prompt: `I'm learning how a data pipeline recovers when a bug is found in its own code. Teach me with one running example with small numbers: a volunteer archive that reports each day how many transcribed pages have been approved.
 
 1. The difference between fetching the source again (a re-fetch) and rerunning my fixed code over copies I saved earlier (a replay).
 2. What can change on a live source between two fetches besides the thing I meant to fix, and what that does when I compare the new output with the old one.
@@ -32,7 +32,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   idea: {
     slug: "02-archive-ai-raw",
     title: "What can you rebuild from raw data?",
-    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three worked examples, each from a different field, none of them sports, libraries or shops. Work each one through with small numbers.
+    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three worked examples, each from a different field, none of them about sports or sensors. Work each one through with small numbers.
 
 1. What raw data is, and why it is saved exactly as received, before any of my code reads it.
 2. What derived data is, and why it can be deleted and rebuilt as long as the raw data and the code and settings that produced it are kept.
@@ -63,7 +63,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: `Then come back and place one more bug on the grid: the table step gives Cedar Grove two points, not one, for its ${draw.home_score}–${draw.away_score} home draw with Dunmore on ${drawDay}.`,
+    returnTask: `Then come back and place one more bug on the grid: the build step gives Cedar Grove two points, not one, for its ${draw.home_score}–${draw.away_score} draw with Dunmore on ${drawDay}.`,
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -75,7 +75,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and write a preset in Part 5's form for the notebook: inventory.csv is corrected upstream and never fetched.",
+    returnTask: "Then come back and write a preset in Part 5's form for a build you know: a source it reads changed upstream and was never fetched.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -99,7 +99,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
 4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
-    returnTask: "Then come back and write one criterion for a rebuild of your own, as checkable as a line of Kick's report.",
+    returnTask: "Then come back and write one criterion for a rebuild of your own, then name the line of Kick's report that does the same job.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",
@@ -116,7 +116,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   "carry-it": {
     slug: "02-archive-ai-carry",
     title: "Same fix, different archives",
-    prompt: `I'm learning to carry one idea to new kinds of data: after the same bug is fixed, what I can honestly claim depends on what was archived. Teach me with one running example that is not about sports, healthcare, public libraries or city government.
+    prompt: `I'm learning to carry one idea to new kinds of data: after the same bug is fixed, what I can honestly claim depends on what was archived. Teach me with one running example: a coffee roaster that imports the shipment weights its suppliers send.
 
 1. One processing bug that ran for months, in three situations: one that kept every raw input, one that kept only the processed table, and one that kept raw inputs but overwrote a source's file whenever it resubmitted.
 2. The honest recovery claim in each situation: what can be rebuilt exactly, what can only be flagged or estimated, and what is lost.

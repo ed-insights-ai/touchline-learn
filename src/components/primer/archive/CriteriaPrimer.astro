@@ -81,7 +81,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("rewind")}`}
   about="This is a reply an AI assistant gave to Module 2's rebuild-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and write one criterion for a rebuild of your own, as checkable as a line of Kick's report."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and write one criterion for a rebuild of your own, then name the line of Kick's report that does the same job."
 >
   <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
   <p class="pr-pull">Write each acceptance criterion as a pass/fail check.</p>
@@ -131,7 +131,7 @@ const checks = [
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Part 7's replay report names a build revision beside the fingerprint, as the reply names a Git commit. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply's fingerprint covers config alone; Touchline's covers the parser code and <code>labs/common.py</code> too. Part 7's report adds a build revision, the git blob of its build script, where the reply names a commit; neither of Kick's lines checks for a clean checkout, the reply's second criterion.</p>
     <p>The reply's changed cell comes from a corrected input, so its inputs differ from the baseline's. Under Riley's criteria that would not count as a replay of Friday's pages. Kick's replay holds them fixed, so its one changed cell must trace to the code. And Kick's network counter hooks Python's name lookups and socket connects and sends in its own process, after showing it catches test requests, so its zero says nothing about child processes or calls outside those hooks.</p>
   </aside>
 
