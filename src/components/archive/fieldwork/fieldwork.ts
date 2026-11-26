@@ -55,7 +55,7 @@ const fetches: Fetch[] = [
 export type HashAnswer = "neither" | "bytes" | "both" | "signature";
 export const hashAnswers: [HashAnswer, string][] = [
   ["neither", "Neither hash"],
-  ["bytes", "Byte hash only"],
+  ["bytes", "Content hash only"],
   ["signature", "Signature only"],
   ["both", "Both hashes"],
 ];
@@ -237,7 +237,11 @@ const finishedIn = (text: string) => Number((text.match(/^tables {9}: .*rebuild 
 check(lostRows.length === 2 && lostRows.every((r) => !saved.has(r.opponent)) && new Set(lostRows.map((r) => r.side)).size === 2, "the --missing page no longer holds one home and one away match against an unsaved school, on no other saved page");
 check(finishedIn(replayReport) - finishedIn(missingReport) === lostRows.length, "the --missing table no longer loses exactly the matches that were only on the missing page");
 /** --missing hartwell-tech: the page, and the conference matches that were on no other saved page. */
-export const missing = { slug: MISSING, name: nameOf(MISSING), lost: lostRows.length, opponent: nameOf(lostRows[0].opponent) };
+check(lostRows.every((r) => r.side === "vs" || r.side === "at"), "a lost row has a side other than vs or at");
+export const missing = {
+  slug: MISSING, name: nameOf(MISSING), lost: lostRows.length, opponent: nameOf(lostRows[0].opponent),
+  rows: lostRows.map((r) => ({ date: r.date, host: r.side === "vs" ? nameOf(MISSING) : nameOf(r.opponent), visitor: r.side === "vs" ? nameOf(r.opponent) : nameOf(MISSING), result: r.result })),
+};
 check(missingReport.includes(`skipped ${missing.slug}'s missing page`), "the quoted --missing report names a different page");
 export { tuesdayDiff };
 
@@ -260,7 +264,7 @@ export const week = {
 };
 check(week.unavailable.length === 1, "Friday's run no longer has exactly one unavailable schedule");
 
-/** Each schedule page's byte hash on Friday and in Tuesday's capture. */
+/** Each schedule page's content hash on Friday and in Tuesday's capture. */
 export const tuesdayHashes = tuesdayPages.map((p) => {
   const f = pageOf(fridayPages, p.slug);
   return { name: nameOf(p.slug), friday: short(f.sha256), tuesday: short(p.sha256), same: f.sha256 === p.sha256 };
