@@ -87,7 +87,7 @@ def main() -> int:
                 checked += 1
                 if not quoted(line, output):
                     missing.append(f"{page.relative_to(ROOT)}: {line}")
-    for quote in sorted(QUOTES.glob("*.txt")):
+    for quote in sorted(q for q in QUOTES.glob("*.txt") if q.is_file()):
         block = [line.rstrip() for line in quote.read_text(encoding="utf-8").splitlines()]
         args, heading = QUOTED_RUNS.get(quote.name, (None, None))
         output = run_stdout(args) if args else None
@@ -100,7 +100,7 @@ def main() -> int:
             missing.append(f"{quote.relative_to(ROOT)}: python {' '.join(args)} is not in labs/run_all.py or ended unexpectedly")
         elif not block[0].startswith(heading) or any(line.strip() == "..." for line in block) or output[-len(block):] != block:
             missing.append(f"{quote.relative_to(ROOT)}: not the whole tail of python {' '.join(args)}, line for line")
-    for stray in sorted(f for f in QUOTES.iterdir() if f.suffix != ".txt"):
+    for stray in sorted(f for f in QUOTES.iterdir() if f.suffix != ".txt" or not f.is_file()):
         missing.append(f"{stray.relative_to(ROOT)}: not a .txt quote")
     for name in sorted(set(QUOTED_RUNS) - {q.name for q in QUOTES.glob("*.txt")}):
         missing.append(f"{(QUOTES / name).relative_to(ROOT)}: listed in QUOTED_RUNS but missing")

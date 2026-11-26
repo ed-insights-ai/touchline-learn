@@ -180,18 +180,18 @@ const cellsBetween = (a: Table, b: Table) => {
   return b.rows.flatMap((r) => COLUMNS.filter((c) => before.get(r.slug)![c] !== r[c]).map((c) => ({ slug: r.slug, name: r.name, column: c, before: before.get(r.slug)![c], after: r[c] })));
 };
 const changedIn = (t: Table, x: Table) => new Set(cellsBetween(t, x).map((c) => `${c.slug}/${c.column}`));
-function attribute(a: Table, b: Table): Cell[] {
-  const byCode = changedIn(a, tableB);
-  const byPages = changedIn(a, tableD);
+function attribute(a: Table, b: Table, codeOnly: Table, pagesOnly: Table): Cell[] {
+  const byCode = changedIn(a, codeOnly);
+  const byPages = changedIn(a, pagesOnly);
   return cellsBetween(a, b).map((c) => {
     const k = `${c.slug}/${c.column}`;
     return { ...c, input: byCode.has(k) && !byPages.has(k) ? "code" : byPages.has(k) && !byCode.has(k) ? "pages" : "both" };
   });
 }
 /** Every changed cell from Tuesday's table to the replay, with the input that changed it. */
-export const diffAB = attribute(tableA, tableB);
+export const diffAB = attribute(tableA, tableB, tableB, tableA);
 /** Every changed cell from Tuesday's table to the re-fetch, attributed with the hidden table D. */
-export const diffAC = attribute(tableA, tableC);
+export const diffAC = attribute(tableA, tableC, tableB, tableD);
 
 export type RowChange = { slug: string; name: string; input: "code" | "pages" | "both"; columns: Column[] };
 const rowsOf = (cells: Cell[]): RowChange[] => {
@@ -209,7 +209,7 @@ export const rowChanges = { B: rowsOf(diffAB), C: rowsOf(diffAC) };
 const lambertC = rowChanges.C.find((r) => r.slug === "st-lambert");
 /** Part 1's ungraded prediction, resolved in Part 6: what a re-fetch did to Saint Lambert's row. */
 export const prediction: { answer: "unchanged" | "name-only" | "name-and-numbers" | "numbers-only"; columns: Column[] } = {
-  answer: !lambertC ? "unchanged" : lambertC.columns.length === 1 ? "name-only" : lambertC.columns.includes("name") ? "name-and-numbers" : "numbers-only",
+  answer: !lambertC ? "unchanged" : lambertC.columns.join() === "name" ? "name-only" : lambertC.columns.includes("name") ? "name-and-numbers" : "numbers-only",
   columns: lambertC?.columns ?? [],
 };
 export const tables = {
@@ -224,7 +224,7 @@ const parsedAB = shownChanges(tableA, tableB);
 const brendan = parsedAB.filter((x) => x.before.opponent === "st-brendan");
 /** The exact line under Case 1: parsed rows change for St. Brendan too, a non-member that never reaches the table. */
 export const stBrendanNote = {
-  opponent: "St. Brendan", before: brendan[0]?.before.shown, after: brendan[0]?.after.shown, member: members.includes("st-brendan"),
+  opponent: "St. Brendan", before: brendan[0]?.before.shown ?? fail("no St. Brendan row changes"), after: brendan[0].after.shown, member: members.includes("st-brendan"),
   rows: brendan.length, pages: [...new Set(brendan.map((x) => x.page))].map((slug) => ({ slug, name: programmes[slug].name })),
   parsedRowsChanged: parsedAB.length, stLambertRows: parsedAB.filter((x) => x.before.opponent === "st-lambert").length,
 };
@@ -309,7 +309,7 @@ check(replayReport.startsWith("Replay report: ") && /^manifest {7}: .*\nreplayed
 const reportField = (label: string) => replayReport.split("\n").find((l) => l.startsWith(`${label} `))?.split(": ").slice(1).join(": ") ?? fail(`the replay report has no ${label} line`);
 const labBlob = () => { const body = bytes(root("labs", "m02_archive.py")); return createHash("sha1").update(`blob ${body.length}\0`).update(body).digest("hex").slice(0, 12); };
 export const rewind = {
-  manifest: "sample/manifests/2026-11-20-friday.json",
+  manifest: reportField("manifest"),
   schedulesSaved: fridayPages.length,
   boxScoresSaved: fridayBoxes.length,
   requested: fridayManifest.requested,
@@ -321,6 +321,7 @@ export const rewind = {
   cellsChanged: Number(reportField("cells changed")),
   lines: replayReport.split("\n"),
 };
+check(rewind.manifest === "sample/manifests/2026-11-20-friday.json", "the quoted report did not replay Friday's manifest");
 check(rewind.fingerprintTuesday === fingerprints.v1, `the quoted report's Tuesday fingerprint is not ${fingerprints.v1}`);
 check(rewind.fingerprint === fingerprints.v2, `the quoted report's fingerprint ${rewind.fingerprint} is not the fixed parser's ${fingerprints.v2}; rerun the lab and update ${quotePath}`);
 check(rewind.buildRevision === labBlob(), "the quoted report's build revision is not labs/m02_archive.py as it stands; rerun the lab and update the quote");
@@ -411,7 +412,7 @@ const storeAfterTuesday = (policy: "latest" | "every"): Store => {
   });
   return store;
 };
-const cellOn = (html: string, fixture: string) => rawRows(html).find((r) => r.fixture === fixture)?.result;
+const cellOn = (html: string, fixture: string): string => rawRows(html).find((r) => r.fixture === fixture)?.result ?? fail(`no row for fixture ${fixture}`);
 const answers = (policy: "latest" | "every") => {
   const store = storeAfterTuesday(policy);
   const fridayHashes = new Map(fridayPages.map((p) => [p.slug, p.sha256]));
@@ -472,7 +473,7 @@ const day = (date: string) => `${Number(date.slice(8, 10))} ${MONTHS[Number(date
 export const proveIt = {
   fixture: BOX,
   date: fx8210.date,
-  round: fx8210.stage?.round_published,
+  round: fx8210.stage?.round_published ?? fail("box 8210's fixture has no published round"),
   conferenceGame: fx8210.conference_game,
   scoreByPeriod: { head: periodRows[0], rows: periodRows.slice(1) },
   home: { slug: fx8210.home, name: programmes[fx8210.home].name },

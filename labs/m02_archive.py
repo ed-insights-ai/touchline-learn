@@ -321,8 +321,10 @@ def main() -> int:
             tuesday = load(TUESDAY)
             fresh = describe_manifest(tuesday, TUESDAY, SAMPLE)
             r4 = replay(tuesday, SAMPLE, m02_parser_fixed, refetch_dir)
-            if not fresh["hashes_ok"] or r4["refused"]:
-                print("\nRESULT: could not run, a saved page no longer matches its manifest")
+            why = fresh["problems"] + ([f"{fresh['altered']} saved pages no longer match the manifest's hash"] if fresh["altered"] else [])
+            why += [f"{len(fresh['missing'])} saved pages are missing from the capture"] if fresh["missing"] else []
+            if why or r4["refused"]:
+                print(f"\nRESULT: could not run, Tuesday's capture: {'; '.join(why) or 'a page was refused'}")
                 return 2
             compare = standings(refetch_dir, r4["read"], slugs)
             print_table(compare)
@@ -376,7 +378,7 @@ def main() -> int:
     for slug, cells in by_row.items():
         print(f"  {name_of[slug]:15} {', '.join(cells)}: the tidy rule, the only input that changed")
     unchanged = len(COLUMNS) * len(compare["rows"]) - len(changes)
-    print(f"unchanged      : the other {unchanged} cells, every place and number")
+    print(f"unchanged      : the other {unchanged} cells" + (", every place and number" if all(c[1] == "name" for c in changes) else ""))
     renamed: dict[tuple, int] = {}
     before_rows = dict(parsed_rows(tuesday_dir, r1["read"]))
     for slug, rows in parsed_rows(rebuilt_dir, r3["read"]):
