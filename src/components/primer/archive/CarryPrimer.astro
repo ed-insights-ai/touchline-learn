@@ -12,7 +12,7 @@ const shipments = [kg.whole, kg.fraction];
 const revised = 12.4;
 const kgs = (x: number) => `${x} kg`;
 const bound = (x: number) => `${Math.floor(x)} to under ${Math.floor(x) + 1} kg`;
-type Fate = "exact" | "bound" | "lost";
+type Fate = "exact" | "bound" | "boundIf" | "lost";
 const worlds: { id: string; tab: string; kept: string; recover: string; needed: string; claim: [string, string]; fates: [Fate, Fate] }[] = [
   {
     id: "every",
@@ -30,7 +30,7 @@ const worlds: { id: string; tab: string; kept: string; recover: string; needed: 
     recover: `It can flag rows imported during the affected period. A stored ${kgs(kg.whole)} means the supplier reported at least ${kgs(kg.whole)} and less than ${kgs(kg.whole + 1)}. The row may already be correct if the supplier reported exactly ${kgs(kg.whole)}. The roaster can calculate bounds for totals, but any single estimate requires assumptions about the missing fractions. The exact reported weights are lost from this archive.`,
     needed: "It needed the original reported weights linked to the processed rows. To recover earlier versions too, it needed to retain each version and its import time.",
     claim: ["Bounded", "is-bad"],
-    fates: ["bound", "bound"],
+    fates: ["lost", "bound"],
   },
   {
     id: "over",
@@ -39,7 +39,7 @@ const worlds: { id: string; tab: string; kept: string; recover: string; needed: 
     recover: `It can recover exact weights as reported in the surviving files. If the surviving file says ${kgs(revised)}, that establishes the revised weight. The earlier weight could have been ${kgs(kg.fraction)}, but the surviving file cannot establish it. Where an older processed row survives, the roaster can still flag it and give the same rounding bounds.`,
     needed: "It needed to keep each resubmission as a separate version and record which file version each import used.",
     claim: ["Partly exact", "is-warn"],
-    fates: ["bound", "exact"],
+    fates: ["boundIf", "exact"],
   },
 ];
 const versions = [
@@ -47,7 +47,10 @@ const versions = [
   { name: "Resubmission", weight: revised },
 ];
 const fateText = (f: Fate, w: number): [string, string] =>
-  f === "exact" ? [kgs(w), "is-ok"] : [bound(w), "is-bad"];
+  f === "exact" ? [`${kgs(w)}, from its file`, "is-ok"]
+  : f === "bound" ? [`${bound(w)}, from its rounded row`, "is-warn"]
+  : f === "boundIf" ? [`${bound(w)}, if its old row survives`, "is-warn"]
+  : ["Unavailable: its row was replaced", "is-bad"];
 
 const checks = [
   ["Weather monitoring", "A station’s importer rounded rainfall readings down to whole millimeters. It kept every raw upload and a log of when each version was used. What can it reconstruct about last spring’s readings, including later revisions?"],
@@ -66,6 +69,7 @@ const checks = [
   <h2 class="pr-title">One bug, three archives</h2>
   <p>For six months, a coffee roaster’s importer rounded every shipment weight <strong>down</strong> to a whole kilogram. A supplier’s <code>{kgs(kg.fraction)}</code> became <code>{kgs(kg.whole)}</code>. The roaster fixes the importer so it preserves the reported weight.</p>
   <p class="pr-pull">What it can correct for those six months depends on what it kept.</p>
+  <h2>1. What each archive can recover</h2>
   <p>Assume the processed table has one row per shipment, with a shipment ID and an import date. Suppliers sometimes resubmitted files with revised weights.</p>
   <figure class="pr-card">
     <p class="pr-label">Two weights, one stored value</p>
@@ -85,7 +89,6 @@ const checks = [
   </figure>
   <figure class="pr-card pa-worlds" aria-live="polite">
     <p class="pr-label">One shipment, revised once: what each archive can give back</p>
-    <ul class="pa-glance">{worlds.map((w) => <li><span>{w.tab}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></li>)}</ul>
     <fieldset class="pr-seg">
       <legend>What the roaster kept</legend>
       {worlds.map((w, i) => <label><input type="radio" name="pa-carry-world" value={w.id} checked={i === 0} /><span>{w.tab}</span></label>)}
@@ -113,7 +116,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to a coffee roaster. Every raw submission is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
-    <p>The reply's third row draws the line World C's claims must respect: exact for what a surviving file holds, bounded where only a rounded row survives. The latest file is not evidence of what an earlier one held. A bound depends on what survives, in the archive's own terms. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
+    <p>The reply's overwrite case draws the line World C's claims must respect: exact for what a surviving file holds, bounded where only a rounded row survives. The latest file is not evidence of what an earlier one held. A bound depends on what survives, in the archive's own terms. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
@@ -122,8 +125,6 @@ const checks = [
 
 <style>
   .pa-worlds .pr-seg { margin-bottom: 0.7rem; }
-  .pa-glance { display: grid; gap: 0.35rem; margin: 0 0 0.9rem; padding: 0; list-style: none; font-size: 0.9rem; }
-  .pa-glance li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-world { display: none; padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
   .pa-worlds:has([value="every"]:checked) [data-world="every"],
   .pa-worlds:has([value="table"]:checked) [data-world="table"],
@@ -150,7 +151,4 @@ const checks = [
   .pa-versions li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.3rem 0.55rem; border: 1px solid var(--tl-line); border-radius: 6px; }
   .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); font-size: 0.95rem; }
   :global(.pr) .pa-note p { margin: 0; }
-  .pa-notes { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
-  .pa-notes li { display: grid; gap: 0.2rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); }
-  .pa-notes b { color: var(--sl-color-white); }
 </style>

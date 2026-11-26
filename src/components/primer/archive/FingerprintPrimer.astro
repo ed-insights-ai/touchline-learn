@@ -43,7 +43,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and write a preset in Part 5's form for a build you know: a source it reads changed upstream and was never fetched."
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">How a cache decides what is stale</h2>
   <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
@@ -74,9 +74,10 @@ const checks = [
       <legend>Try it: sections 1 to 4 in one notebook. Make one change</legend>
       {changes.map((c, i) => <label><input type="radio" name="pa-fp-change" value={c.id} checked={i === 0} /><span>{c.label}</span></label>)}
     </fieldset>
-    <label class="pa-reveal"><input type="checkbox" /> <span>Predict which outputs rebuild, then show the verdicts</span></label>
     {changes.map((c) => (
-      <ul class="pa-fp-out" data-change={c.id}>
+      <div class="pa-fp-view" data-change={c.id}>
+      <label class="pa-reveal"><input type="checkbox" /> <span>Predict which outputs rebuild, then show the verdicts</span></label>
+      <ul class="pa-fp-out">
         {outputs.map((o) => {
           const [v, tone, why] = verdict(c, o);
           return (
@@ -88,6 +89,7 @@ const checks = [
           );
         })}
       </ul>
+      </div>
     ))}
     <figcaption>Each output keeps the fingerprint of its code and settings, and the hash of the file it read. Only a difference in one of those triggers a rebuild.</figcaption>
   </figure>
@@ -103,17 +105,18 @@ const checks = [
 
 <style>
   .pa-fp .pr-seg { margin-bottom: 0.7rem; }
-  .pa-fp:not(:has(.pa-reveal input:checked)) .pa-fp-v,
-  .pa-fp:not(:has(.pa-reveal input:checked)) .pa-fp-why { visibility: hidden; }
+  .pa-fp-view { display: none; }
+  .pa-fp-view:not(:has(.pa-reveal input:checked)) .pa-fp-v { visibility: hidden; }
+  .pa-fp-view:not(:has(.pa-reveal input:checked)) .pa-fp-why { display: none; }
   .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0 0 0.5rem; font-size: 0.88rem; cursor: pointer; }
   .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
-  .pa-fp-out { display: none; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  .pa-fp-out { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
   @media (min-width: 46rem) { .pa-fp-out { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .pa-fp:has([value="tz"]:checked) [data-change="tz"],
   .pa-fp:has([value="sales"]:checked) [data-change="sales"],
   .pa-fp:has([value="comment"]:checked) [data-change="comment"],
   .pa-fp:has([value="none"]:checked) [data-change="none"],
-  .pa-fp:has([value="upstream"]:checked) [data-change="upstream"] { display: grid; }
+  .pa-fp:has([value="upstream"]:checked) [data-change="upstream"] { display: block; }
   .pa-fp-out li { padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-size: 0.88rem; }
   :global(.pr) .pa-fp-out p { margin: 0 0 0.25rem; }
   :global(.pr) .pa-fp-out p:last-child { margin: 0; }

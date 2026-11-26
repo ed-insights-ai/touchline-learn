@@ -65,7 +65,7 @@ const checks = [
         </div>
       ))}
     </div>
-    <figcaption>Same input, same setting. Only the code line differs between the two records.</figcaption>
+    <figcaption>Same input, same setting. Only the code line differs between the two records. An exact rebuild can also depend on more than these three lines, such as library versions or the date a run used.</figcaption>
   </figure>
   <p>Version 1 calculated <code>{v1.map(usd).join(" + ")} = {usd(sum(v1))}</code>. Version 2 calculated <code>{v2.map(usd).join(" + ")} = {usd(sum(v2))}</code>. The records show that the input and settings were identical, so the code change explains the difference. Since both line amounts survived in the archive, the shop can delete the incorrect total and rebuild it with v2.</p>
 
@@ -91,7 +91,7 @@ const checks = [
         {st.id === "over" && <ul class="pa-pairs">{sameAvg.map((p) => <li><code>{p.join(" and ")}</code></li>)}</ul>}
       </div>
     ))}
-    <figcaption>A derived value can't be run backwards. Many inputs give the same average, so only the saved export says which one it was.</figcaption>
+    <figcaption>An average of {avg(first)} leaves several possible score pairs, so only the saved export says which pair it was.</figcaption>
   </figure>
 
   <h2>3. Publishing: a replay can only use the draft that was saved</h2>
@@ -105,9 +105,9 @@ const checks = [
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the receipt's: one code change, replayed over the same saved input. An exact rebuild can also depend on more than the reply's three things, such as library versions or the date a run used.</p>
+    <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the receipt's: one code change, replayed over the same saved input.</p>
     <p>Dunmore's page is the reply's unsaved first draft, with no writer to recall it: the site never answered on Friday, so there is no copy for a replay to read. Its results still come from the visitors' saved pages, as they did on Monday.</p>
-    <p>For the research team's reviewer question, sort its four kept things the reply's way: which is the raw input, which is code, and which are derived. Then look for the record the reply asks every output to carry.</p>
+    <p>For the research team's reviewer question, sort its four kept things the reply's way: which is the raw input, which is code, and which are derived. None of the four is the record the reply asks every output to carry, so ask what that leaves the reviewer without.</p>
   </aside>
 
   <h2>4. Check your understanding</h2>

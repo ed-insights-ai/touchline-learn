@@ -51,7 +51,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and classify two more comparisons as one change or two: Tuesday's table against a replay with a new alias list, and against a re-fetch with that same new list."
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">One change at a time</h2>
   <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>
@@ -100,6 +100,7 @@ const checks = [
             <div class="pa-arm"><span>Trial 1</span><ul><li>Water: cool</li><li>Stirring: none</li></ul></div>
             <div class="pa-arm"><span>Trial 2</span><ul><li class={t.water ? "is-changed" : ""}>Water: {t.water ? "warm" : "cool"}</li><li class={t.stir ? "is-changed" : ""}>Stirring: {t.stir ? "stirred" : "none"}</li></ul></div>
           </div>
+          <label class="pa-reveal"><input type="checkbox" /> <span>Predict what this pair measures, then show it</span></label>
           <p class="pa-trial-say"><span class="pa-trial-k">Measures</span><span class:list={["pr-chip", tone]}>{what}</span> {why}</p>
         </div>
       );
@@ -133,6 +134,10 @@ const checks = [
 <style>
   .pa-trial .pr-seg { margin-bottom: 0.7rem; }
   .pa-trial-view { display: none; }
+  .pa-trial-view:not(:has(.pa-reveal input:checked)) .pa-trial-say { display: none; }
+  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0.5rem 0 0; font-size: 0.88rem; cursor: pointer; }
+  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
+
   .pa-trial:has([value="both"]:checked) [data-trial="both"],
   .pa-trial:has([value="water"]:checked) [data-trial="water"],
   .pa-trial:has([value="stir"]:checked) [data-trial="stir"],

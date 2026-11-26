@@ -51,7 +51,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify two more comparisons as one change or two: Tuesday's table against a replay with a new alias list, and against a re-fetch with that same new list.",
+    returnTask: "Then come back and classify two more comparisons as one change or two: Tuesday's table against a replay with the old rule and a new alias list, and against a re-fetch with the old rule and that same list.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -75,7 +75,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and write a preset in Part 5's form for a build you know: a source it reads changed upstream and was never fetched.",
+    returnTask: "Then come back and answer in Part 5's form for a site generator whose ten pages all read one settings file: you edit that file. How many pages rebuild, and how many fetches?",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -99,7 +99,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
 4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
-    returnTask: "Then come back and write one criterion for a rebuild of your own, then name the line of Kick's report that does the same job.",
+    returnTask: "Then come back and write one criterion for a rebuild of your own, then name the closest line in Kick's report and any evidence yours would add.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",

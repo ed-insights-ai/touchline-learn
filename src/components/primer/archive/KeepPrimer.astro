@@ -67,7 +67,8 @@ const checks = [
       {bugSteps.map((b, i) => <label><input type="radio" name="pa-keep-bug" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
     </fieldset>
     {bugSteps.map((b) => (
-      <ol class="pa-ladder" data-bug={b.id}>
+      <div class="pa-ladder-view" data-bug={b.id}>
+      <ol class="pa-ladder">
         {layers.map((l, j) => {
           const [v, tone] = layerVerdict(j, b.at);
           return (
@@ -79,6 +80,8 @@ const checks = [
           );
         })}
       </ol>
+      <label class="pa-reveal"><input type="checkbox" /> <span>Predict which copies can verify the fix, then show them</span></label>
+      </div>
     ))}
     <figcaption>Move the bug and the last clean copy moves with it. The raw response comes before every step, so wherever the bug runs, a replay can start from it.</figcaption>
   </figure>
@@ -110,7 +113,7 @@ const checks = [
     <p class="pr-label">Course note</p>
     <p>Case 2's own blank count is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
     <p>One difference decides Case 2. In the museum the bug runs after extraction, so the extracted fields are the last layer before the damage. In Case 2 the tidy rule runs inside the parser, so the parsed rows already carry it, and the tidied HTML is a cleaned copy too: it was tidied before saving. Ask which step did the damage, then find the last copy saved before it.</p>
-    <p>Case 2's sidecar is a smaller fetch record: the requested and final URL, status, fetch time, ETag and content hash, with no run ID or encoding. The curator example needs every nightly download; Touchline keeps only the latest capture, a choice Part 6 weighs.</p>
+    <p>The sample's sidecar files are a smaller fetch record: the requested and final URL, status, fetch time, ETag and content hash, with no run ID or encoding. The curator example needs every nightly download; Touchline keeps only the latest capture, a choice Part 6 weighs.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
@@ -119,10 +122,15 @@ const checks = [
 
 <style>
   .pa-keep .pr-seg { margin-bottom: 0.7rem; }
-  .pa-ladder { display: none; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
+  .pa-ladder-view { display: none; }
+  .pa-ladder-view:not(:has(.pa-reveal input:checked)) .pa-ladder .pr-chip { visibility: hidden; }
+  .pa-ladder-view:not(:has(.pa-reveal input:checked)) .pa-ladder li { border-left-color: var(--tl-raw-edge); box-shadow: none; }
+  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0.5rem 0 0; font-size: 0.88rem; cursor: pointer; }
+  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
+  .pa-ladder { display: grid; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
   .pa-keep:has([value="parse"]:checked) [data-bug="parse"],
   .pa-keep:has([value="extract"]:checked) [data-bug="extract"],
-  .pa-keep:has([value="publish"]:checked) [data-bug="publish"] { display: grid; }
+  .pa-keep:has([value="publish"]:checked) [data-bug="publish"] { display: block; }
   .pa-ladder li { padding: 0.55rem 0.85rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--tl-raw-edge); border-radius: 8px; background: var(--tl-card); }
   .pa-ladder li.is-last { border-left-color: var(--pr-green); box-shadow: 0 0 0 1px var(--pr-green); }
   .pa-ladder li.is-carry { border-left-color: var(--pr-red); }
