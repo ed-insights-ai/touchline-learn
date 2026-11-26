@@ -32,11 +32,15 @@ const rerender = (html: string, stamp: string, token = sha(stamp).slice(0, 10)) 
     .replace("</body>", `  <!-- rendered ${stamp} -->\n</body>`);
 
 const SIG_SLUG = "harbor-point";
+/** The saved page the lab's first exercise changes. */
+export const tamperPath = `sample/raw_html/${SIG_SLUG}/${SEASON}-men-schedule.html`;
 const SAME_SLUG = "brightwater-state";
 const fridayHarbor = pageOf(fridayPages, SIG_SLUG);
 const tuesdayHarbor = pageOf(tuesdayPages, SIG_SLUG);
 const fridayOther = pageOf(fridayPages, SAME_SLUG);
 const tuesdayOther = pageOf(tuesdayPages, SAME_SLUG);
+check(rawRows(fridayHarbor.html).some((r) => r.result.startsWith("T ")), `${SIG_SLUG}'s Friday page no longer has a tie to change`);
+check(`sample/${fridayHarbor.path}` === tamperPath, "the exercise's page path no longer matches the saved page");
 check(fridayOther.html === tuesdayOther.html, `${SAME_SLUG}'s Tuesday page is no longer byte-identical to Friday's`);
 check(fridayHarbor.html !== tuesdayHarbor.html, `${SIG_SLUG}'s Tuesday page no longer differs from Friday's`);
 
@@ -139,7 +143,7 @@ type Edit = { id: string; label: string; where: string; before: ReturnType<typeo
 const edits: Edit[] = [
   { id: "rule", label: "Fix the tidy rule", where: "Saint before a name, State at the end, as the lesson's fix does.", before: scopes(PARSER.v1), after: scopes(PARSER.v2), rows: renamedRows, rowsNote: "renamed" },
   { id: "side", label: "Fix a parser that stored every match as a home match", where: "Store the vs or at cell as read, where the old code wrote home for every row.", before: scopes(homeOnly), after: scopes(PARSER.v2), rows: awayRows, rowsNote: "away rows read as home until rebuilt" },
-  { id: "comment", label: "Add a comment line above tidy()", where: "One line of explanation just above the rule. The code is the same.", before: scopes(PARSER.v2), after: scopes(withComment), rows: 0, rowsNote: "a comment changes no output" },
+  { id: "comment", label: "Add a comment line above tidy()", where: "One line of explanation above def tidy(, outside the lines shown above. The code is the same.", before: scopes(PARSER.v2), after: scopes(withComment), rows: 0, rowsNote: "a comment changes no output" },
   { id: "alias", label: "Add \"Saint Lambert\" to the alias list", where: "A spelling no saved page uses yet, mapped to St. Lambert.", before: scopes(PARSER.v2), after: scopes(PARSER.v2, aliasConfig), rows: spelledSaint, rowsNote: "no saved page spells it that way yet" },
   { id: "runtime", label: "Upgrade the Python that runs the parser", where: "A newer Python runs exactly the same files.", before: scopes(PARSER.v2), after: scopes(PARSER.v2), rows: null, rowsNote: "only a replay compared with the last output can say" },
 ];
@@ -255,7 +259,7 @@ const dc = tableD.rows.flatMap((d) => {
   return (["place", "name", "p", "w", "d", "l", "gf", "ga", "gd", "pts"] as const).filter((k) => d[k] !== c[k]).map((k) => ({ slug: d.slug, column: k, before: d[k], after: c[k] }));
 });
 check(dc.length === 1 && dc[0].slug === "st-lambert" && dc[0].column === "name", "Tuesday's pages with each parser no longer differ only in Saint Lambert's name");
-export const controlled = { name: String(dc[0].after), was: String(dc[0].before) };
+export const controlled = { name: String(dc[0].after), was: String(dc[0].before), cells: dc.length };
 
 const unavailable = fridayManifest.pages.filter((p) => p.kind === "schedule" && p.state === "unavailable");
 /** Friday's run in one line, and the pages Tuesday's re-fetch found unchanged. */

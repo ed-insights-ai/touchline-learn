@@ -6,7 +6,7 @@ import Choice from "../../lesson/Choice.astro";
 import { archive } from "../../../lib/archive-parts";
 import "../../FirstRunTable.astro";
 import "../../CoverageGrid.astro";
-import { controlled, exits, fingerprintScope, hashAnswers, labRun, missing, missingHashes, missingReport, tamperResult, postedSinceFriday, retention, scopeNames, scopeTable, signatures, sinceFriday, testRequests, tuesdayDiff, tuesdayHashes, week } from "./fieldwork";
+import { controlled, exits, fingerprintScope, hashAnswers, labRun, missing, tamperPath, missingHashes, missingReport, tamperResult, postedSinceFriday, retention, scopeNames, scopeTable, signatures, sinceFriday, testRequests, tuesdayDiff, tuesdayHashes, week } from "./fieldwork";
 
 const { keys } = archive;
 const n = (x: number) => x.toLocaleString("en-US");
@@ -65,11 +65,11 @@ const away = fingerprintScope.away;
 
 const layerItems = [
   { key: "page", q: `${signatures.name}'s schedule page, the bytes as they arrived`, answer: "bronze", why: "Bronze. The bytes as received, before any code read them." },
-  { key: "parsed", q: "The parsed rows of one schedule page, kept beside it as a cached parse", answer: "silver", why: "Silver. They sit next to the bytes on disk, but they are derived: they carry the fingerprint that wrote them and can be thrown away and rebuilt." },
+  { key: "tidied", q: "Case 2's archive (b): each page's HTML after Kick's tidy rule ran on it", answer: "silver", why: "Silver. It still looks like the page, but code has already changed it, so it is derived. That is why it cannot verify the tidy rule fix." },
   { key: "season", q: "The season's match list: each fixture once, the rows of whichever schools' pages were saved, matched by fixture id", answer: "silver", why: "Silver. Parsed rows from many pages, checked against each other and joined into one row per match, but not yet shaped for a reader." },
   { key: "table", q: "The conference table Riley publishes", answer: "gold", why: "Gold. Built from silver for one use: readers who want the standings." },
   { key: "detail", q: "The match detail for Alder Ridge's semifinal, built from its box score", answer: "gold", why: "Gold. Another reader-facing product, from a different silver input. Prove it in the lesson rebuilds exactly this." },
-  { key: "manifest", q: "Friday's capture manifest", answer: "meta", why: "Metadata about a layer. It describes a whole run: which pages bronze should hold, the hash of each, and which one never arrived." },
+  { key: "lineage", q: "The lineage record a parsed file keeps: the fingerprint and the content hash it was built from", answer: "meta", why: "Metadata about a layer. It holds no rows; it says what a silver file was built from, which is how Case 3 tells a stale file from a fresh one." },
 ];
 const layers: [string, string][] = [["bronze", "Bronze"], ["silver", "Silver"], ["gold", "Gold"], ["meta", "Metadata about a layer"]];
 const layerWrong = (answer: string) => Object.fromEntries(layers.filter(([k]) => k !== answer).map(([k]) => [k,
@@ -79,7 +79,7 @@ const layerWrong = (answer: string) => Object.fromEntries(layers.filter(([k]) =>
   : answer === "gold" ? "This is shaped for a reader, not for the next step."
   : k === "bronze" ? "Some code has already read the page to make this." : "This is still shaped for the next step, not for a reader."]));
 
-const POLICY = { latest: "Latest only", dedup: "Every capture, one file per content hash", sig: "Every capture, one file per signature", every: "Every capture, every fetch stored" };
+const POLICY = { latest: "Latest only", dedup: "Every capture, stored by content hash", sig: "Every capture, stored by signature", every: "Every capture" };
 const store = {
   latestFiles: retention.tuesday.pages,
   everyFiles: retention.schedules + retention.tuesday.pages,
@@ -113,7 +113,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
 <div class="cv not-content ar-fw" data-coverage data-store-key={keys.store} data-progress-key={keys.progress} data-review-key={keys.review}>
   <div class="ar-intro">
     <p>This page is optional. <a href="../02-archive/">The Module 2 lesson</a> teaches the idea on screen. Come here to look under the archive: how a collector tells a changed page from a re-rendered one, how much a fingerprint should cover, what keeping every capture costs, the names the industry gives the layers, and the lab.</p>
-    <p>Every section uses the same week. Friday's run saved {week.schedulesSaved} of {week.schedulesRequested} schedule pages and {week.boxesSaved} box scores; {list(week.unavailable)}'s site never answered. On Tuesday Kick's tidy rule turned “St. Lambert” into “State Lambert”, and Riley asked for the standings rebuilt from the pages Kick kept on Friday: Monday's table, with the name fixed, without asking a single site again. Each section stands on its own, so start with the one you came for.</p>
+    <p>Every section uses the same week. Friday's run saved {week.schedulesSaved} of {week.schedulesRequested} schedule pages and {week.boxesSaved} box scores; {list(week.unavailable)}'s site never answered. On Tuesday Kick's tidy rule turned “St. Lambert” into “State Lambert”, and Riley asked for the standings rebuilt from the pages Kick kept on Friday: Monday's table, with the name fixed, without asking a single site again. Start with the section you came for; later sections borrow the first section's terms.</p>
     <ol class="cv-map">
       {map.map(([id, name, what]) => <li><a href={`#${id}`}><b>{name}</b><span>{what}</span></a></li>)}
     </ol>
@@ -126,7 +126,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     <p>The same hash is a poor answer to a different question: has this page changed since we last saved it? Many sites build each page fresh for every visit. Two fetches a minute apart can carry a different render time in a comment, a different per-visit token in the page's head, or, after a template update, re-indented markup. Nothing a reader would call the schedule has changed, and the content hash differs anyway. That is <strong>render noise</strong>.</p>
 
     <h3>Two hashes, two jobs</h3>
-    <p>A <strong>content signature</strong> is a hash taken after known render noise is removed. The content hash answers “is this exactly what we saved?” The signature answers “is this news?” The signature on this page drops three things before hashing: comments, the per-visit token, and whitespace between tags. A real collector keeps such rules per kind of page; these three are enough here.</p>
+    <p>A <strong>content signature</strong> is a hash taken after known render noise is removed. The sample's sidecars and manifests record only the content hash, which is what an exact replay needs; the signatures on this page are computed here. The content hash answers “is this exactly what we saved?” The signature answers “is this news?” The signature on this page drops three things before hashing: comments, the per-visit token, and whitespace between tags. A real collector keeps such rules per kind of page; these three are enough here.</p>
     <p>Friday's capture of {signatures.name}'s page is {n(signatures.friday.bytes)} bytes. Its content hash begins <code>{signatures.friday.byteHash}</code> and its signature begins <code>{signatures.friday.signature}</code>; this page shows the first {signatures.friday.byteHash.length} characters of every hash. {cap(word(signatures.fetches.length))} later fetches follow: {word(sigRows)} of {signatures.name}'s page and {word(signatures.fetches.length - sigRows)} of {otherFetch.name}'s, {word(signatures.fetches.filter((f) => f.real).length)} from the sample and {word(signatures.fetches.filter((f) => !f.real).length)} made up for this page. Under each are the lines that differ from Friday's capture of the same page.</p>
 
     <div class="cv-check" data-once="fw-signatures">
@@ -170,8 +170,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
 
     <h3>When the signature is the same</h3>
     <p>A <a href="../01-collection-field-work/#platform">conditional request</a> can save the download when a site answers “unchanged”. A signature cannot save the download; it works after it, on sites that send no ETag or send a new one with every render. When a fresh fetch's signature equals the saved one, the collector has a choice: write the new bytes, or keep the old ones and note that the page was verified. Keeping the old bytes means every output built from them still points at a file with the content hash its manifest recorded, and a re-fetch that found only noise has overwritten nothing. (When it does write, it uses an <a href="../01-collection-field-work/#platform">atomic write</a>.)</p>
-    <p>That is why a sidecar can carry two times: when the bytes were fetched, and when they were last verified against the live page. Touchline's sidecar records a content signature and both times. Touchline writes: it keeps the latest capture of each page, and a deliberate re-fetch rewrites it.</p>
-    <p>The sample's sidecars and manifests record the content hash, which is what an exact replay needs.</p>
+    <p>That is why a sidecar can carry two times: when the bytes were fetched, and when they were last verified against the live page. Touchline's sidecar records a content signature, the fetch time and the verify time. It keeps the latest capture of each page, and a deliberate re-fetch rewrites it.</p>
   </section>
 
   <section id="scope">
@@ -208,7 +207,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
                 const cell = (k: "fn" | "module" | "lab") => {
                   const moved = e.before[k] !== e.after[k];
                   const silent = !moved && (e.rows ?? 0) > 0;
-                  return <td data-label={{ fn: "tidy() alone", module: "Whole module", lab: "Lab's fingerprint" }[k]} class:list={{ "ar-moved": moved, "ar-silent": silent }}>{moved ? "changes" : silent ? "same: stale rows" : "same"}</td>;
+                  return <td data-label={{ fn: "tidy() alone", module: "Whole module", lab: "Lab" }[k]} class:list={{ "ar-moved": moved, "ar-silent": silent }}>{moved ? "changes" : silent ? "same: stale rows" : "same"}</td>;
                 };
                 return (
                   <tr>
@@ -222,7 +221,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
           </table>
         </div>
         <p>Read the second row. With every row stored as a home match, the table build had already been stopping: {word(away.compared)} away rows are against another member whose page was saved, so two pages claim to host each of those matches, and the build raises <code>pages disagree on fixture</code> and stops. The fix is in <code>read_schedule()</code>, outside <code>tidy()</code>. A tidy-only fingerprint stays the same, so no parsed file is rebuilt, and the build stops again with the same error. The fix looks as if it failed, and the cause is in the cache, far from where anyone would look.</p>
-        <p>The other {word(away.hostUnsaved + away.nonMember)} away rows are never compared: {word(away.nonMember)} against non-members, which the build drops, and {word(away.hostUnsaved)} at {list(week.unavailable)}, whose page was never saved. They stay wrong without a word. This week the build happens to stop on the compared rows, so nothing is published; in a week when every wrong row was one nothing compares, the build would finish and publish them. That is the dangerous direction. The comment row is the other one: the module's hash changes although no output can, and every parsed file is rebuilt for nothing.</p>
+        <p>The other {word(away.hostUnsaved + away.nonMember)} away rows are never compared: {word(away.nonMember)} against non-members, which the build drops, and {word(away.hostUnsaved)} at {list(week.unavailable)}, whose page was never saved. They stay wrong without a word. This week the build happens to stop on the compared rows, so nothing is published; in a week when every wrong row was one nothing compares, the build would finish and publish them, and only a count in the coverage report would look wrong. That is the dangerous direction. The comment row is the other one: the module's hash changes although no output can, and every parsed file is rebuilt for nothing.</p>
         <p>The hash under each edit is the lab's fingerprint. The comment and alias values are the same ones <a href={lesson("case-fingerprint")}>Case 3's presets</a> show.</p>
       </div>
     </div>
@@ -236,23 +235,23 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
   <section id="retention">
     <h2>What every capture costs</h2>
     <p class="ar-for">For anyone who decides what a pipeline keeps.</p>
-    <p><a href={lesson("decision")}>The decision</a> compares two policies. <strong>Latest only</strong> keeps one capture per page, and a new fetch overwrites it. <strong>Every capture</strong> keeps each capture beside the last. An every-capture archive can keep one file per content hash, one file per signature, or every fetch; this section calls them “{POLICY.dedup}”, “{POLICY.sig}” and “{POLICY.every}”. Here is what they cost, in page bytes from the sample. The figures count the pages only, not the record of each fetch that an every-capture archive also keeps.</p>
+    <p><a href={lesson("decision")}>The decision</a> compares two policies. <strong>Latest only</strong> keeps one capture per page, and a new fetch overwrites it. <strong>Every capture</strong> keeps each capture beside the last. Every capture can also be stored so that identical captures share one file: named by content hash, or by signature. This section calls those “{POLICY.dedup}” and “{POLICY.sig}”. Here is what each costs, in page bytes from the sample. The figures count the pages only, not the record of each fetch that an every-capture archive also keeps.</p>
 
     <h3>Tuesday, measured</h3>
-    <p>Friday's run saved {word(retention.schedules)} schedule pages, {n(retention.fridaySchedBytes)} bytes, and {retention.boxes} box scores, {n(retention.fridayBoxBytes)} bytes. Tuesday's capture, the sample's stand-in for the re-fetch Riley stopped, holds the {retention.tuesday.pages} schedule pages again: {n(retention.tuesday.bytes)} bytes. From here on the section counts schedule pages only.</p>
-    <p>An every-capture archive need not store a page that is identical to one it already holds. If each file is named by its content hash, an identical page lands on a name that already exists, and nothing new is written. Files can be named by content signature instead. Then a re-render that only added noise lands on an existing name too, and the archive keeps one file per distinct normalised page, though not the exact bytes of every fetch.</p>
+    <p>Friday's run saved {word(retention.schedules)} schedule pages, {n(retention.fridaySchedBytes)} bytes, and {retention.boxes} box scores, {n(retention.fridayBoxBytes)} bytes. Tuesday's capture, the sample's stand-in for the re-fetch Riley stopped, holds the {word(retention.tuesday.pages)} schedule pages again: {n(retention.tuesday.bytes)} bytes. From here on the section counts schedule pages only.</p>
+    <p>Stored by content hash, the archive need not store a page that is identical to one it already holds: each file is named by its content hash, so an identical page lands on a name that already exists, and nothing new is written. Stored by signature, a re-render that only added noise lands on an existing name too, and the archive keeps one file per distinct normalised page, though not the exact bytes of every fetch.</p>
     <p>Between Friday's run and Tuesday's capture, {word(postedSinceFriday.length)} results were posted:</p>
     <ul class="ar-posted">{postedSinceFriday.map((f) => <li>{f.home} v {f.away}, {f.date}</li>)}</ul>
     <p>The sample's pages carry no render noise. Each posted result changed one result cell on the saved page of each team that played, and nothing else on those pages changed. {list(week.unavailable)}'s page was not saved on Friday or on Tuesday.</p>
     <div class="cv-check" data-once="fw-retention">
       <p class="cv-kind">Knowledge check</p>
       <div class="cv-line" data-q data-type="number" data-answer={retention.tuesday.newFiles} data-why={`${retention.tuesday.newFiles}. ${list(week.unchangedOnTuesday)} were byte-identical on Tuesday, so their hashes name files the archive already holds. The other ${retention.tuesday.newFiles} each changed one result cell: Saturday's ${word(sinceFriday.saturday)} results and Sunday's ${sinceFriday.championship} final, each on both teams' pages where the page was saved.`}>
-        <label><span>Tuesday's {word(retention.tuesday.pages)} schedule pages arrive at an archive that keeps every capture, one file per content hash, and already holds Friday's {word(retention.schedules)}. How many new files does it write?</span>
+        <label><span>Tuesday's {word(retention.tuesday.pages)} schedule pages arrive at an archive that keeps every capture, stored by content hash, and already holds Friday's {word(retention.schedules)}. How many new files does it write?</span>
           <input inputmode="numeric" autocomplete="off" data-save="fw-ret-files" aria-label="New files" />
         </label>
         <p class="cv-fb" role="status"></p>
       </div>
-      <div class="cv-line" data-q data-type="select" data-answer="bytes" data-why={`${POLICY.dedup}. A new stamp on every fetch gives new bytes, so every fetch lands on a new name, and the archive ends up storing every fetch. One file per signature keeps one file per distinct normalised page, at the price of not keeping the exact bytes of every fetch; latest only never stores more than one per page either way.`} data-wrong={JSON.stringify({ latest: "Latest only keeps one capture per page, noise or not.", signature: "The signature drops the noise, so a re-render lands on a name that already exists." })}>
+      <div class="cv-line" data-q data-type="select" data-answer="bytes" data-why={`${POLICY.dedup}. A new stamp on every fetch gives new bytes, so every fetch lands on a new name, and the archive ends up storing every fetch. Stored by signature, it keeps one file per distinct normalised page, at the price of not keeping the exact bytes of every fetch; latest only never stores more than one per page either way.`} data-wrong={JSON.stringify({ latest: "Latest only keeps one capture per page, noise or not.", signature: "The signature drops the noise, so a re-render lands on a name that already exists." })}>
         <label><span>Now every page carries a render stamp that is new on every fetch, like the made-up re-renders in the first section. Which archive ends up storing every fetch?</span>
           <select data-save="fw-ret-noise"><option value="">Choose</option><option value="latest">{POLICY.latest}</option><option value="bytes">{POLICY.dedup}</option><option value="signature">{POLICY.sig}</option></select>
         </label>
@@ -269,9 +268,10 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
             <tbody>{tuesdayHashes.map((h) => <tr><th scope="row">{h.name}</th><td class="ar-mono">{h.friday}</td><td class:list={["ar-mono", { "ar-moved": !h.same }]}>{h.tuesday}<span class="cv-sub">{h.same ? "same as Friday" : "changed"}</span></td></tr>)}</tbody>
           </table>
         </div>
+        <p>Schedule pages stored after Tuesday's capture, by policy:</p>
         <div class="cv-scroll ar-tablewrap" tabindex="0" role="region" aria-label="Schedule pages stored after Tuesday's capture">
           <table class="ar-table ar-stack">
-            <thead><tr><th scope="col">Schedule pages after Tuesday's capture</th><th scope="col">Schedule files</th><th scope="col">Page bytes</th><th scope="col">Friday's evidence</th></tr></thead>
+            <thead><tr><th scope="col">Policy</th><th scope="col">Schedule files</th><th scope="col">Page bytes</th><th scope="col">Friday's evidence</th></tr></thead>
             <tbody>
               <tr><th scope="row">{POLICY.latest}</th><td data-label="Schedule files">{store.latestFiles}</td><td data-label="Page bytes">{n(retention.tuesday.bytes)}</td><td data-label="Friday's evidence">Gone for the {retention.tuesday.newFiles} pages that changed</td></tr>
               <tr><th scope="row">{POLICY.dedup}</th><td data-label="Schedule files">{store.dedupFiles}</td><td data-label="Page bytes">{n(store.dedupBytes)}</td><td data-label="Friday's evidence">All kept</td></tr>
@@ -294,7 +294,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
       ))}
       <figcaption>Sizes over the season up to Friday's run, for the {word(retention.schedules)} schedule pages Friday saved, so latest only is Friday's size, not Tuesday's. Box scores are left out, on the assumption that each is published once after its match.</figcaption>
     </figure>
-    <p>The shape matters more than the totals. Latest only grows with the number of pages. One file per content hash grows with the number of changes. Storing every fetch grows with the number of fetches, and render noise turns the second into the third unless files are named by <a href="#signatures">signature</a>. Real pages are larger than the sample's and a real archive holds far more of them, so the totals do not carry over. Nor do the multipliers exactly: they depend on how often the collector fetches and how often each page changes. Versions of one page are mostly the same text, so they also compress well together.</p>
+    <p>The shape matters more than the totals. Latest only grows with the number of pages. Stored by content hash, an archive grows with the number of distinct versions. Storing each fetch grows with the number of fetches, and render noise that makes every fetch's bytes new turns the second into the third unless files are named by <a href="#signatures">signature</a>. Real pages are larger than the sample's and a real archive holds far more of them, so the totals do not carry over. Nor do the multipliers exactly: they depend on how often the collector fetches and how often each page changes. Versions of one page are mostly the same text, so they also compress well together.</p>
 
     <h3>Between the two</h3>
     <p>The choice is not all or nothing. Two common middles: keep every capture for a window, such as the current season, then thin to the latest; or keep every capture that a published output was built from. Friday's manifest lists the content hash of every page Monday's table read. Rebuilding every published table then takes three things: no capture deleted while some manifest still names it; the parser, build code and config of each run kept in version control, as <a href={lesson("decision")}>the decision</a> assumes; and a runtime that can be restored, as <a href="#scope">the fingerprint section's last row</a> asks. With those, a store can thin everything else.</p>
@@ -305,7 +305,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     <p class="ar-for">For anyone who will meet these words at work.</p>
     <p>Many data teams name a pipeline's layers after medals. <strong>Bronze</strong> holds data as it arrived. <strong>Silver</strong> holds it parsed into rows, typed and checked, and often joined into one row per match, with each school under one name. <strong>Gold</strong> holds what a reader uses: a table, a report, an input to a model. The pattern is often called the medallion architecture. Other teams say raw, staging and curated, or landing, refined and serving. The lesson's terms map onto it: <a href={lesson("idea")}>raw data</a> is bronze, and silver and gold are both derived.</p>
     <p>Touchline's steps sit on the boundaries. Collecting writes bronze; in production the archive sits in private object storage, and nothing on this page depends on where it lives. Parsing each page, and matching the saved rows by fixture id, write silver. Building the table and each match detail writes gold, which is what gets published.</p>
-    <p>Some files describe a layer rather than hold it: what should be in it, where each item came from, and the hash of each. A capture manifest does that for a whole run and holds no data at all. A sidecar does it for one page and travels with it; Touchline's sidecar also carries the page's cached parse, silver rows travelling beside bronze's metadata.</p>
+    <p>Some files describe a layer rather than hold it: what should be in it, where each item came from, and the hash of each. A capture manifest does that for a whole run: which pages were saved, the hash of each, and the gaps it names. A sidecar does it for one page and travels with it; Touchline's sidecar also carries the page's cached parse, which is silver.</p>
 
     <div class="cv-check" data-once="fw-layers">
       <p class="cv-kind">Knowledge check</p>
@@ -338,7 +338,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     <ol class="ar-run">
       {labRun.map((s, i) => (
         <li>
-          <p>{i < sectionNote.length ? sectionNote[i] : <>The report that <a href={lesson("rewind")}>Rewind</a> teaches you to check. Each line answers one of Riley's acceptance criteria.</>}</p>
+          <p>{i < sectionNote.length ? sectionNote[i] : <>The report that <a href={lesson("rewind")}>Rewind</a> teaches you to check. Rewind matches its lines to Riley's acceptance criteria; a few, like <code>parsed rows</code>, are supporting detail.</>}</p>
           <pre tabindex="0" class="ar-out"><code>{out(s.text).map((l) => <span style={l.hang ? `--hang: ${l.hang}ch` : undefined}>{l.text}</span>)}</code></pre>
         </li>
       ))}
@@ -350,7 +350,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
 
     <pre tabindex="0"><code>python labs/m02_archive.py --missing {missing.slug}</code></pre>
     <p>This replays a scratch copy of the archive with {missing.name}'s schedule page deleted, while the manifest still lists it as saved. The manifest check at the top of the run counts the gap:</p>
-    <pre tabindex="0" class="ar-out"><code>{missingHashes}</code></pre>
+    <pre tabindex="0" class="ar-out"><code>{out(missingHashes).map((l) => <span style={l.hang ? `--hang: ${l.hang}ch` : undefined}>{l.text}</span>)}</code></pre>
     <p>A page deleted by hand would stop the run there. <code class="ar-nw">--missing</code> lets this one through, so you can see what <code>replay()</code> does on its own: it skips the page without a word. The report below then counts one schedule fewer than the manifest lists. The run exits with code {exits.missing}, and ends with this report:</p>
     <pre tabindex="0" class="ar-out"><code>{out(missingReport).map((l) => <span style={l.hang ? `--hang: ${l.hang}ch` : undefined}>{l.text}</span>)}</code></pre>
     <p>Compare the <code>tables</code> line with the default run's. {missing.name}'s page held {word(missing.lost)} finished matches against {missing.opponent} that no other saved page has, one at each school, because {missing.opponent}'s own page was never saved. The table lost both, as Friday's copy of {missing.name}'s page shows them:</p>
@@ -361,27 +361,29 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     <p>Start from a clean checkout, with <code>git status</code> showing nothing changed. Each change starts from the original files, so undo one before you try the next: <code class="ar-nw">git checkout --</code> <code>&lt;the file you changed&gt;</code> restores that file to the commit, discarding every edit in it.</p>
     <ol class="ar-turns">
       <li id="tamper">
-        <p><b>Alter the evidence.</b> In <code>sample/raw_html/harbor-point/2026-men-schedule.html</code>, change one result cell, a tie to a win. Before you run <code>python labs/m02_archive.py</code>, record what you expect.</p>
+        <p><b>Alter the evidence.</b> In <code>{tamperPath}</code>, change one result cell, a tie to a win. Before you run <code>python labs/m02_archive.py</code>, record what you expect.</p>
         <Check once="fw-lab-tamper" kind="Prediction" predict="Prediction recorded. It isn't graded: the lab shows what happens." note="Pick one, then record it." button="Record my prediction">
           <Choice radio save="fw-lab-tamper" label="With one result cell changed on a saved page, the lab:" options={tamper} answer="stop" why="" />
           <div slot="reveal">
             <p>Now run it, and read the last line it prints.</p>
           </div>
         </Check>
+        <div data-when="fw-lab-tamper" hidden>
         <Check once="fw-lab-ran" note="Run the lab first, then answer." button="Check">
           <Choice save="fw-lab-ran" label="The run's last line begins:" options={ran} answer="stop" why={ranWhy} wrong={ranWrong} />
           <div slot="reveal">
-            <p>Restore the page with <code class="ar-nw">git checkout --</code> <code>sample/raw_html/harbor-point/2026-men-schedule.html</code>. Why is refusing better than replaying the page with a warning?</p>
+            <p>Restore the page with <code class="ar-nw">git checkout --</code> <code>{tamperPath}</code>. Why is refusing better than replaying the page with a warning?</p>
           </div>
         </Check>
+        </div>
       </li>
-      <li><b>Make the silent skip loud.</b> <code>replay()</code> in <code>labs/m02_archive.py</code> skips a missing page with <code>continue</code>, trusting the manifest check before it to have stopped the run. A step should not rely on its caller's check. Decide what should happen, and make the lab do it. To stop the run: print a <code>RESULT:</code> line that names the missing school and exit before any table is built. To replay the rest: name the gap, the way Module 1's coverage record names a page that never arrived, list the matches lost with it, make the report's <code>tables</code> line compare with the default run's table (save that run's <code>tables</code> line before you delete the page), and change the final <code>RESULT:</code> line to match. Then run <code class="ar-nw">--missing {missing.slug}</code> again. Which choice lets Riley publish a table on a day a page is missing, and what must that table say?</li>
-      <li><b>Make Tuesday's comparison controlled.</b> <code class="ar-nw">--tuesday</code> changed the parser and the pages at once. Add a run that parses Tuesday's pages with Tuesday's parser, and compare its table with the <code class="ar-nw">--tuesday</code> table. Exactly one cell should differ: “{controlled.was}” against “{controlled.name}”. Every other change in the confounded diff then traces to the pages alone.</li>
+      <li><b>Make the silent skip loud.</b> <code>replay()</code> in <code>labs/m02_archive.py</code> skips a missing page with <code>continue</code>, trusting the manifest check before it to have stopped the run. A step should not rely on its caller's check. Decide what should happen, and make the lab do it. To stop the run: print a <code>RESULT:</code> line that names the missing school and exit before any table is built. To replay the rest: name the gap, the way Module 1's coverage record names a page that never arrived, name the conference pairings that no saved page holds any more, make the report's <code>tables</code> line compare with the default run's (save that run's <code>tables</code> line first), and change the final <code>RESULT:</code> line to match. Then run <code class="ar-nw">--missing {missing.slug}</code> again. Which choice lets Riley publish a table on a day a page is missing, and what must that table say?</li>
+      <li><b>Make Tuesday's comparison controlled.</b> <code class="ar-nw">--tuesday</code> changed the parser and the pages at once. Add a run that parses Tuesday's pages with Tuesday's parser, and compare its table with the <code class="ar-nw">--tuesday</code> table. Exactly {word(controlled.cells)} cell should differ: “{controlled.was}” against “{controlled.name}”. Every other change in the confounded diff then traces to the pages alone.</li>
       <li><p><b>Narrow the fingerprint.</b> Add <code>import inspect</code> beside the other imports in <code>labs/m02_archive.py</code>, make <code>fingerprint()</code> return this, and run the lab:</p>
         <pre tabindex="0"><code>hashlib.sha256(
     inspect.getsource(parser.tidy)
     .encode()
-).hexdigest()[:12]</code></pre>
+).hexdigest()[:{signatures.friday.byteHash.length}]</code></pre>
         <p>It still passes. Read its report's <code>covers</code> line: is every line of the report still true? Which edits from <a href="#scope">How much a fingerprint covers</a> would the narrow fingerprint now miss?</p></li>
     </ol>
     <p>Every run above checked the bytes of every page it read against its capture manifest. None checked that the page is the one its sidecar says it is: the season and school its address names. <a href="../03-provenance/">Module 3</a> tests that.</p>
