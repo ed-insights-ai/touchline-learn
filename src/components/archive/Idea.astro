@@ -21,7 +21,7 @@ const terms = [
   },
   {
     term: "Derived data",
-    say: `is anything computed from raw data: parsed rows, the table, its caption. You can delete it and compute it again. You can't do that with raw data: once a site changes its page, the old bytes exist only if you kept them.`,
+    say: `is anything computed from raw data: parsed rows, the table, its caption. You can delete it and compute it again, as long as you kept the raw data, code and config that made it. You can't do that with raw data: once a site changes its page, the old bytes exist only if you kept them.`,
     tuesday: `“${story.tuesdayName}” exists only in derived data. No saved page ever said it. Kick's tidy rule wrote it.`,
   },
   {
@@ -33,20 +33,20 @@ const terms = [
 ];
 
 const bakes = [
-  { recipe: "Old recipe", cells: [{ text: "Last week's loaf", is: "was" }, { text: "Not needed", is: "skip" }] },
-  { recipe: "New recipe", cells: [{ text: "Bake this one", is: "test" }, { text: "Today's loaf", is: "now" }] },
+  { recipe: "Old recipe", cells: [{ text: "Bake today", is: "test" }, { text: "Not needed", is: "skip" }] },
+  { recipe: "New recipe", cells: [{ text: "Bake today", is: "test" }, { text: "Today's loaf", is: "now" }] },
 ];
 
 const rules = [
   { rule: "Save the bytes before any code parses them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt.", clause: "from the pages you kept", where: "Case 2" },
-  { rule: "Change one thing at a time.", then: "A replay holds the pages and config fixed, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Record the content hash of each saved page, a short code computed from its exact bytes that changes if any byte does, and which code and config produced the output. Friday's manifest records the content hash of each of the ${saved} schedule pages it saved. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
+  { rule: "Change one thing at a time.", then: "In Riley's replay the pages and config stay fixed, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
+  { rule: "Record what produced each output.", then: `Record which exact pages produced each output, by a content hash of their bytes (a short code that changes if any byte does), and which code and config ran. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
 ];
 
 const loop = [
   ["for page in expected_pages:", "fetch"],
   ["    raw = fetch(page)", "fetch"],
-  ["    save(page, raw, sha256=hash(raw), fetched_at=now())", "fetch"],
+  ["    save(page, raw, fetched_at=now())  # or record it unavailable", "fetch"],
   ["rows = [parse(saved, code, config) for saved in archive]", "replay"],
   ["table = build(rows)", "replay"],
   ["record(table, pages=hashes(archive), code=version(code, config))", "replay"],
@@ -107,15 +107,15 @@ const items: [string, string][] = [
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-two" aria-hidden="true"></i>Last week's loaf against today's: the recipe and the oven both changed.</span>
-      <span><i class="is-one" aria-hidden="true"></i>Last week's loaf against “Bake this one”: same old oven, only the recipe changed.</span>
+      <span><i class="is-two" aria-hidden="true"></i>Today's loaf against last week's: the recipe and the oven both changed.</span>
+      <span><i class="is-one" aria-hidden="true"></i>The two old oven loaves, baked side by side from the same flour: only the recipe differs.</span>
     </figcaption>
   </figure>
-  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To find out, bake the new recipe in the old oven, if the bakery still has it. Only the recipe differs between that loaf and last week's, so any difference is the recipe's.</p>
+  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To find out, bake both recipes side by side in the old oven, if the bakery still has it, from the same flour on the same afternoon. Only the recipe differs between those two loaves, so any difference is the recipe's.</p>
   <div class="cv-define">
     <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
-  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Last week's loaf is Tuesday's table, the old code on Friday's pages. Kick's re-fetch is today's loaf, new code on new pages. A replay is “Bake this one”, new code on Friday's pages. It works only because Friday's pages were kept, like an old oven nobody threw out.</p>
+  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on new pages. A replay is the old oven column: the old code and the fixed code each run on Friday's pages. Code is easier than bread here, because the same code on the same pages gives the same table every time. It works only because Friday's pages were kept, like an old oven nobody threw out.</p>
 
   <h3 id="idea-rules">Three rules, one for each clause</h3>
   <ol class="cv-rules">
@@ -124,7 +124,7 @@ const items: [string, string][] = [
         <p class="cv-rule-call"><span>Riley</span>“{r.clause}”<em>{r.where}</em></p></li>
     ))}
   </ol>
-  <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive. Here it is in six lines of pseudocode.</p>
+  <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
     <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6: that is a replay. Running line 2 again is a re-fetch.</figcaption>
@@ -137,7 +137,7 @@ const items: [string, string][] = [
   <h4 class="cv-try" id="idea-check">Check your understanding: a research survey</h4>
   <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
-    <Choice save="idea-bug" label="The team finds a bug in the cleaning script. What do they need to produce a corrected spreadsheet and chart from the same responses as before?"
+    <Choice save="idea-bug" label="The team finds a bug in the cleaning script. What do they need to produce a corrected spreadsheet and chart for the study they published?"
       options={[
         ["sheet", "The cleaned spreadsheet, rerun through the fixed script"],
         ["replay", "Their saved survey export, run through the fixed script"],
@@ -151,7 +151,7 @@ const items: [string, string][] = [
         fresh: "A new export changes the evidence as well as the code. Responses added or edited since could mix in with the fix.",
         chart: "Hand edits change numbers with no record of how, and leave the spreadsheet wrong.",
       }} />
-    <Choice save="idea-gone" label="The vendor deletes every response older than a year. Which of the four could the team never rebuild if they lost their copy?"
+    <Choice save="idea-gone" label="The saved export includes responses more than a year old. The vendor then deletes every response older than a year. Which of the four could the team never rebuild if they lost their copy?"
       options={items}
       answer="export"
       why="The survey export. The spreadsheet and chart are derived from it and can be computed again, and the script is kept in version control. Once the vendor deletes the responses, the team's copy is the only one left."
@@ -174,7 +174,7 @@ const items: [string, string][] = [
         current: "The script may have changed since the chart was made, so today's run may not be the one that made the number.",
         fresh: "A new export could hold different responses, so its number may answer a different question.",
       }} />
-    <p slot="reveal">Fix code by replaying the raw input you kept. Keep the raw data a source can take away. Record what produced each output. The same three rules hold for Friday's pages.</p>
+    <p slot="reveal">The vendor deleting responses is rule 1: save the bytes, because the source can take them away. The bug fix is rule 2: replay the saved export, so the code is the only thing that changes. The reviewer is rule 3: record what produced each output. The same three rules hold for Friday's pages.</p>
   </Check>
 
   <NextPart from="idea">Saturday's matches finished after Friday's run. What does that do to a re-fetch?</NextPart>
@@ -182,8 +182,8 @@ const items: [string, string][] = [
 
 <style>
   .ar-formula { font-family: var(--sl-font-mono); font-size: 1rem !important; overflow-wrap: anywhere; }
-  .ar-formula .is-out { color: var(--tl-derived-edge); }
-  .ar-formula .is-pages { color: var(--tl-raw-edge); }
+  .ar-formula .is-out { color: color-mix(in srgb, var(--tl-derived-edge) 70%, var(--tl-ink)); }
+  .ar-formula .is-pages { color: color-mix(in srgb, var(--tl-raw-edge) 65%, var(--tl-ink)); }
   .ar-formula .is-code, .ar-formula .is-config { color: var(--sl-color-white); text-decoration: underline; text-decoration-color: var(--tl-muted); text-underline-offset: 3px; }
   .ar-inputs { display: grid; gap: 0.5rem; margin: 0 0 1rem !important; padding: 0 !important; list-style: none; }
   @media (min-width: 40rem) { .ar-inputs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

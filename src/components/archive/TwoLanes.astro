@@ -2,7 +2,7 @@
 import { fridayPages, tuesdayManifest } from "../../lib/archive";
 
 type Kind = "raw" | "fresh" | "code" | "derived" | "kept" | "lost";
-type Cell = { kind: Kind; tag?: "same" | "changed"; title: string; sub: string };
+type Cell = { kind: Kind; tag?: "same" | "changed" | "new capture"; title: string; sub: string };
 type Lane = { name: string; who: string; write: boolean; back: string; cells: Cell[] };
 
 const stages = ["Pages", "Code", "Table", "Archive afterwards"];
@@ -19,7 +19,7 @@ const lanes: Lane[] = [
   {
     name: "Re-fetch", who: "Kick's plan", write: true, back: "each new schedule page would be saved in place of Friday's copy",
     cells: [
-      { kind: "fresh", tag: "changed", title: "Tuesday's pages", sub: `${tuesdayManifest.requested} sites, asked again` },
+      { kind: "fresh", tag: "new capture", title: "Tuesday's pages", sub: `${tuesdayManifest.requested} sites, asked again` },
       { kind: "code", tag: "changed", title: "Fixed parser", sub: "same config" },
       { kind: "derived", title: "New table", sub: "two inputs changed" },
       { kind: "lost", title: "Friday's schedules", sub: "would be replaced" },
@@ -41,6 +41,9 @@ const narrowH = N.top + stages.length * N.rh + N.foot + 4;
 const nx = (l: number) => N.side + l * (N.cw + N.gap);
 const ny = (i: number) => N.top + i * N.rh;
 const nbox = (l: number, i: number) => ({ x: nx(l) + 9, w: N.cw - 22, y: ny(i) + (N.rh - N.bh) / 2 + (i === 3 ? 10 : 4) });
+
+const tagW = (tag: string) => 16 + tag.length * 7.4;
+const tone = (tag: string) => (tag === "same" ? "same" : "changed");
 
 const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, what Riley asked for: Friday's ${fridayPages.length} saved schedule pages stay the same and are only read, the fixed parser is the one input that changes, and Friday's schedule pages are still in the archive afterwards. Re-fetch, Kick's plan, which Riley stopped: the sites would be asked again, so Tuesday's pages and the fixed parser would both change, and each new schedule page would be saved in place of Friday's copy.`;
 ---
@@ -70,8 +73,8 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, w
               <text class={`ar-t is-${c.kind}`} x={x + 11} y={y + 31}>{c.title}</text>
               <text class={`ar-s is-${c.kind}`} x={x + 11} y={y + 54}>{c.kind === "kept" ? "✓ " : c.kind === "lost" ? "✕ " : ""}{c.sub}</text>
               {c.tag && <>
-                <rect class={`ar-tag is-${c.tag}`} x={x + W.cw - 74} y={y - 10} width={66} height={20} rx={10} />
-                <text class={`ar-tagt is-${c.tag}`} x={x + W.cw - 41} y={y + 4} text-anchor="middle">{c.tag}</text>
+                <rect class={`ar-tag is-${tone(c.tag)}`} x={x + W.cw - 8 - tagW(c.tag)} y={y - 10} width={tagW(c.tag)} height={20} rx={10} />
+                <text class={`ar-tagt is-${tone(c.tag)}`} x={x + W.cw - 8 - tagW(c.tag) / 2} y={y + 4} text-anchor="middle">{c.tag}</text>
               </>}
             </g>
           );
@@ -107,11 +110,12 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, w
           {i > 0 && i < 3 && <line class="ar-arrow" x1={x + w / 2} x2={x + w / 2} y1={y - (N.rh - N.bh) + 3} y2={y - 3} marker-end="url(#ar-ah-n)" />}
           <rect class={`ar-box is-${c.kind}`} x={x} y={y} width={w} height={N.bh} rx={7} />
           {c.kind === "lost" && <line class="ar-cross" x1={x + 8} y1={y + 8} x2={x + w - 8} y2={y + N.bh - 8} />}
+          {l === 0 && i < 3 && <text class="ar-col ar-row-n" x={x} y={y - 4}>{stages[i].toUpperCase()}</text>}
           <text class={`ar-t is-${c.kind}`} x={x + 10} y={y + 28}>{c.title}</text>
           <text class={`ar-s is-${c.kind}`} x={x + 10} y={y + 50}>{c.kind === "kept" ? "✓ " : c.kind === "lost" ? "✕ " : ""}{c.sub}</text>
           {c.tag && <>
-            <rect class={`ar-tag is-${c.tag}`} x={x + w - 64} y={y - 9} width={62} height={18} rx={9} />
-            <text class={`ar-tagt is-${c.tag}`} x={x + w - 33} y={y + 4} text-anchor="middle">{c.tag}</text>
+            <rect class={`ar-tag is-${tone(c.tag)}`} x={x + w - 2 - tagW(c.tag)} y={y - 9} width={tagW(c.tag)} height={18} rx={9} />
+            <text class={`ar-tagt is-${tone(c.tag)}`} x={x + w - 2 - tagW(c.tag) / 2} y={y + 4} text-anchor="middle">{c.tag}</text>
           </>}
         </g>
       );
@@ -121,7 +125,7 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, w
       return (
         <g>
           {lane.write && <path class="ar-write" d={`M${xr - 4} ${ym(p)} H${xr} V${ym(a)} H${xr - 2}`} marker-end="url(#ar-ah-nr)" />}
-          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "would save over Friday's" : "read only"}</text>
+          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "would save over Friday's" : "read only, nothing saved"}</text>
         </g>
       );
     })}
@@ -148,6 +152,7 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, w
   .ar-lanes text { font-family: var(--sl-font); fill: var(--tl-ink); }
   .ar-col { fill: var(--tl-muted) !important; font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; }
   .ar-narrow .ar-col { font-size: 11px; letter-spacing: 0.06em; }
+  .ar-narrow .ar-row-n { font-size: 9.5px; }
   .ar-name { fill: var(--sl-color-white) !important; font-size: 19px; font-weight: 750; }
   .ar-narrow .ar-name { font-size: 17px; }
   .ar-who { fill: var(--tl-muted) !important; font-size: 14px; }

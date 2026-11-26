@@ -11,9 +11,14 @@ import { spell } from "../../lib/cases";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 const monday = `${story.monday.scored} of ${story.monday.finished}`;
+const shownName = (slug: string) => tableA.rows.find((r) => r.slug === slug)?.name ?? slug;
+const day = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+const gaps = tableA.gaps.map((g) => g.kind === "no-score"
+  ? `${shownName(g.home)} v ${shownName(g.away)} on ${day(g.date)} finished with no score.`
+  : `${shownName(g.programme)}'s page unavailable: ${g.reason}.`);
 
 const kickThoughts = [
-  `Saint Lambert is right. My tidy rule turns every “St.” into “State”, so “${story.mondayName}” came out as “${story.tuesdayName}”. The fix is one line in the parser: “St.” in front of a name means Saint.`,
+  `Saint Lambert is right. The fix is one line in the parser: “St.” in front of a name means Saint.`,
   "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule. The cleanest way to be sure every row goes through the fixed parser is to start from fresh pages.",
   `Fresh pages help in other ways too. Dunmore didn't answer on Friday, so it's worth asking again, and if any site has posted a result since, the table picks that up as well. Re-fetching!`,
 ];
@@ -48,6 +53,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   <p>Every number in it is Monday's. One name is new.</p>
   <div class="ar-tuesday">
     <FirstRunTable rows={tableA.rows} caption={`Tuesday's table, ${tableA.caption}`} />
+    <ul class="ar-gaps" aria-label="Named gaps under Tuesday's table">{gaps.map((g) => <li>{g}</li>)}</ul>
   </div>
   <div class="cv-vm ar-vm">
     <div class="cv-vm-head">
@@ -60,7 +66,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
 
   <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
   <p>Kick apologized, fixed the rule in a minute, and kept going. This is what Kick was thinking when it said “Re-fetching!”.</p>
-  <KickThink duration="Thought for 5s" thoughts={kickThoughts} />
+  <KickThink thoughts={kickThoughts} />
   <div class="cv-kplan ar-plan" role="region" aria-label="Kick's fix plan, stopped after the first step">
     <div class="cv-kplan-bar">
       <span class="cv-kplan-who">
@@ -101,8 +107,12 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       <label><input type="radio" name="ar-refetch-predict" value={value} data-save={refetchPredict.key} /><span>{label}</span></label>
     ))}
   </fieldset>
-  <p class="ar-saved" data-when={refetchPredict.key} hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
-  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick a prediction. We'll come back to it in The decision.</p>
+  <div class="ar-lockrow">
+    <button type="button" data-ar-lock-btn disabled>Lock in my prediction</button>
+    <input type="hidden" data-save="setup-locked" data-ar-locked />
+  </div>
+  <p class="ar-saved" data-when="setup-locked" hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
+  <p class="cv-once" data-when="setup-locked" data-is="">Pick a prediction, then lock it in. We'll come back to it in The decision.</p>
 
   <AiCard part="setup" />
   <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>
@@ -111,9 +121,23 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
 <script>
   document.querySelectorAll<HTMLFieldSetElement>("[data-ar-lock]").forEach((set) => {
     const radios = [...set.querySelectorAll<HTMLInputElement>("input[type=radio]")];
-    const lock = () => { if (radios.some((r) => r.checked)) radios.forEach((r) => { r.disabled = !r.checked; }); };
-    radios.forEach((r) => r.addEventListener("change", () => setTimeout(lock)));
-    window.addEventListener("load", lock);
+    const row = set.nextElementSibling as HTMLElement;
+    const btn = row.querySelector<HTMLButtonElement>("[data-ar-lock-btn]")!;
+    const flag = row.querySelector<HTMLInputElement>("[data-ar-locked]")!;
+    const sync = () => {
+      const locked = flag.value === "1" && radios.some((r) => r.checked);
+      radios.forEach((r) => { r.disabled = locked && !r.checked; });
+      btn.disabled = locked || !radios.some((r) => r.checked);
+      row.hidden = locked;
+    };
+    radios.forEach((r) => r.addEventListener("change", () => setTimeout(sync)));
+    btn.addEventListener("click", () => {
+      flag.value = "1";
+      flag.dispatchEvent(new Event("input"));
+      sync();
+    });
+    window.addEventListener("load", sync);
+    sync();
   });
 
   let media: HTMLAudioElement | null = null;
@@ -152,6 +176,10 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-poster:hover span { color: var(--sl-color-white); }
   .ar-tuesday :global(tr[data-team="st-lambert"]) { background: color-mix(in srgb, #f4c62f 18%, transparent); }
   .ar-tuesday :global(tr[data-team="st-lambert"] th) { color: var(--sl-color-white); }
+  .ar-tuesday :global(.fr-table) { margin-bottom: 0.4rem; }
+  .ar-gaps { margin: 0 0 1rem !important; padding: 0 !important; list-style: none; color: var(--tl-muted); font-size: 0.85rem; }
+  .ar-gaps li { margin: 0.1rem 0; }
+  .ar-gaps li::before { content: "Named gap · "; font-weight: 700; }
   .ar-vm { margin: 0 0 1rem; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1rem; }
   .ar-vm .cv-vm-line { grid-column: 1 / -1; grid-row: 2; }
   .ar-vm .cv-vm-play { grid-column: 2; grid-row: 1; align-self: center; }
@@ -160,5 +188,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-plan-wait { width: 1.1rem; height: 1.1rem; margin-top: 0.12rem; border: 2px dashed var(--tl-muted); border-radius: 50%; box-sizing: border-box; }
   .ar-clause { display: inline; }
   .ar-clause sup { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; margin: 0 0.3rem 0 0.1rem; border-radius: 50%; background: color-mix(in srgb, #f4c62f 22%, transparent); color: var(--sl-color-white); font-size: 0.7rem; font-weight: 750; line-height: 1; vertical-align: 0.2em; }
+  .ar-lockrow { margin: 0.6rem 0 0.5rem; }
+  .ar-lockrow[hidden] { display: none; }
   .ar-saved { margin: 0 0 1.25rem !important; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
 </style>
