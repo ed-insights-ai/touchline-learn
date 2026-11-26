@@ -21,7 +21,7 @@ export type ManifestPage = {
   path?: string; fetched_at?: string; bytes?: number; sha256?: string; fixture?: string; reason?: string; tries?: number;
 };
 export type Manifest = {
-  run: string; scope: string; started_at: string; finished_at: string; requested: number; saved: number;
+  schema: "learn.capture-manifest/1"; run: string; purpose: string; season: number; gender: string; conference: string; scope: string; started_at: string; finished_at: string; requested: number; saved: number;
   unavailable: string[]; pages: ManifestPage[];
 };
 type Fixture = {
@@ -29,8 +29,18 @@ type Fixture = {
   home_score?: number; away_score?: number; stage?: { phase: string; round_published?: string };
 };
 
-export const fridayManifest: Manifest = json(sample("manifests", "2026-11-20-friday.json"));
-export const tuesdayManifest: Manifest = json(sample("manifests", "2026-11-24-tuesday.json"));
+const manifestAt = (file: string): Manifest => {
+  const m: Manifest = json(sample("manifests", file));
+  const saved = m.pages.filter((p) => p.state === "saved");
+  check(m.pages.every((p) => p.state === "saved" || (p.state === "unavailable" && Boolean(p.reason))), `${file} has a page that is neither saved nor unavailable with a reason`);
+  check(m.schema === "learn.capture-manifest/1" && m.season === SEASON && m.conference === CONFERENCE, `${file} is not a ${SEASON} ${CONFERENCE} capture manifest`);
+  check(m.requested === m.pages.length && m.saved === saved.length, `${file}'s counts disagree with its pages`);
+  check(m.unavailable.slice().sort().join() === m.pages.filter((p) => p.state === "unavailable").map((p) => p.programme).sort().join(), `${file}'s unavailable list disagrees with its pages`);
+  saved.forEach((p) => check(sha256(bytes(sample(p.path!))) === p.sha256, `${p.path} no longer matches its manifest hash`));
+  return m;
+};
+export const fridayManifest = manifestAt("2026-11-20-friday.json");
+export const tuesdayManifest = manifestAt("2026-11-24-tuesday.json");
 const fixtures: Fixture[] = json(sample("data", "fixtures", "2026-men-plc.json")).fixtures;
 const laterFixtures: Fixture[] = json(sample("shadow", "fixtures", "2026-men-plc.json")).fixtures;
 const aliasPath = sample("data", "reference", "aliases.json");
@@ -301,8 +311,8 @@ export const rewind = {
   schedulesSaved: fridayPages.length,
   boxScoresSaved: fridayBoxes.length,
   requested: fridayManifest.requested,
-  unavailable: down(fridayManifest).map((p) => ({ programme: p.programme, name: programmes[p.programme].name, reason: p.reason! })),
-  requests: Number(replayReport.match(/^requests\s+: (\d+), counted by a counter that caught (\d+) of \2 test requests$/m)?.[1] ?? fail("the replay report's requests line is not a counted 0")),
+  unavailable: down(fridayManifest).map((p) => ({ slug: p.programme, name: programmes[p.programme].name, reason: p.reason! })),
+  requests: Number(replayReport.match(/^requests\s+: (\d+), counted by a counter that caught ([1-9]\d*) of \2 test requests$/m)?.[1] ?? fail("the replay report's requests line is not a counted 0")),
   fingerprint: reportField("fingerprint").split(",")[0],
   fingerprintTuesday: reportField("fingerprint").match(/was (\w+) on Tuesday/)?.[1] ?? fail("the replay report does not name Tuesday's fingerprint"),
   buildRevision: reportField("build revision").split(",")[0],
@@ -316,6 +326,10 @@ check(rewind.requests === 0 && rewind.cellsChanged === diffAB.length, "the quote
 check(replayReport.includes(`Tuesday's ${tableA.caption}; rebuild ${tableB.caption}`), "the quoted report's caption differs");
 const repr = (v: string | number) => (typeof v === "string" ? `'${v}'` : String(v));
 const cellText = (c: Cell) => `${c.column} ${repr(c.before)} -> ${repr(c.after)}`;
+const renames = new Map<string, number>();
+parsedAB.forEach((x) => { const k = `${repr(x.before.shown)} -> ${repr(x.after.shown)}`; renames.set(k, (renames.get(k) ?? 0) + 1); });
+const renameLine = `parsed rows    : ${parsedAB.length} renamed, ${[...renames].sort(([a], [b]) => cmp(a, b)).map(([k, n]) => `${k} in ${n}`).join(", ")}`;
+check(rewind.lines.includes(renameLine), "the lab's parsed rows were renamed differently from the rows parsed here; the two tidy rules have drifted");
 check(diffAB.length === 1 && rewind.lines.includes(`  ${diffAB[0].name.padEnd(15)} ${cellText(diffAB[0])}: the tidy rule, the only input that changed`), "the quoted report's changed cell is not the one computed here");
 
 const tuesdayQuotePath = root("src", "data", "quotes", "m02_archive.tuesday-diff.txt");
@@ -342,7 +356,7 @@ const tidyHtml = (line: string) => tidyV1(line.replace(/<(\w+)(\s[^>]*)?>/g, (_,
   const href = attrs.match(/\shref="[^"]*"/);
   return `<${tag}${href ? href[0] : ""}>`;
 }).replace(/\s+/g, " "));
-type Kept = "a" | "b" | "c";
+export type Kept = "a" | "b" | "c";
 const KEPT: Kept[] = ["a", "b", "c"];
 const keep: Record<Kept, (r: RawRow) => string> = {
   a: (r) => JSON.stringify(hypotheticalParse(r)),
@@ -358,7 +372,8 @@ const cedarSidecar = json(sample(`${cedar.path}.meta.json`));
 export type Case2Archive = { label: string; rows: string[]; excerpt: string };
 const archiveOf = (k: Kept, label: string): Case2Archive => ({ label, rows: CASE2.map(keep[k]), excerpt: CASE2.map(keep[k]).join("\n") });
 const archives = {
-  a: { ...archiveOf("a", "Parsed rows"), hypothetical: true as const },
+  a: { ...archiveOf("a", "Parsed rows"), hypothetical: true as const,
+    note: "An example parser for this case. The lab's own parser keeps the side, the opponent's slug and the raw result, so its rows hold more than these." },
   b: archiveOf("b", "Tidied HTML"),
   c: { ...archiveOf("c", "Bytes as received, with a sidecar"),
     sidecar: { requested_url: cedarSidecar.requested_url, final_url: cedarSidecar.final_url, fetched_at: cedarSidecar.fetched_at, status: cedarSidecar.status, sha256: cedarSidecar.sha256 } },
@@ -417,6 +432,8 @@ export const policies = {
 // ---------------------------------------------------------------- Part 8: Prove it, box 8210
 
 const BOX = "tally:alder-ridge:8210";
+const boxSchool = fridayBoxes[0]?.programme ?? fail("Friday's manifest saved no box scores");
+check(fridayBoxes.every((p) => p.programme === boxSchool && p.fixture?.startsWith(`tally:${boxSchool}:`)), "Friday's box scores are not all one school's");
 const boxEntry = fridayBoxes.find((p) => p.fixture === BOX) ?? fail("box 8210 is not in Friday's manifest");
 const boxBytes = bytes(sample(boxEntry.path!));
 check(createHash("sha256").update(boxBytes).digest("hex") === boxEntry.sha256, "box 8210 no longer matches Friday's manifest hash");
@@ -434,6 +451,7 @@ const regulation = periodRows.slice(1).map((r) => ({ team: r[0], sum: Number(r[1
 check(regulation.length === 2 && regulation.every((r) => r.all === r.final), "box 8210's periods do not sum to its final score");
 const homeRow = regulation.find((r) => nameIndex.get(tidyV2(r.team)) === fx8210.home || nameIndex.get(r.team) === fx8210.home)!;
 const awayRow = regulation.find((r) => r !== homeRow)!;
+check(Boolean(awayRow) && (nameIndex.get(tidyV2(awayRow.team)) ?? nameIndex.get(awayRow.team)) === fx8210.away, "box 8210's away row is not the fixture's away team");
 const boxHtmlOf = (p: ManifestPage) => bytes(sample(p.path!)).toString("utf-8");
 const withOvertime = fridayBoxes.filter((p) => tableOf(boxHtmlOf(p), "Score by Period")[0].includes("OT")).map((p) => p.fixture!);
 const scheduleCell = (slug: string) => cellOn(fridayPages.find((p) => p.slug === slug)!.html, "8210");
@@ -445,7 +463,8 @@ const boxFiles = fridayBoxes.map((p): Lineage => ({ slug: p.fixture!, fingerprin
 const scheduleFiles = upToDate(fingerprints.v2);
 const boxRun: PresetRun = { fingerprint: boxParser.after, saved: new Map(fridayBoxes.map((p) => [p.fixture!, p.sha256!])) };
 const scheduleRun: PresetRun = { fingerprint: fingerprints.v2, saved: savedFriday() };
-const day = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const day = (date: string) => `${Number(date.slice(8, 10))} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
 /** Part 8: the March bug in box 8210, its two excerpts, and the four slot answers. */
 export const proveIt = {
   fixture: BOX,
@@ -460,7 +479,7 @@ export const proveIt = {
   buggy: { home: homeRow.sum, away: awayRow.sum },
   schedules: { "alder-ridge": scheduleCell("alder-ridge"), "eastbrook-state": scheduleCell("eastbrook-state") },
   slots: {
-    replay: { boxScores: fridayBoxes.length, school: "Alder Ridge", withOvertime: withOvertime.length },
+    replay: { boxScores: fridayBoxes.length, school: programmes[boxSchool].name, withOvertime: withOvertime.length },
     stale: { boxScores: stale(boxFiles, boxRun), of: boxFiles.length, schedules: stale(scheduleFiles, scheduleRun), schedulesFresh: scheduleFiles.length - stale(scheduleFiles, scheduleRun), boxParser, simulated: true as const },
     republish: { matchDetail: true, standings: !tableA.postseason.includes("8210") },
     tell: { note: "correction", match: `${programmes[fx8210.home].name} ${homeRow.final}-${awayRow.final} ${programmes[fx8210.away].name}, ${fx8210.stage?.round_published?.toLowerCase().replace(/s$/, "")}, ${day(fx8210.date)}`, cause: "the box-score parser summed only the regulation periods" },
@@ -530,6 +549,7 @@ check(proveIt.slots.stale.boxScores === 12 && proveIt.slots.stale.schedules === 
 const cedarFinal = [fridayOf("cedar-grove"), fridayOf("st-lambert")].map((p) => rawRows(p.html).find((r) => r.date === "2026-09-21")!.result);
 check(cedarFinal.every((r) => r === "Final"), "Cedar Grove's 21 September result is not a bare Final on both pages");
 const cg2019 = json(sample("raw_html", "cedar-grove", "2019-men-schedule.html.meta.json"));
+check(rawRows(readFileSync(sample("raw_html", "cedar-grove", "2019-men-schedule.html"), "utf-8")).length === rawRows(fridayOf("cedar-grove").html).length, "Cedar Grove's 2019 request no longer saved a full schedule table");
 check(cg2019.final_url === cg2019.requested_url && cg2019.final_url.endsWith("/2019") && readFileSync(sample("raw_html", "cedar-grove", "2019-men-schedule.html"), "utf-8").includes("<title>2026 "), "Cedar Grove's 2019 page no longer proves the Module 3 handoff");
 check(laterScore("tally:alder-ridge:8203") === "1-1" && cellOn(tuesdayOf("alder-ridge").html, "8203") === "W 1-0", "Tuesday's pages touch the 8 September score");
 check(case2.pattern.a === 0 && case2.pattern.b === 2 && case2.pattern.c === 3 && case2.grid[0].answers.c && !case2.grid[0].answers.b && case2.grid[1].answers.b && !case2.grid[1].answers.a, "the Case 2 grid is no longer 0, 2 and 3 of 3");

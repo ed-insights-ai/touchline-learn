@@ -53,6 +53,8 @@ jobs:
         run: npm ci
       - name: Type-check content and config
         run: npm run check
+      - name: Module 2's data holds
+        run: node scripts/check_archive.mjs
       - name: Build
         run: npm run build
       - name: Check internal links

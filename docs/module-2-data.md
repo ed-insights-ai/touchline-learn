@@ -7,9 +7,11 @@ fails the build, if any fact the page relies on stops holding (plan section 6,
 "Sample facts", and the counts below). Values here are the current ones, for
 reference while writing; the code is the source.
 
-Until a page imports it, run its assertions with
-`node scripts/check_archive.mjs` (Node 22.18 or later). It prints the headline
-values and ends `RESULT: archive.ts imports and every assertion holds`.
+CI's build job runs its assertions with `node scripts/check_archive.mjs`
+(Node 22.18 or later), so they hold before any page imports it. It also fails
+if a fingerprint written in this file is not one the module computes. It
+prints the headline values and ends
+`RESULT: archive.ts imports and every assertion holds`.
 
 ## What the sample holds for Module 2
 
@@ -59,7 +61,7 @@ Table A and table B equal Module 1's `repaired` table number for number
 |---|---|---|
 | `SEASON` | The season. | `2026` |
 | `members` | 2026 conference members, slugs, sorted. | 8 slugs |
-| `fridayManifest`, `tuesdayManifest` | The manifests as typed objects (`Manifest`, with `ManifestPage` entries). | 20 requested / 19 saved; 8 / 7 |
+| `fridayManifest`, `tuesdayManifest` | The manifests as typed objects (`Manifest`, with `purpose` and `ManifestPage` entries). At import every page must be `saved` or `unavailable` with a reason, the counts and `unavailable` list must agree with the pages, and every saved page, box scores included, must match its hash. | 20 requested / 19 saved; 8 / 7 |
 | `fridayPages`, `tuesdayPages` | Saved schedule captures (`Capture`: slug, path, html, sha256, fetchedAt), each checked against its manifest hash. | 7 each |
 | `rawRows(html)`, `parseSchedule(html, tidy)` | The row reader and the parser. | |
 | `tidyV1`, `tidyV2` | The bad and fixed tidy rules, as in `labs/m02_parser_tuesday.py` and `labs/m02_parser_fixed.py`. | `"St. Lambert"` to `"State Lambert"` / `"Saint Lambert"` |
@@ -106,13 +108,14 @@ St. Lambert `Final`; 2 Oct at Hartwell Tech `W 2-1`; 18 Oct at St. Lambert
   for this case, **not** the lab's Tuesday parser (whose rows keep side, slug
   and the raw result). It keeps the date, the tidied opponent and the scores,
   stores every match as a Cedar Grove home match, and reads a bare `Final` as
-  0-0. Say on the page that it is an example.
+  0-0. Say on the page that it is an example; `case2.archives.a.note` is that
+  sentence.
 - `b`, tidied HTML: attributes except `href` stripped, whitespace collapsed,
   the tidy rule applied; visible cell text stays.
 - `c`, bytes as received, plus `sidecar` (requested and final URL, fetched_at,
   status, sha256).
 
-`case2.grid` (`Case2Bug`: id, label, truth, fixture, `answers`) is derived by
+`case2.grid` (`Case2Bug`: id, label, truth, fixture, `answers` keyed by `Kept`, `"a" | "b" | "c"`) is derived by
 one rule, not typed: a bug's correct value is verifiable from an archive when
 that archive keeps the true row and the bug's wrong reading apart. For each bug
 the build makes the wrong row (opponent `State Lambert`; the side flipped; the
@@ -181,15 +184,16 @@ the same split into lines. Render it verbatim (a `<pre>`). It is stored in
 `src/data/quotes/m02_archive.replay-report.txt`.
 
 `rewind` also gives the parsed fields: `manifest`, `schedulesSaved` 7,
-`boxScoresSaved` 12, `requested` 20, `unavailable` (Dunmore and its reason),
+`boxScoresSaved` 12, `requested` 20, `unavailable` (`{slug, name, reason}`: Dunmore),
 `requests` 0, `fingerprint` `cceba9f64b7c`, `fingerprintTuesday`
 `16ede3aa872b`, `buildRevision` (the git blob id of `labs/m02_archive.py`, so
 it changes whenever the lab does; it hashes the file's bytes, so a checkout
 that rewrites line endings would fail it), `cellsChanged` 1. At import the
 build checks that both quoted fingerprints are the parsers', its build
 revision is the lab file as it stands, its request line is a counted 0, its
-one changed-cell line is exactly the one built from `diffAB`, and its caption
-matches the tables.
+one changed-cell line is exactly the one built from `diffAB`, its `parsed rows`
+line is exactly the renames computed here (so the TypeScript and Python tidy
+rules cannot drift apart), and its caption matches the tables.
 
 `tuesdayDiff` is the `--tuesday` run's confounded diff, stored in
 `src/data/quotes/m02_archive.tuesday-diff.txt`. At import the build checks its
@@ -212,6 +216,7 @@ tables         : Tuesday's 53 of 54 finished matches; rebuild 53 of 54 finished 
 cells changed  : 1
   Saint Lambert   name 'State Lambert' -> 'Saint Lambert': the tidy rule, the only input that changed
 unchanged      : the other 79 cells, every place and number
+parsed rows    : 16 renamed, 'State Brendan' -> 'Saint Brendan' in 4, 'State Lambert' -> 'Saint Lambert' in 12
 named gap      : 2026-09-21 Cedar Grove v Saint Lambert finished with no score
 named gap      : Dunmore's page unavailable, its home results read from visitors' pages
 
@@ -221,10 +226,10 @@ RESULT: rebuilt by replay with 0 requests; only Saint Lambert's name changed
 **How a quote is verified.** `scripts/check_lab_output.py` reads every file in
 `src/data/quotes/`. Its `QUOTED_RUNS` registry names the one run of
 `labs/run_all.py` each file quotes; that run must end with its expected exit
-code, and the file's lines must match its standard output exactly, in order and
-unbroken except at a line of `...`. A file not in the registry, or one with no
-real line, fails. **After any change to the lab or the sample**, regenerate
-both quotes:
+code, and the file must be its standard output from some line to the end,
+whole and exact: no line left out, no `...`. A file not in the registry, one
+that is not `.txt`, or a registered file that is missing, fails. **After any
+change to the lab or the sample**, regenerate both quotes:
 
 ```bash
 python labs/m02_archive.py | sed -n '/^Replay report/,$p' > src/data/quotes/m02_archive.replay-report.txt
@@ -251,8 +256,9 @@ A component that quotes more lab output adds a file here and a line to
 
 The box score's bytes are checked against Friday's manifest hash. The stale
 counts run the Case 3 model with the box-score parser as its own module. Its
-fingerprint is SHA-256 of `labs/m04_parse.py` (the course's box-score parser)
-and `labs/common.py`, before and after a simulated one-line edit to the module
+fingerprint is SHA-256 of `labs/m04_parse.py` (Module 4's box-score parser,
+standing in for the story's) and `labs/common.py`, the only inputs it reads (it
+loads no alias or membership file), before and after a simulated one-line edit to the module
 (`ddd0b4bac980` to `519b34f773b8`); the schedule parser's fingerprint does not
 change. Simulated (`boxParser.simulated`): no lab runs this fix.
 
@@ -268,15 +274,21 @@ python labs/m02_archive.py --missing hartwell-tech  # a schedule page missing fr
 ```
 
 The two parser revisions are whole modules, `labs/m02_parser_tuesday.py` and
-`labs/m02_parser_fixed.py`, identical except for the tidy rule and their
-docstrings. The default run reads Friday's manifest, checks every saved page's
-content hash (if any fails it stops with exit 2, "could not run"), proves its
-network counter on two test requests (a name lookup and a direct connection;
-the counter wraps name lookups and socket connect, connect_ex, sendto and
+`labs/m02_parser_fixed.py`, identical except for the tidy rule, the
+`import re` it needs, and their docstrings. The default run reads Friday's manifest, checks every saved page's
+content hash and that the manifest is consistent (a page neither saved nor
+unavailable, counts that disagree, a page missing or altered: it stops with
+exit 2, "could not run"), proves its network counter on two test requests (a
+name lookup and a direct connection; the counter wraps every name and address
+lookup and socket connect, connect_ex, sendto and, where the platform has it,
 sendmsg), then replays three times: Tuesday's parser (table A),
 the same again (0 re-parsed: fingerprint and content hash unchanged), and the
 fixed parser (7 re-parsed), and prints the report. It passes only when the one
-changed cell is Saint Lambert's name, `State Lambert` to `Saint Lambert`. A page whose bytes differ
+changed cell is Saint Lambert's name, `State Lambert` to `Saint Lambert`, and
+the fixed parser changed nothing in a parsed row but the shown name. The
+Dunmore gap line counts Dunmore's home matches found on visitors' pages; under
+`--missing hartwell-tech` it reports 6 of 7, since that match has no page on
+either side. A page whose bytes differ
 from the manifest is refused, not parsed; a parsed file whose output is missing
 is rebuilt even if its lineage record survives. `--tuesday` builds table C from
 Tuesday's capture and prints all 20 changed cells with "inputs changed: parser

@@ -6,10 +6,10 @@ its lines must appear in the lab's output. A line of "..." skips output, and a
 line ending in " ..." matches by its prefix.
 
 A file in src/data/quotes/ is a quote a component renders. QUOTED_RUNS names
-the one run in labs/run_all.py it quotes. Its lines must appear in that order,
-unbroken except at a line of "...", in that run's standard output, and the run
-must end with its expected exit code. Lines match exactly. A quote that names
-no run, or quotes no line of real output, fails.
+the one run in labs/run_all.py it quotes. Its lines must be that run's standard
+output from some line to the end, whole and exact, and the run must end with
+its expected exit code. A quote that names
+no run, quotes no line of real output, or is listed but missing, fails.
 """
 
 from __future__ import annotations
@@ -65,17 +65,6 @@ def run_stdout(args: list[str]) -> list[str] | None:
     return None
 
 
-def in_order(block: list[str], lines: list[str]) -> bool:
-    """True if block appears in lines as one unbroken run, where a line of "..." skips any number of lines."""
-    def match(b: int, i: int) -> bool:
-        if b == len(block):
-            return True
-        if block[b].strip() == "...":
-            return any(match(b + 1, j) for j in range(i, len(lines) + 1))
-        return i < len(lines) and block[b] == lines[i] and match(b + 1, i + 1)
-    return any(match(0, start) for start in range(len(lines)))
-
-
 def quoted(line: str, output: set[str]) -> bool:
     if not line.strip() or line.strip() == "...":
         return True
@@ -109,8 +98,12 @@ def main() -> int:
             missing.append(f"{quote.relative_to(ROOT)}: quotes nothing")
         elif output is None:
             missing.append(f"{quote.relative_to(ROOT)}: python {' '.join(args)} is not in labs/run_all.py or ended unexpectedly")
-        elif not in_order(block, output):
-            missing.append(f"{quote.relative_to(ROOT)}: not one unbroken block of python {' '.join(args)}")
+        elif any(line.strip() == "..." for line in block) or output[-len(block):] != block:
+            missing.append(f"{quote.relative_to(ROOT)}: not the whole tail of python {' '.join(args)}, line for line")
+    for stray in sorted(f for f in QUOTES.iterdir() if f.suffix != ".txt"):
+        missing.append(f"{stray.relative_to(ROOT)}: not a .txt quote")
+    for name in sorted(set(QUOTED_RUNS) - {q.name for q in QUOTES.glob("*.txt")}):
+        missing.append(f"{(QUOTES / name).relative_to(ROOT)}: listed in QUOTED_RUNS but missing")
     for item in missing:
         print("not in lab output:", item)
     print(f"RESULT: {checked} quoted lines checked, {len(missing)} not found in lab output")

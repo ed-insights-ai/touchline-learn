@@ -50,9 +50,10 @@ def count_network():
     def stop(*args, **kwargs):
         attempts.append(str(args[-1] if args else kwargs))
         raise OSError("this lab does not use the network")
-    patched = [(socket, "getaddrinfo"), (socket, "gethostbyname"), (socket, "gethostbyname_ex"),
-               (socket.socket, "connect"), (socket.socket, "connect_ex"), (socket.socket, "sendto"),
-               (socket.socket, "sendmsg")]
+    names = [(socket, "getaddrinfo"), (socket, "gethostbyname"), (socket, "gethostbyname_ex"),
+             (socket, "gethostbyaddr"), (socket, "getnameinfo"), (socket.socket, "connect"),
+             (socket.socket, "connect_ex"), (socket.socket, "sendto"), (socket.socket, "sendmsg")]
+    patched = [(owner, name) for owner, name in names if hasattr(owner, name)]
     real = [(owner, name, getattr(owner, name)) for owner, name in patched]
     for owner, name in patched:
         setattr(owner, name, stop)
@@ -187,6 +188,7 @@ def standings(parsed: Path, pages: list[str], slugs: list[str]) -> dict:
         r.update(place=i + 1, gd=r["gf"] - r["ga"], pts=3 * r["w"] + r["d"])
     finished = [m for m in games if m["finished"]]
     return {"rows": table, "expected": len(slugs) * (len(slugs) - 1), "listed": len(games),
+            "hosted": {s: sum(1 for m in games if m["host"] == s) for s in slugs},
             "finished": len(finished), "scored": sum(1 for m in finished if m["score"]),
             "postseason": sorted(fid for fid in matches if fid not in regular.values()),
             "no_score": sorted((m["date"], m["host"], m["visitor"]) for m in finished if not m["score"])}
@@ -221,6 +223,13 @@ def describe_manifest(manifest: dict, path: Path, root: Path) -> dict:
     saved = [p for p in schedules if p["state"] == "saved"]
     boxes = [p for p in pages if p["kind"] == "box_score" and p["state"] == "saved"]
     kept = [p for p in pages if p["state"] == "saved"]
+    problems = [f"{p['programme']} {p['kind']} has state {p['state']!r}" for p in pages if p["state"] not in ("saved", "unavailable")]
+    problems += [f"{p['programme']} {p['kind']} is unavailable with no reason" for p in pages
+                 if p["state"] == "unavailable" and not p.get("reason")]
+    if (manifest["requested"], manifest["saved"]) != (len(pages), len(kept)):
+        problems.append("its requested and saved counts disagree with its pages")
+    if sorted(manifest["unavailable"]) != sorted(p["programme"] for p in pages if p["state"] == "unavailable"):
+        problems.append("its unavailable list disagrees with its pages")
     on_disk = [p for p in kept if (root / p["path"]).exists()]
     same = sum(1 for p in on_disk if sha256((root / p["path"]).read_bytes()) == p["sha256"])
     print(f"manifest       : {path.relative_to(ROOT)}, run {manifest['run']}")
@@ -233,8 +242,9 @@ def describe_manifest(manifest: dict, path: Path, root: Path) -> dict:
     if boxes:
         print(f"box scores     : {len(boxes)} saved, kept for match detail; the table does not read them")
     print(f"content hashes : {same} of {len(kept)} saved pages on disk match the manifest")
-    return {"schedules": len(saved), "boxes": len(boxes), "hashes_ok": same == len(kept),
-            "altered": len(on_disk) - same}
+    return {"schedules": len(saved), "boxes": len(boxes), "hashes_ok": same == len(kept) and not problems,
+            "altered": len(on_disk) - same, "problems": problems,
+            "missing": [p for p in kept if not (root / p["path"]).exists()]}
 
 
 def main() -> int:
@@ -260,8 +270,11 @@ def main() -> int:
 
     heading("Capture manifest: Friday's run")
     seen = describe_manifest(friday, FRIDAY, root)
-    if seen["altered"]:
-        print(f"\nRESULT: could not run, {seen['altered']} saved pages no longer match the manifest's hash")
+    lost = [p["path"] for p in seen["missing"] if not (args.missing and p["kind"] == "schedule" and p["programme"] == args.missing)]
+    if seen["problems"] or seen["altered"] or lost:
+        why = seen["problems"] + ([f"{seen['altered']} saved pages no longer match the manifest's hash"] if seen["altered"] else [])
+        why += [f"{len(lost)} saved pages are missing from the archive"] if lost else []
+        print(f"\nRESULT: could not run, {'; '.join(why)}")
         return 2
 
     with count_network() as attempts:
@@ -320,8 +333,12 @@ def main() -> int:
     for slug, col, before, after in changes:
         by_row.setdefault(slug, []).append(f"{col} {show(before)} -> {show(after)}")
     gaps = [f"{d} {name_of[h]} v {name_of[v]} finished with no score" for d, h, v in compare["no_score"]]
-    gaps += [f"{name_of[p['programme']]}'s page {p['state']}, its home results read from visitors' pages"
-             for p in friday["pages"] if p["state"] != "saved"]
+    for p in friday["pages"]:
+        if p["state"] != "saved":
+            found, due = compare["hosted"][p["programme"]], len(slugs) - 1
+            gaps.append(f"{name_of[p['programme']]}'s page {p['state']}, its home results read from visitors' pages" if found == due
+                        else f"{name_of[p['programme']]}'s page {p['state']}, {found} of its {due} home matches read from "
+                             f"visitors' pages, {due - found} with no page on either side")
     if args.tuesday:
         heading("Confounded diff: Tuesday's table against the re-fetch")
         print("inputs changed : parser code (Tuesday's -> fixed) and pages (Friday's -> Tuesday's)")
@@ -349,12 +366,22 @@ def main() -> int:
     print("  covers       : labs/m02_parser_fixed.py, labs/common.py, aliases.json, membership.json, "
           f"season {SEASON}")
     print(f"build revision : {build_revision()}, git blob of labs/{Path(__file__).name}")
-    print(f"tables         : Tuesday's {caption(table_a)}; rebuild {caption(compare)}")
+    before = "the old parser on this archive" if args.missing else "Tuesday's"
+    print(f"tables         : {before} {caption(table_a)}; rebuild {caption(compare)}")
     print(f"cells changed  : {len(changes)}")
     for slug, cells in by_row.items():
         print(f"  {name_of[slug]:15} {', '.join(cells)}: the tidy rule, the only input that changed")
     unchanged = len(COLUMNS) * len(compare["rows"]) - len(changes)
     print(f"unchanged      : the other {unchanged} cells, every place and number")
+    renamed: dict[tuple, int] = {}
+    before_rows = dict(parsed_rows(tuesday_dir, r1["read"]))
+    for slug, rows in parsed_rows(rebuilt_dir, r3["read"]):
+        for old, new in zip(before_rows[slug], rows, strict=True):
+            require({**old, "shown": None} == {**new, "shown": None}, f"the fixed parser changed more than a name on {slug}")
+            if old["shown"] != new["shown"]:
+                renamed[(old["shown"], new["shown"])] = renamed.get((old["shown"], new["shown"]), 0) + 1
+    print(f"parsed rows    : {sum(renamed.values())} renamed, "
+          + ", ".join(f"{show(a)} -> {show(b)} in {n}" for (a, b), n in sorted(renamed.items())))
     for gap in gaps:
         print(f"named gap      : {gap}")
 
@@ -367,6 +394,7 @@ def main() -> int:
     ok = (seen["schedules"] == 7 and len(r3["read"]) == 7 and not r3["refused"] and seen["hashes_ok"]
           and counter_works and requests == 0 and wrong == ["State Brendan", "State Lambert"]
           and not r2["reparsed"] and len(r3["reparsed"]) == 7 and only_name
+          and renamed == {("State Brendan", "Saint Brendan"): 4, ("State Lambert", "Saint Lambert"): 12}
           and table_a["no_score"] == table_b["no_score"] and (table_a["scored"], table_a["finished"]) == (53, 54))
     print("\nRESULT:", "rebuilt by replay with 0 requests; only Saint Lambert's name changed" if ok
           else "unexpected result")
