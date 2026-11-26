@@ -1,13 +1,110 @@
 ---
 import PartHead from "../coverage/PartHead.astro";
 import NextPart from "../coverage/NextPart.astro";
+import Check from "../lesson/Check.astro";
+import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
+import { proveIt } from "../../lib/archive";
+import { spell } from "../../lib/cases";
+
+const { home, away, published, buggy, scoreByPeriod, goal, slots } = proveIt;
+const date = new Date(`${proveIt.date}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+const round = proveIt.round.toLowerCase().replace(/s$/, "");
+const boxes = slots.replay.boxScores;
+const n = spell(boxes);
+const fp = slots.stale.boxParser;
+const regulation = scoreByPeriod.head.findIndex((h) => h === "OT");
+if (regulation !== 3 || slots.stale.boxScores !== boxes || slots.stale.schedules !== 0 || slots.republish.standings || !slots.republish.matchDetail) throw new Error("Prove it's slot answers changed; rewrite its explanations");
+
+const replay = [
+  ["one", `Only box ${proveIt.fixture.split(":").pop()}, the one with overtime`],
+  ["all", `All ${n} saved ${slots.replay.school} box scores`],
+  ["everything", `All ${n} box scores and every saved schedule page`],
+  ["refetch", `Fetch box ${proveIt.fixture.split(":").pop()} again from ${home.name}'s site`],
+] as [string, string][];
+const stale = [
+  ["fp", `All ${n} parsed box scores: the box-score parser's fingerprint changed`],
+  ["ot", "Only the parsed box score with an OT column: no other match has one"],
+  ["all", `All ${n} parsed box scores and the ${spell(slots.stale.schedulesFresh)} parsed schedules: any parser change makes everything stale`],
+  ["none", "None: no saved page has changed since it was parsed"],
+] as [string, string][];
+const republish = [
+  ["detail", "The match detail built from box scores"],
+  ["both", "The match detail and the standings"],
+  ["standings", "The standings"],
+  ["nothing", `Nothing: both schedules already say ${published.home}–${published.away}`],
+] as [string, string][];
+const tell = [
+  ["named", `Correction: ${slots.tell.match}. The match detail showed ${buggy.home}–${buggy.away} with no overtime because ${slots.tell.cause}. Rebuilt from the saved box score.`],
+  ["vague", "We fixed a bug in our data. Some match details may have changed."],
+  ["site", `Correction: ${slots.tell.match}. Score updated from ${home.name}'s site.`],
+  ["table", "Correction: the standings have been updated."],
+] as [string, string][];
 ---
 
 <section id="prove-it">
   <PartHead id="prove-it">Prove it: the bug found in March</PartHead>
-  <Draft items={["The unseen case: Alder Ridge's overtime semifinal shown as 3–3 in the match detail.", "Two excerpts from the saved box score: the Score by Period table and the 101:44 goal.", "Four auto-graded slots: what to replay, what is stale, what to republish, what to tell readers.", "The contrast line for a system that kept only parsed rows."]} />
+  <p>Months later, in March, a reader writes in. The match detail for {home.name}'s {published.home}–{published.away} win over {away.name}, the {round} on {date}, says {buggy.home}–{buggy.away} and shows no overtime. Both schools' schedules say {published.home}–{published.away}.</p>
+  <div class="ar-detail" role="img" aria-label={`The published match detail: ${home.name} ${buggy.home}, ${away.name} ${buggy.away}, full time, no overtime.`}>
+    <p class="ar-detail-tag">Match detail, as published</p>
+    <p class="ar-detail-score"><span>{home.name}</span><b>{buggy.home}–{buggy.away}</b><span>{away.name}</span></p>
+    <p class="ar-detail-foot">{round.charAt(0).toUpperCase() + round.slice(1)}, {date} · Full time</p>
+  </div>
+  <p>Kick saved {home.name}'s {n} box scores on Friday, under their fixture ids. Here are two excerpts from this one, as saved.</p>
+  <div class="ar-excerpts">
+    <div class="cv-scroll">
+      <table class="cv-log ar-box">
+        <caption>Score by Period</caption>
+        <thead><tr>{scoreByPeriod.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+        <tbody>{scoreByPeriod.rows.map((r) => <tr><th scope="row">{r[0]}</th>{r.slice(1).map((c, i) => <td class:list={{ "is-ot": i === regulation - 1 }}>{c}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+    <div class="cv-scroll">
+      <table class="cv-log ar-box">
+        <caption>Scoring summary, one goal</caption>
+        <thead><tr><th scope="col">Time</th><th scope="col">Team</th><th scope="col">Scorer</th><th scope="col">Play</th></tr></thead>
+        <tbody><tr><td class="is-ot">{goal.time}</td><td>{goal.abbr}</td><td>{goal.scorer}</td><td>{goal.play}</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <p>The page was right all along. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. The goal at {goal.time}, in overtime, never reached the match detail. The parser is fixed in a minute. Now recover, using only what Cases 1 to 3 taught.</p>
+  <p>One fact you need: the box-score parser is its own module, with its own fingerprint, separate from the schedule parser. That is also why Case 3's presets counted only schedules.</p>
+
+  <Check once="prove-recover" kind="Assessment" note="Answer all four, then check.">
+    <Choice save="prove-replay" label="1. What do you replay?" options={replay} answer="all"
+      why={`All ${n}. The fix changed the parser every box score went through, so each one is replayed from its saved page. Whether another match also went to overtime is something the replay finds out, not something to guess first.`}
+      wrong={{ one: `The overtime match is the one you know about. The fix changed how all ${n} were parsed.`, everything: "The schedule parser didn't change. Replaying its pages costs time and changes nothing.", refetch: "The saved page already has the right numbers. A fetch can only bring back whatever the site shows now." }} />
+    <Choice save="prove-stale" label="2. What is stale, and how do you know?" options={stale} answer="fp"
+      why={`All ${n} parsed box scores, because each records the fingerprint of the parser that wrote it, ${fp.before}, and the fixed parser's is ${fp.after}. The ${spell(slots.stale.schedulesFresh)} parsed schedules keep their own parser's fingerprint, so they stay fresh.`}
+      wrong={{ ot: "That decides staleness by guessing which files the bug touched. The fingerprint decides it: every file this parser wrote is stale.", all: "Each parser has its own fingerprint. The schedule parser's didn't change.", none: "The pages haven't changed, but the code has. Either one makes a parsed file stale." }} />
+    <Choice save="prove-republish" label="3. What do you republish?" options={republish} answer="detail"
+      why={`The match detail. The standings count regular-season conference matches, and a ${round} isn't one. They are also built from the schedules, which already say ${published.home}–${published.away}.`}
+      wrong={{ both: `The standings never used this box score: a ${round} isn't a conference match, and the schedules had the right score.`, standings: "The standings were right. The wrong number is in the match detail.", nothing: "The schedules were right, but readers saw the match detail, and it was wrong." }} />
+    <Choice radio save="prove-tell" label="4. What do you tell readers?" options={tell} answer="named"
+      why="The note names the match, the wrong value, the cause and where the fix came from. A reader who saw the wrong number can tell this note is about it."
+      wrong={{ vague: "A reader can't tell which match changed, or why.", site: "Nothing was fetched. Saying so misstates where the corrected number came from.", table: "The standings didn't change. The match detail did." }} />
+    <Fragment slot="reveal">
+      <p class="cv-rule">Replay all {n} box scores, rebuild every parsed file the fixed parser touches, fetch nothing, republish one product, and say what changed and why.</p>
+      <p>Now suppose the archive had kept only parsed rows. The final score could still be corrected, from the schedule's “{proveIt.schedules["alder-ridge"]}”. But the period breakdown, and the fact that the match went to overtime, would be gone for good: the only copy was the page the parser read.</p>
+      <p class="cv-label">Fingerprints are real hashes of the parser module before and after a one-line fix. The rebuild counts are simulated: no lab runs this fix.</p>
+    </Fragment>
+  </Check>
   <AiCard part="prove-it" />
-  <NextPart from="prove-it">Does the same fix work in an archive that kept less?</NextPart>
+  <NextPart from="prove-it">Does the same fix work for an archive that kept less?</NextPart>
 </section>
+
+<style>
+  .ar-detail { display: grid; gap: 0.2rem; max-width: 26rem; margin: 0 0 1rem; padding: 0.8rem 1rem; border: 1px solid var(--tl-line); border-top: 3px solid var(--cv-red); border-radius: 8px; background: var(--tl-card); }
+  .ar-detail p { margin: 0; }
+  .ar-detail-tag { color: var(--tl-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .ar-detail-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.75rem; color: var(--sl-color-white); font-weight: 700; }
+  .ar-detail-score span:last-child { text-align: right; }
+  .ar-detail-score b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+  .ar-detail-foot { color: var(--tl-muted); font-size: 0.88rem; }
+  .ar-excerpts { display: grid; gap: 0.25rem 1.25rem; margin: 0 0 0.5rem; }
+  @media (min-width: 50rem) { .ar-excerpts { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
+  .ar-box { max-width: none; }
+  .ar-box caption { color: var(--sl-color-white); font-weight: 700; text-align: left; }
+  .ar-box td, .ar-box th { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ar-box td.is-ot { background: color-mix(in srgb, var(--cv-yellow) 30%, transparent); }
+</style>

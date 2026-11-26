@@ -1,13 +1,119 @@
 ---
 import PartHead from "../coverage/PartHead.astro";
 import NextPart from "../coverage/NextPart.astro";
+import Check from "../lesson/Check.astro";
+import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
+import { rewind, story, tableB } from "../../lib/archive";
+import { spell } from "../../lib/cases";
+
+const ask = "Can you rebuild Friday's table from the pages you kept, without asking a single site again, and show me you did?";
+const down = rewind.unavailable.map((u) => u.name).join(" and ");
+const criteria = [
+  { key: "manifest", short: "1. The manifest", text: `Replay exactly what Friday's capture manifest lists: the ${spell(rewind.schedulesSaved)} schedules it saved, each matched to its content hash, and ${down} listed as unavailable, not left out.` },
+  { key: "requests", short: "2. Zero requests", text: "Make zero network requests, counted by a counter you show catching a test request." },
+  { key: "code", short: "3. The code", text: "Name the fingerprint of the fixed parser and the revision of the code that built the table." },
+  { key: "diff", short: "4. The diff", text: "Diff Tuesday's table against the rebuild, and explain every changed cell." },
+];
+
+const line = (label: string) => rewind.lines.find((l) => l.startsWith(`${label} `)) ?? (() => { throw new Error(`the replay report has no ${label} line`); })();
+const match = [
+  { label: "replayed", answer: "manifest", why: "The manifest. It replayed what Friday's manifest says was saved, and each page matched the hash recorded on Friday, so these are Friday's bytes." },
+  { label: "listed", answer: "manifest", why: `The manifest. ${down} is named with its reason, so the rebuild can't quietly drop the site that never answered.` },
+  { label: "requests", answer: "requests", why: "Zero requests, measured. The counter proved it works by catching test requests before the replay ran." },
+  { label: "build revision", answer: "code", why: "The code. The fingerprint names the parser and its config; the build revision names the program that built the table from the parsed rows." },
+  { label: "unchanged", answer: "diff", why: "The diff. Explaining every changed cell includes saying which cells did not change, so nothing moved without a reason." },
+].map((m) => ({ ...m, text: line(m.label) }));
+const options = criteria.map((c) => [c.key, c.short]) as [string, string][];
+
+const draft = [
+  { key: "counter", text: "A counter that has never been shown to catch a request reads 0 whether or not anything was fetched." },
+  { key: "seven", text: `It should read ${rewind.schedulesSaved}, one request per page replayed.` },
+  { key: "fingerprint", text: "The fingerprint already proves nothing was fetched, so the line adds nothing." },
+  { key: "zero", text: "Zero requests means the replay never ran." },
+];
 ---
 
 <section id="rewind">
   <PartHead id="rewind">Rewind: Tuesday with a replay requirement</PartHead>
-  <Draft items={["Riley's ask with acceptance criteria added: a capture manifest, zero network requests, the parser fingerprint, an explained diff.", "Write one criterion of your own and compare it with Riley's.", "Kick's replay report, from real lab output, with the build revision beside the fingerprint.", "Match each report line to the criterion it meets."]} />
+  <p>In Module 1's Rewind, one added sentence turned Friday's prompt into <strong>acceptance criteria</strong>: conditions Kick's work had to meet before Riley would accept it. Tuesday's question already asks for the right thing. Now make it checkable.</p>
+  <p>The rebuild target is Monday's table, the one readers have, with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” where Tuesday's table says “{story.tuesdayName}”.</p>
+  <div class="cv-user-prompt" role="region" aria-label="Riley's question on Tuesday">
+    <div class="cv-chat-bar">
+      <span class="cv-chat-badge">Prompt</span>
+      <span class="cv-chat-meta">Riley → Kick, Tuesday</span>
+    </div>
+    <p class="cv-chat-text">{ask}</p>
+  </div>
+  <p>Each clause is a claim Kick will make when it reports back: these are the pages I kept, I asked no site, here is what changed. A claim is something you can only accept or reject. A criterion says what evidence you'll accept for it.</p>
+
+  <div class="cv-commit ar-commit" data-commit>
+    <p class="cv-kind">Write it <span>you check your own</span></p>
+    <label class="cv-write" for="ar-criterion">Write one acceptance criterion that would let Riley check the rebuild instead of taking Kick's word for it.</label>
+    <textarea id="ar-criterion" rows="2" placeholder="Done means the report shows..." data-save="rewind-criterion"></textarea>
+    <div class="cv-actions">
+      <button type="button" data-commit-btn disabled>Compare with Riley's</button>
+      <button type="button" class="cv-link-btn" data-commit-skip>Skip and show Riley's</button>
+    </div>
+    <p class="cv-once" data-needs-note>Write a short sentence to compare, or skip ahead.</p>
+    <div class="cv-reveal">
+      <div class="cv-user-prompt" role="region" aria-label="Riley's question with acceptance criteria">
+        <div class="cv-chat-bar">
+          <span class="cv-chat-badge">Prompt</span>
+          <span class="cv-chat-meta">Riley → Kick, with acceptance criteria</span>
+        </div>
+        <p class="cv-chat-text">{ask} Done means your report shows all four:</p>
+        <ol class="ar-criteria">{criteria.map((c) => <li>{c.text}</li>)}</ol>
+      </div>
+      <fieldset class="cv-ticks">
+        <legend>Check what yours covers:</legend>
+        <label><input type="checkbox" data-save="rewind-has-inputs" /><span>Pins the inputs: Friday's pages, identified by content hash, with the missing one named</span></label>
+        <label><input type="checkbox" data-save="rewind-has-counter" /><span>Makes “no requests” measured, by a counter that has been shown to work</span></label>
+        <label><input type="checkbox" data-save="rewind-has-code" /><span>Identifies the code that produced the table</span></label>
+        <label><input type="checkbox" data-save="rewind-has-diff" /><span>Requires every change in the table to be explained</span></label>
+      </fieldset>
+      <p>Each criterion asks for evidence that could have come out differently. A hash can fail to match, a counter can count, a diff can show a cell nobody explained. Evidence that could never fail proves nothing.</p>
+
+      <h3 id="rewind-report">Kick's replay report</h3>
+      <p class="cv-label">Real lab output from <code>python labs/m02_archive.py</code>, quoted whole. The build checks it against the sample and the lab.</p>
+      <div class="cv-agent-reply" role="region" aria-label="Kick's replay report">
+        <div class="cv-chat-bar">
+          <span class="cv-agent-badge">Kick · Coding agent</span>
+          <span class="cv-status-ok">{rewind.requests} requests · {rewind.cellsChanged} cell changed</span>
+        </div>
+        <pre class="ar-report" tabindex="0" aria-label="Replay report"><code>{rewind.lines.join("\n")}</code></pre>
+      </div>
+      <p>Two lines identify the code. The <strong>fingerprint</strong> ({rewind.fingerprint}) is Case 3's: the parser module, its page reader and its config. The <strong>build revision</strong> ({rewind.buildRevision}) names the program that turned parsed rows into the table: here, the git id of the lab file's exact bytes, so it changes whenever that file does. With both, anyone can check out the same code and get the same table.</p>
+
+      <h4 class="cv-try">Check the report against the criteria</h4>
+      <Check once="rewind-match" kind="Apply it" note="Answer all six, then check.">
+        <p class="cv-qlabel">Which of Riley's criteria does each line meet?</p>
+        {match.map((m) => (
+          <div class="cv-line ar-match" data-q data-type="select" data-answer={m.answer} data-why={m.why}>
+            <label class="cv-stack"><code>{m.text}</code>
+              <select data-save={`rewind-line-${m.label.replace(" ", "-")}`} aria-label={`Criterion met by the ${m.label} line`}><option value="">Choose a criterion</option>{options.map(([v, t]) => <option value={v}>{t}</option>)}</select>
+            </label>
+            <p class="cv-fb" role="status"></p>
+          </div>
+        ))}
+        <Choice radio save="rewind-draft" label={`Kick's first draft of the report said only “requests : ${rewind.requests}”. Riley sent it back. Why?`}
+          options={draft.map((d) => [d.key, d.text])} answer="counter"
+          why="A counter that has never caught anything reads 0 whether or not anything was fetched. The finished line says the counter caught its test requests first, so its 0 is a measurement."
+          wrong={{ seven: "A replay reads pages from disk. Each fetch would be a request, and the point is that there were none.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", zero: "The other lines show the replay ran: every page matched its hash and one cell changed." }} />
+        <p slot="reveal">Every line in the report answers a criterion, and every criterion has a line. Without the criteria, the same report would be a page of text you either trust or don't. With them, Riley can check each claim in a minute, and so can anyone Riley sends the table to.</p>
+      </Check>
+    </div>
+  </div>
   <AiCard part="rewind" />
-  <NextPart from="rewind">Would the same rules work on a bug found months later?</NextPart>
+  <NextPart from="rewind">This bug was caught in a day. What if one stays hidden for months?</NextPart>
 </section>
+
+<style>
+  .ar-commit { grid-template-columns: minmax(0, 1fr); }
+  .ar-criteria { margin: -0.4rem 0 0; padding: 0 1.1rem 0.9rem 2.6rem; color: var(--sl-color-white); }
+  .ar-criteria li { margin: 0.3rem 0; }
+  .ar-report { margin: 0; padding: 0.85rem 1rem; overflow-x: auto; border: 0; border-radius: 0; background: var(--tl-bg); font-size: 0.8rem; line-height: 1.5; }
+  .ar-report code { padding: 0; background: none; white-space: pre; }
+  .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
+  .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }
+</style>

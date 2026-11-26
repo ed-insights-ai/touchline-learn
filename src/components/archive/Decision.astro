@@ -1,19 +1,182 @@
 ---
 import PartHead from "../coverage/PartHead.astro";
 import NextPart from "../coverage/NextPart.astro";
+import Touchline from "../coverage/Touchline.astro";
+import Check from "../lesson/Check.astro";
+import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
 import { labelsOf, refetchPredict } from "../../lib/archive-state";
+import { fridayPages, tuesdayPages, policies, prediction, rowChanges, saturday, tableA, tableC, type Column } from "../../lib/archive";
+import { spell } from "../../lib/cases";
+
+const resolved = ({ "name-only": "name", "name-and-numbers": "numbers" } as Record<string, string>)[prediction.answer];
+if (resolved !== "numbers" || !refetchPredict.options.some(([v]) => v === resolved)) throw new Error(`The decision's copy says the re-fetch changed the name and the numbers; it now gives ${prediction.answer}`);
+
+const lambert = rowChanges.C.find((r) => r.slug === "st-lambert")!;
+const rowOf = (rows: typeof tableA.rows) => rows.find((r) => r.slug === "st-lambert")!;
+const before = rowOf(tableA.rows);
+const after = rowOf(tableC.rows);
+const cols: [Column, string][] = [["name", "Team"], ["p", "P"], ["w", "W"], ["d", "D"], ["l", "L"], ["gf", "GF"], ["ga", "GA"], ["gd", "GD"], ["pts", "Pts"]];
+const lambertWin = saturday.find((s) => s.home === "st-lambert" || s.away === "st-lambert")!;
+const saturdayDate = new Date(`${lambertWin.date}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+const saturdayShort = saturdayDate.replace(/(\d+ \w{3})\w*/, "$1");
+const seven = spell(fridayPages.length);
+
+const day = (iso: string) => new Date(iso).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }).replace(",", "");
+const harbor = { friday: fridayPages.find((p) => p.slug === "harbor-point")!, tuesday: tuesdayPages.find((p) => p.slug === "harbor-point")! };
+const cell = (text: string) => (text === "" ? "blank" : text);
+const changed = policies.changedSinceFriday;
+const same = policies.unchangedSinceFriday;
+const names = (list: { name: string }[]) => list.map((x) => x.name).join(" and ");
+
+const verdict = (q: "today" | "monday" | "harborFriday") => {
+  const l = policies.latest[q];
+  const e = policies.every[q];
+  return l && e ? "both" : e ? "every" : l ? "latest" : "neither";
+};
+const who: [string, string][] = [["both", "Both policies"], ["every", "Only every capture"], ["latest", "Only latest only"], ["neither", "Neither"]];
+const questions = [
+  { key: "today", label: "What does the table say today, from the pages as they are now?",
+    why: "Both. Each archive holds Tuesday's captures after the re-fetch, and today's table is built from those.",
+    wrong: { every: "Latest only keeps exactly one capture per page: the newest. That is the one today's table needs.", latest: "Every capture keeps Tuesday's captures too, beside Friday's.", neither: "Both archives hold the pages as they are now. That is what a re-fetch saves." } },
+  { key: "monday", label: "Rebuild Monday's table exactly, from the pages it was built from.",
+    why: `Only every capture. Monday's table was built from Friday's ${seven} captures. Latest only replaced all ${seven} on Tuesday, and ${spell(changed.length)} of them had changed.`,
+    wrong: { both: `Latest only now holds Tuesday's pages. ${spell(changed.length, true)} of them differ from Friday's, so a rebuild from them is a different table.`, latest: "Latest only kept Tuesday's pages, not the ones Monday's table read.", neither: `Every capture still holds Friday's ${seven} captures, each beside Tuesday's.` } },
+  { key: "harborFriday", label: `What did Harbor Point's result cell for ${saturdayDate} say on Friday: blank, or a result Kick missed?`,
+    why: `Only every capture. Friday's capture of Harbor Point is still there, and its cell is ${cell(policies.every.harborFridayCell ?? "")}. Latest only holds Tuesday's capture, which says ${policies.harborCell.tuesday}.`,
+    wrong: { both: `Latest only holds Tuesday's capture of Harbor Point, which says ${policies.harborCell.tuesday}. Nothing in it says what the cell held on Friday.`, latest: "Latest only kept the newest capture. The question is about the older one.", neither: "Every capture keeps Friday's capture of Harbor Point beside Tuesday's." } },
+] as const;
+const grid = questions.map((q) => ({ ...q, answer: verdict(q.key) }));
+if (grid.map((q) => q.answer).join() !== "both,every,every") throw new Error("The policy answers changed; rewrite The decision's explanations");
+if (harbor.friday.sha256 === harbor.tuesday.sha256) throw new Error("Harbor Point's page no longer changed between Friday and Tuesday");
+
+const calls = [
+  { key: "hashes", text: "Latest only, with every capture's content hash kept in the run's manifest" },
+  { key: "season", text: "Every capture, kept until the season's disputes close; after that, only the latest" },
+  { key: "forever", text: "Every capture, kept forever" },
+];
 ---
 
 <section id="decision">
   <PartHead id="decision">The decision: what a re-fetch would have cost</PartHead>
-  <Draft items={["Your Setup prediction returned and resolved with Case 1's diff.", "Two archive policies, latest only and every capture, and what each can rebuild.", "A graded prediction: which of three questions each policy can still answer after Tuesday's re-fetch.", "Your call: a league office's archive policy, one fixed scenario with three options."]} />
+  <p>In Setup, before any table appeared, you predicted what Kick's re-fetch would have done to Saint Lambert's row.</p>
   <div class="cv-say cv-yours">
     <p class="cv-who">Your prediction from Setup</p>
     <p data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}>nothing yet</p>
     <p data-when={refetchPredict.key} data-is="" hidden>You skipped it. It is still there in Setup.</p>
   </div>
+  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had published since Friday. If none had posted anything, only the name would have changed. If one had, the numbers would move too. A replay has no such unknown, because its pages are Friday's, byte for byte.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what did happen. On Tuesday that was a guess about the live sites, and Case 1 is where it became a fact.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={refetchPredict.options.map(([v]) => v).filter((v) => v !== resolved && v !== "unknown").join("|")} hidden>That is what a re-fetch gives when no site has posted anything new. By Tuesday, the sites had posted {spell(saturday.length)} new results.</p>
+
+  <p>Case 1 showed what happened. On Saturday, {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, and the sites had posted it by Tuesday. So the re-fetch changed the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons.</p>
+  <div class="cv-scroll">
+    <table class="cv-log ar-row">
+      <caption>Saint Lambert's row, Tuesday's table and the re-fetch</caption>
+      <thead><tr><th scope="col"></th>{cols.map(([, h]) => <th scope="col">{h}</th>)}</tr></thead>
+      <tbody>
+        <tr><th scope="row">Tuesday's table</th>{cols.map(([c]) => <td>{before[c]}</td>)}</tr>
+        <tr><th scope="row">Re-fetch</th>{cols.map(([c]) => <td class:list={{ "is-code": lambert.columns.includes(c) && c === "name", "is-pages": lambert.columns.includes(c) && c !== "name" }}>{after[c]}</td>)}</tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="ar-key"><span class="ar-swatch is-code"></span>changed by the code <span class="ar-swatch is-pages"></span>changed by the pages</p>
+  <p>That was the visible cost: a diff with two causes. The larger cost is the one the table doesn't show.</p>
+
+  <h3 id="decision-policies">Two archive policies</h3>
+  <p>Every published table is a build over saved pages, code and config. Suppose the parser, the build code and the config of every past run are kept in version control, so any old version of the code can be checked out again. Then the only question left is how long the pages are kept. There are two common answers.</p>
+  <div class="cv-twins cv-two">
+    <div>
+      <h4>Latest only</h4>
+      <p>One capture per page, with its fetch time. A new fetch of the page overwrites it.</p>
+      <p><b>Can rebuild:</b> any table from the pages as they were last fetched.</p>
+      <p><b>Cannot rebuild:</b> a table that read an older capture, once that page has been fetched again and changed.</p>
+    </div>
+    <div>
+      <h4>Every capture</h4>
+      <p>Each fetch is stored beside the last, with its fetch time. Nothing is overwritten.</p>
+      <p><b>Can rebuild:</b> every table ever built, from the captures it read.</p>
+      <p><b>Costs:</b> storage that grows with every run, mostly holding pages that never changed.</p>
+    </div>
+  </div>
+  <figure class="ar-shelf" aria-label={`Harbor Point's schedule page in each archive after a Tuesday re-fetch. Latest only holds Tuesday's capture alone; Friday's was overwritten. Every capture holds Friday's and Tuesday's.`}>
+    <figcaption>Harbor Point's schedule page in each archive, after a re-fetch on Tuesday</figcaption>
+    <div class="ar-lane">
+      <p class="ar-lane-name">Latest only</p>
+      <div class="ar-caps">
+        <div class="ar-cap is-gone" aria-hidden="true"><b>{day(harbor.friday.fetchedAt)}</b><span class="cv-mono">{harbor.friday.sha256.slice(0, 12)}</span><span>overwritten</span></div>
+        <div class="ar-cap"><b>{day(harbor.tuesday.fetchedAt)}</b><span class="cv-mono">{harbor.tuesday.sha256.slice(0, 12)}</span><span>{saturdayShort}: {cell(policies.harborCell.tuesday)}</span></div>
+      </div>
+    </div>
+    <div class="ar-lane">
+      <p class="ar-lane-name">Every capture</p>
+      <div class="ar-caps">
+        <div class="ar-cap"><b>{day(harbor.friday.fetchedAt)}</b><span class="cv-mono">{harbor.friday.sha256.slice(0, 12)}</span><span>{saturdayShort}: {cell(policies.harborCell.friday)}</span></div>
+        <div class="ar-cap"><b>{day(harbor.tuesday.fetchedAt)}</b><span class="cv-mono">{harbor.tuesday.sha256.slice(0, 12)}</span><span>{saturdayShort}: {cell(policies.harborCell.tuesday)}</span></div>
+      </div>
+    </div>
+  </figure>
+  <p class="cv-label">Fetch times and content hashes are the sample's. Kick's Tuesday capture was kept apart from the archive, so the overwrite is simulated.</p>
+
+  <Touchline part="decision" at={["Archive"]} note="Archive keeps the latest capture of each page." title="The latest capture, with its fetch time">
+    <p>Touchline keeps latest only. So Friday's table could be rebuilt on Tuesday for one reason: nothing had fetched those {seven} pages since Friday. Kick's “Re-fetching!” would have replaced all {seven} captures. {spell(changed.length, true)} had changed since Friday ({changed.map((c) => c.name).join(", ")}), so their Friday bytes would be gone. After that, no replay of Friday is possible, and nobody can show what Monday's table, the one readers have, was built from.</p>
+    <p>That is why a parser change re-reads the archive and never fetches, and why a re-fetch is a separate, deliberate act.</p>
+  </Touchline>
+
+  <h3 id="decision-predict">What each archive can still answer</h3>
+  <p>Suppose Riley hadn't stopped Kick, and all {seven} schedule pages were fetched again on Tuesday. For each question, which archive can still answer it?</p>
+  <Check once="decide-policies" kind="Prediction" note="Answer all three, then check.">
+    {grid.map((q) => <Choice save={`decide-${q.key}`} label={q.label} options={who} answer={q.answer} why={q.why} wrong={q.wrong} />)}
+    <Fragment slot="reveal">
+      <div class="cv-scroll">
+        <table class="cv-log ar-answers">
+          <caption>After Tuesday's re-fetch</caption>
+          <thead><tr><th scope="col">Question</th><th scope="col">Latest only</th><th scope="col">Every capture</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">The table today</th><td>Yes</td><td>Yes</td></tr>
+            <tr><th scope="row">Monday's table, exactly</th><td>No</td><td>Yes</td></tr>
+            <tr><th scope="row">Harbor Point's cell on Friday</th><td>No</td><td>Yes: {cell(policies.every.harborFridayCell ?? "")}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The third question has teeth. Harbor Point's cell changed from {cell(policies.harborCell.friday)} to “{policies.harborCell.tuesday}” on Tuesday, so with only Tuesday's capture nobody can say whether Friday's page already had a result that Kick failed to read. Friday's capture settles it: blank, so Kick missed nothing.</p>
+      <p class="cv-rule">A recorded hash can prove an unchanged page is identical. It can never recover a page that changed.</p>
+      <p>Friday's manifest records every page's hash, so even latest only can prove that its {names(same)} captures are still Friday's bytes. For the other {spell(changed.length)}, the hash only proves the bytes are different. It cannot say what they were.</p>
+    </Fragment>
+  </Check>
+
+  <h3 id="decision-your-call">Your call: the league office</h3>
+  <p>The conference office publishes the standings every week. For the rest of the season, a coach can dispute any week's table, and the office must then show the pages that table was built from. Once the season closes, disputes are no longer heard. Storage costs money, so the office keeps nothing it doesn't need.</p>
+  <Check once="decide-call" kind="Your call" note="Pick one policy, then check." button="Check answer">
+    <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
+      why="Every capture until the season's disputes close. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. After the season, nobody can ask, so the old captures are only cost."
+      wrong={{ hashes: "Hashes prove a page is unchanged. When a coach disputes a week whose pages have since changed, the hash proves only that the old page was different, not what it said.", forever: "This answers every dispute, but the office pays to keep captures nobody may ask about once the season closes." }} />
+    <p slot="reveal">The policy follows from the questions the archive must answer, and for how long. Monday's table needs Friday's pages for as long as somebody may ask what it was built from.</p>
+  </Check>
+
   <AiCard part="decision" />
-  <NextPart from="decision">What would Riley need to see to accept a rebuild?</NextPart>
+  <NextPart from="decision">Riley's question has three clauses. What evidence would make each one checkable?</NextPart>
 </section>
+
+<style>
+  .ar-yours { margin-top: -0.25rem; padding-left: 1rem; border-left: 3px solid var(--cv-yellow); }
+  .ar-row { max-width: 40rem; }
+  .ar-row td, .ar-row th { white-space: nowrap; }
+  .ar-row td.is-code, .ar-swatch.is-code { background: color-mix(in srgb, var(--sl-color-accent) 28%, transparent); }
+  .ar-row td.is-pages, .ar-swatch.is-pages { background: color-mix(in srgb, var(--cv-yellow) 30%, transparent); }
+  .ar-key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.5rem; margin-top: -0.5rem; color: var(--tl-muted); font-size: 0.85rem; }
+  .ar-swatch { display: inline-block; width: 0.9rem; height: 0.9rem; border-radius: 2px; }
+  .ar-swatch.is-pages { margin-left: 0.75rem; }
+  .ar-shelf { display: grid; gap: 0.6rem; margin: 0 0 0.5rem; padding: 0.9rem 1rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-card); }
+  .ar-shelf figcaption { color: var(--sl-color-white); font-weight: 700; }
+  .ar-lane { display: grid; grid-template-columns: 8.5rem 1fr; align-items: center; gap: 0.5rem 0.75rem; }
+  .ar-lane-name { margin: 0; font-weight: 700; }
+  .ar-caps { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .ar-cap { display: grid; gap: 0.1rem; min-width: 11rem; padding: 0.45rem 0.7rem; border: 2px solid var(--sl-color-accent); border-radius: 6px; background: var(--tl-bg); font-size: 0.88rem; line-height: 1.35; }
+  .ar-cap b { color: var(--sl-color-white); }
+  .ar-cap.is-gone { border: 2px dashed var(--cv-red); opacity: 0.75; }
+  .ar-cap.is-gone b, .ar-cap.is-gone .cv-mono { text-decoration: line-through; }
+  .ar-cap.is-gone span:last-child { color: var(--cv-red); font-weight: 700; }
+  .ar-answers td { white-space: nowrap; }
+  @media (max-width: 32rem) { .ar-lane { grid-template-columns: 1fr; } .ar-cap { min-width: 0; flex: 1 1 9rem; } }
+</style>
