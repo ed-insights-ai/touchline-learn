@@ -9,7 +9,7 @@ const sugar = { still: 60, stirred: 15 };
 type Arm = { label: string; factors: [string, string, boolean][] };
 const designs: { field: string; confounded: Arm[]; controlled: Arm[]; result: string }[] = [
   {
-    field: "Website",
+    field: "Two ways to test the headline",
     confounded: [
       { label: `Last week · ${rate.before}%`, factors: [["Headline", "old", false], ["Button", "blue", false], ["Visitors", "last week", false]] },
       { label: `This week · ${rate.after}%`, factors: [["Headline", "new", true], ["Button", "green", true], ["Visitors", "this week", true]] },
@@ -19,18 +19,6 @@ const designs: { field: string; confounded: Arm[]; controlled: Arm[]; result: st
       { label: "Version B", factors: [["Headline", "new", true], ["Button", "same", false], ["Visitors", "random half", false]] },
     ],
     result: `+${rate.after - rate.before} points`,
-  },
-  {
-    field: "Laboratory",
-    confounded: [
-      { label: `Trial 1 · ${sugar.still} s`, factors: [["Water", "cool", false], ["Stirring", "none", false]] },
-      { label: `Trial 2 · ${sugar.stirred} s`, factors: [["Water", "warm", true], ["Stirring", "stirred", true]] },
-    ],
-    controlled: [
-      { label: "Trial 1", factors: [["Water", "cool", false], ["Stirring", "none", false]] },
-      { label: "Trial 2", factors: [["Water", "warm", true], ["Stirring", "none", false]] },
-    ],
-    result: `${sugar.still - sugar.stirred} s faster`,
   },
 ];
 
@@ -73,27 +61,6 @@ const checks = [
   <p>Suppose {rate.before}% of visitors signed up last week. This week you rewrote the headline and changed the sign-up button from blue to green. Now {rate.after}% sign up. The increase is <strong>{rate.after - rate.before} percentage points</strong>, but the headline and button color are <strong>confounded</strong>. They changed together, so the increase could come from either change or from the two working together. The mix of visitors might also have changed from one week to the next.</p>
   <p>To isolate the headline’s effect, randomly assign visitors during the same period to two versions. Both versions use the same button, layout, and sign-up flow. One shows the old headline and the other shows the new one. Random assignment helps balance differences among visitors, and running both versions at the same time keeps them exposed to the same day-to-day conditions. Any systematic difference in sign-up rates can then be attributed to the headline, with some uncertainty from random variation.</p>
 
-  <h2>2. Laboratory experiment</h2>
-  <p>Suppose sugar dissolves in {sugar.still} seconds in cool, still water and in {sugar.stirred} seconds in warm, stirred water. Temperature and stirring changed together. Those two measurements can’t tell you how much of the {sugar.still - sugar.stirred}-second difference came from warming the water.</p>
-  <p>To isolate temperature, compare cool and warm water with no stirring in either trial. Use the same amount and grain size of sugar, the same volume of water, identical containers, and the same rule for deciding when the sugar has dissolved. Repeat each condition to see how much the times vary.</p>
-  <figure class="pr-card pa-trial">
-    <fieldset class="pr-seg">
-      <legend>Design the second trial</legend>
-      {trials.map((t, i) => <label><input type="radio" name="pa-conf-trial" value={t.id} checked={i === 0} /><span>{t.label}</span></label>)}
-    </fieldset>
-    {trials.map((t) => {
-      const [what, tone, why] = estimate(t);
-      return (
-        <div class="pa-trial-view" data-trial={t.id}>
-          <div class="pa-pair">
-            <div class="pa-arm"><span>Trial 1</span><ul><li>Water: cool</li><li>Stirring: none</li></ul></div>
-            <div class="pa-arm"><span>Trial 2</span><ul><li class={t.water ? "is-changed" : ""}>Water: {t.water ? "warm" : "cool"}</li><li class={t.stir ? "is-changed" : ""}>Stirring: {t.stir ? "stirred" : "none"}</li></ul></div>
-          </div>
-          <p class="pa-trial-say"><span class="pa-trial-k">Measures</span><span class:list={["pr-chip", tone]}>{what}</span> {why}</p>
-        </div>
-      );
-    })}
-  </figure>
   <figure class="pr-card pa-designs">
     {designs.map((d) => (
       <div>
@@ -114,6 +81,28 @@ const checks = [
       </div>
     ))}
     <p class="pr-legend"><span class="pa-key">Differs between the two arms</span></p>
+  </figure>
+
+  <h2>2. Laboratory experiment</h2>
+  <p>Suppose sugar dissolves in {sugar.still} seconds in cool, still water and in {sugar.stirred} seconds in warm, stirred water. Temperature and stirring changed together. Those two measurements can’t tell you how much of the {sugar.still - sugar.stirred}-second difference came from warming the water.</p>
+  <p>To isolate temperature, compare cool and warm water with no stirring in either trial. Use the same amount and grain size of sugar, the same volume of water, identical containers, and the same rule for deciding when the sugar has dissolved. Repeat each condition to see how much the times vary.</p>
+  <figure class="pr-card pa-trial">
+    <fieldset class="pr-seg">
+      <legend>Design the second trial</legend>
+      {trials.map((t, i) => <label><input type="radio" name="pa-conf-trial" value={t.id} checked={i === 0} /><span>{t.label}</span></label>)}
+    </fieldset>
+    {trials.map((t) => {
+      const [what, tone, why] = estimate(t);
+      return (
+        <div class="pa-trial-view" data-trial={t.id}>
+          <div class="pa-pair">
+            <div class="pa-arm"><span>Trial 1</span><ul><li>Water: cool</li><li>Stirring: none</li></ul></div>
+            <div class="pa-arm"><span>Trial 2</span><ul><li class={t.water ? "is-changed" : ""}>Water: {t.water ? "warm" : "cool"}</li><li class={t.stir ? "is-changed" : ""}>Stirring: {t.stir ? "stirred" : "none"}</li></ul></div>
+          </div>
+          <p class="pa-trial-say"><span class="pa-trial-k">Measures</span><span class:list={["pr-chip", tone]}>{what}</span> {why}</p>
+        </div>
+      );
+    })}
   </figure>
 
   <h2>3. Fixing a data pipeline</h2>

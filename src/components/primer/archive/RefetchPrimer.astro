@@ -23,6 +23,8 @@ const fromCode = replay - before;
 const signed = (n: number) => (n === 0 ? "±0" : `${n < 0 ? "−" : "+"}${Math.abs(n)}`);
 const pagesOf = (r: Rec) => `${r.pages} page${r.pages === 1 ? "" : "s"}`;
 
+const delta = (c: (typeof changes)[number]) => fixedCode(c.apply(saved)) - replay;
+
 const subsets = Array.from({ length: 1 << changes.length }, (_, m) => changes.filter((_, i) => m & (1 << i)));
 const states = subsets.map((on) => {
   const rows = on.reduce((rs, c) => c.apply(rs), saved);
@@ -32,12 +34,13 @@ const states = subsets.map((on) => {
     key: changes.map((c) => (on.includes(c) ? c.key : "")).join("") || "none",
     rows,
     total,
-    diff: fromSource === 0
+    diff: on.length === 0
       ? `${signed(total - before)} from yesterday, all of it from the fix`
-      : `${signed(total - before)} from yesterday = ${signed(fromCode)} from the fix, ${signed(fromSource)} from the source`,
+      : `${signed(total - before)} from yesterday: ${signed(fromCode)} from the fix, ${on.map((c) => signed(delta(c))).join(" ")}${on.length > 1 ? ` = ${signed(fromSource)}` : ""} from the source`,
   };
 });
 const today = states[states.length - 1];
+if (states.some((st) => st.total - replay !== changes.filter((c) => st.key.includes(c.key)).reduce((n, c) => n + delta(c), 0))) throw new Error("source changes are not additive");
 const laneCss = states
   .map((st) => `.pa-rf${changes.map((c) => (st.key.includes(c.key) ? `:has([value="${c.key}"]:checked)` : `:not(:has([value="${c.key}"]:checked))`)).join("")} [data-s="${st.key}"]`)
   .join(",\n") + " { display: grid; }";
@@ -54,7 +57,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("setup")}`}
   about="This is a reply an AI assistant gave to Module 2's re-fetch study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and say whether the page shows what changed on the sites since Friday."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and name one change a site could have made since Friday that would move Saint Lambert's numbers."
 >
   <h2 class="pr-title">Re-fetch or replay: fixing yesterday's report</h2>
   <p>Suppose you run a daily pipeline for a community archive. It fetches transcription records and reports how many pages have been approved. Yesterday you saved a copy of the records before running the pipeline.</p>
@@ -117,7 +120,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again.</p>
-    <p>Touchline keeps the latest capture of each page, the reply's “only copy”, so Kick's re-fetch would also have overwritten the pages Friday's table was built from. The reply can also print a table of what changed at its source. A re-fetch hands back new pages, not a list of changes, so check Part 1 for anything that shows what the sites changed after Friday.</p>
+    <p>Touchline keeps the latest capture of each page, the reply's “only copy”, so Kick's re-fetch would also have overwritten the pages Friday's table was built from. The reply can print a table of what changed at its source. A re-fetch hands back new pages, not a list of changes, and nothing in Part 1 shows what the sites published after Friday. That is why its prediction's honest answer is “can't tell”.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>

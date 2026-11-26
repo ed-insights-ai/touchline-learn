@@ -20,7 +20,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Which of the two can reproduce yesterday's output exactly with the old code, or correct it with the fixed code, and what a re-fetch overwrites if I keep only the latest copy of each source.
 4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
 5. ${close}`,
-    returnTask: "Then come back and say whether the page shows what changed on the sites since Friday.",
+    returnTask: "Then come back and name one change a site could have made since Friday that would move Saint Lambert's numbers.",
   },
   idea: {
     slug: "02-archive-ai-raw",
@@ -32,7 +32,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
 4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
 5. ${close}`,
-    returnTask: "Then come back and answer the research team's check again with the cleaning script lost.",
+    returnTask: "Then come back and take the research team's reviewer question again with the cleaning script lost: what can the team still show?",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
@@ -56,7 +56,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: "Then come back and place one more bug on the grid: a real 1–1 draw given two points.",
+    returnTask: "Then come back and place one more bug on the grid: the table step gives Cedar Grove two points, not one, for its home draw with Dunmore.",
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -92,7 +92,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
 4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
-    returnTask: "Then come back and match each line of Kick's report to one of the reply's criteria.",
+    returnTask: "Then come back and write one criterion for a rebuild of your own, as checkable as a line of Kick's report.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",

@@ -17,7 +17,7 @@ const policies = [
 ];
 const questions = [
   { q: "What did the latest fetch show?", needs: "Tuesday" },
-  { q: "Can we rebuild Tuesday's report?", needs: "Tuesday" },
+  { q: "Does it hold the page Tuesday's report was built from?", needs: "Tuesday" },
   { q: "What did the archive see when it produced Monday's report?", needs: "Monday" },
 ];
 
@@ -95,10 +95,9 @@ const checks = [
   <p>To rebuild the report exactly, record which snapshot, code version, and configuration produced it. Preserve any other input that can affect the output too, such as dependency versions or the report date if it’s printed in the file.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume the parser, build code and config of every past run are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
-    <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like the reply's Monday seat count, Harbor Point's result cell for 21 November changed on Tuesday, from blank to a result, and under latest only a Tuesday re-fetch would replace Friday's capture of it.</p>
-    <p>On collisions: different files can share a hash in principle, but with a strong hash such as SHA-256 nobody can find two in practice, which is why a match is strong evidence.</p>
-    <p>The reply calls a hash a fingerprint. In this course a fingerprint is the hash of the parser code and its config; a content hash identifies a saved page, and that is the hash the reply means.</p>
+    <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume every past run's code and config are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
+    <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like Monday's seat count, Harbor Point's result cell for 21 November had changed by Tuesday, from blank to a result, and under latest only a Tuesday re-fetch would replace Friday's capture of it.</p>
+    <p>The reply's hash is what this course calls a content hash. The course's fingerprint is a hash of the parser code and its config.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
