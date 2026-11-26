@@ -40,7 +40,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("idea")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-and-derived study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and take the research team's reviewer question again with the cleaning script lost: what can the team still show?"
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and answer the research team's reviewer question: which of its four kept things show how a chart number was made?"
 >
   <h2 class="pr-title">Raw data, derived data and replay</h2>
   <p><strong>Raw data</strong> is what your system receives from a source. Save an exact copy at intake, before your processing code parses, cleans, rounds, or filters it. If that code has a bug, the saved copy gives you the original input to try again.</p>
@@ -107,11 +107,12 @@ const checks = [
           : `The replay gives the revised batch's total. The skipped ${st.gone} L reading of the original is gone, so v1's total can't be corrected.`}</p>
       </div>
     ))}
+    <figcaption>Same fixed code both times. Whether it corrects v1's total depends only on which batch the archive still holds.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the weather station's: one code change, replayed over the same saved input. An exact rebuild can also depend on more than the reply's three things, such as library versions or the date a run used.</p>
-    <p>Dunmore's page is the reply's unsaved <code>08:03</code> reading. It was never saved on Friday, so no replay recovers it. Its results still come from the visitors' saved pages, as they did on Monday.</p>
+    <p>Dunmore's page is starker than the reply's unsaved <code>08:03</code> reading: the site never answered on Friday, so there is no copy at all for a replay to read. Its results still come from the visitors' saved pages, as they did on Monday.</p>
     <p>For the research team's check, sort its four kept things the reply's way: which is the raw input, which is code, and which are derived. Then ask which of them a reviewer needs to see how a chart number was made.</p>
   </aside>
 

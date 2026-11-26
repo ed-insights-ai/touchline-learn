@@ -121,17 +121,17 @@ const checks = [
   <figure class="pr-card">
     <p class="pr-label">The same four criteria on a code-only fix</p>
     <ul class="pa-audit">
-      <li><code>inputs/sensor-17/2026-11-20.csv  9ce402ad…  matches manifest</code><span class="pr-chip is-ok">Pass</span></li>
-      <li><code>Git commit: 3b90e7d…  (baseline 8f24c6a…)</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>inputs/sensor-17/2026-11-20.csv  4e71c0b9…  matches manifest</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>Git commit: d05a3e2…  (baseline 71c8f9a…)</code><span class="pr-chip is-ok">Pass</span></li>
       <li><code>network-audit.json: full run, 0 attempts</code><span class="pr-chip is-ok">Pass</span></li>
-      <li><code>Changed cells: 1. Inputs identical; traced to 3b90e7d.</code><span class="pr-chip is-ok">Pass</span></li>
+      <li><code>Changed cells: 1. Inputs identical; traced to d05a3e2.</code><span class="pr-chip is-ok">Pass</span></li>
     </ul>
     <figcaption>When the inputs are held fixed, the only line allowed to change is the code, so every changed cell must trace to it.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Part 7's replay report names a build revision beside the fingerprint, as the reply names a Git commit. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
-    <p>The reply's changed cell comes from a corrected input, so its inputs differ from the baseline's. Kick's replay holds Friday's pages fixed, so its one changed cell must trace to the code. And Kick's network counter hooks Python's name lookups and socket connects and sends in its own process, after showing it catches test requests, so its zero says nothing about child processes or calls outside those hooks.</p>
+    <p>The reply's changed cell comes from a corrected input, so its inputs differ from the baseline's. Under Riley's criteria that would not count as a replay of Friday's pages. Kick's replay holds them fixed, so its one changed cell must trace to the code. And Kick's network counter hooks Python's name lookups and socket connects and sends in its own process, after showing it catches test requests, so its zero says nothing about child processes or calls outside those hooks.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>

@@ -4,6 +4,10 @@ import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi["carry-it"];
 const kg = { whole: 12, fraction: 12.8 };
+const axis = { lo: kg.whole - 1, hi: kg.whole + 2 };
+const at = (x: number) => `${((x - axis.lo) / (axis.hi - axis.lo)) * 100}%`;
+const ticks = Array.from({ length: axis.hi - axis.lo + 1 }, (_, i) => axis.lo + i);
+const shipments = [kg.whole, kg.fraction];
 
 const worlds = [
   {
@@ -50,7 +54,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("carry-it")}`}
   about="This is a reply an AI assistant gave to Module 2's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and give the honest claim for a world that kept every file but not which one each report used."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and pick the honest claim for World B, and name what it would have needed to keep."
 >
   <h2 class="pr-title">One bug, three archives</h2>
   <p class="pr-pull">A bug fix tells you how to process an input correctly. The archive tells you which past inputs you can still process.</p>
@@ -64,7 +68,14 @@ const checks = [
       <p class="pr-arrow"><span>importer</span></p>
       <div class="pa-merge-out"><p><code>{kg.whole} kg</code><span>at least {kg.whole}, less than {kg.whole + 1}</span></p></div>
     </div>
-    <figcaption>The stored value fixes a range, not a weight. That range is all a processed table can offer.</figcaption>
+    <div class="pa-line" role="img" aria-label={`Number line: a stored ${kg.whole} kg covers every weight from ${kg.whole} up to but not including ${kg.whole + 1} kg. Both shipments, ${kg.whole.toFixed(1)} and ${kg.fraction} kg, fall inside it.`}>
+      <div class="pa-line-track">
+        <span class="pa-line-band" style={`left:${at(kg.whole)};width:calc(${at(kg.whole + 1)} - ${at(kg.whole)})`}></span>
+        {shipments.map((x) => <span class="pa-line-dot" style={`left:${at(x)}`}><small>{x.toFixed(1)}</small></span>)}
+      </div>
+      <div class="pa-line-ticks" aria-hidden="true">{ticks.map((t) => <span style={`left:${at(t)}`}>{t} kg</span>)}</div>
+    </div>
+    <figcaption>The stored value fixes a range, not a weight: the shaded kilogram. That range is all a processed table can offer.</figcaption>
   </figure>
   <figure class="pr-card pa-worlds">
     <p class="pr-label">The recovery claim each archive supports</p>
@@ -116,6 +127,13 @@ const checks = [
   :global(.pr) .pa-merge-in p, :global(.pr) .pa-merge-out p { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; margin: 0; padding: 0.4rem 0.7rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-size: 0.88rem; }
   :global(.pr) .pa-merge-out p { border: 1.5px dashed var(--pr-red); }
   .pa-merge-out span { color: var(--tl-muted); }
+  .pa-line { margin: 2.1rem 0.8rem 0.4rem; }
+  .pa-line-track { position: relative; height: 0.5rem; border-radius: 999px; background: var(--tl-line); }
+  .pa-line-band { position: absolute; top: -0.35rem; bottom: -0.35rem; border: 1.5px dashed var(--pr-red); border-right-style: none; border-radius: 4px 0 0 4px; background: color-mix(in srgb, var(--pr-red) 18%, transparent); }
+  .pa-line-dot { position: absolute; top: 50%; width: 0.8rem; height: 0.8rem; margin: -0.4rem 0 0 -0.4rem; border-radius: 50%; background: var(--sl-color-white); box-shadow: 0 0 0 2px var(--tl-bg); }
+  .pa-line-dot small { position: absolute; bottom: 0.95rem; left: 50%; transform: translateX(-50%); color: var(--sl-color-white); font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+  .pa-line-ticks { position: relative; height: 1.4rem; margin-top: 0.5rem; }
+  .pa-line-ticks span { position: absolute; transform: translateX(-50%); color: var(--tl-muted); font-size: 0.78rem; white-space: nowrap; }
   .pa-notes { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
   .pa-notes li { display: grid; gap: 0.2rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); }
   .pa-notes b { color: var(--sl-color-white); }

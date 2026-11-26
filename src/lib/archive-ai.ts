@@ -32,7 +32,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
 4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
 5. ${close}`,
-    returnTask: "Then come back and take the research team's reviewer question again with the cleaning script lost: what can the team still show?",
+    returnTask: "Then come back and answer the research team's reviewer question: which of its four kept things show how a chart number was made?",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
@@ -44,7 +44,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and write the changelog line that table B supports, and nothing more.",
+    returnTask: "Then come back and pick the changelog line that table B supports, and say what each other line claims that B can't show.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -68,7 +68,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and write a preset for the notebook when inventory.csv is corrected.",
+    returnTask: "Then come back and write a preset in Part 5's form for the notebook: inventory.csv is corrected upstream and never fetched.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -116,7 +116,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "Then come back and give the honest claim for a world that kept every file but not which one each report used.",
+    returnTask: "Then come back and pick the honest claim for World B, and name what it would have needed to keep.",
   },
 };
 
