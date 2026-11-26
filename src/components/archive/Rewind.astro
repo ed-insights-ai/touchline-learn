@@ -22,7 +22,7 @@ const short: [string, string][] = [["manifest", "1 · Pins the inputs"], ["reque
 const label = Object.fromEntries(short);
 const lines = [
   { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every schedule page the manifest lists as saved was replayed, and each matched the hash Friday recorded." },
-  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: `The counter caught both test requests, then recorded ${rewind.requests} attempts during the lab's replay.` },
+  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: `The counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.` },
   { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
   { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "It names the fixed parser and its config, beside Tuesday's." },
@@ -77,14 +77,14 @@ const draft: [string, string][] = [
       </fieldset>
       <p>Each criterion asks for evidence that could have come out differently: a hash can fail to match, a counter can count, a diff can show a cell nobody explained. Evidence that could never fail verifies nothing.</p>
 
-      <h3 id="rewind-report">Kick's replay report</h3>
+      <h3>Kick's replay report</h3>
       <p class="cv-label">The report section of <code>python labs/m02_archive.py</code>, quoted whole. Every change to the site checks it against the lab's output.</p>
       <div class="cv-agent-reply ar-reply" role="region" aria-label="Kick's replay report">
         <div class="cv-chat-bar">
           <span class="cv-agent-badge">Kick · Coding agent</span>
           <span class="cv-status-ok">{rewind.requests} requests · {rewind.cellsChanged} cell changed</span>
         </div>
-        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
+        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-rule": /^-+$/.test(l), "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
       <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the hash Git computes from the bytes of the program that built the table (its blob hash), so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code, run the same way, gives the same table.</p>
 
@@ -101,7 +101,7 @@ const draft: [string, string][] = [
         ))}
         <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
           options={draft} answer="counter"
-          why={`The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then recorded ${rewind.requests} attempts during the lab's replay.`}
+          why={`The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.`}
           wrong={{ pages: "A replay reads saved pages from disk. The count is of network attempts, and splitting a 0 by page doesn't make it more trustworthy.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
         <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
       </Check>
@@ -126,7 +126,8 @@ const draft: [string, string][] = [
   .ar-ln { display: block; }
   .ar-ln.is-kv { padding-left: 17ch; text-indent: -17ch; }
   .ar-ln.is-sub { padding-left: 2ch; text-indent: -2ch; }
-  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } }
+  .ar-ln.is-rule { overflow: hidden; white-space: nowrap; }
+  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } .ar-ln.is-kv { padding-left: 4ch; text-indent: -4ch; } }
   .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
   .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }
 </style>

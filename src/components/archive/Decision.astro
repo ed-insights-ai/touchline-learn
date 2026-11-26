@@ -46,7 +46,7 @@ const verdict = (q: "today" | "monday" | "cedar") => {
 const who: [string, string][] = [["both", "Both policies"], ["latest", "Latest only"], ["every", "Every capture only"], ["neither", "Neither policy"]];
 const cedarHash = cedar.friday.sha256.slice(0, 12);
 const questions = [
-  { key: "today", label: "What does the table say today?",
+  { key: "today", label: "Tell a reader what the table says today.",
     why: "Both policies. Today's table needs only the newest capture of each page, and after the re-fetch both archives hold Tuesday's.",
     wrong: { latest: "Every capture holds Tuesday's captures too, beside Friday's.", every: "Latest only keeps one capture per page: the newest. That is the one today's table needs.", neither: "Both archives hold Tuesday's pages. That is what a re-fetch saves." } },
   { key: "monday", label: "Rebuild Monday's table exactly, from the pages it was built from.",
@@ -98,10 +98,10 @@ const calls = [
     <tbody>{lambert.columns.map((c) => <tr><th scope="row">{head[c]}</th><td>{before[c]}</td><td class:list={{ "is-code": c === "name", "is-pages": c !== "name" }}>{after[c]}</td><td>{c === "name" ? "the code" : "the pages"}</td></tr>)}</tbody>
   </table>
   <p class="ar-key"><span><span class="ar-swatch is-code"></span><span><b>Changed by the code:</b> the name</span></span><span><span class="ar-swatch is-pages"></span><span><b>Changed by the pages:</b> {spell(byPages.length)} numbers</span></span></p>
-  <p class="cv-label">“St. Lambert” is the school as its own pages write it. “State Lambert” is the bug's display name and “Saint Lambert” the fix's.</p>
+  <p class="cv-label">“St. Lambert” is the school as the saved pages write it. “State Lambert” is the bug's display name and “Saint Lambert” the fix's.</p>
 
   <h3 id="decision-policies">Two archive policies</h3>
-  <p>A table is a build over saved pages, code and config. A run's <strong>capture manifest</strong> lists every page it asked for: each saved page by its content hash, each missing one named. Friday's lists {seven} schedule pages saved and {down} unavailable. Suppose every run's parser, build code and config are kept in version control, and every run has a manifest. Then only one question is left: how long are the pages kept? There are two common answers.</p>
+  <p>A table is a build over saved pages, code and config. A run's <strong>capture manifest</strong> lists every page it asked for: each saved page by its content hash, each missing one named. For schedules, Friday's lists {seven} pages saved and {down} unavailable. Suppose every run's parser, build code and config are kept in version control, and every run has a manifest. Then only one question is left: how long are the pages kept? There are two common answers.</p>
   <div class="cv-twins cv-two">
     <div>
       <h4>Latest only</h4>
@@ -118,7 +118,7 @@ const calls = [
   </div>
   <p>Either way, a manifest's hash can verify that a capture held now is byte for byte the one a table read. It can't bring back a capture that is gone. A policy can also change with time: every capture while a table can still be questioned, less once it can't.</p>
 
-  <p>Suppose Riley hadn't stopped Kick, and Tuesday's re-fetch had gone into the archive: all {sites} sites asked again, {seven} pages saved, {down} still unavailable. By then {spell(changed.length)} of the {seven} pages had changed since Friday, Harbor Point's among them, and {names(same)} had not. For each one, which archive can still do it?</p>
+  <p>Suppose Riley hadn't stopped Kick, and Tuesday's re-fetch had gone into the archive: all {sites} sites asked again, {seven} pages saved, {down} still unavailable. By then {spell(changed.length)} of the {seven} pages had changed since Friday, Harbor Point's among them, and {names(same)} had not. For each task, which archive can still do it?</p>
   <Check once="decide-policies" kind="Prediction" note={`Answer all ${spell(grid.length)}, then check.`}>
     {grid.map((q) => <Choice save={`decide-${q.key}`} label={q.label} options={who} answer={q.answer} why={q.why} wrong={q.wrong} />)}
     <Fragment slot="reveal">
@@ -140,7 +140,7 @@ const calls = [
         </div>
       </figure>
       <p class="cv-label">Fetch times and content hashes are the sample's. The Tuesday capture is kept apart from the archive, so the overwrite is simulated.</p>
-      <p>The hash is what separates the last two. Cedar Grove's page hadn't changed, so latest only still holds the bytes Monday's table read, and Friday's manifest hash, {cedarHash}, verifies them. Harbor Point's page had: latest only holds {harbor.tuesday.sha256.slice(0, 12)}, with “{policies.harborCell.tuesday}” in the {saturdayShort} cell, and the manifest's {harbor.friday.sha256.slice(0, 12)} can only show that Friday's page is gone.</p>
+      <p>The hash separates a changed page from an unchanged one. Cedar Grove's page hadn't changed, so latest only still holds the bytes Monday's table read, and Friday's manifest hash, {cedarHash}, verifies them. Harbor Point's page had: latest only holds {harbor.tuesday.sha256.slice(0, 12)}, with “{policies.harborCell.tuesday}” in the {saturdayShort} cell, and the manifest's {harbor.friday.sha256.slice(0, 12)} can only show that Friday's page is gone.</p>
       <p class="cv-rule">A recorded hash can verify that an unchanged page is identical. It can never recover a page that changed.</p>
     </Fragment>
   </Check>

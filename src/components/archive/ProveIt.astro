@@ -90,7 +90,7 @@ const tell: [string, string][] = [
   </fieldset>
   <div class="ar-diag" data-when="prove-where" hidden>
     <p class="ar-said" data-when="prove-where" data-is="pk" hidden>The penalty kick is in the scoring summary and in the OT column. What the parser missed is the column.</p>
-    <p class="ar-said" data-when="prove-where" data-is="ot" hidden>The overtime period.</p>
+    <p class="ar-said" data-when="prove-where" data-is="ot" hidden>The parser left out the overtime period.</p>
     <p class="ar-said" data-when="prove-where" data-is="site" hidden>The saved box score's F column says {published.home}–{published.away}, the same as the schedules.</p>
     <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column's total, the goal at {goal.time}, so it never reached the match detail.</p>
   </div>
@@ -110,8 +110,8 @@ const tell: [string, string][] = [
   <p class="cv-label">The fingerprints are real hashes of a box-score parser, before and after a simulated one-line edit. Which files go stale is simulated.</p>
   <Check once="prove-recover" kind="Assessment" note="Answer all four, then check.">
     <Choice save="prove-replay" label="1. What do you replay, and from where?" options={replay} answer={replayAnswer}
-      why={`All ${n}, from their saved pages. Every box score went through the parser that changed, and Friday's captures already hold the right numbers. Fetching adds nothing and would replace those captures.`}
-      wrong={{ one: `That is the match you know about. The parser that changed read all ${n}; guessing which it got wrong is the mistake Case 3 warned about.`, refetch: "The saved page already has the right numbers. A fetch brings back whatever the site shows now, and replaces Friday's capture.", allfetch: "The scope is right, but the saved pages are the evidence. A fetch replaces Friday's captures with whatever the sites show now." }} />
+      why={`${replay.find(([v]) => v === replayAnswer)![1]}. Every box score went through the parser that changed, and Friday's captures already hold the right numbers. Fetching adds nothing and would replace those captures.`}
+      wrong={{ one: `That is the match you know about. The parser that changed read all ${n}; guessing which it got wrong is the mistake Case 3 warned about.`, refetch: "The saved page already has the right numbers. A fetch brings back whatever the site shows now, and replaces Friday's capture.", allfetch: "The scope is right, but the saved pages are the evidence. A fetch replaces Friday's captures with whatever Alder Ridge's site shows now." }} />
     <Choice save="prove-stale" label="2. Which parsed files are stale, and what tells you?" options={stale} answer={staleAnswer}
       why={`All ${n} parsed box scores, because each records ${fp.before} and the parser is now ${fp.after}. The fingerprint decides, not a guess about what the bug touched. The ${fresh} parsed schedules record the schedule parser's fingerprint, which didn't change: the same reason Case 3's presets count only schedules.`}
       wrong={{ ot: "The OT column says where the bug showed, not which files the old parser wrote. The fingerprint decides: every file this parser wrote is stale.", hash: "A changed page is one reason a parsed file goes stale. Changed code is the other, and that is this case.", all: "Each parser has its own fingerprint. The schedule parser's didn't change." }} />

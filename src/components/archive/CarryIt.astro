@@ -54,7 +54,7 @@ const worlds: { key: string; name: string; kept: string; answer: string; why: st
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
     wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A replay needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
   { key: "c", name: "World C", kept: "Kept each clinic's file for every month, but a resubmitted file overwrote the one before it.", answer: "recount",
-    why: "Every month can be replayed from the files that survive. But March's report recorded the hash of Northside's original file, and the file now held has a different one: the hash shows the original is gone, and can't bring it back. So March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so a difference between the published figure and the replay may come from the fix, the resubmission, or both: Case 1's confounding, caused by the decision's latest only.",
+    why: "Every month can be replayed from the files that survive. But the hash March's report recorded no longer matches Northside's file: the original is gone. So a change in March may come from the fix, the resubmission, or both. That is Case 1's confounding, caused by a latest-only policy.",
     wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be replayed.", none: "The raw forms that survive still have the box. Every month can be replayed." } },
 ];
 const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
@@ -180,6 +180,7 @@ const staleOpts: [string, string][] = [
   .ar-title { margin: 0 0 1.25rem; padding: 0.85rem 1rem; border-left: 4px solid var(--cv-red); background: var(--tl-card); }
   .ar-title p:last-child { margin-bottom: 0; }
   .ar-said { font-weight: 600; }
+  .ar-title :global(.cv-riley) { margin: 0.75rem 0 0 !important; background: var(--tl-bg); }
   .ar-title-line { padding: 0.5rem 0.75rem; background: var(--tl-bg); overflow-wrap: anywhere; }
   :global(.il-js .cv-core.is-review) .ar-title[hidden] { display: block; }
 </style>
