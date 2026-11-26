@@ -36,7 +36,7 @@ const sideRows: [string, string][] = [
   ["final_url", sidecar.final_url],
   ["status", String(sidecar.status)],
   ["fetched_at", sidecar.fetched_at],
-  ["sha256", `${sidecar.sha256.slice(0, 12)}… (first 12 of 64)`],
+  ["sha256", `${sidecar.sha256.slice(0, 12)}… (first ${sidecar.sha256.slice(0, 12).length} of ${sidecar.sha256.length})`],
 ];
 
 const claims: [string, string, string][] = [
@@ -53,7 +53,7 @@ const worlds: { key: string; name: string; kept: string; answer: string; why: st
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
     wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A recount needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
   { key: "c", name: "World C", kept: "Kept each clinic's file for every month, but a resubmitted file overwrote the one before it.", answer: "recount",
-    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's report can't be replayed from the forms it read. Its published figure and the recount differ by two changes, the fix and the resubmission: Case 1's two causes, and Part 6's latest only.",
+    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so the published figure and the recount differ by two changes: Case 1's two causes, and Part 6's latest only.",
     wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be recounted.", none: "The raw forms that survive still have the box. Replay can recount every month." } },
 ];
 const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
@@ -75,7 +75,7 @@ const staleOpts: [string, string][] = [
   <Check once="carry-worlds" kind="Transfer" note="Answer all four, then check.">
     <p class="cv-qlabel">Four recovery claims:</p>
     <ol class="ar-claims">{claims.map(([, text]) => <li>{text}.</li>)}</ol>
-    {worlds.map((w) => <Choice save={`carry-${w.key}`} label={`${w.name}: which claim is honest?`} options={claimOpts} placeholder="Choose a claim" answer={w.answer} why={`${claimOpts[claimNo(w.answer) - 1][1]}. ${w.why}`} wrong={Object.fromEntries(Object.entries(w.wrong).map(([k, v]) => [k, `${claimOpts[claimNo(k) - 1][1]}: ${v}`]))} />)}
+    {worlds.map((w) => <Choice save={`carry-${w.key}`} label={`${w.name}: what is the strongest honest claim about correcting the published reports?`} options={claimOpts} placeholder="Choose a claim" answer={w.answer} why={`${claimOpts[claimNo(w.answer) - 1][1]}. ${w.why}`} wrong={Object.fromEntries(Object.entries(w.wrong).map(([k, v]) => [k, `${claimOpts[claimNo(k) - 1][1]}: ${v}`]))} />)}
     <Choice save="carry-stale" label="World A, after the fix: which mapped records are stale?" options={staleOpts} answer="all"
       why="Every mapped record. Each carries the old fingerprint, and the mapping step's fingerprint changed, including forms with the box left blank. Rebuilding them all costs minutes; rebuilding too few publishes a wrong count with no error."
       wrong={{ ticked: "That picks stale records by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either one makes a mapped record stale." }} />
@@ -129,7 +129,7 @@ const staleOpts: [string, string][] = [
     <p>Its content hash is the one Friday's manifest recorded for Cedar Grove's {titled} page: byte for byte, the same page. The archive did its job and kept exactly what arrived. A pipeline that believed the URLs would file this as {asked}, and every replay with that code would rebuild the same wrong season, faithfully.</p>
     <div class="cv-say cv-riley">
       <p class="cv-who">Riley</p>
-      <p>A {titled} page, filed as {asked}, and nothing complained. If it hadn't been byte for byte a page we already had, how would we have known without opening it?</p>
+      <p>So the archive holds a {titled} page under {asked}, exactly as it arrived. What should Kick check before it counts a single row from it?</p>
     </div>
   </div>
 
@@ -138,7 +138,7 @@ const staleOpts: [string, string][] = [
   <aside class="cv-next-card" aria-label="Next module">
     <p class="cv-next-eyebrow">Up next · Module {nextModule.n}</p>
     <p class="cv-next-q">{nextModule.question}</p>
-    <p>Module {nextModule.n} starts from pages like this one: what a pipeline should require before it believes a page is the season it asked for, and what it does with one that can't show it.</p>
+    <p>Module {nextModule.n} starts from this page.</p>
     <a class="cv-next-cta" href="../03-provenance/">Continue to Module {nextModule.n}: {nextModule.name} →</a>
   </aside>
 

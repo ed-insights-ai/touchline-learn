@@ -22,6 +22,12 @@ const boxEntry = fridayManifest.pages.find((p) => p.fixture === proveIt.fixture)
 const savedOn = new Date(boxEntry.fetched_at!).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
 if (slots.replay.withOvertime !== 1 || slots.replay.boxScores !== boxes || ot !== 3 || slots.stale.boxScores !== boxes || slots.stale.schedules !== 0 || slots.republish.standings || !slots.republish.matchDetail) throw new Error("Prove it's slot answers changed; rewrite its explanations");
 
+const replay: [string, string][] = [
+  ["one", `Box ${box} only, from its saved page`],
+  ["refetch", `Box ${box}, fetched again from ${home.name}'s site`],
+  ["all", `All ${n} saved ${slots.replay.school} box scores, from their saved pages`],
+  ["allfetch", `All ${n} ${slots.replay.school} box scores, fetched again so they are current`],
+];
 const stale: [string, string][] = [
   ["ot", `Only box ${box}'s: it is the only one with an OT column`],
   ["hash", "Only those whose saved page changed since they were parsed: the page hash decides"],
@@ -83,7 +89,7 @@ const tell: [string, string][] = [
     <p class="ar-said" data-when="prove-where" data-is="pk" hidden>The penalty kick is in the scoring summary and in the OT column. What the parser missed is the column.</p>
     <p class="ar-said" data-when="prove-where" data-is="ot" hidden>Right: the overtime period.</p>
     <p class="ar-said" data-when="prove-where" data-is="site" hidden>The saved box score's F column says {published.home}–{published.away}, the same as the schedules.</p>
-    <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. The goal at {goal.time}, in the {scoreByPeriod.head[ot]} column, never reached the match detail.</p>
+    <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column's total, the goal at {goal.time}, so it never reached the match detail.</p>
   </div>
   <p>The parser is fixed in a minute. Now recover, using only what Cases 1 to 3 taught. Three facts you need:</p>
   <ul>
@@ -94,23 +100,21 @@ const tell: [string, string][] = [
 
   <p class="cv-label">The fingerprints are real hashes of Module 4's box-score parser, before and after a simulated one-line edit. Which files go stale is simulated.</p>
   <Check once="prove-recover" kind="Assessment" note="Answer all four, then check.">
-    <Choice save="prove-stale" label={`1. Each parsed box score records ${fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is ${fp.after}. Which parsed files are stale, and what tells you?`} options={stale} answer="fp"
+    <Choice save="prove-replay" label="1. What do you replay, and from where?" options={replay} answer="all"
+      why={`All ${n}, from their saved pages. Every box score went through the parser that changed, and Friday's captures already hold the right numbers. Fetching adds nothing and would replace those captures.`}
+      wrong={{ one: `That is the match you know about. The parser that changed read all ${n}; guessing which it got wrong is the mistake Case 3 warned about.`, refetch: "The saved page already has the right numbers. A fetch brings back whatever the site shows now, and replaces Friday's capture.", allfetch: "The scope is right, but the saved pages are the evidence. A fetch replaces Friday's captures with whatever the sites show now." }} />
+    <Choice save="prove-stale" label={`2. Each parsed box score records ${fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is ${fp.after}. Which parsed files are stale, and what tells you?`} options={stale} answer="fp"
       why={`All ${n} parsed box scores, because each records ${fp.before} and the parser is now ${fp.after}. The fingerprint decides, not a guess about what the bug touched. The ${fresh} parsed schedules record the schedule parser's fingerprint, which didn't change.`}
       wrong={{ ot: "The OT column says where the bug showed, not which files the old parser wrote. The fingerprint decides: every file this parser wrote is stale.", hash: "A changed page is one reason a parsed file goes stale. Changed code is the other, and that is this case.", all: "Each parser has its own fingerprint. The schedule parser's didn't change." }} />
-    <div class="cv-line" data-q data-type="number" data-answer={slots.replay.withOvertime}
-      data-why={`${spell(slots.replay.withOvertime, true)}: box ${box}'s, the only one with an ${scoreByPeriod.head[ot]} column. The other ${spell(boxes - slots.replay.withOvertime)} come out as they were. You replay all ${n} anyway, because the fingerprint says they are stale and only the replay shows which outputs change.`}>
-      <label for="ar-prove-count">2. You replay all {n} saved {slots.replay.school} box scores with the fixed parser. How many match details change?</label>
-      <input id="ar-prove-count" inputmode="numeric" autocomplete="off" data-save="prove-count" />
-      <p class="cv-fb" role="status"></p>
-    </div>
     <Choice save="prove-republish" label="3. What do you republish?" options={republish} answer="detail"
-      why={`The match detail only. It is the one product built from the box score. The standings are built from the schedules, which already show ${published.home}–${published.away}, and a ${round} isn't a regular-season conference match.`}
-      wrong={{ both: `The standings never used this box score: a ${round} isn't a conference match, and the schedules had the right score.`, standings: "The standings were right. The wrong number is in the match detail.", nothing: "The schedules were right, but readers saw the match detail, and it was wrong." }} />
+      why={`The match detail only. It is the one product built from the box score. The standings are built from the schedules, which already show ${published.home}–${published.away}, and a ${round} is postseason, outside the regular-season standings.`}
+      wrong={{ both: `The standings never used this box score: a ${round} is postseason, outside the regular-season standings, and the schedules had the right score.`, standings: "The standings were right. The wrong number is in the match detail.", nothing: "The schedules were right, but readers saw the match detail, and it was wrong." }} />
     <Choice radio save="prove-tell" label={`4. Each note begins “Correction: ${match}.” Which one do you publish?`} options={tell} answer="named"
       why={`The third. With the match named first, it gives the wrong value readers saw, the real cause, and where the fix came from: the box score saved on ${savedOn}.`}
       wrong={{ site: `The box score saved on ${savedOn} says ${published.home}–${published.away}. Nothing shows the site ever posted ${buggy.home}–${buggy.away}.`, refetch: "Nothing was fetched. The note would misstate where the corrected number came from.", table: `The standings didn't change. A ${round} isn't in them.` }} />
     <Fragment slot="reveal">
       <p class="cv-rule">Replay every box score the fixed parser reads, fetch nothing, republish the one product that was wrong, and say what changed and why.</p>
+      <p>Run on all {n}, the replay changes {spell(slots.replay.withOvertime)} match detail: box {box}'s, the only one with an {scoreByPeriod.head[ot]} column. The other {spell(boxes - slots.replay.withOvertime)} come out as they were, and only the replay could show that.</p>
       <p>Now suppose the schedules were saved as they are, but the box-score archive kept only the parsed match detail: a final score for each match, with no periods and no goal times. The score could still be corrected from the schedule's “{proveIt.schedules["alder-ridge"]}”. The period breakdown and the overtime could come back only by fetching the page again and hoping the site still shows it unchanged. No replay could recover them.</p>
     </Fragment>
   </Check>

@@ -22,10 +22,10 @@ const short: [string, string][] = [["manifest", "1 · Friday's manifest"], ["req
 const label = Object.fromEntries(short);
 const lines = [
   { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every schedule page the manifest lists as saved was replayed, and each matched the hash Friday recorded." },
-  { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "Half of it: the fixed parser and its config, beside Tuesday's. The build revision is the other half." },
+  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: "The counter caught both test attempts, then counted no network attempt during the replay." },
   { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
-  { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "The other half: the program that built the table, beside the parser's fingerprint." },
+  { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
   { text: find((l) => l.startsWith("unchanged "), "unchanged"), answer: "diff", why: "Explaining every changed cell includes showing that no other cell changed." },
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
@@ -83,7 +83,7 @@ const draft: [string, string][] = [
           <span class="cv-agent-badge">Kick · Coding agent</span>
           <span class="cv-status-ok">{rewind.requests} requests · {rewind.cellsChanged} cell changed</span>
         </div>
-        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class="ar-ln">{l || " "}</span>)}</code></pre>
+        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class="ar-ln">{`${l}\n`}</span>)}</code></pre>
       </div>
       <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the git blob hash of the program that built the table, so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code, run the same way, gives the same table.</p>
 
@@ -100,7 +100,7 @@ const draft: [string, string][] = [
         ))}
         <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
           options={draft} answer="counter"
-          why="Without its evidence, the claim “no site was asked” rests on nothing. A counter nobody has seen catch anything reads 0 both when nothing was fetched and when it misses connections. The finished line says the counter caught both test attempts, a name lookup and a direct connection, before it recorded none during the replay."
+          why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test attempts, a name lookup and a direct connection, then counted no network attempt during the replay."
           wrong={{ reads: "A replay reads saved pages from disk. A request goes over the network, and the point is that there were none.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
         <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
       </Check>

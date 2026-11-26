@@ -59,7 +59,7 @@ if (grid.map((q) => q.answer).join() !== "both,every,every") throw new Error("Th
 
 const calls = [
   { key: "hashes", text: "Latest only, with each capture's content hash recorded in the run's manifest" },
-  { key: "season", text: "Every capture for the current season, then only the latest of each page" },
+  { key: "season", text: "Every capture until the season closes, then only the captures the final table's manifest names" },
   { key: "forever", text: "Every capture, kept for every season" },
   { key: "tables", text: "Latest only, plus a saved copy of every week's published table" },
 ];
@@ -75,7 +75,7 @@ const calls = [
   </div>
   <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had posted since Friday. If no site had posted or changed a result since Friday, only the name would change. If one had, the numbers would move too. A replay has no such unknown: its pages are Friday's, byte for byte.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
-  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. One had.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. One had posted a counted result.</p>
 
   <p>Case 1 captured Tuesday's pages apart from the archive to see what the re-fetch would have read. On Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons.</p>
   <div class="cv-scroll">
@@ -88,6 +88,11 @@ const calls = [
       </tbody>
     </table>
   </div>
+  <table class="cv-log ar-changes">
+    <caption>St. Lambert's changed cells</caption>
+    <thead><tr><th scope="col">Cell</th><th scope="col">Tuesday</th><th scope="col">Re-fetch</th><th scope="col">Changed by</th></tr></thead>
+    <tbody>{lambert.columns.map((c) => <tr><th scope="row">{head[c]}</th><td>{before[c]}</td><td class:list={{ "is-code": c === "name", "is-pages": c !== "name" }}>{after[c]}</td><td>{c === "name" ? "the code" : "the pages"}</td></tr>)}</tbody>
+  </table>
   <p class="ar-key"><span><span class="ar-swatch is-code"></span><span><b>Changed by the code:</b> {byCode.join("; ")}</span></span><span><span class="ar-swatch is-pages"></span><span><b>Changed by the pages:</b> {byPages.join("; ")}</span></span></p>
   <p class="cv-label">“St. Lambert” is the school as its own pages write it. “State Lambert” is the bug's display name and “Saint Lambert” the fix's.</p>
   <p>That is the visible cost: a diff with two causes. The larger cost is the one the table doesn't show.</p>
@@ -139,18 +144,18 @@ const calls = [
 
   <h3 id="decision-touchline">What Touchline keeps</h3>
   <div class="cv-touchline">
-    <p>Touchline keeps latest only: the newest capture of each page, with its fetch time. So Friday's table could be rebuilt on Tuesday for one reason: nothing had fetched those {seven} pages since Friday. Kick's “Re-fetching!” would have replaced all {seven}, and {spell(changed.length)} had changed ({changed.map((c) => c.name).join(", ")}). After that, Monday's table, the one readers have, could not be rebuilt: {spell(changed.length)} of the pages it read would be gone, and their hashes could say only that they differed.</p>
+    <p>Touchline keeps latest only: the newest capture of each page, with its fetch time. So Friday's table could be rebuilt on Tuesday because Friday's bytes were still there: nothing had fetched those {seven} pages since Friday. Kick's “Re-fetching!” would have replaced all {seven}, and {spell(changed.length)} had changed ({changed.map((c) => c.name).join(", ")}). After that, Monday's table, the one readers have, could not be rebuilt: {spell(changed.length)} of the pages it read would be gone, and their hashes could say only that they differed.</p>
     <p>That is why a parser change re-reads the archive and never fetches, and why a re-fetch is a separate, deliberate act.</p>
   </div>
 
   <AiCard part="decision" />
 
   <h3 id="decision-your-call">Your call: the league office</h3>
-  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage can hold every capture of one season, but not of every season.</p>
+  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage can hold every capture of one season, plus the pages each past season's final table read, but not every capture of every season.</p>
   <Check once="decide-call" kind="Your call" note="Pick one policy, then check." button="Check answer">
     <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
-      why="Every capture for the season, then the latest. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, only the final table is questioned, and it read the latest captures."
-      wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", tables: "A saved table shows what was published, not what it was built from. That is Case 2's lesson: an output can't stand in for its inputs.", forever: "It answers every dispute, but storage holds one season of captures, not every season's. After the season closes, the older captures answer no question anyone asks." }} />
+      why="Every capture until the season closes, then the final table's. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, only the final table is questioned, and its manifest names the captures it read."
+      wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", tables: "A saved table shows what was published, not what it was built from. That is Case 2's lesson: an output can't stand in for its inputs.", forever: "It answers every dispute, but storage holds one season of captures, not every season's. After the season closes, only the captures the final table read answer a question anyone asks." }} />
     <p slot="reveal">The policy follows from the questions the archive must answer, and for how long. A table needs its pages for as long as somebody may ask what it was built from.</p>
   </Check>
 
@@ -163,6 +168,7 @@ const calls = [
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }
   .ar-yours { margin-top: -0.25rem; padding-left: 1rem; border-left: 3px solid var(--cv-yellow); }
   .ar-row { max-width: 40rem; }
+  .ar-changes { display: none; }
   .ar-row td, .ar-row th { white-space: nowrap; }
   .ar-row td.is-code, .ar-swatch.is-code { background: color-mix(in srgb, var(--sl-color-accent) 28%, transparent); }
   .ar-row td.is-pages, .ar-swatch.is-pages { background: color-mix(in srgb, var(--cv-yellow) 30%, transparent); }
@@ -180,4 +186,5 @@ const calls = [
   .ar-cap.is-gone b, .ar-cap.is-gone .cv-mono { text-decoration: line-through; }
   .ar-cap.is-gone span:last-child { color: var(--cv-red); font-weight: 700; }
   @media (max-width: 32rem) { .ar-lane { grid-template-columns: 1fr; } .ar-cap { min-width: 0; flex: 1 1 9rem; } }
+  @media (max-width: 32rem) { .cv-scroll:has(.ar-row), .ar-key { display: none; } .ar-changes { display: table; } .ar-changes td.is-code { background: color-mix(in srgb, var(--sl-color-accent) 28%, transparent); } .ar-changes td.is-pages { background: color-mix(in srgb, var(--cv-yellow) 30%, transparent); } }
 </style>
