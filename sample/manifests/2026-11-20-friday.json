@@ -1,6 +1,7 @@
 {
  "schema": "learn.capture-manifest/1",
  "run": "2026-11-20-friday",
+ "purpose": "Friday's collection run, the capture Monday's table was built from",
  "season": 2026,
  "gender": "men",
  "conference": "PLC",

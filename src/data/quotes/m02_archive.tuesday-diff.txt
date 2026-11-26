@@ -1,0 +1,12 @@
+Confounded diff: Tuesday's table against the re-fetch
+-----------------------------------------------------
+inputs changed : parser code (Tuesday's -> fixed) and pages (Friday's -> Tuesday's)
+table          : 53 of 54 finished matches -> 55 of 56 finished matches
+cells changed  : 20 in 4 rows
+  Eastbrook State p 13 -> 14, d 4 -> 5, gf 20 -> 21, ga 19 -> 20, pts 19 -> 20
+  Dunmore         p 13 -> 14, l 3 -> 4, ga 20 -> 21, gd -5 -> -6
+  Saint Lambert   name 'State Lambert' -> 'Saint Lambert', p 12 -> 13, w 3 -> 4, gf 11 -> 12, gd -6 -> -5, pts 12 -> 15
+  Harbor Point    p 13 -> 14, d 6 -> 7, gf 21 -> 22, ga 32 -> 33, pts 12 -> 13
+cause per cell : unknown from this comparison alone; two inputs changed at once
+
+RESULT: confounded, 20 cells changed in 4 rows and two inputs changed, so this comparison alone cannot trace a cell to one cause

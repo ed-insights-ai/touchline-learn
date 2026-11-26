@@ -88,7 +88,7 @@ export type Column = (typeof COLUMNS)[number];
 export type TableRow = { slug: string; name: string; place: number; p: number; w: number; d: number; l: number; gf: number; ga: number; gd: number; pts: number };
 export type Gap = { kind: "no-score"; date: string; home: string; away: string } | { kind: "unavailable"; programme: string; reason: string };
 export type Table = {
-  key: string; rows: TableRow[]; expected: number; listed: number; finished: number; scored: number;
+  key: "A" | "B" | "C" | "D" | "Kick"; rows: TableRow[]; expected: number; listed: number; finished: number; scored: number;
   caption: string; postseason: string[]; gaps: Gap[]; parsed: Record<string, ParsedRow[]>;
 };
 
@@ -98,7 +98,7 @@ const score = (result: string) => {
   return m ? [Number(m[1]), Number(m[2])] as const : null;
 };
 
-function build(key: string, pages: { slug: string; html: string; tidy: Tidy }[], unavailable: ManifestPage[]): Table {
+function build(key: Table["key"], pages: { slug: string; html: string; tidy: Tidy }[], unavailable: ManifestPage[]): Table {
   const parsed = Object.fromEntries(pages.map((p) => [p.slug, parseSchedule(p.html, p.tidy)]));
   type Match = { date: string; home: string; away: string; finished: boolean; score: readonly [number, number] | null };
   const matches = new Map<string, Match>();
@@ -197,7 +197,7 @@ const rowsOf = (cells: Cell[]): RowChange[] => {
 export const rowChanges = { B: rowsOf(diffAB), C: rowsOf(diffAC) };
 const lambertC = rowChanges.C.find((r) => r.slug === "st-lambert");
 /** Part 1's ungraded prediction, resolved in Part 6: what a re-fetch did to Saint Lambert's row. */
-export const prediction = {
+export const prediction: { answer: "unchanged" | "name-only" | "name-and-numbers" | "numbers-only"; columns: Column[] } = {
   answer: !lambertC ? "unchanged" : lambertC.columns.length === 1 ? "name-only" : lambertC.columns.includes("name") ? "name-and-numbers" : "numbers-only",
   columns: lambertC?.columns ?? [],
 };
@@ -259,8 +259,8 @@ export type Preset = {
   replacesFridayCapture: boolean;
   /** The replaced capture differed from the new one, so Friday's evidence for that page is gone. */
   fridayEvidenceLost: boolean;
-  /** The live site differs from what the archive holds after this run. */
-  liveDiffers: boolean;
+  /** The page this preset is about, and whether the live site differs from what the archive holds for it after the run. */
+  watch?: { slug: string; name: string; liveDiffersFromArchive: boolean };
   /** Counts come from the staleness model, not from a measured run. */
   simulated: true;
 };
@@ -270,11 +270,12 @@ function preset(id: string, label: string, before: string, after: string, fetch:
   fetch.forEach((slug) => saved.set(slug, liveTuesday.get(slug)!));
   const run: PresetRun = { fingerprint: after, saved };
   const slug = watch ?? fetch[0];
+  const watched = slug ? { slug, name: programmes[slug].name, liveDiffersFromArchive: liveTuesday.get(slug) !== saved.get(slug) } : undefined;
   return {
     id, label, fingerprintBefore: before, fingerprintAfter: after, files: files.length, rebuilt: stale(files, run), fetched: fetch.length,
     replacesFridayCapture: fetch.length > 0,
     fridayEvidenceLost: fetch.some((s) => liveTuesday.get(s) !== savedFriday().get(s)),
-    liveDiffers: slug ? liveTuesday.get(slug) !== saved.get(slug) : false,
+    ...(watched ? { watch: watched } : {}),
     simulated: true,
   };
 }
@@ -301,7 +302,7 @@ export const rewind = {
   boxScoresSaved: fridayBoxes.length,
   requested: fridayManifest.requested,
   unavailable: down(fridayManifest).map((p) => ({ programme: p.programme, name: programmes[p.programme].name, reason: p.reason! })),
-  requests: Number(reportField("requests").split(",")[0]),
+  requests: Number(replayReport.match(/^requests\s+: (\d+), counted by a counter that caught (\d+) of \2 test requests$/m)?.[1] ?? fail("the replay report's requests line is not a counted 0")),
   fingerprint: reportField("fingerprint").split(",")[0],
   fingerprintTuesday: reportField("fingerprint").match(/was (\w+) on Tuesday/)?.[1] ?? fail("the replay report does not name Tuesday's fingerprint"),
   buildRevision: reportField("build revision").split(",")[0],
@@ -313,6 +314,18 @@ check(rewind.fingerprint === fingerprints.v2, `the quoted report's fingerprint $
 check(rewind.buildRevision === labBlob(), "the quoted report's build revision is not labs/m02_archive.py as it stands; rerun the lab and update the quote");
 check(rewind.requests === 0 && rewind.cellsChanged === diffAB.length, "the quoted report disagrees with the replay computed here");
 check(replayReport.includes(`Tuesday's ${tableA.caption}; rebuild ${tableB.caption}`), "the quoted report's caption differs");
+const repr = (v: string | number) => (typeof v === "string" ? `'${v}'` : String(v));
+const cellText = (c: Cell) => `${c.column} ${repr(c.before)} -> ${repr(c.after)}`;
+check(diffAB.length === 1 && rewind.lines.includes(`  ${diffAB[0].name.padEnd(15)} ${cellText(diffAB[0])}: the tidy rule, the only input that changed`), "the quoted report's changed cell is not the one computed here");
+
+const tuesdayQuotePath = root("src", "data", "quotes", "m02_archive.tuesday-diff.txt");
+/** The confounded diff exactly as `python labs/m02_archive.py --tuesday` prints it; scripts/check_lab_output.py verifies it. */
+export const tuesdayDiff = readFileSync(tuesdayQuotePath, "utf-8").replace(/\n$/, "");
+const diffLines = tuesdayDiff.split("\n");
+const tuesdayRows = rowsOf(diffAC).map((r) => `  ${r.name.padEnd(15)} ${diffAC.filter((c) => c.slug === r.slug).map(cellText).join(", ")}`);
+const at = diffLines.findIndex((l) => l.startsWith("cells changed"));
+check(diffLines[at] === `cells changed  : ${diffAC.length} in ${rowChanges.C.length} rows` && tuesdayRows.every((l, i) => diffLines[at + 1 + i] === l), "the quoted Tuesday diff is not the A to C diff computed here; rerun the lab and update the quote");
+check(diffLines.includes(`table          : ${tableA.caption} -> ${tableC.caption}`), "the quoted Tuesday diff's captions differ");
 
 // ---------------------------------------------------------------- Case 2: what Kick kept
 
@@ -320,7 +333,8 @@ const cedar = fridayPages.find((p) => p.slug === "cedar-grove")!;
 const cedarRows = rawRows(cedar.html);
 const pick = (date: string) => cedarRows.find((r) => r.date === date) ?? fail(`Cedar Grove has no row on ${date}`);
 const CASE2 = ["2026-09-21", "2026-10-02", "2026-10-18"].map(pick);
-const v1Parse = (r: { date: string; opponent: string; result: string }) => {
+/** A hypothetical early parser for Case 2, not the lab's: it keeps the date, the tidied opponent and the scores, stores every match as a home match, and reads a bare "Final" as 0-0. */
+const hypotheticalParse = (r: RawRow) => {
   const s = score(r.result) ?? [0, 0];
   return { date: r.date, home: "Cedar Grove", away: tidyV1(r.opponent), home_score: s[0], away_score: s[1] };
 };
@@ -328,43 +342,44 @@ const tidyHtml = (line: string) => tidyV1(line.replace(/<(\w+)(\s[^>]*)?>/g, (_,
   const href = attrs.match(/\shref="[^"]*"/);
   return `<${tag}${href ? href[0] : ""}>`;
 }).replace(/\s+/g, " "));
-const cedarSidecar = json(sample(`${cedar.path}.meta.json`));
-const archives = {
-  a: { label: "Parsed rows", rows: CASE2.map(v1Parse), excerpt: CASE2.map((r) => JSON.stringify(v1Parse(r))).join("\n") },
-  b: { label: "Tidied HTML", rows: CASE2.map((r) => tidyHtml(r.line)), excerpt: CASE2.map((r) => tidyHtml(r.line)).join("\n") },
-  c: {
-    label: "Bytes as received, with a sidecar", rows: CASE2.map((r) => r.line),
-    excerpt: CASE2.map((r) => r.line).join("\n"),
-    sidecar: { requested_url: cedarSidecar.requested_url, final_url: cedarSidecar.final_url, fetched_at: cedarSidecar.fetched_at, status: cedarSidecar.status, sha256: cedarSidecar.sha256 },
-  },
-};
 type Kept = "a" | "b" | "c";
-const cellText = (kept: Kept, i: number, col: number) => {
-  if (kept === "a") return null;
-  const cells = [...archives[kept].rows[i].matchAll(/<td[^>]*>(.*?)<\/td>/g)].map((m) => decode(m[1]));
-  return cells[col];
-};
-const opponentFrom = (kept: Kept, i: number) => kept === "a" ? archives.a.rows[i].away : cellText(kept, i, 2)!;
-const sideFrom = (kept: Kept, i: number) => kept === "a" ? undefined : cellText(kept, i, 1);
-const resultLooksLikeRealDraw = (kept: Kept, i: number) => {
-  if (kept === "a") return JSON.stringify(archives.a.rows[i]) === JSON.stringify(v1Parse({ ...CASE2[i], result: "T 0-0" }));
-  return cellText(kept, i, 3) === "T 0-0";
-};
 const KEPT: Kept[] = ["a", "b", "c"];
+const keep: Record<Kept, (r: RawRow) => string> = {
+  a: (r) => JSON.stringify(hypotheticalParse(r)),
+  b: (r) => tidyHtml(r.line),
+  c: (r) => r.line,
+};
+const variant = (r: RawRow, field: "side" | "opponent" | "result", value: string): RawRow => {
+  const line = r.line.replace(`<td>${r[field]}</td>`, `<td>${value}</td>`);
+  check(line !== r.line, `could not vary ${field} in ${r.fixture}`);
+  return { ...r, [field]: value, line };
+};
+const cedarSidecar = json(sample(`${cedar.path}.meta.json`));
+export type Case2Archive = { label: string; rows: string[]; excerpt: string };
+const archiveOf = (k: Kept, label: string): Case2Archive => ({ label, rows: CASE2.map(keep[k]), excerpt: CASE2.map(keep[k]).join("\n") });
+const archives = {
+  a: { ...archiveOf("a", "Parsed rows"), hypothetical: true as const },
+  b: archiveOf("b", "Tidied HTML"),
+  c: { ...archiveOf("c", "Bytes as received, with a sidecar"),
+    sidecar: { requested_url: cedarSidecar.requested_url, final_url: cedarSidecar.final_url, fetched_at: cedarSidecar.fetched_at, status: cedarSidecar.status, sha256: cedarSidecar.sha256 } },
+};
+// A bug's correct value can be verified from an archive only if the archive keeps the true row and the bug's wrong reading apart.
 const bugs = [
-  { id: "name", label: "The tidy rule turned \"St. Lambert\" into \"State Lambert\"", row: CASE2[0], truth: "Saint Lambert",
-    can: (k: Kept) => tidyV2(opponentFrom(k, 0)) === "Saint Lambert" },
-  { id: "side", label: "The parser ignored the vs/at column, so away matches were stored as home matches", row: CASE2[1], truth: CASE2[1].side,
-    can: (k: Kept) => sideFrom(k, 1) === CASE2[1].side },
-  { id: "blank", label: "Cedar Grove's 21 September result reads \"Final\" with no score and was read as 0-0", row: CASE2[0], truth: "no score published",
-    can: (k: Kept) => !resultLooksLikeRealDraw(k, 0) },
-];
-/** Case 2: the same three Cedar Grove rows in three archive forms, and the 3x3 grid answered from them. */
-export const case2 = {
+  { id: "name", label: "The tidy rule turned \"St. Lambert\" into \"State Lambert\"", truth: "Saint Lambert",
+    row: CASE2[0], wrong: variant(CASE2[0], "opponent", "State Lambert") },
+  { id: "side", label: "The parser ignored the vs/at column, so away matches were stored as home matches", truth: CASE2[1].side,
+    row: CASE2[1], wrong: variant(CASE2[1], "side", CASE2[1].side === "at" ? "vs" : "at") },
+  { id: "blank", label: "Cedar Grove's 21 September result reads \"Final\" with no score and was read as 0-0", truth: "no score published",
+    row: CASE2[0], wrong: variant(CASE2[0], "result", "T 0-0") },
+] as const;
+const verifiable = (b: (typeof bugs)[number], k: Kept) => keep[k](b.row) !== keep[k](b.wrong);
+export type Case2Bug = { id: "name" | "side" | "blank"; label: string; truth: string; fixture: string; answers: Record<Kept, boolean> };
+/** Case 2: the same three Cedar Grove rows in three archive forms, and the 3x3 grid answered from them. Archive (a) comes from a hypothetical parser, not the lab's. */
+export const case2: { rows: Omit<RawRow, "line">[]; archives: typeof archives; grid: Case2Bug[]; pattern: Record<Kept, number> } = {
   rows: CASE2.map(({ line, ...r }) => r),
   archives,
-  grid: bugs.map((b) => ({ id: b.id, label: b.label, truth: b.truth, answers: Object.fromEntries(KEPT.map((k) => [k, b.can(k)])) as Record<Kept, boolean> })),
-  pattern: Object.fromEntries(KEPT.map((k) => [k, bugs.filter((b) => b.can(k)).length])) as Record<Kept, number>,
+  grid: bugs.map((b) => ({ id: b.id, label: b.label, truth: b.truth, fixture: b.row.fixture, answers: Object.fromEntries(KEPT.map((k) => [k, verifiable(b, k)])) as Record<Kept, boolean> })),
+  pattern: Object.fromEntries(KEPT.map((k) => [k, bugs.filter((b) => verifiable(b, k)).length])) as Record<Kept, number>,
 };
 
 // ---------------------------------------------------------------- Part 6: two archive policies
@@ -403,7 +418,9 @@ export const policies = {
 
 const BOX = "tally:alder-ridge:8210";
 const boxEntry = fridayBoxes.find((p) => p.fixture === BOX) ?? fail("box 8210 is not in Friday's manifest");
-const boxHtml = bytes(sample(boxEntry.path!)).toString("utf-8");
+const boxBytes = bytes(sample(boxEntry.path!));
+check(createHash("sha256").update(boxBytes).digest("hex") === boxEntry.sha256, "box 8210 no longer matches Friday's manifest hash");
+const boxHtml = boxBytes.toString("utf-8");
 const tableOf = (html: string, caption: string) => {
   const t = html.match(new RegExp(`<caption>${caption}</caption>([\\s\\S]*?)</table>`)) ?? fail(`no ${caption} table`);
   return [...t[1].matchAll(/<tr[^>]*>(.*?)<\/tr>/g)].map((r) => [...r[1].matchAll(/<t[hd][^>]*>(.*?)<\/t[hd]>/g)].map((c) => decode(c[1])));
@@ -413,13 +430,17 @@ const goalRows = tableOf(boxHtml, "Scoring Summary");
 const overtimeGoal = goalRows.find((r) => r[0] === "101:44") ?? fail("box 8210 has no 101:44 goal");
 const abbrSlug = (abbr: string) => nameIndex.get(abbr) ?? fail(`no alias for ${abbr}`);
 const fx8210 = fixtures.find((f) => f.id === BOX)!;
-const regulation = periodRows.slice(1).map((r) => ({ team: r[0], sum: Number(r[1]) + Number(r[2]), final: Number(r[r.length - 1]) }));
-const homeRow = regulation.find((r) => nameIndex.get(r.team.replace("St.", "State")) === fx8210.home || r.team === programmes[fx8210.home].name)!;
+const regulation = periodRows.slice(1).map((r) => ({ team: r[0], sum: Number(r[1]) + Number(r[2]), all: r.slice(1, -1).reduce((n, v) => n + Number(v), 0), final: Number(r[r.length - 1]) }));
+check(regulation.length === 2 && regulation.every((r) => r.all === r.final), "box 8210's periods do not sum to its final score");
+const homeRow = regulation.find((r) => nameIndex.get(tidyV2(r.team)) === fx8210.home || nameIndex.get(r.team) === fx8210.home)!;
 const awayRow = regulation.find((r) => r !== homeRow)!;
 const boxHtmlOf = (p: ManifestPage) => bytes(sample(p.path!)).toString("utf-8");
 const withOvertime = fridayBoxes.filter((p) => tableOf(boxHtmlOf(p), "Score by Period")[0].includes("OT")).map((p) => p.fixture!);
 const scheduleCell = (slug: string) => cellOn(fridayPages.find((p) => p.slug === slug)!.html, "8210");
-const boxParser = { before: fingerprintOf(bytes(root("labs", "m04_parse.py")), configBytes()), after: fingerprintOf(Buffer.concat([bytes(root("labs", "m04_parse.py")), Buffer.from("# score = every period, overtime included\n")]), configBytes()) };
+const moduleFingerprint = (module: Buffer) => createHash("sha256").update(module).update(bytes(SHARED)).digest("hex").slice(0, 12);
+const boxParserModule = bytes(root("labs", "m04_parse.py"));
+/** The box-score parser's module and labs/common.py, before and after a simulated edit to the module. */
+const boxParser = { before: moduleFingerprint(boxParserModule), after: moduleFingerprint(Buffer.concat([boxParserModule, Buffer.from("# score = every period, overtime included\n")])), simulated: true as const };
 const boxFiles = fridayBoxes.map((p): Lineage => ({ slug: p.fixture!, fingerprint: boxParser.before, content: p.sha256! }));
 const scheduleFiles = upToDate(fingerprints.v2);
 const boxRun: PresetRun = { fingerprint: boxParser.after, saved: new Map(fridayBoxes.map((p) => [p.fixture!, p.sha256!])) };
@@ -512,7 +533,7 @@ const cg2019 = json(sample("raw_html", "cedar-grove", "2019-men-schedule.html.me
 check(cg2019.final_url === cg2019.requested_url && cg2019.final_url.endsWith("/2019") && readFileSync(sample("raw_html", "cedar-grove", "2019-men-schedule.html"), "utf-8").includes("<title>2026 "), "Cedar Grove's 2019 page no longer proves the Module 3 handoff");
 check(laterScore("tally:alder-ridge:8203") === "1-1" && cellOn(tuesdayOf("alder-ridge").html, "8203") === "W 1-0", "Tuesday's pages touch the 8 September score");
 check(case2.pattern.a === 0 && case2.pattern.b === 2 && case2.pattern.c === 3 && case2.grid[0].answers.c && !case2.grid[0].answers.b && case2.grid[1].answers.b && !case2.grid[1].answers.a, "the Case 2 grid is no longer 0, 2 and 3 of 3");
-check(presets.map((p) => `${p.rebuilt}/${p.fetched}`).join() === "7/0,7/0,7/0,0/0,1/1,0/0" && presets[4].fridayEvidenceLost && presets[4].replacesFridayCapture && presets[5].liveDiffers, "the fingerprint presets no longer give 7, 7, 7, 0, 1 and 0 rebuilt");
+check(presets.map((p) => `${p.rebuilt}/${p.fetched}`).join() === "7/0,7/0,7/0,0/0,1/1,0/0" && presets[4].fridayEvidenceLost && presets[4].replacesFridayCapture && presets[5].watch?.liveDiffersFromArchive === true && presets[4].watch?.liveDiffersFromArchive === false && presets.filter((p) => p.watch).length === 2, "the fingerprint presets no longer give 7, 7, 7, 0, 1 and 0 rebuilt");
 check(policies.latest.today && !policies.latest.monday && !policies.latest.harborFriday && policies.every.today && policies.every.monday && policies.every.harborFriday, "the policy answers are no longer one of three and three of three");
 check(policies.harborCell.friday === "" && policies.harborCell.tuesday === "T 1-1" && policies.every.harborFridayCell === "", "Harbor Point's 21 November cell is not blank on Friday and T 1-1 on Tuesday");
 check(Boolean(homeRow) && homeRow !== awayRow && homeRow.final === fx8210.home_score && awayRow.final === fx8210.away_score, "box 8210's Score by Period does not total the fixture's 4-3");
@@ -522,5 +543,5 @@ check(Object.entries(weekendCells).every(([slug, [id, cell]]) => cellOn(fridayOf
 const changedLines = (slug: string) => { const a = fridayOf(slug).html.split("\n"); const b = tuesdayOf(slug).html.split("\n"); return a.length === b.length ? a.filter((l, i) => l !== b[i]).length : -1; };
 check(fridayPages.every((p) => changedLines(p.slug) === (p.slug in weekendCells ? 1 : 0)), "Tuesday's pages change more than one row each");
 check(fridayPages.every((p) => { const a = rawRows(p.html); const b = rawRows(tuesdayOf(p.slug).html); return a.every((r, i) => r.result === b[i].result || (r.result === "" && b[i].line === r.line.replace("<td></td><td></td></tr>", `<td>${b[i].result}</td><td></td></tr>`))); }), "a Tuesday row changes anything but its result cell");
-check(["b", "c"].every((k) => cellText(k as Kept, 0, 3) === "Final") && cellText("b", 1, 1) === "at", "Case 2's tidied and raw rows no longer keep Final and at");
-check(policies.unchangedSinceFriday.map((x) => x.slug).join() === "brightwater-state,cedar-grove", "the unchanged pages are not Brightwater State and Cedar Grove");
+check(["b", "c"].every((k) => archives[k as "b" | "c"].rows[0].includes("<td>Final</td>")) && archives.b.rows[1].includes("<td>at</td>") && !archives.a.excerpt.includes("Final"), "Case 2's tidied and raw rows no longer keep Final and at");
+check(policies.unchangedSinceFriday.map((x) => x.slug).sort().join() === "brightwater-state,cedar-grove", "the unchanged pages are not Brightwater State and Cedar Grove");

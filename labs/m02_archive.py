@@ -51,7 +51,8 @@ def count_network():
         attempts.append(str(args[-1] if args else kwargs))
         raise OSError("this lab does not use the network")
     patched = [(socket, "getaddrinfo"), (socket, "gethostbyname"), (socket, "gethostbyname_ex"),
-               (socket.socket, "connect"), (socket.socket, "connect_ex"), (socket.socket, "sendto")]
+               (socket.socket, "connect"), (socket.socket, "connect_ex"), (socket.socket, "sendto"),
+               (socket.socket, "sendmsg")]
     real = [(owner, name, getattr(owner, name)) for owner, name in patched]
     for owner, name in patched:
         setattr(owner, name, stop)
@@ -128,10 +129,15 @@ def replay(manifest: dict, root: Path, parser, parsed: Path) -> dict:
     return out
 
 
-def parsed_rows(parsed: Path):
-    for f in sorted(parsed.glob("*.json")):
-        if not f.name.endswith(".lineage.json"):
-            yield f.stem, load(f)
+def parsed_rows(parsed: Path, pages: list[str]):
+    """The parsed rows of exactly the pages this replay read, never a leftover file."""
+    for slug in sorted(pages):
+        yield slug, load(parsed / f"{slug}.json")
+
+
+def require(ok: bool, why: str) -> None:
+    if not ok:
+        raise ValueError(why)
 
 
 def score(result: str) -> tuple[int, int] | None:
@@ -139,11 +145,11 @@ def score(result: str) -> tuple[int, int] | None:
     return (int(found.group(1)), int(found.group(2))) if found else None
 
 
-def standings(parsed: Path, slugs: list[str]) -> dict:
+def standings(parsed: Path, pages: list[str], slugs: list[str]) -> dict:
     """The conference table, keyed by slug, from parsed rows matched by fixture id."""
     matches: dict[str, dict] = {}
     shown: dict[str, set] = {}
-    for slug, rows in parsed_rows(parsed):
+    for slug, rows in parsed_rows(parsed, pages):
         for r in rows:
             if r["opponent"] not in slugs:
                 continue
@@ -151,12 +157,12 @@ def standings(parsed: Path, slugs: list[str]) -> dict:
             host, visitor = (slug, r["opponent"]) if r["side"] == "vs" else (r["opponent"], slug)
             m = matches.setdefault(r["fixture"], {"date": r["date"], "host": host, "visitor": visitor,
                                                   "finished": False, "score": None})
-            assert (m["date"], m["host"], m["visitor"]) == (r["date"], host, visitor), r["fixture"]
+            require((m["date"], m["host"], m["visitor"]) == (r["date"], host, visitor), f"pages disagree on fixture {r['fixture']}")
             m["finished"] |= bool(r["result"])
             mine = score(r["result"])
             if mine:
                 got = mine if r["side"] == "vs" else mine[::-1]
-                assert m["score"] in (None, got), f"pages disagree on fixture {r['fixture']}"
+                require(m["score"] in (None, got), f"pages disagree on the score of fixture {r['fixture']}")
                 m["score"] = got
     # The format: each member hosts every other once. A later meeting at the same host is postseason.
     regular: dict[tuple, str] = {}
@@ -165,7 +171,7 @@ def standings(parsed: Path, slugs: list[str]) -> dict:
     games = [matches[fid] for fid in regular.values()]
     rows = {s: {"slug": s, "name": None, "p": 0, "w": 0, "d": 0, "l": 0, "gf": 0, "ga": 0} for s in slugs}
     for s, names in shown.items():
-        assert len(names) == 1, f"{s} is shown as {sorted(names)}"
+        require(len(names) == 1, f"{s} is shown as {sorted(names)}")
         rows[s]["name"] = names.pop()
     for m in games:
         if not m["score"]:
@@ -215,7 +221,8 @@ def describe_manifest(manifest: dict, path: Path, root: Path) -> dict:
     saved = [p for p in schedules if p["state"] == "saved"]
     boxes = [p for p in pages if p["kind"] == "box_score" and p["state"] == "saved"]
     kept = [p for p in pages if p["state"] == "saved"]
-    same = sum(1 for p in kept if (root / p["path"]).exists() and sha256((root / p["path"]).read_bytes()) == p["sha256"])
+    on_disk = [p for p in kept if (root / p["path"]).exists()]
+    same = sum(1 for p in on_disk if sha256((root / p["path"]).read_bytes()) == p["sha256"])
     print(f"manifest       : {path.relative_to(ROOT)}, run {manifest['run']}")
     print(f"fetched        : {manifest['started_at']} to {manifest['finished_at']}")
     print(f"requested      : {manifest['requested']} pages, {manifest['saved']} saved")
@@ -226,7 +233,8 @@ def describe_manifest(manifest: dict, path: Path, root: Path) -> dict:
     if boxes:
         print(f"box scores     : {len(boxes)} saved, kept for match detail; the table does not read them")
     print(f"content hashes : {same} of {len(kept)} saved pages on disk match the manifest")
-    return {"schedules": len(saved), "boxes": len(boxes), "hashes_ok": same == len(kept)}
+    return {"schedules": len(saved), "boxes": len(boxes), "hashes_ok": same == len(kept),
+            "altered": len(on_disk) - same}
 
 
 def main() -> int:
@@ -252,6 +260,9 @@ def main() -> int:
 
     heading("Capture manifest: Friday's run")
     seen = describe_manifest(friday, FRIDAY, root)
+    if seen["altered"]:
+        print(f"\nRESULT: could not run, {seen['altered']} saved pages no longer match the manifest's hash")
+        return 2
 
     with count_network() as attempts:
         test_requests()
@@ -266,9 +277,10 @@ def main() -> int:
         r1 = replay(friday, root, m02_parser_tuesday, tuesday_dir)
         print(f"fingerprint    : {r1['fingerprint']}")
         print(f"re-parsed      : {len(r1['reparsed'])}, skipped {len(r1['skipped'])}")
-        wrong = sorted({r["shown"] for _, rows in parsed_rows(tuesday_dir) for r in rows if r["shown"].startswith("State ")})
+        wrong = sorted({r["shown"] for _, rows in parsed_rows(tuesday_dir, r1["read"]) for r in rows
+                        if r["shown"].startswith("State ")})
         print("names that cannot be right:", wrong)
-        table_a = standings(tuesday_dir, slugs)
+        table_a = standings(tuesday_dir, r1["read"], slugs)
         print_table(table_a)
 
         heading("Replay 2: same parser, same pages")
@@ -281,9 +293,10 @@ def main() -> int:
         r3 = replay(friday, root, m02_parser_fixed, rebuilt_dir)
         print(f"fingerprint    : {r1['fingerprint']} -> {r3['fingerprint']}")
         print(f"re-parsed      : {len(r3['reparsed'])}, skipped {len(r3['skipped'])}")
-        fixed = sorted({r["shown"] for _, rows in parsed_rows(rebuilt_dir) for r in rows if r["shown"].startswith("Saint ")})
+        fixed = sorted({r["shown"] for _, rows in parsed_rows(rebuilt_dir, r3["read"]) for r in rows
+                        if r["shown"].startswith("Saint ")})
         print("Saint schools now:", fixed)
-        table_b = standings(rebuilt_dir, slugs)
+        table_b = standings(rebuilt_dir, r3["read"], slugs)
         print_table(table_b)
 
         compare = table_b
@@ -294,10 +307,10 @@ def main() -> int:
             tuesday = load(TUESDAY)
             fresh = describe_manifest(tuesday, TUESDAY, SAMPLE)
             r4 = replay(tuesday, SAMPLE, m02_parser_fixed, refetch_dir)
-            if not (fresh["hashes_ok"] and seen["hashes_ok"]) or r4["refused"] or r1["refused"]:
+            if not fresh["hashes_ok"] or r4["refused"]:
                 print("\nRESULT: could not run, a saved page no longer matches its manifest")
                 return 2
-            compare = standings(refetch_dir, slugs)
+            compare = standings(refetch_dir, r4["read"], slugs)
             print_table(compare)
         requests = len(attempts)
 
@@ -316,9 +329,9 @@ def main() -> int:
         print(f"cells changed  : {len(changes)} in {len(by_row)} rows")
         for slug, cells in by_row.items():
             print(f"  {name_of[slug]:15} {', '.join(cells)}")
-        print("cause per cell : unknown from this comparison; two inputs changed at once")
+        print("cause per cell : unknown from this comparison alone; two inputs changed at once")
         print(f"\nRESULT: confounded, {len(changes)} cells changed in {len(by_row)} rows and two inputs changed, "
-              "so no cell can be traced to one cause")
+              "so this comparison alone cannot trace a cell to one cause")
         return 1
 
     heading("Replay report: Friday's pages rebuilt with the fixed parser")
@@ -350,7 +363,7 @@ def main() -> int:
               f"the replay skipped {args.missing}'s missing page without a word")
         return 1
 
-    only_name = [(s, c) for s, c, _, _ in changes] == [("st-lambert", "name")]
+    only_name = changes == [("st-lambert", "name", "State Lambert", "Saint Lambert")]
     ok = (seen["schedules"] == 7 and len(r3["read"]) == 7 and not r3["refused"] and seen["hashes_ok"]
           and counter_works and requests == 0 and wrong == ["State Brendan", "State Lambert"]
           and not r2["reparsed"] and len(r3["reparsed"]) == 7 and only_name

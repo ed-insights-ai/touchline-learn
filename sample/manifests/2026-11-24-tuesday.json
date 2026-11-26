@@ -1,6 +1,7 @@
 {
  "schema": "learn.capture-manifest/1",
  "run": "2026-11-24-tuesday",
+ "purpose": "not part of the archive: what Kick's re-fetch on Tuesday would have saved, kept apart so Module 2 can compare it with a replay. The archive keeps the latest capture only, and Riley stopped the re-fetch.",
  "season": 2026,
  "gender": "men",
  "conference": "PLC",

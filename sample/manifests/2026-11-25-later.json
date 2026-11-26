@@ -1,6 +1,7 @@
 {
  "schema": "learn.capture-manifest/1",
  "run": "2026-11-25-later",
+ "purpose": "requests made after Tuesday: Dunmore's current page, and the past seasons Riley asked for",
  "season": null,
  "gender": "men",
  "conference": "PLC",

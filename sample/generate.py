@@ -739,7 +739,7 @@ def build() -> dict[str, bytes]:
             "etag": '"' + hashlib.sha256(body.encode()).hexdigest()[:16] + '"',
             "sha256": hashlib.sha256(body.encode()).hexdigest()})
 
-    def manifest(run, run_at, root, boxes, scope):
+    def manifest(run, run_at, root, boxes, scope, purpose):
         """What one capture run asked for and what it saved, by content hash."""
         pages, n = [], 0
         for slug in sorted(MEMBERS):
@@ -760,7 +760,7 @@ def build() -> dict[str, bytes]:
                           "bytes": len(files[path]), "sha256": hashlib.sha256(files[path]).hexdigest()})
             n += 1
         saved = [p for p in pages if p["state"] == "saved"]
-        return {"schema": "learn.capture-manifest/1", "run": run, "season": 2026, "gender": "men",
+        return {"schema": "learn.capture-manifest/1", "run": run, "purpose": purpose, "season": 2026, "gender": "men",
                 "conference": CONF, "scope": scope, "started_at": stamp_at(run_at, 0),
                 "finished_at": stamp_at(run_at, n - 1), "requested": len(pages), "saved": len(saved),
                 "unavailable": [p["programme"] for p in pages if p["state"] == "unavailable"], "pages": pages}
@@ -796,7 +796,8 @@ def build() -> dict[str, bytes]:
              box["source_url"], box["source_url"], stamp_at(FRIDAY_AT, len(MEMBERS) + n))
         box_paths.append((fid, f"raw_html/{path}"))
     files[f"manifests/{FRIDAY}.json"] = dump(manifest(
-        FRIDAY, FRIDAY_AT, "raw_html", box_paths, "schedule pages and Alder Ridge's box scores"))
+        FRIDAY, FRIDAY_AT, "raw_html", box_paths, "schedule pages and Alder Ridge's box scores",
+        "Friday's collection run, the capture Monday's table was built from"))
 
     # Tuesday's capture: the same sites after the weekend. Saturday's two conference
     # results and Sunday's championship are posted; nothing else on any page moves.
@@ -818,7 +819,9 @@ def build() -> dict[str, bytes]:
         page(f"{slug}/2026-men-schedule.html", schedule_page(slug, "men", 2026, tuesday_fx), f"{base}/2026", final,
              stamp_at(TUESDAY_AT, sorted(MEMBERS).index(slug)), root=root)
     files[f"manifests/{TUESDAY}.json"] = dump(manifest(
-        TUESDAY, TUESDAY_AT, root, [], "schedule pages only"))
+        TUESDAY, TUESDAY_AT, root, [], "schedule pages only",
+        "not part of the archive: what Kick's re-fetch on Tuesday would have saved, kept apart so Module 2 "
+        "can compare it with a replay. The archive keeps the latest capture only, and Riley stopped the re-fetch."))
 
     # The pages captured after Tuesday: Dunmore's current schedule, and the past seasons Riley asked for.
     later = []
@@ -832,7 +835,9 @@ def build() -> dict[str, bytes]:
                       "state": "saved", "path": f"raw_html/{path}", "fetched_at": side["fetched_at"],
                       "bytes": len(files[f"raw_html/{path}"]), "sha256": side["sha256"]})
     files[f"manifests/{LATER}.json"] = dump({
-        "schema": "learn.capture-manifest/1", "run": LATER, "season": None, "gender": "men", "conference": CONF,
+        "schema": "learn.capture-manifest/1", "run": LATER,
+        "purpose": "requests made after Tuesday: Dunmore's current page, and the past seasons Riley asked for",
+        "season": None, "gender": "men", "conference": CONF,
         "scope": "Dunmore's 2026 schedule, and schedules for past seasons", "started_at": later[0]["fetched_at"],
         "finished_at": later[-1]["fetched_at"], "requested": len(later), "saved": len(later), "unavailable": [],
         "pages": later})

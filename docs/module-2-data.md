@@ -18,9 +18,14 @@ values and ends `RESULT: archive.ts imports and every assertion holds`.
 | `sample/manifests/2026-11-20-friday.json` | Friday's capture manifest: 20 pages requested, 19 saved by content hash (7 schedules, 12 Alder Ridge box scores), Dunmore's schedule listed as `unavailable` with its reason. |
 | `sample/raw_html/**` | Friday's pages. Every sidecar now has `fetched_at` and `sha256`. |
 | `sample/raw_html/dunmore/2026-men-schedule.html` | Not Friday's: a later capture (`fetched_at` 2026-11-25T08:05), kept so Module 3's lab still finds eight 2026 pages. No Module 2 table reads it. Its bytes cannot change without changing Module 1, so its 21 November cell is still blank: Dunmore's site had not posted Saturday's result when it was taken. Do not show this page in Module 2. |
-| `sample/manifests/2026-11-25-later.json` | The four pages captured after Tuesday: Dunmore's 2026 schedule, Cedar Grove's and Dunmore's 2019 requests, and the Alder Ridge 2025 page Module 3 uses. Every page in the raw zone is now listed in a manifest. |
+| `sample/manifests/2026-11-25-later.json` | The four pages captured after Tuesday: Dunmore's 2026 schedule, Cedar Grove's and Dunmore's 2019 requests, and the Alder Ridge 2025 page Module 3 uses. Every fetched page with a sidecar is now listed in a manifest; `traps/three-team-box.html`, a hand-made Module 4 trap with no sidecar, is not. |
 | `sample/manifests/2026-11-24-tuesday.json` | Tuesday's manifest: schedule pages only, 7 saved, Dunmore still unavailable. |
 | `sample/captures/2026-11-24-tuesday/**` | Tuesday's seven schedule pages: Friday's bytes with three result cells filled in, 7318 (Eastbrook State 1-1 Harbor Point, 21 Nov), 8779 (St. Lambert 1-0 Dunmore, 21 Nov) and 8211 (the championship, Alder Ridge 1-6 Hartwell Tech, 22 Nov). Only the result cell changes; no box-score link is added. Brightwater State's and Cedar Grove's pages are byte-identical to Friday's; the other five each change one row. The 8 September 8203 score is untouched (Module 7 owns it). |
+
+Each manifest carries a `purpose` line saying what the run was for. Tuesday's
+says it is not part of the archive: the archive keeps the latest capture only,
+and the Tuesday capture is kept apart so Module 2 can compare a re-fetch with a
+replay.
 
 Nothing new is under `sample/raw_html/`: `first-run.ts`, `m01_collect.py` and
 `m03_proof.py` treat every folder there as a school.
@@ -94,21 +99,25 @@ st-lambert; `unavailable` dunmore, "site did not answer after 3 tries".
 
 `case2.rows` are the same three Cedar Grove rows from Friday's page: 21 Sep vs
 St. Lambert `Final`; 2 Oct at Hartwell Tech `W 2-1`; 18 Oct at St. Lambert
-`L 0-1`. `case2.archives` holds each form, built from those bytes, with an
-`excerpt` string to show:
+`L 0-1`. `case2.archives` holds each form (`Case2Archive`: `label`, `rows`,
+`excerpt`), built from those bytes:
 
-- `a`, parsed rows: what parser v1 wrote (tidy rule applied, every match stored
-  as a Cedar Grove home match, a bare `Final` read as 0-0).
+- `a`, parsed rows, `hypothetical: true`: a hypothetical early parser written
+  for this case, **not** the lab's Tuesday parser (whose rows keep side, slug
+  and the raw result). It keeps the date, the tidied opponent and the scores,
+  stores every match as a Cedar Grove home match, and reads a bare `Final` as
+  0-0. Say on the page that it is an example.
 - `b`, tidied HTML: attributes except `href` stripped, whitespace collapsed,
   the tidy rule applied; visible cell text stays.
 - `c`, bytes as received, plus `sidecar` (requested and final URL, fetched_at,
   status, sha256).
 
-`case2.grid` answers each bug from those forms by code, not by a typed table:
-the name is verifiable only where `tidyV2` of the kept opponent gives
-`Saint Lambert`; the side only where a `vs`/`at` cell survives; the blank score
-only where the kept form of `Final` differs from the kept form of a real
-`T 0-0`. Current: name a no, b no, c yes; side a no, b yes, c yes; blank a no,
+`case2.grid` (`Case2Bug`: id, label, truth, fixture, `answers`) is derived by
+one rule, not typed: a bug's correct value is verifiable from an archive when
+that archive keeps the true row and the bug's wrong reading apart. For each bug
+the build makes the wrong row (opponent `State Lambert`; the side flipped; the
+result `T 0-0`), puts it through the same transform as the true row, and
+compares. Current: name a no, b no, c yes; side a no, b yes, c yes; blank a no,
 b yes, c yes. `case2.pattern` is `{a: 0, b: 2, c: 3}`.
 
 ### Case 3: fingerprints
@@ -118,7 +127,7 @@ b yes, c yes. `case2.pattern` is `{a: 0, b: 2, c: 3}`.
 | `fingerprints` | The lab's fingerprints, recomputed here from the same bytes: SHA-256 of the parser's whole module (`labs/m02_parser_tuesday.py` or `labs/m02_parser_fixed.py`), then `labs/common.py` (its page reader), `aliases.json`, `membership.json` and the season, first 12 hex. Whole files, so any edit to them, even a comment, changes it. | `v1` `16ede3aa872b`, `v2` `cceba9f64b7c` |
 | `kickPartial` | Kick's "re-parse only St. Lambert's page". `pagesNamingItAsOpponent` lists `{slug, name}`. | `tableCellsChanged` 0; `parsedRowsChanged` 1 (St. Brendan on St. Lambert's own page); St. Lambert's page names the school only in its title; the 6 pages naming it as an opponent are the 6 skipped |
 | `tableKick` | That table. | equal to `tableA` |
-| `presets` | The six presets (`Preset`: id, label, fingerprintBefore, fingerprintAfter, files, rebuilt, fetched, replacesFridayCapture, fridayEvidenceLost, liveDiffers, `simulated: true`). | see below |
+| `presets` | The six presets (`Preset`: id, label, fingerprintBefore, fingerprintAfter, files, rebuilt, fetched, replacesFridayCapture, fridayEvidenceLost, optional `watch`, `simulated: true`). | see below |
 
 Presets run a small staleness model: seven parsed schedules, each recording
 the fingerprint that wrote it and the content hash of the page it read; a file
@@ -131,7 +140,10 @@ the measured request count is the lab's, in Rewind.
 
 `replacesFridayCapture` is true whenever the preset fetches: the archive keeps
 the latest capture only. `fridayEvidenceLost` is true when the replaced capture
-differed from the new one, so Friday's bytes for that page are gone.
+differed from the new one, so Friday's bytes for that page are gone. `watch`
+is set only on the two Harbor Point presets: `{slug, name,
+liveDiffersFromArchive}`, whether the live page differs from what the archive
+holds for it after the run.
 
 | id | rebuilt | fetched | fingerprint | notes |
 |---|---|---|---|---|
@@ -139,8 +151,8 @@ differed from the new one, so Friday's bytes for that page are gone.
 | `comment` | 7 | 0 | `cceba9f64b7c` to `1dda271d65ce` | |
 | `alias` | 7 | 0 | `cceba9f64b7c` to `c959a2f9a449` | |
 | `nothing` | 0 | 0 | unchanged | |
-| `refetch-harbor` | 1 | 1 | unchanged | `replacesFridayCapture` and `fridayEvidenceLost` true (content hash changed) |
-| `live-changed` | 0 | 0 | unchanged | `liveDiffers: true`: the change is invisible without a fetch |
+| `refetch-harbor` | 1 | 1 | unchanged | `replacesFridayCapture` and `fridayEvidenceLost` true (content hash changed); `watch.liveDiffersFromArchive` false |
+| `live-changed` | 0 | 0 | unchanged | `watch.liveDiffersFromArchive` true: the change is invisible without a fetch |
 
 ### Part 6: two archive policies
 
@@ -175,8 +187,14 @@ the same split into lines. Render it verbatim (a `<pre>`). It is stored in
 it changes whenever the lab does; it hashes the file's bytes, so a checkout
 that rewrites line endings would fail it), `cellsChanged` 1. At import the
 build checks that both quoted fingerprints are the parsers', its build
-revision is the lab file as it stands, and its cell count and caption match
-`diffAB` and the tables.
+revision is the lab file as it stands, its request line is a counted 0, its
+one changed-cell line is exactly the one built from `diffAB`, and its caption
+matches the tables.
+
+`tuesdayDiff` is the `--tuesday` run's confounded diff, stored in
+`src/data/quotes/m02_archive.tuesday-diff.txt`. At import the build checks its
+`cells changed` line and each row line against `diffAC` rendered the same way,
+so table C here and in the lab cannot drift apart.
 
 The report currently reads:
 
@@ -200,20 +218,21 @@ named gap      : Dunmore's page unavailable, its home results read from visitors
 RESULT: rebuilt by replay with 0 requests; only Saint Lambert's name changed
 ```
 
-**How the quote is verified.** `scripts/check_lab_output.py` reads every file in
-`src/data/quotes/`. The name's first part names the lab (`m02_archive`), and
-the file's lines must appear in order, unbroken except at a line of `...`, in
-the standard output of one of that lab's runs listed in `labs/run_all.py` that
-ended with its expected exit code. A quote with no real line fails. **After any
-change to the lab or the sample**, regenerate the quote:
+**How a quote is verified.** `scripts/check_lab_output.py` reads every file in
+`src/data/quotes/`. Its `QUOTED_RUNS` registry names the one run of
+`labs/run_all.py` each file quotes; that run must end with its expected exit
+code, and the file's lines must match its standard output exactly, in order and
+unbroken except at a line of `...`. A file not in the registry, or one with no
+real line, fails. **After any change to the lab or the sample**, regenerate
+both quotes:
 
 ```bash
 python labs/m02_archive.py | sed -n '/^Replay report/,$p' > src/data/quotes/m02_archive.replay-report.txt
+python labs/m02_archive.py --tuesday | sed -n '/^Confounded diff/,$p' > src/data/quotes/m02_archive.tuesday-diff.txt
 ```
 
-A component that quotes other lab output (the `--tuesday` diff, for instance)
-should add another file here, such as `m02_archive.tuesday-diff.txt`, cut from
-`python labs/m02_archive.py --tuesday`, rather than a bare code fence.
+A component that quotes more lab output adds a file here and a line to
+`QUOTED_RUNS`, rather than a bare code fence.
 
 ### Part 8: Prove it, box 8210
 
@@ -223,18 +242,19 @@ should add another file here, such as `m02_archive.tuesday-diff.txt`, cut from
 | `proveIt.home`, `proveIt.away` | `{slug, name}`: Alder Ridge, Eastbrook State |
 | `proveIt.scoreByPeriod` | head `Team, 1, 2, OT, F`; rows `Eastbrook St. 2 1 0 3`, `Alder Ridge 1 2 1 4` (as published) |
 | `proveIt.goal` | time `101:44`, team `Alder Ridge` (abbr `ARU`), scorer `Victor Holm`, play `Penalty kick`; the assist is deliberately not exported |
-| `proveIt.published`, `proveIt.buggy` | 4-3, read from the F column and checked against the fixture; the regulation-only sum, 3-3 |
+| `proveIt.published`, `proveIt.buggy` | 4-3, read from the F column and checked against the fixture and against each row's periods; the regulation-only sum, 3-3 |
 | `proveIt.schedules` | Alder Ridge's page `W 4-3`, Eastbrook State's `L 3-4` |
 | `proveIt.slots.replay` | `boxScores` 12 (Alder Ridge, all of Friday's box scores), `withOvertime` 1 |
 | `proveIt.slots.stale` | `boxScores` 12 of 12; `schedules` 0, `schedulesFresh` 7; `boxParser` fingerprints; `simulated: true` |
 | `proveIt.slots.republish` | `matchDetail: true`, `standings: false` (8210 is postseason by the format rule) |
 | `proveIt.slots.tell` | a correction note: `Alder Ridge 4-3 Eastbrook State, semifinal, 15 November`; cause `the box-score parser summed only the regulation periods` |
 
-The stale counts run the Case 3 model with the box-score parser as its own
-module. Its fingerprint is the same recipe over `labs/m04_parse.py` (the
-course's box-score parser), before and after a one-line fix is appended
-(`b18d1839e46e` to `56ee1b475732`); the schedule parser's fingerprint does not
-change. Simulated: no lab runs this fix.
+The box score's bytes are checked against Friday's manifest hash. The stale
+counts run the Case 3 model with the box-score parser as its own module. Its
+fingerprint is SHA-256 of `labs/m04_parse.py` (the course's box-score parser)
+and `labs/common.py`, before and after a simulated one-line edit to the module
+(`ddd0b4bac980` to `519b34f773b8`); the schedule parser's fingerprint does not
+change. Simulated (`boxParser.simulated`): no lab runs this fix.
 
 Do not show the 8210 play-by-play (it is a Module 4 trap, out of order by
 design) or the Fouls row (id `offsides`, Module 4's).
@@ -250,10 +270,13 @@ python labs/m02_archive.py --missing hartwell-tech  # a schedule page missing fr
 The two parser revisions are whole modules, `labs/m02_parser_tuesday.py` and
 `labs/m02_parser_fixed.py`, identical except for the tidy rule and their
 docstrings. The default run reads Friday's manifest, checks every saved page's
-content hash, proves its network counter on two test requests (a name lookup
-and a direct connection), then replays three times: Tuesday's parser (table A),
+content hash (if any fails it stops with exit 2, "could not run"), proves its
+network counter on two test requests (a name lookup and a direct connection;
+the counter wraps name lookups and socket connect, connect_ex, sendto and
+sendmsg), then replays three times: Tuesday's parser (table A),
 the same again (0 re-parsed: fingerprint and content hash unchanged), and the
-fixed parser (7 re-parsed), and prints the report. A page whose bytes differ
+fixed parser (7 re-parsed), and prints the report. It passes only when the one
+changed cell is Saint Lambert's name, `State Lambert` to `Saint Lambert`. A page whose bytes differ
 from the manifest is refused, not parsed; a parsed file whose output is missing
 is rebuilt even if its lineage record survives. `--tuesday` builds table C from
 Tuesday's capture and prints all 20 changed cells with "inputs changed: parser
