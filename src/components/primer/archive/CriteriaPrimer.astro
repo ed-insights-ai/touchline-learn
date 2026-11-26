@@ -62,11 +62,11 @@ Comparison
 
 const short = ["Every expected input", "Code and configuration", "No network requests", "Every difference explained"];
 const breaks = [
-  { id: "none", label: "Change nothing", fails: -1, why: "Every criterion has its evidence, so the run passes." },
-  { id: "missing", label: "A required sensor export is missing", fails: 0, why: "The manifest expects it, and a missing required export fails the run." },
-  { id: "dirty", label: "The checkout has uncommitted edits", fails: 1, why: "The code that ran no longer matches the recorded commit." },
-  { id: "attempt", label: "The audit shows one blocked attempt", fails: 2, why: "The restriction worked, but the zero-attempt criterion did not." },
-  { id: "cell", label: "A second cell changed with no correction record", fails: 3, why: "An unexplained change means the rebuild failed acceptance." },
+  { id: "none", label: "Change nothing", line: "Unexplained changes: 0.", fails: -1, why: "Every criterion has its evidence, so the run passes." },
+  { id: "missing", label: "A required sensor export is missing", line: "Expected input missing: inputs/sensor-17/2026-11-20.csv (required)", fails: 0, why: "The manifest expects it, and a missing required export fails the run." },
+  { id: "dirty", label: "The checkout has uncommitted edits", line: "Source checkout: 1 uncommitted change", fails: 1, why: "The code that ran no longer matches the recorded commit." },
+  { id: "attempt", label: "The audit shows one blocked attempt", line: "evidence/network-audit.json covers the full run: 1 attempt, blocked.", fails: 2, why: "The restriction worked, but the zero-attempt criterion did not." },
+  { id: "cell", label: "A second cell changed with no correction record", line: "Changed cells: 2. Unexplained changes: 1.", fails: 3, why: "An unexplained change means the rebuild failed acceptance." },
 ];
 
 const checks = [
@@ -81,7 +81,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("rewind")}`}
   about="This is a reply an AI assistant gave to Module 2's rebuild-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and write one acceptance criterion for a rebuild of your own."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and write one acceptance criterion, as specific as Riley's, for a rebuild in your own work."
 >
   <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
   <p class="pr-pull">Write each acceptance criterion as a pass/fail check.</p>
@@ -104,6 +104,7 @@ const checks = [
     </fieldset>
     {breaks.map((b) => (
       <div class="pa-break-view" data-break={b.id}>
+        <p class="pa-break-line"><span>Report line</span><code>{b.line}</code></p>
         <ul class="pa-audit">{short.map((c, i) => <li><span>{c}</span><span class:list={["pr-chip", i === b.fails ? "is-bad" : "is-ok"]}>{i === b.fails ? "Fail" : "Pass"}</span></li>)}</ul>
         <p class="pa-break-result"><b>Result: {b.fails < 0 ? "PASS" : "FAIL"}</b> {b.why}</p>
       </div>
@@ -119,9 +120,8 @@ const checks = [
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 ask for the reply's four things: a capture manifest that identifies each saved schedule by content hash and lists Dunmore as unavailable, zero network requests, the fingerprint of the fixed parser, and a diff of Tuesday's table against the rebuild that explains every changed cell. Kick's replay report adds the build revision beside the fingerprint, the reply's Git commit.</p>
-    <p>The reply's changed cell comes from a corrected input file. Kick's replay holds Friday's pages fixed, so every changed cell must trace to the code: Saint Lambert's name and nothing else.</p>
-    <p>Kick's lab checks a narrower network claim than the reply's audit. It counts and stops every name lookup and connection attempt made from its own Python process, and it first shows the counter catching a test request, so its zero is evidence for that process rather than silence. The reply's criterion also covers child processes, because a rebuild that starts other programs needs them audited too.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
+    <p>The reply's changed cell comes from a corrected input. Kick's replay holds Friday's pages fixed, so its one changed cell must trace to the code. And Kick's network counter hooks only Python's lookup and connect calls in its own process, after showing it catches a test request.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
@@ -142,6 +142,8 @@ const checks = [
   .pa-break:has([value="dirty"]:checked) [data-break="dirty"],
   .pa-break:has([value="attempt"]:checked) [data-break="attempt"],
   .pa-break:has([value="cell"]:checked) [data-break="cell"] { display: block; }
+  :global(.pr) .pa-break-line { display: grid; gap: 0.2rem; margin: 0 0 0.6rem; font-size: 0.85rem; }
+  .pa-break-line span { color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
   :global(.pr) .pa-break-result { margin: 0.6rem 0 0; font-size: 0.9rem; }
   .pa-break-result b { color: var(--sl-color-white); }
   .pa-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }

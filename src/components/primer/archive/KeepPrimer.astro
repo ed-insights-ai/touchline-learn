@@ -9,11 +9,18 @@ const record = `<p class="maker">Émilie du Pré</p>
 <p class="object-count"></p>`;
 
 const layers = [
-  { name: "Raw response", holds: "The markup, accents and the blank count, as received", verdict: ["Full replay", "is-ok"] },
-  { name: "Extracted fields", holds: "The fields pulled from the markup, with the count still blank", verdict: ["Last before the bug", "is-ok"], last: true },
-  { name: "Parsed counts", holds: "A 0 where the count was blank", verdict: ["Carries it", "is-bad"], bug: true },
-  { name: "Published catalog", holds: "Zero objects, where the partner supplied no count", verdict: ["Carries it", "is-bad"] },
+  { name: "Raw response", holds: "The markup, accents and blank count, as received" },
+  { name: "Extracted fields", holds: "The fields pulled from the markup" },
+  { name: "Parsed counts", holds: "Numbers parsed from those fields" },
+  { name: "Published catalog", holds: "What the museum's readers see" },
 ];
+const bugSteps = [
+  { id: "parse", at: 2, label: "Count parser", note: "The reply's bug: a blank count becomes 0" },
+  { id: "extract", at: 1, label: "Field extraction", note: "Say, extraction drops the count field" },
+  { id: "publish", at: 3, label: "Catalog publishing", note: "Say, publishing shows a missing count as 0" },
+];
+const layerVerdict = (j: number, at: number): [string, string] =>
+  j >= at ? ["Carries it", "is-bad"] : j === at - 1 ? ["Last before the bug", "is-ok"] : ["Full replay", "is-ok"];
 
 const merges = [
   { from: ["blank count", "literal 0"], to: "0" },
@@ -41,7 +48,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-kept")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-zone study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and place one more bug on the grid: draws scored two points, not one, with bug 3 still in archive (a)."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and place one more bug on the grid: the table builder gave a real 1–1 draw two points instead of one."
 >
   <h2 class="pr-title">What a museum's archive must keep</h2>
   <p>Every night, a museum downloads collection records from a partner’s website. One night, the partner sends a record that looks like this:</p>
@@ -54,15 +61,27 @@ const checks = [
 
   <h2>2. Replay from the last layer before the damage</h2>
   <p>Suppose the museum saves a copy after each step:</p>
-  <ol class="pa-ladder">
-    {layers.map((l) => (
-      <li class:list={[{ "is-last": l.last, "is-bug": l.bug, "is-carry": l.verdict[1] === "is-bad" }]}>
-        {l.bug && <p class="pa-ladder-step">The count parser's bug runs here</p>}
-        <p class="pa-ladder-head"><b>{l.name}</b><span class:list={["pr-chip", l.verdict[1]]}>{l.verdict[0]}</span></p>
-        <p class="pa-ladder-holds">{l.holds}</p>
-      </li>
+  <figure class="pr-card pa-keep">
+    <fieldset class="pr-seg">
+      <legend>Where the bug runs</legend>
+      {bugSteps.map((b, i) => <label><input type="radio" name="pa-keep-bug" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
+    </fieldset>
+    {bugSteps.map((b) => (
+      <ol class="pa-ladder" data-bug={b.id}>
+        {layers.map((l, j) => {
+          const [v, tone] = layerVerdict(j, b.at);
+          return (
+            <li class:list={[{ "is-last": j === b.at - 1, "is-carry": j >= b.at }]}>
+              {j === b.at && <p class="pa-ladder-step">The bug runs here · {b.note}</p>}
+              <p class="pa-ladder-head"><b>{l.name}</b><span class:list={["pr-chip", tone]}>{v}</span></p>
+              <p class="pa-ladder-holds">{l.holds}</p>
+            </li>
+          );
+        })}
+      </ol>
     ))}
-  </ol>
+    <figcaption>Move the bug and the last clean copy moves with it. The raw response is before every step, so it can always replay the whole import.</figcaption>
+  </figure>
   <p>The <strong>extracted fields</strong> are the last saved copy before the bug. They still contain the blank, so the museum can feed them into the fixed count parser and check that the result is missing, then run the downstream steps again. A test record with an explicit <code>0</code> should still produce zero.</p>
   <p>The <strong>raw response</strong> can also verify the fix by replaying the whole import. The <strong>old parsed counts</strong> and <strong>published catalog</strong> already carry the incorrect zero. They help show what went wrong and compare old and corrected results. On their own, they cannot tell the fixed parser which zeros came from blanks.</p>
 
@@ -91,7 +110,7 @@ const checks = [
     <p class="pr-label">Course note</p>
     <p>The museum's blank count is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
     <p>One difference decides Case 2, whose three archives are ones Kick could have written. In the museum, the bug is in a step after extraction, so the extracted fields are the last layer before the damage. In Case 2 the tidy rule runs inside the parser, so the parsed rows would already carry it. The tidied HTML looks raw, but its tidy step runs before saving, so it would be a cleaned copy too. Ask of any bug which step did the damage, then look for the last copy saved before that step.</p>
-    <p>The reply's fetch record is what Case 2 calls the sidecar.</p>
+    <p>The reply's fetch record is what Case 2 calls the sidecar. Its curator example needs every nightly download kept. Touchline keeps only the latest capture, so it can say what a page says now, not when something first appeared; Part 6 weighs that choice.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
@@ -99,7 +118,11 @@ const checks = [
 </PrimerChat>
 
 <style>
-  .pa-ladder { display: grid; gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pa-keep .pr-seg { margin-bottom: 0.7rem; }
+  .pa-ladder { display: none; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
+  .pa-keep:has([value="parse"]:checked) [data-bug="parse"],
+  .pa-keep:has([value="extract"]:checked) [data-bug="extract"],
+  .pa-keep:has([value="publish"]:checked) [data-bug="publish"] { display: grid; }
   .pa-ladder li { padding: 0.55rem 0.85rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--tl-raw-edge); border-radius: 8px; background: var(--tl-card); }
   .pa-ladder li.is-last { border-left-color: var(--pr-green); box-shadow: 0 0 0 1px var(--pr-green); }
   .pa-ladder li.is-carry { border-left-color: var(--pr-red); }

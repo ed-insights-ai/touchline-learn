@@ -20,7 +20,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Which of the two can rebuild yesterday's output exactly, and what a re-fetch overwrites if I keep only the latest copy of each source.
 4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
 5. ${close}`,
-    returnTask: "Then come back and name one thing that can change on a live site between two fetches.",
+    returnTask: "Then come back and name one thing that could have changed on a live site since Friday, and say whether the page shows it.",
   },
   idea: {
     slug: "02-archive-ai-raw",
@@ -56,7 +56,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: "Then come back and place one more bug on the grid: draws scored two points, not one, with bug 3 still in archive (a).",
+    returnTask: "Then come back and place one more bug on the grid: the table builder gave a real 1–1 draw two points instead of one.",
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -68,7 +68,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and match one change from the reply's notebook to a preset.",
+    returnTask: "Then come back and say which preset a notebook comment edit matches, and predict its counts before you check.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -92,7 +92,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
 4. How a diff between the old output and the rebuild should explain every changed value, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
-    returnTask: "Then come back and write one acceptance criterion for a rebuild of your own.",
+    returnTask: "Then come back and write one acceptance criterion, as specific as Riley's, for a rebuild in your own work.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",
@@ -104,7 +104,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What to tell the people who used the published output: a correction note that names what changed and why.
 4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
 5. ${close}`,
-    returnTask: "Then come back and check the reply's finished prompt against the four slots.",
+    returnTask: "Then come back and check the finished prompt you got against the four slots.",
   },
   "carry-it": {
     slug: "02-archive-ai-carry",
@@ -116,7 +116,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "Then come back and match the reply's three new questions to Worlds A, B and C.",
+    returnTask: "Then come back and pick the honest recovery claim for each world.",
   },
 };
 

@@ -40,7 +40,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and match one change from the reply's notebook to a preset."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and say which preset a notebook comment edit matches, and predict its counts before you check."
 >
   <h2 class="pr-title">How a cache decides what is stale</h2>
   <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
@@ -66,10 +66,9 @@ const checks = [
 
   <h2>4. A fingerprint can only describe what the system observed</h2>
   <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday’s copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
-  <h2>5. Try it: one change, three outputs</h2>
   <figure class="pr-card pa-fp">
     <fieldset class="pr-seg">
-      <legend>Make one change</legend>
+      <legend>Try it: make one change</legend>
       {changes.map((c, i) => <label><input type="radio" name="pa-fp-change" value={c.id} checked={i === 0} /><span>{c.label}</span></label>)}
     </fieldset>
     {changes.map((c) => (
@@ -94,7 +93,7 @@ const checks = [
     <p>Case 3's last preset is the reply's section 4. Harbor Point's site posted a result after Friday, but the saved page did not change, so its hash still matches and nothing looks stale until something fetches it.</p>
   </aside>
 
-  <h2>6. Check your understanding</h2>
+  <h2>5. Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
