@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  SEASON, fingerprints, presets, fridayManifest, fridayPages, parseSchedule, rawRows, replayReport, tableC, tableD, tidyV1, tidyV2, tuesdayDiff, tuesdayPages,
+  SEASON, championship, fingerprints, members, presets, saturday, fridayManifest, fridayPages, parseSchedule, rawRows, replayReport, tableC, tableD, tidyV1, tidyV2, tuesdayDiff, tuesdayPages,
 } from "../../../lib/archive";
 
 // The Module 2 field work page's numbers, computed at build time from the sample and archive.ts.
@@ -46,10 +46,10 @@ const changedLines = (before: string, after: string) => {
 };
 type Fetch = { id: string; label: string; what: string; real: boolean; html: string; baseline: string; slug: string };
 const fetches: Fetch[] = [
-  { id: "same", label: `${nameOf(SAME_SLUG)}, fetched again on Tuesday`, what: "Real capture. Nothing on the page changed since Friday.", real: true, html: tuesdayOther.html, baseline: fridayOther.html, slug: SAME_SLUG },
-  { id: "noise", label: `${nameOf(SIG_SLUG)}, re-rendered the morning after Friday's run`, what: "Made up for this page. Friday's rows, with a render stamp, a per-visit token and re-indented markup.", real: false, html: rerender(fridayHarbor.html, stampAfter(fridayHarbor.fetchedAt, 18 * 60)), baseline: fridayHarbor.html, slug: SIG_SLUG },
-  { id: "result", label: `${nameOf(SIG_SLUG)}, fetched on Tuesday`, what: "Real capture. Saturday's result is in one cell.", real: true, html: tuesdayHarbor.html, baseline: fridayHarbor.html, slug: SIG_SLUG },
-  { id: "both", label: `${nameOf(SIG_SLUG)}, re-rendered on Tuesday`, what: "Made up for this page. Tuesday's rows, with the same kinds of noise.", real: false, html: rerender(tuesdayHarbor.html, stampAfter(tuesdayHarbor.fetchedAt, 40)), baseline: fridayHarbor.html, slug: SIG_SLUG },
+  { id: "same", label: `${nameOf(SAME_SLUG)}, Tuesday's capture`, what: "From the sample.", real: true, html: tuesdayOther.html, baseline: fridayOther.html, slug: SAME_SLUG },
+  { id: "noise", label: `${nameOf(SIG_SLUG)}, re-rendered the morning after Friday's run`, what: "Made up for this page.", real: false, html: rerender(fridayHarbor.html, stampAfter(fridayHarbor.fetchedAt, 18 * 60)), baseline: fridayHarbor.html, slug: SIG_SLUG },
+  { id: "result", label: `${nameOf(SIG_SLUG)}, Tuesday's capture`, what: "From the sample.", real: true, html: tuesdayHarbor.html, baseline: fridayHarbor.html, slug: SIG_SLUG },
+  { id: "both", label: `${nameOf(SIG_SLUG)}, Tuesday's capture re-rendered`, what: "Made up for this page.", real: false, html: rerender(tuesdayHarbor.html, stampAfter(tuesdayHarbor.fetchedAt, 40)), baseline: fridayHarbor.html, slug: SIG_SLUG },
 ];
 export type HashAnswer = "neither" | "bytes" | "both" | "signature";
 export const hashAnswers: [HashAnswer, string][] = [
@@ -116,6 +116,8 @@ const renamedRows = fridayPages.flatMap((p) => {
   return a.filter((r, i) => r.shown !== b[i].shown);
 }).length;
 const awayRows = allRaw.filter((r) => r.side === "at").length;
+const awayUnchecked = fridayPages.flatMap((p) => parseSchedule(p.html, tidyV2)).filter((r) => r.side === "at" && !members.includes(r.opponent)).length;
+check(awayUnchecked > 0 && awayUnchecked < awayRows, "the away rows no longer split into conference and non-member matches");
 const spelledSaint = allRaw.filter((r) => r.opponent === "Saint Lambert").length;
 check(renamedRows > 0 && awayRows > 0 && spelledSaint === 0, "the parsed-row counts behind the fingerprint table changed shape");
 
@@ -128,11 +130,11 @@ export const scopeNames: [Scope, string][] = [
 ];
 type Edit = { id: string; label: string; where: string; before: ReturnType<typeof scopes>; after: ReturnType<typeof scopes>; rows: number | null; rowsNote: string };
 const edits: Edit[] = [
-  { id: "rule", label: "Fix the tidy rule", where: "inside tidy()", before: scopes(PARSER.v1), after: scopes(PARSER.v2), rows: renamedRows, rowsNote: "renamed" },
-  { id: "side", label: "Fix a parser that stored every match as a home match", where: "in read_schedule(), outside tidy()", before: scopes(homeOnly), after: scopes(PARSER.v2), rows: awayRows, rowsNote: "away rows read as home until rebuilt" },
-  { id: "comment", label: "Add a comment line above tidy()", where: "in the module, outside both functions", before: scopes(PARSER.v2), after: scopes(withComment), rows: 0, rowsNote: "a comment changes no output" },
-  { id: "alias", label: "Add \"Saint Lambert\" to the alias list", where: "in aliases.json", before: scopes(PARSER.v2), after: scopes(PARSER.v2, aliasConfig), rows: spelledSaint, rowsNote: "no saved page spells it that way yet" },
-  { id: "runtime", label: "Upgrade the Python that runs the parser", where: "outside every file hashed here", before: scopes(PARSER.v2), after: scopes(PARSER.v2), rows: null, rowsNote: "only a replay compared with the last output can say" },
+  { id: "rule", label: "Fix the tidy rule", where: "Saint before a name, State at the end, as the lesson's fix does.", before: scopes(PARSER.v1), after: scopes(PARSER.v2), rows: renamedRows, rowsNote: "renamed" },
+  { id: "side", label: "Fix a parser that stored every match as a home match", where: "Store the vs or at cell as read, where the old code wrote home for every row.", before: scopes(homeOnly), after: scopes(PARSER.v2), rows: awayRows, rowsNote: "away rows read as home until rebuilt" },
+  { id: "comment", label: "Add a comment line above tidy()", where: "One line of explanation just above the rule. The code is the same.", before: scopes(PARSER.v2), after: scopes(withComment), rows: 0, rowsNote: "a comment changes no output" },
+  { id: "alias", label: "Add \"Saint Lambert\" to the alias list", where: "A spelling no saved page uses yet, mapped to St. Lambert.", before: scopes(PARSER.v2), after: scopes(PARSER.v2, aliasConfig), rows: spelledSaint, rowsNote: "no saved page spells it that way yet" },
+  { id: "runtime", label: "Upgrade the Python that runs the parser", where: "A newer Python runs exactly the same files.", before: scopes(PARSER.v2), after: scopes(PARSER.v2), rows: null, rowsNote: "only a replay compared with the last output can say" },
 ];
 const narrowest = (e: Edit): Scope => (e.before.fn !== e.after.fn ? "fn" : e.before.module !== e.after.module ? "module" : e.before.lab !== e.after.lab ? "lab" : "none");
 /** Five edits, the three fingerprint scopes before and after each, and how many parsed rows of Friday's pages each one changes. */
@@ -140,7 +142,7 @@ export const scopeTable = edits.map((e) => ({ ...e, narrowest: narrowest(e) }));
 const presetAfter = (id: string) => presets.find((p) => p.id === id)?.fingerprintAfter ?? fail(`no preset ${id}`);
 check(scopeTable[2].after.lab === presetAfter("comment") && scopeTable[3].after.lab === presetAfter("alias"), "the comment and alias edits here are not the lesson's presets");
 check(scopeTable.map((e) => e.narrowest).join() === "fn,module,module,lab,none", "the five edits no longer fall one per scope as expected");
-export const fingerprintScope = { functionLines: functionSource(PARSER.v2, "tidy").split("\n").length, moduleLines: PARSER.v2.trimEnd().split("\n").length, tidy: functionSource(PARSER.v2, "tidy") };
+export const fingerprintScope = { awayUnchecked, awayChecked: awayRows - awayUnchecked, functionLines: functionSource(PARSER.v2, "tidy").split("\n").length, moduleLines: PARSER.v2.trimEnd().split("\n").length, tidy: functionSource(PARSER.v2, "tidy") };
 
 // ---------------------------------------------------------------- retention
 
@@ -229,3 +231,21 @@ export const week = {
   unchangedOnTuesday: tuesdayPages.filter((p) => pageOf(fridayPages, p.slug).sha256 === p.sha256).map((p) => nameOf(p.slug)),
 };
 check(week.unavailable.length === 1, "Friday's run no longer has exactly one unavailable schedule");
+
+/** Each schedule page's byte hash on Friday and in Tuesday's capture. */
+export const tuesdayHashes = tuesdayPages.map((p) => {
+  const f = pageOf(fridayPages, p.slug);
+  return { name: nameOf(p.slug), friday: short(f.sha256), tuesday: short(p.sha256), same: f.sha256 === p.sha256 };
+});
+/** The results posted between Friday's run and Tuesday's capture. */
+export const sinceFriday = { saturday: saturday.length, championship: `${championship.homeName} v ${championship.awayName}` };
+
+const runAll = read("labs", "run_all.py").toString("utf-8");
+const exitOf = (args: string[]) => {
+  const listed = `[${args.map((a) => JSON.stringify(a)).join(", ")}]`;
+  const line = runAll.split("\n").find((l) => l.trim().startsWith(`(${listed},`)) ?? fail(`labs/run_all.py does not list ${args.join(" ")}`);
+  return Number(line.trim().slice(listed.length + 2).match(/^\s*(\d)/)?.[1] ?? fail(`no exit code for ${args.join(" ")}`));
+};
+/** The exit code labs/run_all.py expects from each run the page quotes. */
+export const exits = { tuesday: exitOf(["labs/m02_archive.py", "--tuesday"]), missing: exitOf(["labs/m02_archive.py", "--missing", "hartwell-tech"]) };
+check(exits.tuesday === 1 && exits.missing === 1, "the m02 exit codes in labs/run_all.py are not the ones the page explains");
