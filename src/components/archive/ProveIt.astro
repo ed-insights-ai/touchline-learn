@@ -30,7 +30,7 @@ const replay: [string, string][] = [
   ["allfetch", `All ${n} ${slots.replay.school} box scores, fetched again so they are current`],
 ];
 const stale: [string, string][] = [
-  ["ot", `Only box ${box}'s: it is the only one with an OT column`],
+  ["ot", `Only box ${box}'s: it is the one with the OT column`],
   ["hash", "Only those whose saved page changed since they were parsed: the page hash decides"],
   ["fp", `All ${n} parsed box scores: each records a fingerprint the fixed parser no longer has`],
   ["all", `All ${n} parsed box scores and the ${fresh} parsed schedules: all were parsed before the fix`],
@@ -62,7 +62,7 @@ const tell: [string, string][] = [
   <div class="ar-detail" role="img" aria-label={`The published match detail: ${home.name} ${buggy.home}, ${away.name} ${buggy.away}, full time, no overtime.`}>
     <p class="ar-detail-tag">Match detail, as published</p>
     <p class="ar-detail-score"><span>{home.name}</span><b>{buggy.home}–{buggy.away}</b><span>{away.name}</span></p>
-    <p class="ar-detail-foot">{round.charAt(0).toUpperCase() + round.slice(1)}, {date} · Full time</p>
+    <p class="ar-detail-foot">{round.charAt(0).toUpperCase() + round.slice(1)}, {date} · Box {box} · Full time</p>
   </div>
   <p>Kick saved {home.name}'s {n} box scores on {savedOn}, under their fixture ids. Nothing has fetched them since, so the archive still holds Friday's capture. Here are two excerpts from this one, as saved.</p>
   <div class="ar-excerpts">
@@ -82,7 +82,7 @@ const tell: [string, string][] = [
     </div>
   </div>
   <fieldset class="cv-choice" data-gate>
-    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Where did the {ordinal(published.home)} goal go?</legend>
+    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Where did {home.name}'s {ordinal(published.home)} goal go?</legend>
     {where.map(([v, t]) => <label><input type="radio" name="ar-prove-where" value={v} data-save="prove-where" /><span>{t}</span></label>)}
   </fieldset>
   <div class="ar-diag" data-when="prove-where" hidden>
@@ -97,8 +97,8 @@ const tell: [string, string][] = [
       <caption>Lineage after the fix</caption>
       <thead><tr><th scope="col">Output</th><th scope="col">Built from</th><th scope="col">Fingerprint: recorded → its parser's now</th></tr></thead>
       <tbody>
-        <tr><th scope="row">{spell(boxes, true)} parsed box scores</th><td>saved box-score pages</td><td class="cv-mono">{fp.before} → {fp.after}</td></tr>
-        <tr><th scope="row">{spell(slots.stale.schedulesFresh, true)} parsed schedules</th><td>saved schedule pages</td><td class="cv-mono">{fingerprints.v2} → {fingerprints.v2}</td></tr>
+        <tr><th scope="row">{spell(boxes, true)} parsed box scores</th><td>saved box-score pages</td><td class="cv-mono"><span>{fp.before} →</span> <span>{fp.after}</span></td></tr>
+        <tr><th scope="row">{spell(slots.stale.schedulesFresh, true)} parsed schedules</th><td>saved schedule pages</td><td class="cv-mono"><span>{fingerprints.v2} →</span> <span>{fingerprints.v2}</span></td></tr>
         <tr><th scope="row">Match detail</th><td>parsed box score</td><td>–</td></tr>
         <tr><th scope="row">Standings</th><td>parsed schedules, counting regular-season conference matches only</td><td>–</td></tr>
       </tbody>
@@ -130,6 +130,7 @@ const tell: [string, string][] = [
 
 <style>
   .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
+  .ar-part :global(.cv-line > label.cv-stack) { grid-template-columns: minmax(0, 1fr); }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }
@@ -144,7 +145,7 @@ const tell: [string, string][] = [
   @media (min-width: 50rem) { .ar-excerpts { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
   .ar-box { max-width: none; }
   .ar-lineage { max-width: none; }
-  .ar-lineage td.cv-mono { white-space: nowrap; }
+  .ar-lineage td.cv-mono span { white-space: nowrap; }
   .ar-box caption { color: var(--sl-color-white); font-weight: 700; text-align: left; }
   .ar-box td, .ar-box th { white-space: nowrap; font-variant-numeric: tabular-nums; }
   .ar-diag { margin: 0 0 1.25rem; padding: 0.85rem 1rem; border-left: 4px solid var(--cv-yellow); background: var(--tl-card); }

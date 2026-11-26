@@ -75,18 +75,18 @@ const draft: [string, string][] = [
         <label><input type="checkbox" data-save="rewind-has-code" /><span>Identifies the code that produced the table</span></label>
         <label><input type="checkbox" data-save="rewind-has-diff" /><span>Requires every change in the table to be explained</span></label>
       </fieldset>
-      <p>Each criterion asks for evidence that could have come out differently: a hash can fail to match, a counter can count, a diff can show a cell nobody explained. Evidence that could never fail proves nothing.</p>
+      <p>Each criterion asks for evidence that could have come out differently: a hash can fail to match, a counter can count, a diff can show a cell nobody explained. Evidence that could never fail verifies nothing.</p>
 
-      <h3>Kick's replay report</h3>
+      <h3 id="rewind-report">Kick's replay report</h3>
       <p class="cv-label">The report section of <code>python labs/m02_archive.py</code>, quoted whole. Every change to the site checks it against the lab's output.</p>
       <div class="cv-agent-reply ar-reply" role="region" aria-label="Kick's replay report">
         <div class="cv-chat-bar">
           <span class="cv-agent-badge">Kick · Coding agent</span>
           <span class="cv-status-ok">{rewind.requests} requests · {rewind.cellsChanged} cell changed</span>
         </div>
-        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class="ar-ln">{`${l}\n`}</span>)}</code></pre>
+        <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-kv": /^\s*\S.*\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
-      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the git blob hash of the program that built the table, so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code, run the same way, gives the same table.</p>
+      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the hash Git computes from the bytes of the program that built the table (its blob hash), so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code, run the same way, gives the same table.</p>
 
       <h4 class="cv-try">Check the report against the criteria</h4>
       <Check once="rewind-match" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
@@ -113,6 +113,7 @@ const draft: [string, string][] = [
 
 <style>
   .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
+  .ar-part :global(.cv-line > label.cv-stack) { grid-template-columns: minmax(0, 1fr); }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }
@@ -122,7 +123,8 @@ const draft: [string, string][] = [
   .ar-criteria li { margin: 0.3rem 0; }
   .ar-report { margin: 0; padding: 0.85rem 1rem; overflow-x: auto; border: 0; border-radius: 0; background: var(--tl-bg); font-size: 0.74rem; line-height: 1.5; }
   .ar-report code { padding: 0; background: none; white-space: pre-wrap; }
-  .ar-ln { display: block; padding-left: 17ch; text-indent: -17ch; }
+  .ar-ln { display: block; }
+  .ar-ln.is-kv { padding-left: 17ch; text-indent: -17ch; }
   @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } }
   .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
   .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }

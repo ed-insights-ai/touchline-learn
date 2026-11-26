@@ -40,7 +40,7 @@ const sideRows: [string, string][] = [
 ];
 
 const claims: [string, string, string][] = [
-  ["none", "Not from what was kept. Asking the clinics to resubmit is a new fetch, and the claim must say so", "Not from what was kept"],
+  ["none", "The published reports can't be corrected from what was kept. Asking the clinics to resubmit is a new fetch, and the correction must say so", "Not from what was kept"],
   ["full", "Every month's report can be corrected from the forms it read, and each change has one cause: the fix", "Every report, one cause"],
   ["nopast", "This month's figures can be fixed, but no past month can be corrected", "This month only"],
   ["recount", "Every month can be replayed from the files kept, but March at Northside replays a different file than its report read", "Every month, March confounded"],
@@ -53,7 +53,7 @@ const worlds: { key: string; name: string; kept: string; answer: string; why: st
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
     wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A replay needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
   { key: "c", name: "World C", kept: "Kept each clinic's file for every month, but a resubmitted file overwrote the one before it.", answer: "recount",
-    why: "Every month can be replayed from the files that survive. But March's report recorded the hash of Northside's original file, and the file now held has a different one: the hash shows the original is gone, and can't bring it back. So March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so a difference between the published figure and the replay may come from the fix, the resubmission, or both: Case 1's confounding, caused by Part 6's latest only.",
+    why: "Every month can be replayed from the files that survive. But March's report recorded the hash of Northside's original file, and the file now held has a different one: the hash shows the original is gone, and can't bring it back. So March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so a difference between the published figure and the replay may come from the fix, the resubmission, or both: Case 1's confounding, caused by the decision's latest only.",
     wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be replayed.", none: "The raw forms that survive still have the box. Every month can be replayed." } },
 ];
 const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
@@ -90,9 +90,9 @@ const staleOpts: [string, string][] = [
       wrong={{ ticked: "That picks stale records by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either one makes a mapped record stale." }} />
     <Fragment slot="reveal">
       <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can replay March, but not from Northside's original file, so it can't reproduce March's report or isolate the fix's effect on it. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
+      <AiCard part="carry-it" />
     </Fragment>
   </Check>
-  <AiCard part="carry-it" />
 
   <h3 id="carry-it-recap">What you can now do</h3>
   <ul class="cv-outcomes">
@@ -130,8 +130,8 @@ const staleOpts: [string, string][] = [
     <label><input type="radio" name="ar-carry-season" value="unknown" data-save="carry-season" /><span>Not on its own</span></label>
   </fieldset>
   <div class="ar-title" data-when="carry-season" hidden>
-    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>A URL is one witness to the season. The page can disagree with it, and this one does.</p>
-    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>A URL is one witness to the season, and the sidecar holds no other. The page can disagree with it, and this one does.</p>
+    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The URLs say which season was asked for and which address answered. The page can disagree with them, and this one does.</p>
+    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>The URLs say which season was asked for and which address answered, and the sidecar says nothing else about the season. The page can disagree with them, and this one does.</p>
     <p class="ar-said" data-when="carry-season" data-is="no" hidden>Its URLs name no other season. The page itself does, and its hash matches a page Friday already saved.</p>
     <p>Open the saved bytes. The page's own title says:</p>
     <p class="cv-mono ar-title-line">&lt;title&gt;{title}&lt;/title&gt;</p>
@@ -161,6 +161,7 @@ const staleOpts: [string, string][] = [
 
 <style>
   .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
+  .ar-part :global(.cv-line > label.cv-stack) { grid-template-columns: minmax(0, 1fr); }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }
