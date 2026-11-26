@@ -40,7 +40,7 @@ const because: Record<string, string> = {
 for (const p of presets) if (!scene[p.id] || !because[p.id]) throw new Error(`Case 3 has no text for preset ${p.id}`);
 const answerOf = (p: (typeof presets)[number]) => (p.watch ? `${p.rebuilt},${presetShowsSaturday[p.id]}` : String(p.rebuilt));
 const whyOf = (p: (typeof presets)[number]) => `${p.rebuilt} rebuilt${p.watch ? `; ${presetShowsSaturday[p.id]} ${presetShowsSaturday[p.id] === 1 ? "shows" : "show"} the ${sat}` : ""}. ${because[p.id]}`;
-const optionsOf: [string, string][] = presets.filter((p) => p.id !== "nothing").map((p) => [p.id, `${presets.indexOf(p) + 1}. ${p.label}`]);
+const optionsOf: [string, string][] = presets.map((p) => [p.id, `${presets.indexOf(p) + 1}. ${p.label}`]);
 const [first, ...rest] = presets;
 if (first.id !== "fix-rule") throw new Error("Case 3 works the tidy rule fix as its first preset");
 const lambertFiles = presetFiles["fix-rule"];
@@ -123,7 +123,7 @@ const [nRefetch, nLive] = [nOf("refetch-harbor"), nOf("live-changed")];
     <p class="cv-qlabel">A notebook caches each cell's result under a key: a hash of the cell's code and its settings file, plus the content hash of the data file the cell reads. Match each change to the preset that is the same kind of change.</p>
     <Choice save="stale-nb-comment" label="You add a blank line between two statements in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's text changes though the output can't, so its hash changes and the cell reruns. Safe over-rebuilding." wrong={{ "fix-rule": "The tidy rule fix changed the output. A blank line can't." }} />
     <Choice save="stale-nb-config" label="You change the chart's date range in the settings file, and leave the code alone." options={optionsOf} answer="alias" why="Settings are config, and config is part of the key, so the cell reruns though no code changed." wrong={{ "fix-rule": "No code changed. The change is in config." }} />
-    <Choice save="stale-nb-live" label="The data provider has fixed an error in its file online. You rerun the notebook on the copy you saved last week." options={optionsOf} answer="live-changed" why="The cache can only compare the file you saved, which hasn't changed, so nothing reruns and the correction stays unseen." wrong={{ "refetch-harbor": "That preset fetches the new file. Here the notebook reads last week's copy." }} />
+    <Choice save="stale-nb-live" label="The data provider has fixed an error in its file online. You rerun the notebook on the copy you saved last week." options={optionsOf} answer="live-changed" why="The cache can only compare the file you saved, which hasn't changed, so nothing reruns and the correction stays unseen." wrong={{ "refetch-harbor": "That preset fetches the new file. Here the notebook reads last week's copy.", nothing: "Your saved copy is unchanged, but the source isn't: the provider changed its file." }} />
     <p slot="reveal">Many caches use the same two checks: one hash for the code and its settings, one for the input it read. Neither can see a source you never fetched again.</p>
   </Check>
   <NextPart from="case-fingerprint">Change {nRefetch} cost Friday's copy of one page. What would re-fetching all {spell(story.sites)} sites have cost?</NextPart>
@@ -141,7 +141,7 @@ const [nRefetch, nLive] = [nOf("refetch-harbor"), nOf("live-changed")];
   .ar-plist li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.2rem 1rem; align-items: center; margin: 0; padding: 0.55rem 0; border-top: 1px solid var(--tl-line); }
   .ar-plist p { margin: 0; }
   .ar-pscene { font-size: 0.94rem; line-height: 1.4; }
-  .ar-pin { display: flex; gap: 0.7rem; }
+  .ar-pin { display: flex; flex-wrap: wrap; gap: 0.7rem; }
   .ar-pin label { display: flex; align-items: center; gap: 0.35rem; margin: 0; color: var(--tl-muted); font-size: 0.86rem; white-space: nowrap; }
   .ar-pin input { width: 3.2rem; min-height: 40px; padding: 0.3rem 0.4rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: transparent; color: var(--tl-ink); font: inherit; font-size: 1rem; text-align: center; }
   .ar-pin input:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 1px; }

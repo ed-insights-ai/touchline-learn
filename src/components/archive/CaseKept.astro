@@ -46,6 +46,13 @@ KEPT.forEach((k) => { if (drawReasons[k][0] !== case2Draws.answers[k] || (case2D
 const yn: [string, string][] = [["yes", "Yes"], ["no", "No"]];
 const label = (k: Kept) => `(${k}) ${archives[k].label.replace(/, with a sidecar$/, "")}`;
 const sidecar = case2Sidecar;
+const resultIn = (k: Kept, row: string): string => {
+  if (k === "a") { const r = JSON.parse(row); return `${r.home_score}-${r.away_score}`; }
+  const m = row.match(/<td>([WLT] \d+-\d+|Final)<\/td>/);
+  if (!m) throw new Error(`Case 2: no result cell in archive (${k})`);
+  return m[1];
+};
+const fourResults = (k: Kept) => [...archives[k].rows, case2Draws.extra[k]].map((row) => resultIn(k, row)).join(" · ");
 const sidecarFields: [string, string, string][] = [
   ["requested_url", sidecar.requested_url, "The address Kick asked for, so the request can be repeated or questioned."],
   ["final_url", sidecar.final_url, "Where the site answered from after any redirects. Here it matches the request; Module 3 asks what that proves."],
@@ -155,6 +162,8 @@ const sidecarFields: [string, string, string][] = [
     <p class="cv-kind">One more bug</p>
     <p class="cv-qlabel">4. {case2Draws.label}. The bug is in the build, after all three archives were written, and bug 3 is still in archive (a). Here is one more row from Cedar Grove's page, a real draw, as each archive holds it:</p>
     <ul class="ar-extra">{KEPT.map((k) => <li><span>{label(k)}</span><code>{case2Draws.extra[k]}</code></li>)}</ul>
+    <p class="ar-extra-lede">With the three rows above, here are the four results as each archive holds them:</p>
+    <ul class="ar-extra">{KEPT.map((k) => <li><span>{label(k)}</span><code>{fourResults(k)}</code></li>)}</ul>
     <p class="cv-qlabel">Replay the corrected points rule, three for a win and one for a draw, over each archive's four rows. How many points does each archive give Cedar Grove?</p>
     <div class="ar-kg ar-kg-one" role="group" aria-label="Bug 4: Cedar Grove's points from each archive">
       <div class="ar-kg-row">
@@ -228,6 +237,7 @@ const sidecarFields: [string, string, string][] = [
   .ar-seg :global(.cv-fb) { margin: 0.25rem 0 0; font-size: 0.82rem; line-height: 1.35; }
   .ar-seg :global(.cv-fb:empty) { display: none; }
 
+  .ar-extra-lede { margin: 0 0 0.3rem; }
   .ar-extra { display: grid; gap: 0.3rem; margin: 0.2rem 0 0.7rem; padding: 0; list-style: none; }
   .ar-extra li { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 0.6rem; align-items: start; margin: 0; }
   .ar-extra span { color: var(--tl-muted); font-size: 0.85rem; font-weight: 700; }

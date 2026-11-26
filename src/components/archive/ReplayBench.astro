@@ -116,7 +116,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
               <div class:list={{ "is-lost": p.fridayEvidenceLost }}><dt>Friday's captures</dt><dd>{p.fridayEvidenceLost ? `${p.watch?.name ?? "One"}'s overwritten` : "All kept"}</dd></div>
             </dl>
             <p class="ar-reading">{reading[p.id](p)}</p>
-            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded before this run; beside it is the current value. A fingerprint is 12 characters long; a content hash shows its first 12, and the run compares it in full. The result column is the rebuild decision.</p>
+            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded before this run; beside it is the current value. The result column is the rebuild decision.</p>
             <p class="ar-cue" aria-hidden="true">Scroll the table sideways for both hashes.</p>
             <div class="ar-scroll" tabindex="0" role="region" aria-label={`Parsed schedules for change ${i + 1}`}>
               <table class="ar-files">
@@ -137,7 +137,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
           </div>
         );
       })}
-      <p class="ar-foot">Counts come from a small staleness model over the sample's {spell(presets[0].files)} saved schedules, and the request count is simulated. Fingerprints are real hashes of the lab's parser modules and config, and of edited copies of them for changes {presets.findIndex((p) => p.id === "comment") + 1} and {presets.findIndex((p) => p.id === "alias") + 1}. A “live” page is Tuesday's capture. Rewind shows the lab's measured request count.</p>
+      <p class="ar-foot">Counts come from a small staleness model over the sample's {spell(presets[0].files)} saved schedules, and the request count is simulated. Fingerprints are real hashes of the lab's parser modules and config, and of edited copies of them for changes {presets.findIndex((p) => p.id === "comment") + 1} and {presets.findIndex((p) => p.id === "alias") + 1}. A fingerprint is {presets[0].fingerprintAfter.length} characters long; a content hash shows its first {presetFiles[presets[0].id][0].nowContent.length}, and the run compares it in full. A “live” page is Tuesday's capture. Rewind shows the lab's measured request count.</p>
     </>
   )}
 </div>
