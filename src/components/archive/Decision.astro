@@ -44,8 +44,8 @@ const verdict = (q: "today" | "monday" | "harborFriday") => {
 };
 const who: [string, string][] = [["both", "Both policies"], ["every", "Every capture only"], ["neither", "Neither policy"]];
 const questions = [
-  { key: "today", label: "Build today's table from Tuesday's saved pages.",
-    why: "Both policies. Each archive holds Tuesday's captures after the re-fetch, and today's table is built from those.",
+  { key: "today", label: "What does the table say today?",
+    why: "Both policies. Today's table needs only the newest capture of each page, and after the re-fetch both archives hold Tuesday's.",
     wrong: { every: "Latest only keeps one capture per page: the newest. That is the one today's table needs.", neither: "Both archives hold Tuesday's pages. That is what a re-fetch saves." } },
   { key: "monday", label: "Rebuild Monday's table exactly, from the pages it was built from.",
     why: `Every capture only. Monday's table read Friday's ${seven} captures, and Friday's manifest names them. Latest only replaced all ${seven} on Tuesday, and ${spell(changed.length)} of them had changed, so their Friday bytes are gone.`,
@@ -67,7 +67,7 @@ const calls = [
 
 <section id="decision" class="ar-part">
   <PartHead id="decision">The decision: what a re-fetch would have cost</PartHead>
-  <p>In Setup, before you knew what the sites had posted since Friday, you predicted what Kick's re-fetch would do to Saint Lambert's row.</p>
+  <p>In Setup, before you knew what the sites had posted since Friday, you predicted what Kick's re-fetch would do to St. Lambert's row.</p>
   <div class="cv-say cv-yours">
     <p class="cv-who">Your prediction from Setup</p>
     <p data-when={refetchPredict.key} hidden><span data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}></span></p>
@@ -75,7 +75,7 @@ const calls = [
   </div>
   <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had posted since Friday. If no site had posted or changed a result since Friday, only the name would change. If one had, the numbers would move too. A replay has no such unknown: its pages are Friday's, byte for byte.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
-  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. One had posted a counted result.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. Five pages had changed, and one of them posted a result this row counts.</p>
 
   <p>Case 1 captured Tuesday's pages apart from the archive to see what the re-fetch would have read. On Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons.</p>
   <div class="cv-scroll">
@@ -95,7 +95,7 @@ const calls = [
   </table>
   <p class="ar-key"><span><span class="ar-swatch is-code"></span><span><b>Changed by the code:</b> {byCode.join("; ")}</span></span><span><span class="ar-swatch is-pages"></span><span><b>Changed by the pages:</b> {byPages.join("; ")}</span></span></p>
   <p class="cv-label">“St. Lambert” is the school as its own pages write it. “State Lambert” is the bug's display name and “Saint Lambert” the fix's.</p>
-  <p>That is the visible cost: a diff with two causes. The larger cost is the one the table doesn't show.</p>
+  <p>That is the visible cost: a diff with two causes.</p>
 
   <h3 id="decision-policies">Two archive policies</h3>
   <p>A table is a build over saved pages, code and config. Suppose every run's parser, build code and config are kept in version control, and every run's manifest records which captures it read. Then only one question is left: how long are the pages kept? There are two common answers.</p>
@@ -163,6 +163,7 @@ const calls = [
 </section>
 
 <style>
+  .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }

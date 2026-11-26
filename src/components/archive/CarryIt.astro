@@ -47,7 +47,7 @@ const claims: [string, string, string][] = [
 ];
 const worlds: { key: string; name: string; kept: string; answer: string; why: string; wrong: Record<string, string> }[] = [
   { key: "a", name: "World A", kept: "Kept every submission, each resubmission stored beside the file it replaced.", answer: "full",
-    why: "The raw forms still have the box as the clinic ticked it, and each report's record names its files. March's report is replayed from Northside's original file, so the replay changes one input, the code, and the diff has one cause.",
+    why: "The raw forms still have the box as the clinic ticked it, and each report's record names its files. March's report is replayed from Northside's original file, so the replay changes one input, the code, and the diff has one cause. The resubmission can then be applied as a second, separately attributed change.",
     wrong: { recount: "Nothing was replaced. March's report can be replayed from the very file it read.", nopast: "Every month's forms are kept, so every month can be replayed.", none: "The raw forms keep the follow-up box. Only the mapped table lost it." } },
   { key: "b", name: "World B", kept: "Kept only the mapped table. A form ticked “follow-up visit” and one ticked “new patient” both sit in it as new patient.", answer: "none",
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
@@ -68,7 +68,15 @@ const staleOpts: [string, string][] = [
 <section id="carry-it" class="ar-part">
   <PartHead id="carry-it">Carry it: same fix, three archives</PartHead>
   <p>The same rules work outside sports: keep the inputs before any code reads them, replay instead of fetching again, and let a fingerprint say what is stale.</p>
-  <p>Module 1's health network is back. Each clinic sends one file of visit forms a month. A mapping step reads each file into a table as it arrives, so every form received so far is mapped, and each monthly report is built from that table and records the content hash of every file it read. The mapping step stamps every record it writes with a fingerprint of its code. For six months the mapping step filed the form's “follow-up visit” box as “new patient”. In May, the Northside clinic resubmitted its March file with corrected forms, after March's report had been built. The fix is one line, the same in every world. Only what was kept differs.</p>
+  <p>Module 1's health network is back. Each clinic sends one file of visit forms a month, and a mapping step reads each file into a table as it arrives. For six months that step filed the form's “follow-up visit” box as “new patient”. The fix is one line, the same in every world.</p>
+  <p>One more event: in May, the Northside clinic resubmitted its March file with corrected forms, after March's report had been built.</p>
+  <p class="cv-qlabel">What every world records:</p>
+  <ul>
+    <li>Each monthly report records the content hash of every file it read.</li>
+    <li>Each mapped record carries the fingerprint of the mapping code that wrote it.</li>
+    <li>Every form received so far has been mapped.</li>
+  </ul>
+  <p>Only what was kept differs.</p>
   <div class="cv-twins">
     {worlds.map((w) => <div><h4>{w.name}</h4><p>{w.kept}</p></div>)}
   </div>
@@ -151,6 +159,7 @@ const staleOpts: [string, string][] = [
 </section>
 
 <style>
+  .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }

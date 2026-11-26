@@ -16,6 +16,7 @@ const n = spell(boxes);
 const fresh = spell(slots.stale.schedulesFresh);
 const fp = slots.stale.boxParser;
 const ot = scoreByPeriod.head.findIndex((h) => h === "OT");
+const ordinal = (k: number) => ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth"][k - 1] ?? `${k}th`;
 const dash = (s: string) => s.replace(/(\d)-(\d)/g, "$1–$2");
 const match = dash(slots.tell.match);
 const boxEntry = fridayManifest.pages.find((p) => p.fixture === proveIt.fixture)!;
@@ -58,7 +59,7 @@ const tell: [string, string][] = [
 
 <section id="prove-it" class="ar-part">
   <PartHead id="prove-it">Prove it: the bug found in March</PartHead>
-  <p>In March, a reader writes in. The match detail for {home.name}'s {published.home}–{published.away} win over {away.name}, the {round} on {date}, says {buggy.home}–{buggy.away}. Both schools' schedules say {published.home}–{published.away}.</p>
+  <p>Suppose that in March, a reader writes in. The match detail for {home.name}'s {published.home}–{published.away} win over {away.name}, the {round} on {date}, says {buggy.home}–{buggy.away}. Both schools' schedules say {published.home}–{published.away}.</p>
   <div class="ar-detail" role="img" aria-label={`The published match detail: ${home.name} ${buggy.home}, ${away.name} ${buggy.away}, full time, no overtime.`}>
     <p class="ar-detail-tag">Match detail, as published</p>
     <p class="ar-detail-score"><span>{home.name}</span><b>{buggy.home}–{buggy.away}</b><span>{away.name}</span></p>
@@ -75,14 +76,14 @@ const tell: [string, string][] = [
     </div>
     <div class="cv-scroll">
       <table class="cv-log ar-box">
-        <caption>Scoring summary, one goal</caption>
+        <caption>Scoring summary, one goal ({goal.abbr} is {goal.team})</caption>
         <thead><tr><th scope="col">Time</th><th scope="col">Team</th><th scope="col">Scorer</th><th scope="col">Play</th></tr></thead>
         <tbody><tr><td>{goal.time}</td><td>{goal.abbr}</td><td>{goal.scorer}</td><td>{goal.play}</td></tr></tbody>
       </table>
     </div>
   </div>
   <fieldset class="cv-choice" data-gate>
-    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Where did the fourth goal go?</legend>
+    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Where did the {ordinal(published.home)} goal go?</legend>
     {where.map(([v, t]) => <label><input type="radio" name="ar-prove-where" value={v} data-save="prove-where" /><span>{t}</span></label>)}
   </fieldset>
   <div class="ar-diag" data-when="prove-where" hidden>
@@ -91,8 +92,9 @@ const tell: [string, string][] = [
     <p class="ar-said" data-when="prove-where" data-is="site" hidden>The saved box score's F column says {published.home}–{published.away}, the same as the schedules.</p>
     <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column's total, the goal at {goal.time}, so it never reached the match detail.</p>
   </div>
-  <p>The parser is fixed in a minute. Now recover, using only what Cases 1 to 3 taught. Three facts you need:</p>
+  <p>The parser is fixed in a minute. Now recover, using only what Cases 1 to 3 taught. Four facts you need:</p>
   <ul>
+    <li>Each parsed box score records {fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is {fp.after}.</li>
     <li>The box-score parser is its own module, with its own fingerprint, separate from the schedule parser. The {fresh} parsed schedules carry the schedule parser's fingerprint, which the fix doesn't touch.</li>
     <li>The match detail is built from the parsed box score.</li>
     <li>The standings are built from the parsed schedules, which show this match as {cells}, and they count only regular-season conference matches.</li>
@@ -103,14 +105,14 @@ const tell: [string, string][] = [
     <Choice save="prove-replay" label="1. What do you replay, and from where?" options={replay} answer="all"
       why={`All ${n}, from their saved pages. Every box score went through the parser that changed, and Friday's captures already hold the right numbers. Fetching adds nothing and would replace those captures.`}
       wrong={{ one: `That is the match you know about. The parser that changed read all ${n}; guessing which it got wrong is the mistake Case 3 warned about.`, refetch: "The saved page already has the right numbers. A fetch brings back whatever the site shows now, and replaces Friday's capture.", allfetch: "The scope is right, but the saved pages are the evidence. A fetch replaces Friday's captures with whatever the sites show now." }} />
-    <Choice save="prove-stale" label={`2. Each parsed box score records ${fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is ${fp.after}. Which parsed files are stale, and what tells you?`} options={stale} answer="fp"
+    <Choice save="prove-stale" label="2. Which parsed files are stale, and what tells you?" options={stale} answer="fp"
       why={`All ${n} parsed box scores, because each records ${fp.before} and the parser is now ${fp.after}. The fingerprint decides, not a guess about what the bug touched. The ${fresh} parsed schedules record the schedule parser's fingerprint, which didn't change.`}
       wrong={{ ot: "The OT column says where the bug showed, not which files the old parser wrote. The fingerprint decides: every file this parser wrote is stale.", hash: "A changed page is one reason a parsed file goes stale. Changed code is the other, and that is this case.", all: "Each parser has its own fingerprint. The schedule parser's didn't change." }} />
     <Choice save="prove-republish" label="3. What do you republish?" options={republish} answer="detail"
       why={`The match detail only. It is the one product built from the box score. The standings are built from the schedules, which already show ${published.home}–${published.away}, and a ${round} is postseason, outside the regular-season standings.`}
       wrong={{ both: `The standings never used this box score: a ${round} is postseason, outside the regular-season standings, and the schedules had the right score.`, standings: "The standings were right. The wrong number is in the match detail.", nothing: "The schedules were right, but readers saw the match detail, and it was wrong." }} />
     <Choice radio save="prove-tell" label={`4. Each note begins “Correction: ${match}.” Which one do you publish?`} options={tell} answer="named"
-      why={`The third. With the match named first, it gives the wrong value readers saw, the real cause, and where the fix came from: the box score saved on ${savedOn}.`}
+      why={`It names the match, the wrong value readers saw, the real cause, and where the fix came from: the box score saved on ${savedOn}.`}
       wrong={{ site: `The box score saved on ${savedOn} says ${published.home}–${published.away}. Nothing shows the site ever posted ${buggy.home}–${buggy.away}.`, refetch: "Nothing was fetched. The note would misstate where the corrected number came from.", table: `The standings didn't change. A ${round} isn't in them.` }} />
     <Fragment slot="reveal">
       <p class="cv-rule">Replay every box score the fixed parser reads, fetch nothing, republish the one product that was wrong, and say what changed and why.</p>
@@ -123,6 +125,7 @@ const tell: [string, string][] = [
 </section>
 
 <style>
+  .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }

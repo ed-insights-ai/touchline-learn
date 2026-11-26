@@ -39,7 +39,7 @@ const draft: [string, string][] = [
 
 <section id="rewind" class="ar-part">
   <PartHead id="rewind">Rewind: Tuesday with a replay requirement</PartHead>
-  <p>In Module 1's Rewind, one added sentence gave Kick <strong>acceptance criteria</strong>: conditions its work had to meet before Riley would accept it. Tuesday's question asks for the right thing. It doesn't yet say what evidence Riley will accept.</p>
+  <p>In Module 1's Rewind, one added sentence gave Kick <strong>acceptance criteria</strong>: conditions its work had to meet before Riley would accept it. Riley's Tuesday question doesn't have any yet.</p>
   <p>The rebuild target is Monday's table, the one readers have, with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” where Tuesday's table says “{story.tuesdayName}”.</p>
   <div class="cv-user-prompt" role="region" aria-label="Riley's question on Tuesday">
     <div class="cv-chat-bar">
@@ -100,7 +100,7 @@ const draft: [string, string][] = [
         ))}
         <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
           options={draft} answer="counter"
-          why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test attempts, a name lookup and a direct connection, then counted no network attempt during the replay."
+          why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then counted no network attempt during the replay."
           wrong={{ reads: "A replay reads saved pages from disk. A request goes over the network, and the point is that there were none.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
         <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
       </Check>
@@ -111,6 +111,7 @@ const draft: [string, string][] = [
 </section>
 
 <style>
+  .ar-part :global(.cv-line select) { width: 100%; max-width: 30rem; }
   .ar-part :global(fieldset.cv-line > label) { display: flex; flex-wrap: nowrap; align-items: flex-start; margin-right: 0; }
   .ar-part :global(fieldset.cv-line > label > span) { flex: 1 1 0; min-width: 0; }
   .ar-part :global(fieldset.cv-line > label > input) { flex: none; margin-top: 0.3rem; }
