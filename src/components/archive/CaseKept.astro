@@ -51,8 +51,8 @@ const sidecarFields: [string, string, string][] = [
   ["final_url", sidecar.final_url, "Where the site answered from after any redirects. Here it matches the request; Module 3 asks what that proves."],
   ["fetched_at", sidecar.fetched_at, "When the bytes arrived, which places the page in time: Friday's capture, not Tuesday's."],
   ["status", String(sidecar.status), `What the site's server said. ${sidecar.status} means it answered with a page.`],
-  ["etag", sidecar.etag, "A tag the site gave this version of the page. Module 1's conditional requests send it back to ask whether the page has changed."],
-  ["sha256", `${sidecar.sha256.slice(0, 16)}…`, "A hash of the saved bytes. Recompute it later, and a match shows the file is the one that arrived."],
+  ["etag", sidecar.etag, "A tag the site gave this version of the page. Sent back on a later request, it asks the site whether the page has changed."],
+  ["sha256", `${sidecar.sha256.slice(0, 16)}…`, "The page's content hash: a hash of the saved bytes. Recompute it later, and a match shows the file is the one that arrived."],
 ];
 
 ---
@@ -62,7 +62,7 @@ const sidecarFields: [string, string, string][] = [
   <p>The replay worked because Kick kept Friday's pages. “Kept the pages” can mean several different files, though, and only some of them can check a fix.</p>
 
   <div class="cv-define">
-    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step. Every copy written after that step holds the damaged value. Unless such a copy also kept the original, a fix can be checked only against a copy saved before the step that did the damage.</p>
+    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step. Every copy written after that step holds the damaged value. Unless such a copy also kept the original, a fix can be verified only against a copy saved before the step that did the damage.</p>
   </div>
   <p>The film showed “State Lambert” on the published table, but Kick wrote the tidy rule inside the parser. So the parsed rows already carry the bug, and only the page bytes are clean. Had the rule run only when the table was published, the parsed rows would have been enough.</p>
   <figure class="ar-layers">
@@ -106,7 +106,7 @@ const sidecarFields: [string, string, string][] = [
 
   <div class="cv-check ar-kgrid" data-once="kept-grid">
     <p class="cv-kind">Knowledge check</p>
-    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. For each archive, does it alone still hold what the site published for that value, so you can rerun the fixed step and check the result? Use only what the excerpts show.</p>
+    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. For each archive, does it alone still hold what the site published for that value, so you can rerun the fixed step and verify the result? Use only what the excerpts show.</p>
     <div class="ar-kg" role="group" aria-label="Bugs against archives">
       <p class="ar-kg-head" aria-hidden="true"><span>Bug</span>{KEPT.map((k) => <span>{label(k)}</span>)}</p>
       {grid.map((bug, i) => (

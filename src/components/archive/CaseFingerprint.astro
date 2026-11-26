@@ -22,7 +22,7 @@ const harbor = byId["refetch-harbor"].watch!.name;
 const sat0 = saturday[0];
 const sat = `${sat0.home_score}-${sat0.away_score}`;
 const scene: Record<string, string> = {
-  "fix-rule": "The parsed schedules were written by Tuesday's parser.",
+  "fix-rule": "The parsed schedules were written by the parser with the old tidy rule.",
   comment: "One comment line in the fixed parser. The parser behaves exactly as before.",
   alias: "A config edit. The parser's code is untouched.",
   nothing: "Same code, same config, same saved pages.",
@@ -74,10 +74,10 @@ const [nRefetch, nLive] = [nOf("refetch-harbor"), nOf("live-changed")];
 
   <p>Kick would not have had to work out where a name comes from. A fingerprint flags every parsed schedule written by different code, wherever the name appears.</p>
   <div class="cv-define">
-    <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even the parts this parser doesn't read, so it errs toward rebuilding. Change any of it, even one character in a comment, and the fingerprint changes, barring a hash collision too rare to plan for.</p>
+    <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even the parts this parser doesn't read, so it errs toward rebuilding. Change any byte of those files and the fingerprint changes, barring a hash collision too rare to plan for.</p>
     <p class="cv-formula"><span>fingerprint</span> = hash(<span>parser module</span>, page reader, alias list, membership list, season)</p>
   </div>
-  <p>A <strong>content hash</strong> does the same for a saved page: a hash of its bytes, kept in its sidecar. The fingerprint tracks the code; the content hash tracks the page. Each parsed schedule records both, from the run that wrote it. The rule is short:</p>
+  <p>The <strong>content hash</strong> from Part 4's sidecar does the same for a saved page: a hash of its bytes. The fingerprint tracks the code; the content hash tracks the page. Each parsed schedule records both, from the run that wrote it. The rule is short:</p>
   <p class="ar-rule">A parsed schedule is <b>stale</b> when its recorded fingerprint differs from the current one, or its recorded content hash differs from the saved page's content hash now.</p>
   <p>Here is the rule at work on Kick's fix, the first of six changes below. On Tuesday, all {spell(files)} parsed schedules recorded the old parser's fingerprint, <code>{fingerprints.v1}</code>. The fixed parser's is <code>{fingerprints.v2}</code>. All {spell(lambertFiles.filter((f) => f.rebuilt).length)} are stale, the {spell(kickPartial.pagesSkipped)} Kick skipped among them, and nobody had to guess which ones the bug touched.</p>
 
@@ -107,7 +107,6 @@ const [nRefetch, nLive] = [nOf("refetch-harbor"), nOf("live-changed")];
     <div class="cv-reveal">
       <p>Run each change on the bench and read each parsed schedule's two hashes. Changes {nRefetch} and {nLive} are the pair to compare.</p>
       <ReplayBench mode="presets" id="ar-bench-presets" />
-      <p>Code and config changes re-read saved pages and fetch nothing. Only change {nRefetch} fetches, at the cost of Friday's copy of {harbor}'s page, and change {nLive} is the blind spot no hash can see.</p>
     </div>
   </div>
 
