@@ -8,7 +8,7 @@ type Lane = { name: string; who: string; write: boolean; back: string; cells: Ce
 const stages = ["Pages", "Code", "Table", "Archive afterwards"];
 const lanes: Lane[] = [
   {
-    name: "Replay", who: "Riley's ask", write: false, back: "read only: nothing is written back to the archive",
+    name: "Replay", who: "Riley's ask", write: false, back: "read only: the raw archive is unchanged",
     cells: [
       { kind: "raw", tag: "same", title: "Friday's pages", sub: "read, never changed" },
       { kind: "code", tag: "changed", title: "Fixed parser", sub: "same config" },
@@ -21,7 +21,7 @@ const lanes: Lane[] = [
     cells: [
       { kind: "fresh", tag: "new capture", title: "Tuesday's pages", sub: `${tuesdayManifest.requested} sites, asked again` },
       { kind: "code", tag: "changed", title: "Fixed parser", sub: "same config" },
-      { kind: "derived", title: "New table", sub: "two inputs changed" },
+      { kind: "derived", title: "New table", sub: "new pages, new code" },
       { kind: "lost", title: "Friday's pages", sub: "would be replaced" },
     ],
   },
@@ -102,7 +102,7 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table, which Fri
       </g>
     ))}
     <line class="ar-split" x1={2} x2={narrowW - 2} y1={ny(3) - 4} y2={ny(3) - 4} />
-    <text class="ar-col ar-col-n" x={narrowW / 2} y={ny(3) + 8} text-anchor="middle">ARCHIVE AFTERWARDS</text>
+    <text class="ar-col ar-row-n" x={nbox(0, 3).x} y={nbox(0, 3).y - 4}>ARCHIVE AFTERWARDS</text>
     {lanes.map((lane, l) => lane.cells.map((c, i) => {
       const { x, w, y } = nbox(l, i);
       return (
@@ -121,11 +121,11 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table, which Fri
       );
     }))}
     {lanes.map((lane, l) => {
-      const p = nbox(l, 0), a = nbox(l, 3), xr = p.x + p.w + 4, ym = (b: { y: number }) => b.y + N.bh / 2;
+      const p = nbox(l, 0), a = nbox(l, 3), xr = p.x + p.w + 8, ym = (b: { y: number }) => b.y + N.bh / 2;
       return (
         <g>
-          {lane.write && <path class="ar-write" d={`M${xr - 4} ${ym(p)} H${xr} V${ym(a)} H${xr - 2}`} marker-end="url(#ar-ah-nr)" />}
-          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "pages would be overwritten" : "raw archive unchanged"}</text>
+          {lane.write && <path class="ar-write" d={`M${p.x + p.w} ${ym(p)} H${xr} V${ym(a)} H${a.x + a.w + 1}`} marker-end="url(#ar-ah-nr)" />}
+          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "raw archive would change" : "raw archive unchanged"}</text>
         </g>
       );
     })}

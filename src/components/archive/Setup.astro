@@ -14,7 +14,7 @@ const monday = `${story.monday.scored} of ${story.monday.finished}`;
 const shownName = (slug: string) => tableA.rows.find((r) => r.slug === slug)?.name ?? slug;
 const day = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 const gaps = tableA.gaps.map((g) => g.kind === "no-score"
-  ? { label: "Missing score", text: `${shownName(g.home)} v ${shownName(g.away)} on ${day(g.date)} finished with no score.` }
+  ? { label: "Missing score", text: `${shownName(g.home)} v ${shownName(g.away)} on ${day(g.date)} was marked Final, with no score published.` }
   : { label: "Page unavailable", text: `${shownName(g.programme)}: ${g.reason}.` });
 
 const mondayShown = (slug: string) => shownName(slug).replace(story.tuesdayName, story.mondayName);
@@ -24,8 +24,8 @@ const silentSites = tableA.gaps.filter((g) => g.kind === "unavailable").length;
 
 const kickThoughts = [
   `Saint Lambert is right. The fix is one line in the parser: “St.” in front of a name means Saint.`,
-  "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule. Friday's pages are from before the weekend, though, and readers want the table as it stands now, so fresh pages are better.",
-  `Fresh pages help in other ways too. Dunmore didn't answer on Friday, so it's worth asking again, and if any site has posted a result since, the table picks that up as well. Re-fetching!`,
+  "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule.",
+  `Friday's pages are from before the weekend, and Dunmore didn't answer on Friday. Fresh pages would pick up any result posted since, and give Dunmore another chance. Re-fetching!`,
 ];
 
 const kickPlan = [
@@ -70,7 +70,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
 
   <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
   <p>Kick apologized, fixed the rule in a minute, and kept going. This is what Kick was thinking when it said “Re-fetching!”.</p>
-  <KickThink thoughts={kickThoughts} />
+  <KickThink duration="Thought for a moment" thoughts={kickThoughts} />
   <div class="cv-kplan ar-plan" role="region" aria-label="Kick's fix plan, stopped after the first step">
     <div class="cv-kplan-bar">
       <span class="cv-kplan-who">
@@ -91,7 +91,8 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       ))}
     </ol>
   </div>
-  <p>Every step sounds sensible. The film showed the rule on the published table. Kick actually wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before any table is built.</p>
+  <p>Every step sounds sensible.</p>
+  <p>The film showed the rule on the published table. Kick actually wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before any table is built.</p>
 
   <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
   <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>
@@ -102,7 +103,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     </div>
     <p class="cv-chat-text ar-clauses">{clauses.map((c, i) => <><span class="ar-clause"><sup aria-hidden="true">{i + 1}</sup>{c}</span>{i < clauses.length - 1 && " "}</>)}</p>
   </div>
-  <p>By “Friday's table”, Riley means the standings built from Friday's {spell(fridayPages.length)} saved schedule pages: Monday's {monday}, the numbers readers have had since Monday, now with the name spelled “{story.fixedName}”.</p>
+  <p>By “Friday's table”, Riley means the standings built from Friday's {spell(fridayPages.length)} saved schedule pages. That is Monday's table, {monday} finished matches, with the name now spelled “{story.fixedName}”.</p>
 
   <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
   <fieldset class="cv-choice" data-ar-lock>
@@ -145,7 +146,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       sync();
       setTimeout(() => row.parentElement?.querySelector<HTMLElement>(".ar-saved")?.focus());
     });
-    window.addEventListener("load", sync);
+    window.addEventListener("load", () => { sync(); row.dispatchEvent(new Event("rail:refresh", { bubbles: true })); });
     sync();
   });
 </script>
@@ -154,7 +155,6 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-previously { display: grid; gap: 0.9rem; align-items: center; margin: 0 0 1.25rem; }
   @media (min-width: 40rem) { .ar-previously { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.25rem; } }
   .ar-previously p { margin: 0 0 0.5rem; }
-  @media (max-width: 39.99rem) { .ar-poster { order: 2; max-width: 13rem; } }
   .ar-previously p:last-child { margin: 0; color: var(--sl-color-white); font-weight: 650; }
   .ar-poster { display: grid; gap: 0.35rem; color: var(--tl-muted); font-size: 0.82rem; text-decoration: none; }
   .ar-poster img { display: block; width: 100%; height: auto; border: 1px solid var(--tl-line); border-radius: 8px; }
