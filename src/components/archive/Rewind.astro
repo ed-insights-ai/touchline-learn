@@ -22,11 +22,11 @@ const short: [string, string][] = [["manifest", "1 · Friday's manifest"], ["req
 const label = Object.fromEntries(short);
 const lines = [
   { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: "The counter caught both test attempts, then recorded none during the replay." },
-  { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every saved page the manifest lists was replayed, and each matched the hash recorded on Friday." },
-  { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "It names the fixed parser and its config, and says what Tuesday's was." },
+  { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every schedule page the manifest lists as saved was replayed, and each matched the hash Friday recorded." },
+  { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "Half of it: the fixed parser and its config, beside Tuesday's. The build revision is the other half." },
   { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
-  { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
+  { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "The other half: the program that built the table, beside the parser's fingerprint." },
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
 const draft: [string, string][] = [
@@ -83,18 +83,17 @@ const draft: [string, string][] = [
           <span class="cv-agent-badge">Kick · Coding agent</span>
           <span class="cv-status-ok">{rewind.requests} requests · {rewind.cellsChanged} cell changed</span>
         </div>
-        <p class="ar-scroll-hint">Scroll sideways to read each line.</p>
-        <pre class="ar-report" tabindex="0" aria-label="Replay report, scrollable"><code>{rewind.lines.join("\n")}</code></pre>
+        <pre class="ar-report"><code>{rewind.lines.join("\n")}</code></pre>
       </div>
-      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the git blob hash of the program that built the table, so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code gives the same table.</p>
+      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the git blob hash of the program that built the table, so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code gives the same table.</p>
 
       <h4 class="cv-try">Check the report against the criteria</h4>
       <Check once="rewind-match" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
-        <p class="cv-qlabel">Which of Riley's criteria does each line meet?</p>
+        <p class="cv-qlabel">Which of Riley's criteria does each line support?</p>
         {lines.map((l, i) => (
           <div class="cv-line ar-match" data-q data-type="select" data-answer={l.answer} data-why={l.why}>
             <label class="cv-stack"><code>{l.text}</code>
-              <select data-save={`rewind-meets-${i}`} aria-label={`Criterion met by the line ${l.text}`}><option value="">Choose a criterion</option>{short.map(([v, t]) => <option value={v}>{t}</option>)}</select>
+              <select data-save={`rewind-meets-${i}`} aria-label={`Criterion supported by the line ${l.text}`}><option value="">Choose a criterion</option>{short.map(([v, t]) => <option value={v}>{t}</option>)}</select>
             </label>
             <p class="cv-fb" role="status"></p>
           </div>
@@ -121,8 +120,7 @@ const draft: [string, string][] = [
   .ar-criteria li { margin: 0.3rem 0; }
   .ar-report { margin: 0; padding: 0.85rem 1rem; overflow-x: auto; border: 0; border-radius: 0; background: var(--tl-bg); font-size: 0.74rem; line-height: 1.5; }
   .ar-report code { padding: 0; background: none; white-space: pre-wrap; }
-  .ar-scroll-hint { display: none; margin: 0; padding: 0.4rem 1rem 0; color: var(--tl-muted); font-size: 0.8rem; }
-  @media (max-width: 40rem) { .ar-report code { white-space: pre; } .ar-scroll-hint { display: block; } }
+  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } }
   .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
   .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }
 </style>

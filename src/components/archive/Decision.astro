@@ -72,9 +72,9 @@ const calls = [
     <p data-when={refetchPredict.key} hidden><span data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}></span></p>
     <p data-when={refetchPredict.key} data-is="" hidden>You skipped it. It is still there in Setup.</p>
   </div>
-  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had posted since Friday. If no site had posted or changed a result in St. Lambert's row, only the name would change. If one had, the numbers would move too. A replay has no such unknown: its pages are Friday's, byte for byte.</p>
+  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now, and nothing on screen said what the sites had posted since Friday. If no site had posted or changed a result since Friday, only the name would change. If one had, the numbers would move too. A replay has no such unknown: its pages are Friday's, byte for byte.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
-  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result in St. Lambert's row. One had.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That is what a re-fetch gives when no site has posted or changed a result since Friday. One had.</p>
 
   <p>Case 1 captured Tuesday's pages apart from the archive to see what the re-fetch would have read. On Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes the name and the numbers: {spell(lambert.columns.length)} cells of one row, for two different reasons.</p>
   <div class="cv-scroll">
@@ -108,7 +108,7 @@ const calls = [
     </div>
   </div>
 
-  <p>Suppose Riley hadn't stopped Kick, and Tuesday's re-fetch had gone into the archive: all {sites} sites asked again, {seven} pages saved, {down} still unavailable. For each question, which archive can still answer it?</p>
+  <p>Suppose Riley hadn't stopped Kick, and Tuesday's re-fetch had gone into the archive: all {sites} sites asked again, {seven} pages saved, {down} still unavailable. By then {spell(changed.length)} of the {seven} pages had changed since Friday, Harbor Point's among them, and {names(same)} had not. For each question, which archive can still answer it?</p>
   <Check once="decide-policies" kind="Prediction" note="Answer all three, then check.">
     {grid.map((q) => <Choice save={`decide-${q.key}`} label={q.label} options={who} answer={q.answer} why={q.why} wrong={q.wrong} />)}
     <Fragment slot="reveal">
@@ -145,7 +145,7 @@ const calls = [
   <AiCard part="decision" />
 
   <h3 id="decision-your-call">Your call: the league office</h3>
-  <p>The conference office publishes the standings every week. Until the season ends, a coach can dispute any week's table, and the office must then show the pages that table was built from. After the season, the office keeps one copy of each page for its records. Storage is tight.</p>
+  <p>The conference office publishes the standings every week. Until the season ends, a coach can dispute any week's table, and the office must then show the pages that table was built from. After the season, the office keeps one copy of each page for its records. Its storage can hold every capture of one season, but not of every season.</p>
   <Check once="decide-call" kind="Your call" note="Pick one policy, then check." button="Check answer">
     <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
       why="Every capture for the season. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, the older captures are only cost."
