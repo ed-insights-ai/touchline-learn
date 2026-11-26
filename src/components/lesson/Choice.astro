@@ -1,0 +1,29 @@
+---
+interface Props {
+  save: string;
+  label: string;
+  options: [value: string, text: string][];
+  answer: string;
+  why: string;
+  wrong?: Record<string, string>;
+  placeholder?: string;
+  radio?: boolean;
+}
+const { save, label, options, answer, why, wrong, placeholder = "Choose", radio = false } = Astro.props;
+const wrongs = wrong ? JSON.stringify(wrong) : undefined;
+---
+
+{radio ? (
+  <fieldset class="cv-line" data-q data-type="radio" data-answer={answer} data-why={why} data-wrong={wrongs}>
+    <legend>{label}</legend>
+    {options.map(([value, text]) => <label><input type="radio" name={save} value={value} data-save={save} /><span>{text}</span></label>)}
+    <p class="cv-fb" role="status"></p>
+  </fieldset>
+) : (
+  <div class="cv-line" data-q data-type="select" data-answer={answer} data-why={why} data-wrong={wrongs}>
+    <label class="cv-stack"><span>{label}</span>
+      <select data-save={save}><option value="">{placeholder}</option>{options.map(([value, text]) => <option value={value}>{text}</option>)}</select>
+    </label>
+    <p class="cv-fb" role="status"></p>
+  </div>
+)}

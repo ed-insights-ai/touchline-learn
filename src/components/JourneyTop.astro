@@ -1,9 +1,10 @@
 ---
 import { journeyModules } from "../data/journey";
+import { isLessonPage } from "../lib/lessons";
 
 const id = Astro.locals.starlightRoute.id.replace(/\.mdx?$/, "");
 const current = journeyModules.find((m) => `modules/${m.slug}` === id);
-const hasOwnFlow = current?.slug === "01-collection";
+const hasOwnFlow = isLessonPage(id);
 ---
 
 {current && (

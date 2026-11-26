@@ -1,8 +1,9 @@
 ---
-import { partAt } from "../../lib/parts";
+import { findPart } from "../../lib/lesson";
+import { lessonForRoute } from "../../lib/lessons";
 
 interface Props { id: string }
-const part = partAt(Astro.props.id);
+const part = findPart(lessonForRoute(Astro.locals.starlightRoute.id), Astro.props.id);
 ---
 
 <header class="cv-head">

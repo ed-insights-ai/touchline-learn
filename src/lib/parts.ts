@@ -1,13 +1,8 @@
-export type PhaseKey = "discover" | "investigate" | "decide" | "demonstrate";
+import { findPart, phases, type Lesson, type Outcome, type Part } from "./lesson";
 
-export const phases: { key: PhaseKey; name: string; what: string }[] = [
-  { key: "discover", name: "Discover", what: "the problem" },
-  { key: "investigate", name: "Investigate", what: "the evidence" },
-  { key: "decide", name: "Decide", what: "what to do" },
-  { key: "demonstrate", name: "Demonstrate", what: "that it transfers" },
-];
+export { phases, type PhaseKey } from "./lesson";
 
-export const parts: { id: string; phase: PhaseKey; name: string; short: string; what: string }[] = [
+export const parts: Part[] = [
   { id: "setup", phase: "discover", name: "Setup", short: "Setup", what: "One prompt, one Friday" },
   { id: "coverage", phase: "discover", name: "The idea: coverage", short: "The idea", what: "What was expected vs. what you have" },
   { id: "case-dunmore", phase: "investigate", name: "Case 1. Dunmore", short: "Case 1", what: "A count needs an expected set" },
@@ -19,16 +14,20 @@ export const parts: { id: string; phase: PhaseKey; name: string; short: string; 
   { id: "carry-it", phase: "demonstrate", name: "Carry it", short: "Carry it", what: "Same number, three worlds" },
 ];
 
-export const partAt = (id: string) => {
-  const n = parts.findIndex((p) => p.id === id);
-  if (n < 0) throw new Error(`Module 1 has no part called ${id}`);
-  const part = parts[n];
-  return { ...part, n: n + 1, of: parts.length, phaseName: phases.find((p) => p.key === part.phase)!.name, next: parts[n + 1] };
-};
-
-export const outcomes: { can: string; short: string; href: string; where: string }[] = [
+export const outcomes: Outcome[] = [
   { can: "Say what a collection should contain before it runs, from a source outside the run.", short: "Say what a collection should contain, before it runs", href: "#case-dunmore", where: "Case 1" },
   { can: "Trace one missing page to the block of records it takes with it, and bound how far a number could move.", short: "Trace a missing page to the records it takes, and bound the damage", href: "#case-hartwell", where: "Case 2" },
   { can: "Tell empty, unknown and never asked apart, and say what each lets you claim.", short: "Tell empty, unknown and never asked apart", href: "#case-cedar-grove", where: "Case 3" },
   { can: "Decide what a collector does when a page doesn't answer, and separate a run that succeeded from a table that is ready to publish.", short: "Separate a run that succeeded from a table ready to publish", href: "#decision", where: "The decision" },
 ];
+
+export const collection: Lesson = {
+  n: 1,
+  slug: "01-collection",
+  phases,
+  parts,
+  outcomes,
+  keys: { store: "touchline-m1-coverage", progress: "touchline-m1-progress", review: "touchline-m1-review" },
+};
+
+export const partAt = (id: string) => findPart(collection, id);

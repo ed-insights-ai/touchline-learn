@@ -1,0 +1,15 @@
+---
+import PartHead from "../coverage/PartHead.astro";
+import NextPart from "../coverage/NextPart.astro";
+import AiCard from "./AiCard.astro";
+import Draft from "./Draft.astro";
+import ReplayBench from "./ReplayBench.astro";
+---
+
+<section id="case-fingerprint">
+  <PartHead id="case-fingerprint">Case 3. Which outputs are stale</PartHead>
+  <Draft items={["Look: Kick's plan to re-parse only St. Lambert's page, and why it changes nothing.", "Teach: a fingerprint of the parser code and its config, beside the saved page's content hash.", "The fingerprint bench: six presets, predicting schedules rebuilt and pages fetched.", "Name it: cache invalidation and its asymmetry. What Touchline does."]} />
+  <ReplayBench mode="presets" />
+  <AiCard part="case-fingerprint" />
+  <NextPart from="case-fingerprint">What would Kick's re-fetch have cost?</NextPart>
+</section>

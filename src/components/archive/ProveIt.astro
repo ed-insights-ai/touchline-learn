@@ -1,0 +1,13 @@
+---
+import PartHead from "../coverage/PartHead.astro";
+import NextPart from "../coverage/NextPart.astro";
+import AiCard from "./AiCard.astro";
+import Draft from "./Draft.astro";
+---
+
+<section id="prove-it">
+  <PartHead id="prove-it">Prove it: the bug found in March</PartHead>
+  <Draft items={["The unseen case: Alder Ridge's overtime semifinal shown as 3–3 in the match detail.", "Two excerpts from the saved box score: the Score by Period table and the 101:44 goal.", "Four auto-graded slots: what to replay, what is stale, what to republish, what to tell readers.", "The contrast line for a system that kept only parsed rows."]} />
+  <AiCard part="prove-it" />
+  <NextPart from="prove-it">Does the same fix work in an archive that kept less?</NextPart>
+</section>

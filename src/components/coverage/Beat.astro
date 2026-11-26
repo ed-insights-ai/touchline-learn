@@ -1,5 +1,6 @@
 ---
-import { partAt } from "../../lib/parts";
+import { findPart } from "../../lib/lesson";
+import { lessonForRoute } from "../../lib/lessons";
 
 interface Props { part: string; name: "Look" | "Name it" | "What Touchline does" | "Your claim"; title: string }
 const { part, name, title } = Astro.props;
@@ -7,4 +8,4 @@ const slug = name.toLowerCase().replace(/[^a-z]+/g, "-");
 ---
 
 <p class="cv-beat" aria-hidden="true">{name}</p>
-<h3 class="cv-beat-title" id={`${part}-${slug}`} data-rail-name={name}><span class="sr-only">{partAt(part).short}, {name}: </span>{title}</h3>
+<h3 class="cv-beat-title" id={`${part}-${slug}`} data-rail-name={name}><span class="sr-only">{findPart(lessonForRoute(Astro.locals.starlightRoute.id), part).short}, {name}: </span>{title}</h3>

@@ -1,0 +1,44 @@
+---
+import CoverageStyles from "./coverage/Styles.astro";
+import CoverageRuntime from "./coverage/Runtime.astro";
+import Rail from "./coverage/Rail.astro";
+import JourneyTop from "./JourneyTop.astro";
+import Setup from "./archive/Setup.astro";
+import Idea from "./archive/Idea.astro";
+import CaseSaturday from "./archive/CaseSaturday.astro";
+import CaseKept from "./archive/CaseKept.astro";
+import CaseFingerprint from "./archive/CaseFingerprint.astro";
+import Decision from "./archive/Decision.astro";
+import Rewind from "./archive/Rewind.astro";
+import ProveIt from "./archive/ProveIt.astro";
+import CarryIt from "./archive/CarryIt.astro";
+import { archive, lead, outcomes } from "../lib/archive-parts";
+import "./FirstRunTable.astro";
+import "./CoverageGrid.astro";
+
+const { keys } = archive;
+---
+
+<CoverageRuntime />
+
+<div class="cv cv-core not-content" data-coverage data-store-key={keys.store} data-progress-key={keys.progress} data-review-key={keys.review}>
+  <JourneyTop />
+  <div class="cv-orient">
+    <p class="cv-lead">{lead}</p>
+    <p class="cv-eyebrow-sm">By the end you can</p>
+    <ol class="cv-goals">{outcomes.map((o) => <li><a href={o.href}><span>{o.where}</span>{o.short}</a></li>)}</ol>
+    <p class="cv-facts"><span><strong>New here?</strong> This module picks up where <a href="../01-collection/">Module 1</a> ends.</span></p>
+  </div>
+  <Rail />
+  <Setup />
+  <Idea />
+  <CaseSaturday />
+  <CaseKept />
+  <CaseFingerprint />
+  <Decision />
+  <Rewind />
+  <ProveIt />
+  <CarryIt />
+</div>
+
+<CoverageStyles />

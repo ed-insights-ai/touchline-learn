@@ -1,8 +1,10 @@
 ---
-import { partAt } from "../../lib/parts";
+import { findPart } from "../../lib/lesson";
+import { lessonForRoute } from "../../lib/lessons";
 
 interface Props { from: string }
-if (!partAt(Astro.props.from).next) throw new Error(`${Astro.props.from} is the last part of Module 1`);
+const lesson = lessonForRoute(Astro.locals.starlightRoute.id);
+if (!findPart(lesson, Astro.props.from).next) throw new Error(`${Astro.props.from} is the last part of Module ${lesson.n}`);
 ---
 
 <p class="cv-next">

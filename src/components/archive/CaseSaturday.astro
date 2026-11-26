@@ -1,0 +1,15 @@
+---
+import PartHead from "../coverage/PartHead.astro";
+import NextPart from "../coverage/NextPart.astro";
+import AiCard from "./AiCard.astro";
+import Draft from "./Draft.astro";
+import ReplayBench from "./ReplayBench.astro";
+---
+
+<section id="case-saturday">
+  <PartHead id="case-saturday">Case 1. Saturday's matches</PartHead>
+  <Draft items={["Look: Tuesday's table and the two fixtures dated Saturday 21 November, still scheduled on Friday's pages.", "A graded prediction: which rows change in the replay (table B) and the re-fetch (table C), and because of which input.", "The reveal in the replay bench, then Name it: confounding.", "What Touchline does, and Your claim: the honest changelog line for table B."]} />
+  <ReplayBench mode="tables" />
+  <AiCard part="case-saturday" />
+  <NextPart from="case-saturday">Could Kick have checked the fix from what it saved?</NextPart>
+</section>

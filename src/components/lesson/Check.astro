@@ -1,0 +1,19 @@
+---
+interface Props {
+  once: string;
+  kind?: string;
+  note: string;
+  button?: string;
+  predict?: string;
+}
+const { once, kind = "Knowledge check", note, button = "Check answers", predict } = Astro.props;
+---
+
+<div class="cv-check" data-once={once} data-predict={predict !== undefined ? "" : undefined} data-predict-note={predict || undefined}>
+  <p class="cv-kind">{kind}</p>
+  <slot />
+  <p class="cv-once">{note}</p>
+  <button type="button" data-submit>{button}</button>
+  <p class="cv-fb" role="status" data-need></p>
+  <div class="cv-reveal"><slot name="reveal" /></div>
+</div>

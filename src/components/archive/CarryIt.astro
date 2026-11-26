@@ -1,0 +1,23 @@
+---
+import PartHead from "../coverage/PartHead.astro";
+import AiCard from "./AiCard.astro";
+import Draft from "./Draft.astro";
+import FilmSlot from "../lesson/FilmSlot.astro";
+import { outcomes } from "../../lib/archive-parts";
+---
+
+<section id="carry-it">
+  <PartHead id="carry-it">Carry it: same fix, three archives</PartHead>
+  <Draft items={["Transfer: a clinic network's mapping bug, in three worlds with three archives.", "Recap of outcomes and the takeaway prompt.", "The handoff to Module 3: Cedar Grove's 2019 page."]} />
+  <h3 id="carry-it-recap">What you can now do</h3>
+  <ul class="cv-outcomes">
+    {outcomes.map((o) => <li>{o.can} <a href={o.href}>{o.where}</a></li>)}
+  </ul>
+  <p class="cv-done-note"><span data-progress-text></span> <a href="#setup" data-rail-resume="name" hidden></a></p>
+  <FilmSlot name="cedar-grove-2019" label="A short closing video for Module 2" caption="The 2019 page." />
+  <aside class="cv-next-card" aria-label="Next module">
+    <p class="cv-next-eyebrow">Up next · Module 3</p>
+    <a class="cv-next-cta" href="../03-provenance/">Continue to Module 3 →</a>
+  </aside>
+  <AiCard part="carry-it" />
+</section>

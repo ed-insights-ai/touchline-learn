@@ -1,17 +1,21 @@
 ---
-import { parts, phases } from "../../lib/parts";
+import { lessonForRoute, modulePageExists } from "../../lib/lessons";
+
+const { parts, phases, slug } = lessonForRoute(Astro.locals.starlightRoute.id);
+const first = parts[0];
+const fieldWork = `${slug}-field-work`;
 ---
 
 <nav class="cv-rail" aria-label="This module" data-rail>
   <div class="cv-rail-bar">
     <button type="button" class="cv-rail-toggle" aria-expanded="false" aria-controls="cv-rail-list" data-rail-toggle>
-      <span class="cv-rail-where"><i data-rail-phase></i><b data-rail-part>Setup</b><span data-rail-beat></span></span>
+      <span class="cv-rail-where"><i data-rail-phase></i><b data-rail-part>{first.name}</b><span data-rail-beat></span></span>
       <span class="cv-rail-segs" aria-hidden="true">{parts.map((p, i) => <i data-rail-seg={p.id} class:list={{ "is-gap": i > 0 && parts[i - 1].phase !== p.phase }}></i>)}</span>
       <span class="cv-rail-count" data-rail-count></span>
       <span class="cv-rail-chev" aria-hidden="true"></span>
       <span class="sr-only">Show all {parts.length} parts</span>
     </button>
-    <a class="cv-rail-resume" href="#setup" data-rail-resume hidden>Resume</a>
+    <a class="cv-rail-resume" href={`#${first.id}`} data-rail-resume hidden>Resume</a>
   </div>
   <div class="cv-rail-panel" id="cv-rail-list" data-rail-panel hidden>
     <p class="cv-rail-title">This module</p>
@@ -19,7 +23,7 @@ import { parts, phases } from "../../lib/parts";
       <p><b data-rail-parts-done>0 of {parts.length}</b> parts done<span data-rail-count-long></span></p>
       <span class="cv-rail-meter" aria-hidden="true"><i data-rail-meter></i></span>
     </div>
-    <p class="cv-rail-next"><span data-rail-next></span> <a href="#setup" data-rail-resume="name" hidden></a></p>
+    <p class="cv-rail-next"><span data-rail-next></span> <a href={`#${first.id}`} data-rail-resume="name" hidden></a></p>
     <ol class="cv-rail-phases">
       {phases.map((phase) => (
         <li>
@@ -35,7 +39,7 @@ import { parts, phases } from "../../lib/parts";
       ))}
     </ol>
     <div class="cv-rail-tools">
-      <a href="../01-collection-field-work/">Optional field work &amp; lab</a>
+      {modulePageExists(fieldWork) && <a href={`../${fieldWork}/`}>Optional field work &amp; lab</a>}
       <label><input type="checkbox" data-rail-review /><span>Review mode: show every explanation without answering first</span></label>
       <div data-reset-box>
         <button type="button" class="cv-link-btn" data-reset-ask>Reset my answers</button>
@@ -50,10 +54,10 @@ import { parts, phases } from "../../lib/parts";
 </nav>
 
 <script>
-  const PROGRESS = "touchline-m1-progress";
-  const REVIEW = "touchline-m1-review";
   document.querySelectorAll<HTMLElement>("[data-rail]").forEach((rail) => {
     const root = rail.closest<HTMLElement>("[data-coverage]")!;
+    const PROGRESS = root.dataset.progressKey ?? "touchline-m1-progress";
+    const REVIEW = root.dataset.reviewKey ?? "touchline-m1-review";
     const bar = rail.querySelector<HTMLElement>(".cv-rail-bar")!;
     const toggle = rail.querySelector<HTMLButtonElement>("[data-rail-toggle]")!;
     const panel = rail.querySelector<HTMLElement>("[data-rail-panel]")!;

@@ -1,25 +1,35 @@
 <script is:inline>document.documentElement.classList.add("il-js");</script>
 
 <script>
-  const KEY = "touchline-m1-coverage";
   type Pack = { members: string[]; played: number; points: number; host: number; scored: number; finals: number };
   const PACK = JSON.parse(document.querySelector<HTMLElement>("[data-coverage][data-pack]")?.dataset.pack ?? "null") as Pack | null;
   document.querySelectorAll<HTMLElement>("[data-coverage]").forEach((root) => {
+    const KEY = root.dataset.storeKey ?? "touchline-m1-coverage";
+    const PROGRESS = root.dataset.progressKey ?? "touchline-m1-progress";
     let store: Record<string, string> = {};
     let canSave = true;
     try { store = JSON.parse(localStorage.getItem(KEY) ?? "{}"); } catch { canSave = false; }
     const put = (key: string, value: string) => {
       try { store = { ...JSON.parse(localStorage.getItem(KEY) ?? "{}"), [key]: value }; } catch { store[key] = value; }
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch { canSave = false; }
+      root.dispatchEvent(new CustomEvent("lesson:answer", { detail: { key, value } }));
     };
     type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
     const fields = [...root.querySelectorAll<Field>("[data-save]")];
     const isBox = (f: Field): f is HTMLInputElement => f instanceof HTMLInputElement && (f.type === "checkbox" || f.type === "radio");
     const valueOf = (f: Field) => f instanceof HTMLInputElement && f.type === "checkbox" ? (f.checked ? "1" : "") : f.value;
 
-    const showBack = () => root.querySelectorAll<HTMLElement>("[data-show]").forEach((el) => {
-      el.textContent = store[el.dataset.show!]?.trim() || "nothing yet";
-    });
+    const showBack = () => {
+      root.querySelectorAll<HTMLElement>("[data-show]").forEach((el) => {
+        const value = store[el.dataset.show!]?.trim() ?? "";
+        const labels = el.dataset.showLabels ? (JSON.parse(el.dataset.showLabels) as Record<string, string>) : {};
+        el.textContent = Object.hasOwn(labels, value) ? labels[value] : value || "nothing yet";
+      });
+      root.querySelectorAll<HTMLElement>("[data-when]").forEach((el) => {
+        const value = store[el.dataset.when!]?.trim() ?? "";
+        el.hidden = el.dataset.is === undefined ? !value : !el.dataset.is.split("|").includes(value);
+      });
+    };
 
     const commitState = (box: HTMLElement) => {
       const areas = [...box.querySelectorAll<HTMLTextAreaElement>("textarea")];
@@ -188,7 +198,7 @@
           const fb = q.querySelector<HTMLElement>(".cv-fb")!;
           delete fb.dataset.reviewFb;
           fb.classList.remove("is-right", "is-wrong");
-          if (predict) { fb.textContent = "Prediction recorded. It isn't graded: the simulator shows what happened."; return; }
+          if (predict) { fb.textContent = box.dataset.predictNote ?? "Prediction recorded. It isn't graded: the simulator shows what happened."; return; }
           fb.classList.add(ok ? "is-right" : "is-wrong");
           const picked = q.querySelector<HTMLSelectElement>("select")?.value ?? q.querySelector<HTMLInputElement>("input[type=radio]:checked")?.value ?? "";
           const hint = !ok && q.dataset.wrong ? (JSON.parse(q.dataset.wrong) as Record<string, string>)[picked] ?? "" : "";
@@ -277,7 +287,7 @@
     });
 
     root.querySelector<HTMLButtonElement>("[data-reset]")?.addEventListener("click", () => {
-      try { localStorage.removeItem(KEY); localStorage.removeItem("touchline-m1-progress"); } catch {}
+      try { localStorage.removeItem(KEY); localStorage.removeItem(PROGRESS); } catch {}
       history.scrollRestoration = "manual";
       scrollTo(0, 0);
       location.reload();

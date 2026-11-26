@@ -1,13 +1,14 @@
 ---
 import Default from "@astrojs/starlight/components/MarkdownContent.astro";
 import { journeyModules } from "../data/journey";
+import { isLessonPage } from "../lib/lessons";
 import JourneyTop from "./JourneyTop.astro";
 
 const id = Astro.locals.starlightRoute.id.replace(/\.mdx?$/, "");
 const index = journeyModules.findIndex((m) => `modules/${m.slug}` === id);
 const current = index >= 0 ? journeyModules[index] : undefined;
 const next = index >= 0 ? journeyModules[index + 1] : undefined;
-const hasOwnFlow = current?.slug === "01-collection";
+const hasOwnFlow = isLessonPage(id);
 ---
 
 {current && !hasOwnFlow && <JourneyTop />}

@@ -1,0 +1,13 @@
+---
+import PartHead from "../coverage/PartHead.astro";
+import NextPart from "../coverage/NextPart.astro";
+import AiCard from "./AiCard.astro";
+import Draft from "./Draft.astro";
+---
+
+<section id="rewind">
+  <PartHead id="rewind">Rewind: Tuesday with a replay requirement</PartHead>
+  <Draft items={["Riley's ask with acceptance criteria added: a capture manifest, zero network requests, the parser fingerprint, an explained diff.", "Write one criterion of your own and compare it with Riley's.", "Kick's replay report, from real lab output, with the build revision beside the fingerprint.", "Match each report line to the criterion it meets."]} />
+  <AiCard part="rewind" />
+  <NextPart from="rewind">Would the same rules work on a bug found months later?</NextPart>
+</section>

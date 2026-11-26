@@ -1,0 +1,19 @@
+---
+import PartHead from "../coverage/PartHead.astro";
+import NextPart from "../coverage/NextPart.astro";
+import AiCard from "./AiCard.astro";
+import Draft from "./Draft.astro";
+import { labelsOf, refetchPredict } from "../../lib/archive-state";
+---
+
+<section id="decision">
+  <PartHead id="decision">The decision: what a re-fetch would have cost</PartHead>
+  <Draft items={["Your Setup prediction returned and resolved with Case 1's diff.", "Two archive policies, latest only and every capture, and what each can rebuild.", "A graded prediction: which of three questions each policy can still answer after Tuesday's re-fetch.", "Your call: a league office's archive policy, one fixed scenario with three options."]} />
+  <div class="cv-say cv-yours">
+    <p class="cv-who">Your prediction from Setup</p>
+    <p data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}>nothing yet</p>
+    <p data-when={refetchPredict.key} data-is="" hidden>You skipped it. It is still there in Setup.</p>
+  </div>
+  <AiCard part="decision" />
+  <NextPart from="decision">What would Riley need to see to accept a rebuild?</NextPart>
+</section>
