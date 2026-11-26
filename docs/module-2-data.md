@@ -161,6 +161,13 @@ holds for it after the run.
 | `refetch-harbor` | 1 | 1 | unchanged | `replacesFridayCapture` and `fridayEvidenceLost` true (content hash changed); `watch.liveDiffersFromArchive` false |
 | `live-changed` | 0 | 0 | unchanged | `watch.liveDiffersFromArchive` true: the change is invisible without a fetch |
 
+### The replay bench and Case 2's fourth bug
+
+| Export | What it is | Value now |
+|---|---|---|
+| `presetFiles` | For each preset id, the seven parsed schedules (`PresetFile`: slug, name, recorded and current fingerprint, recorded and current page hash, the live page's hash, `fetched`, `rebuilt`), from the same staleness model. Hashes are 12 hex. The build checks each preset's rebuilt files against its count. | `refetch-harbor`: Harbor Point fetched and rebuilt; `live-changed`: Harbor Point's live hash differs, nothing rebuilt |
+| `case2Draws` | A fourth Case 2 bug in the build step: a draw scored two points. Cedar Grove's points for the three Case 2 rows, replaying the fixed rule over each archive, with bug 3 still in archive (a). | truth 3; points a 4, b 3, c 3; answers a no, b yes, c yes |
+
 ### Part 6: two archive policies
 
 `policies.latest` and `policies.every` simulate Tuesday's re-fetch of every

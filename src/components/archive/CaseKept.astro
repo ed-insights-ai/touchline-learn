@@ -1,13 +1,247 @@
 ---
 import PartHead from "../coverage/PartHead.astro";
+import Beat from "../coverage/Beat.astro";
+import Touchline from "../coverage/Touchline.astro";
 import NextPart from "../coverage/NextPart.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
+import { case2, case2Draws, proveIt, rewind, story, type Kept } from "../../lib/archive";
+
+const { archives, grid, pattern } = case2;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const day = (date: string) => `${Number(date.slice(8, 10))} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
+const awayRow = case2.rows.find((r) => r.fixture === grid.find((b) => b.id === "side")!.fixture)!;
+const blankRow = case2.rows.find((r) => r.fixture === grid.find((b) => b.id === "blank")!.fixture)!;
+const KEPT: Kept[] = ["a", "b", "c"];
+const what: Record<Kept, string> = {
+  a: "Kick's parser read each page and saved only the rows it produced.",
+  b: "Kick's saver cleaned each page before writing it: scripts, ids and classes stripped, whitespace collapsed, names spelled out by the tidy rule. The visible cell text stays.",
+  c: "Kick saved each page's bytes exactly as they arrived, before any code read them, with a small record beside it.",
+};
+const reasons: Record<string, Record<Kept, [boolean, string]>> = {
+  name: {
+    a: [false, "No. It holds “State Lambert”. The rule ran before the row was written."],
+    b: [false, "No. The saver ran the tidy rule too, so it also says “State Lambert”."],
+    c: [true, `Yes. The bytes say “${story.mondayName}”, as the site published it.`],
+  },
+  side: {
+    a: [false, `No. Every row says Cedar Grove is at home, so the away match on ${day(awayRow.date)} looks like a home match.`],
+    b: [true, "Yes. The visible “at” cell survives tidying."],
+    c: [true, "Yes. The “at” cell is there, as published."],
+  },
+  blank: {
+    a: [false, "No. It holds 0-0, and a real 0-0 would look exactly the same."],
+    b: [true, "Yes. The bare “Final” cell survives tidying."],
+    c: [true, "Yes. “Final” with no score, as published."],
+  },
+};
+grid.forEach((bug) => KEPT.forEach((k) => {
+  if (reasons[bug.id]?.[k]?.[0] !== bug.answers[k]) throw new Error(`Case 2's reason for ${bug.id}/${k} disagrees with archive.ts`);
+}));
+const drawReasons: Record<Kept, [boolean, string]> = {
+  a: [false, `No. Replaying the fixed rule over (a) gives ${case2Draws.points.a} points, because bug 3's 0-0 now counts as a draw nobody saw. The true total is ${case2Draws.truth}.`],
+  b: [true, `Yes. “Final” is not a score, so the fixed rule gives ${case2Draws.points.b} points, the true total.`],
+  c: [true, `Yes. The fixed rule over the bytes gives ${case2Draws.points.c} points.`],
+};
+KEPT.forEach((k) => { if (drawReasons[k][0] !== case2Draws.answers[k]) throw new Error(`Case 2's draw reason for ${k} disagrees with archive.ts`); });
+const yn: [string, string][] = [["yes", "Yes"], ["no", "No"]];
+const label = (k: Kept) => `(${k}) ${archives[k].label.replace(/, with a sidecar$/, "")}`;
+const sidecar = archives.c.sidecar;
+const sidecarFields: [string, string, string][] = [
+  ["requested_url", sidecar.requested_url, "The address Kick asked for, so the request can be repeated or questioned."],
+  ["final_url", sidecar.final_url, "The address the site answered from after any redirects. Here it matches the request. Whether that proves the page is the one asked for is Module 3's question."],
+  ["fetched_at", sidecar.fetched_at, "When the bytes arrived, which places the page in time: Friday's capture, not Tuesday's."],
+  ["status", String(sidecar.status), "What the site's server said about the request. 200 means it answered with a page."],
+  ["sha256", `${sidecar.sha256.slice(0, 16)}…`, "A hash of the saved bytes. Recompute it later, and a match shows the file is the one that arrived."],
+];
+
 ---
 
 <section id="case-kept">
   <PartHead id="case-kept">Case 2. What Kick kept: raw or already cooked</PartHead>
-  <Draft items={["Teach first: replay from the last layer before the damage.", "Look: three archives Kick could have written, as excerpts of the same Cedar Grove rows.", "The graded grid: three bugs against three archives.", "Name it: raw versus derived, and the sidecar fields. What Touchline does."]} />
+  <p>The replay worked because Kick kept Friday's pages. “Kept the pages” can mean several different files, though, and only some of them can check a fix.</p>
+
+  <div class="cv-define">
+    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step. Every copy written after that step already carries it, so a fix can be verified only against a copy saved before the step that did the damage.</p>
+  </div>
+  <p>The film showed “State Lambert” on the published table, but Kick wrote the tidy rule inside the parser. So the parsed rows already carry the bug, and only the page bytes are clean. Had the rule run only when the table was published, the parsed rows would have been enough.</p>
+  <figure class="ar-layers">
+    {[
+      { title: "Where Kick put the rule", hit: 0 },
+      { title: "If the rule had run only when the table was built", hit: 1 },
+    ].map((lane) => (
+      <div class="ar-lane">
+        <p class="ar-lane-title">{lane.title}</p>
+        <ol>
+          {["Page bytes", "Parsed rows", "Table"].map((layer, i) => (
+            <>
+              {i > 0 && <li class:list={["ar-step", { "is-hit": i - 1 === lane.hit }]}>{i === 1 ? "parse" : "build"}{i - 1 === lane.hit && <b> + tidy rule</b>}</li>}
+              <li class:list={["ar-layer", { "is-dirty": i > lane.hit, "is-from": i === lane.hit }]}>
+                <span>{layer}</span>
+                <small>{i > lane.hit ? "carries the bug" : i === lane.hit ? "replay from here" : "clean"}</small>
+              </li>
+            </>
+          ))}
+        </ol>
+      </div>
+    ))}
+    <figcaption>The same bug, put in two different steps. The last clean layer is the one a replay starts from.</figcaption>
+  </figure>
+
+  <Beat part="case-kept" name="Look" title="Three archives Kick could have written" />
+  <p>Here are the same three rows of Cedar Grove's Friday schedule, as each archive would hold them.</p>
+  <div class="ar-kept">
+    {KEPT.map((k) => (
+      <div class="ar-arch">
+        <p class="ar-arch-head"><b>{label(k)}</b></p>
+        <p class="ar-arch-what">{what[k]}</p>
+        <ol class="ar-rows" aria-label={`Archive ${k}, three rows`}>{archives[k].rows.map((r) => <li><code>{r}</code></li>)}</ol>
+        {k === "a" && <p class="ar-arch-note">{archives.a.note}</p>}
+        {k === "c" && (
+          <pre class="ar-side" aria-label="The sidecar saved beside the page"><code>{JSON.stringify(sidecar, null, 1)}</code></pre>
+        )}
+      </div>
+    ))}
+  </div>
+
+  <div class="cv-check ar-kgrid" data-once="kept-grid">
+    <p class="cv-kind">Knowledge check</p>
+    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. For each archive, can you verify the corrected value from that archive alone, using only what the excerpts show?</p>
+    <div class="ar-kg" role="group" aria-label="Bugs against archives">
+      <p class="ar-kg-head" aria-hidden="true"><span>Bug</span>{KEPT.map((k) => <span>{label(k)}</span>)}</p>
+      {grid.map((bug, i) => (
+        <div class="ar-kg-row">
+          <p class="ar-kg-bug"><b>{i + 1}.</b> {bug.label}.</p>
+          {KEPT.map((k) => (
+            <fieldset class="ar-seg" data-q data-type="radio" data-answer={bug.answers[k] ? "yes" : "no"} data-why={reasons[bug.id][k][1]}>
+              <legend><span class="ar-seg-k" aria-hidden="true">{label(k)}</span><span class="sr-only">Bug {i + 1} from archive {k}</span></legend>
+              <div class="ar-seg-opts">
+                {yn.map(([v, t]) => <label><input type="radio" name={`ar-kept-${bug.id}-${k}`} value={v} data-save={`kept-${bug.id}-${k}`} /><span>{t}</span></label>)}
+              </div>
+              <p class="cv-fb" role="status"></p>
+            </fieldset>
+          ))}
+        </div>
+      ))}
+    </div>
+    <p class="cv-once">Answer all nine, then check.</p>
+    <button type="button" data-submit>Check answers</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal">
+      <ol class="ar-pattern" aria-label="How many of the three bugs each archive can verify">
+        {KEPT.map((k) => <li class:list={{ "is-full": pattern[k] === grid.length }}><b>{pattern[k]} of {grid.length}</b><span>{label(k)}</span></li>)}
+      </ol>
+      <p>The parsed rows can verify none of the three. Each bug happened in the step that wrote them. The tidied HTML can verify the two bugs that came after it, but not the one it made itself. Only the bytes as received hold every original value.</p>
+      <p>The {day(blankRow.date)} row links a box score. Could its score settle bug 3? Bug 3 is about what the schedule page published, and that page says “Final” with no score. Kick's Friday run saved box scores only for {proveIt.slots.replay.school}, so that one isn't in any of the three archives.</p>
+    </div>
+  </div>
+
+  <Beat part="case-kept" name="Name it" title="Raw, derived, and a loss that runs one way" />
+  <p class="cv-lede">Saving after a transformation saves a derived copy, however raw it looks.</p>
+  <p>Archive (b) is still HTML, so it looks raw. It isn't. The tidy step is code, and its bugs are written into every file it saved. Part 2's definitions decide it: raw data is the bytes as received, saved before any code reads them, and everything else is derived.</p>
+  <p>The loss runs one way. Once a bare “Final” is stored as 0-0, nothing in that row can say it was ever blank, because a real 0-0 looks the same. Once the vs/at cell is dropped, the row alone can't say where the match was played. A reverse rule might guess that “State Lambert” was once “St. Lambert”, but a guess is not verified. Only the bytes say what the site published.</p>
+  <p>A raw copy also answers questions nobody has asked yet. Kick saved {rewind.boxScoresSaved} box scores on Friday that no parser has read for discipline. Module 4 will want them.</p>
+
+  <p>The record beside archive (c) is a <strong>sidecar</strong>: a small file saved with each page that says how and when it was fetched. Each field earns its place.</p>
+  <dl class="ar-fields">
+    {sidecarFields.map(([k, , s]) => <div><dt><code>{k}</code></dt><dd>{s}</dd></div>)}
+  </dl>
+
+  <Touchline part="case-kept" at={["Archive"]} note="Archive writes the bytes and a sidecar before anything parses them." title="Page bytes plus a sidecar">
+    <p>Touchline saves each page's bytes as received, with a sidecar beside it. Box scores are stored next to the schedule that linked them, named by fixture id. The sidecar also records the page's coverage state from Module 1, so the archive says what was missing as well as what arrived.</p>
+  </Touchline>
+
   <AiCard part="case-kept" />
-  <NextPart from="case-kept">The parser is fixed. Which saved pages need parsing again?</NextPart>
+  <div class="cv-check ar-kgrid" data-once="kept-draws">
+    <p class="cv-kind">One more bug</p>
+    <p class="cv-qlabel">4. {case2Draws.label}. The bug is in the build, after all three archives were written. Bug 3 is still in archive (a). Which archives can give Cedar Grove's correct points for these three rows when you replay the fixed rule?</p>
+    <div class="ar-kg ar-kg-one" role="group" aria-label="Bug 4 against archives">
+      <div class="ar-kg-row">
+        {KEPT.map((k) => (
+          <fieldset class="ar-seg" data-q data-type="radio" data-answer={case2Draws.answers[k] ? "yes" : "no"} data-why={drawReasons[k][1]}>
+            <legend><span class="ar-seg-k">{label(k)}</span></legend>
+            <div class="ar-seg-opts">
+              {yn.map(([v, t]) => <label><input type="radio" name={`ar-kept-draws-${k}`} value={v} data-save={`kept-draws-${k}`} /><span>{t}</span></label>)}
+            </div>
+            <p class="cv-fb" role="status"></p>
+          </fieldset>
+        ))}
+      </div>
+    </div>
+    <p class="cv-once">Answer all three, then check.</p>
+    <button type="button" data-submit>Check answers</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one. Damage stacks, which is why the bytes as received are the copy that is before every step.</p></div>
+  </div>
+  <NextPart from="case-kept">The bytes are kept and the parser is fixed. Which parsed files are now out of date?</NextPart>
 </section>
+
+<style>
+  .ar-layers { display: grid; gap: 0.7rem; margin: 0 0 1.25rem; padding: 0.9rem 1rem; border: 1px solid var(--tl-line); border-radius: 8px; }
+  .ar-lane-title { margin: 0 0 0.35rem; color: var(--sl-color-white); font-size: 0.92rem; font-weight: 700; }
+  .ar-lane ol { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .ar-lane li { margin: 0; }
+  .ar-layer { display: grid; gap: 0.05rem; padding: 0.45rem 0.6rem; border: 1px solid var(--tl-line); border-radius: 4px; background: var(--tl-card); }
+  .ar-layer span { font-weight: 700; }
+  .ar-layer small { color: var(--tl-muted); font-size: 0.78rem; }
+  .ar-layer.is-from { border: 2px solid var(--sl-color-accent); }
+  .ar-layer.is-from small { color: var(--sl-color-white); font-weight: 700; }
+  .ar-layer.is-dirty { border-color: var(--sl-color-red); background: repeating-linear-gradient(135deg, var(--sl-color-red-low) 0 6px, transparent 6px 12px); }
+  .ar-layer.is-dirty small { color: var(--sl-color-red-high); }
+  .ar-step { color: var(--tl-muted); font-size: 0.8rem; text-align: center; }
+  .ar-step::after { content: " →"; }
+  .ar-step.is-hit b { display: block; color: var(--sl-color-red-high); }
+  .ar-layers figcaption { color: var(--tl-muted); font-size: 0.85rem; }
+
+  .ar-kept { display: grid; gap: 0.7rem; margin: 0 0 1.25rem; }
+  .ar-arch { min-width: 0; padding: 0.7rem 0.85rem; border: 1px solid var(--tl-line); border-radius: 4px; background: var(--tl-card); }
+  .ar-arch p { margin: 0 0 0.35rem; }
+  .ar-arch-what, .ar-arch-note { color: var(--tl-muted); font-size: 0.88rem; }
+  .ar-arch-note { margin: 0.4rem 0 0 !important; font-style: italic; }
+  .ar-rows { display: grid; gap: 0.3rem; margin: 0; padding: 0; list-style: none; }
+  .ar-rows li { margin: 0; }
+  .ar-rows code { display: block; padding: 0.35rem 0.55rem; border-radius: 3px; background: var(--sl-color-bg); font-size: 0.76rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ar-arch pre { margin: 0; padding: 0.45rem 0.6rem; white-space: pre-wrap; overflow-wrap: anywhere; border: 0; border-radius: 3px; background: var(--sl-color-bg); font-size: 0.76rem; line-height: 1.55; }
+  .ar-arch pre.ar-side { margin-top: 0.4rem; }
+  .ar-arch pre:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+
+  .ar-kg { display: grid; gap: 0.35rem; margin: 0.6rem 0 0.8rem; }
+  .ar-kg-head, .ar-kg-row { display: grid; grid-template-columns: minmax(10rem, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 0.6rem; align-items: start; margin: 0; }
+  .ar-kg-one .ar-kg-row { grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 0; }
+  .ar-kg-head { color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; }
+  .ar-kg-row { padding: 0.45rem 0; border-top: 1px solid var(--tl-line); }
+  .ar-kg-bug { margin: 0; font-size: 0.92rem; line-height: 1.4; }
+  .ar-seg { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .ar-seg legend { padding: 0; }
+  .ar-seg-k { display: none; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; }
+  .ar-kg-one .ar-seg-k { display: block; margin-bottom: 0.15rem; }
+  .ar-seg-opts { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--tl-muted); border-radius: 4px; overflow: hidden; }
+  .ar-seg-opts label { position: relative; display: grid; place-items: center; min-height: 40px; margin: 0; border-left: 1px solid var(--tl-line); cursor: pointer; font-size: 0.88rem; }
+  .ar-seg-opts label:first-child { border-left: 0; }
+  .ar-seg-opts input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .ar-seg-opts label:has(input:checked) { background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; }
+  .ar-seg-opts label:has(input:focus-visible) { outline: 3px solid var(--sl-color-white); outline-offset: -3px; }
+  .ar-seg-opts label:has(input:disabled) { cursor: default; }
+  .ar-seg :global(.cv-fb) { margin: 0.25rem 0 0; font-size: 0.82rem; line-height: 1.35; }
+  .ar-seg :global(.cv-fb:empty) { display: none; }
+
+  .ar-pattern { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.4rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+  .ar-pattern li { display: grid; margin: 0; padding: 0.5rem 0.7rem; border: 1px solid var(--tl-line); background: var(--tl-card); }
+  .ar-pattern b { color: var(--sl-color-white); font-size: 1.25rem; }
+  .ar-pattern span { color: var(--tl-muted); font-size: 0.82rem; }
+  .ar-pattern .is-full { border-color: var(--sl-color-accent); }
+
+  .ar-fields { display: grid; gap: 0.45rem; margin: 0 0 1.25rem; }
+  .ar-fields div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 0.2rem 1rem; padding: 0.45rem 0; border-top: 1px solid var(--tl-line); }
+  .ar-fields dt { display: grid; min-width: 0; margin: 0; font-weight: 700; }
+  .ar-fields dd { margin: 0; }
+
+  @media (max-width: 40rem) {
+    .ar-lane ol { grid-template-columns: 1fr; }
+    .ar-step::after { content: " ↓"; }
+    .ar-kg-head { display: none; }
+    .ar-kg-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.3rem 0.4rem; }
+    .ar-kg-bug { grid-column: 1 / -1; }
+    .ar-seg-k { display: block; margin-bottom: 0.15rem; }
+    .ar-fields div { grid-template-columns: 1fr; }
+  }
+</style>

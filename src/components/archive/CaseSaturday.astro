@@ -1,15 +1,186 @@
 ---
 import PartHead from "../coverage/PartHead.astro";
+import Beat from "../coverage/Beat.astro";
+import Touchline from "../coverage/Touchline.astro";
 import NextPart from "../coverage/NextPart.astro";
+import Check from "../lesson/Check.astro";
+import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
 import ReplayBench from "./ReplayBench.astro";
+import { championship, diffAB, diffAC, fridayPages, rawRows, rowChanges, saturday, stBrendanNote, story, tableA, tableC } from "../../lib/archive";
+
+type Input = "same" | "code" | "pages" | "both";
+const segments: [Input, string][] = [["same", "Same"], ["code", "Code"], ["pages", "Pages"], ["both", "Both"]];
+const num = (id: string) => id.split(":").pop()!;
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const longDay = (date: string) => `${WEEKDAYS[new Date(`${date}T12:00:00Z`).getUTCDay()]} ${Number(date.slice(8, 10))} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
+const saturdayName = longDay(saturday[0].date);
+const fixedName = story.fixedName;
+const rowOf = (slug: string) => tableA.rows.find((r) => r.slug === slug)!;
+const fixtures = saturday.map((s) => {
+  const pages = fridayPages.filter((p) => rawRows(p.html).some((r) => r.fixture === num(s.fixture)));
+  const home = pages.find((p) => p.slug === s.home) ?? pages[0];
+  return { ...s, n: num(s.fixture), line: rawRows(home.html).find((r) => r.fixture === num(s.fixture))!.line.trim(), from: home.slug === s.home ? s.homeName : s.awayName };
+});
+if (fixtures.some((f) => rawRows(fridayPages.find((p) => p.slug === f.home)?.html ?? "").find((r) => r.fixture === f.n)?.result)) throw new Error("A Saturday match has a result on Friday's pages");
+const unsaved = saturday.flatMap((s) => [s.home, s.away]).filter((slug) => !fridayPages.some((p) => p.slug === slug));
+
+const answerOf = (k: "B" | "C", slug: string): Input => rowChanges[k].find((r) => r.slug === slug)?.input ?? "same";
+const opponent = (slug: string) => {
+  const s = saturday.find((x) => x.home === slug || x.away === slug);
+  return s ? { s, mine: s.home === slug ? s.home_score : s.away_score, theirs: s.home === slug ? s.away_score : s.home_score, other: s.home === slug ? s.awayName : s.homeName } : null;
+};
+const why = (k: "B" | "C", slug: string, name: string) => {
+  const a = answerOf(k, slug);
+  const o = opponent(slug);
+  const result = o ? `${o.mine}-${o.theirs} ${o.mine > o.theirs ? "win over" : o.mine === o.theirs ? "draw with" : "loss to"} ${o.other}` : "";
+  if (a === "same") return k === "B" ? "Same: no “St.” in this name." : `Same: no match on ${saturdayName}.`;
+  if (a === "code") return `Code: the fixed rule shows “${fixedName}”.`;
+  if (a === "both") return `Both: the rule renames it, and the pages add a ${result}.`;
+  return unsaved.includes(slug) ? `Pages: its site still doesn't answer, but ${o!.other}'s page shows the result, a ${o!.mine}-${o!.theirs} ${o!.mine > o!.theirs ? "win" : o!.mine === o!.theirs ? "draw" : "loss"}.` : `Pages: Tuesday's pages add a ${result}.`;
+};
+const lambertC = rowChanges.C.find((r) => r.slug === "st-lambert")!;
+const ptsCell = diffAC.find((c) => c.slug === "st-lambert" && c.column === "pts")!;
+
+const claims: [string, string][] = [
+  ["replay", `Fixed the tidy rule that showed “St.” as “State”. Rebuilt from Friday's saved pages with no new requests. One cell changed: ${fixedName}'s name. Every number and both named gaps are as before.`],
+  ["current", `Fixed ${fixedName}'s name and brought the table up to date: ${story.refetch.scored} of ${story.refetch.finished} finished matches.`],
+  ["checked", `Fixed the tidy rule. ${fixedName}'s row is now correct, and every row was checked against the schools' sites.`],
+  ["none", "Re-ran the parser with a fix. No changes to the standings."],
+];
+const compare: [string, string][] = [["code", "Only the code or method changed"], ["data", "Only the data changed"], ["both", "Both changed together, so their effects are confounded"]];
 ---
 
 <section id="case-saturday">
   <PartHead id="case-saturday">Case 1. Saturday's matches</PartHead>
-  <Draft items={["Look: Tuesday's table and the two fixtures dated Saturday 21 November, still scheduled on Friday's pages.", "A graded prediction: which rows change in the replay (table B) and the re-fetch (table C), and because of which input.", "The reveal in the replay bench, then Name it: confounding.", "What Touchline does, and Your claim: the honest changelog line for table B."]} />
-  <ReplayBench mode="tables" />
+  <p>Kick's plan fixes the rule and re-fetches every site. Riley's ask fixes the rule and replays Friday's pages. Both end in a table that says “{fixedName}”. This case asks what else each one changes.</p>
+
+  <Beat part="case-saturday" name="Look" title="Two matches Friday's pages never finished" />
+  <p>Friday's run saved its pages on Friday. The next day, {saturdayName}, two conference matches were played. On Friday's saved pages both are still scheduled, and each result cell is empty.</p>
+  <ul class="ar-fixtures">
+    {fixtures.map((f) => (
+      <li>
+        <p class="ar-fx-head"><b>{f.homeName} v {f.awayName}</b><span>{saturdayName} · fixture {f.n}</span></p>
+        <p class="ar-fx-src">From {f.from}'s saved page. The last two cells, result and box score, are empty.</p>
+        <code class="ar-fx-row">{f.line}</code>
+      </li>
+    ))}
+  </ul>
+  <ReplayBench mode="tables" id="ar-bench-a" choices={["A"]} note="Tuesday's table, built from Friday's pages with the old tidy rule. This is table A." />
+
+  <p>Before you predict, three facts, so the prediction has one right answer:</p>
+  <ol class="ar-facts">
+    <li>By Tuesday, the sites had posted both of {saturdayName}'s results. {unsaved.length > 0 && <>{unsaved.map((s) => rowOf(s).name).join(" and ")}'s site still doesn't answer.</>}</li>
+    <li>Those two results are the only changes on the sites that reach the standings. Sunday's championship, {championship.homeName} v {championship.awayName}, was posted too, but it is not a regular season conference match, so the build leaves it out, as Module 1's did.</li>
+    <li>The fixed tidy rule changes how names are shown and nothing else.</li>
+  </ol>
+
+  <div class="cv-check ar-predict" data-once="sat-rows">
+    <p class="cv-kind">Predict, then check</p>
+    <p class="cv-qlabel">For each row of table A, what happens in the replay (B: Friday's pages, fixed rule) and in the re-fetch (C: Tuesday's pages, fixed rule)? Pick Same if the row doesn't change. Otherwise pick the input that changes it: the code, the pages, or both.</p>
+    <div class="ar-grid" role="group" aria-label="Your prediction, row by row">
+      <p class="ar-grid-head" aria-hidden="true"><span>Team in table A</span><span>B. Replay</span><span>C. Re-fetch</span></p>
+      {tableA.rows.map((r) => (
+        <div class="ar-grid-row">
+          <p class="ar-grid-team">{r.name}</p>
+          {(["B", "C"] as const).map((k) => (
+            <fieldset class="ar-seg" data-q data-type="radio" data-answer={answerOf(k, r.slug)} data-why={why(k, r.slug, r.name)}>
+              <legend><span class="ar-seg-k" aria-hidden="true">{k === "B" ? "Replay" : "Re-fetch"}</span><span class="sr-only">{r.name} in table {k}, {k === "B" ? "the replay" : "the re-fetch"}</span></legend>
+              <div class="ar-seg-opts">
+                {segments.map(([v, label]) => <label><input type="radio" name={`ar-sat-${k}-${r.slug}`} value={v} data-save={`sat-${k.toLowerCase()}-${r.slug}`} /><span>{label}</span></label>)}
+              </div>
+              <p class="cv-fb" role="status"></p>
+            </fieldset>
+          ))}
+        </div>
+      ))}
+    </div>
+    <p class="cv-once">Pick one for every row in both columns, then check.</p>
+    <button type="button" data-submit>Check my prediction</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal">
+      <p>Now see all three tables. Pick B, then C. Every changed cell shows Tuesday's value struck through.</p>
+      <ReplayBench mode="tables" id="ar-bench-abc" start="B" />
+      <p><b>A to B changes {diffAB.length} cell</b>: {fixedName}'s name. Every number, every place and both named gaps stay exactly as Monday published them. That is what a fix to a display rule should do, and the replay shows it did nothing more.</p>
+      <p><b>A to C changes {diffAC.length} cells in {rowChanges.C.length} rows.</b> {fixedName}'s name changes for the same reason, and Saturday's two results add a match to each of four teams. The caption moves from {tableA.caption} to {tableC.caption}. The expected set said {story.expected} all along, as in Module 1; two more of them have now finished. Dunmore's row moves although its site still doesn't answer, because {fixtures.find((f) => unsaved.includes(f.away) || unsaved.includes(f.home))?.homeName}'s page shows the result: Module 1's visitors' pages at work.</p>
+      <p class="ar-exact">One exact line: the parsed rows change in more places than the table. “{stBrendanNote.opponent}”, a non-member opponent on {stBrendanNote.pages.length} schedules, stops being “{stBrendanNote.before}” and becomes “{stBrendanNote.after}”. It never reaches the conference table, so no cell shows it.</p>
+    </div>
+  </div>
+
+  <Beat part="case-saturday" name="Name it" title="Confounding, on real tables" />
+  <p class="cv-lede">Table C changed two inputs at once, so its differences can't be pinned on either one.</p>
+  <p>Look at {fixedName}'s row in C. Its name changed and its points went from {ptsCell.before} to {ptsCell.after}. You know Saturday's result explains the points only because this page told you so. Kick, looking at A and C alone, could not tell. If the fixed rule had broken something, say by attaching a result to the wrong team, that damage would sit among Saturday's real changes and read as news. Part 2 named this: the effects of the code and the pages are <strong>confounded</strong>.</p>
+  <p>Table B holds the pages fixed and changes only the code, so every difference it shows has one cause. Its single changed cell is the fix's whole effect, which is exactly the evidence Riley asked for. The bench sorted C's {diffAC.length} cells by input the same way: it built one more table, Tuesday's pages with the old rule, and compared each against one change at a time.</p>
+  <p>A re-fetch isn't wrong. It answers a different question: what do the sites say now? Ask the two questions one at a time. Replay first and read a diff that shows only the fix. Fetch later, on purpose, and read a diff that shows only the new results.</p>
+
   <AiCard part="case-saturday" />
-  <NextPart from="case-saturday">Could Kick have checked the fix from what it saved?</NextPart>
+  <Check once="sat-confound" note="Answer both, then check.">
+    <Choice radio save="sat-confound-weather" label="A weather team fixes a rounding bug in its averaging script and reruns it on last month's saved station readings. The monthly average moves. What explains the difference?" options={compare} answer="code" why="Only the code changed. The readings were saved, so the script is the only input that differs, and the move is the fix's effect." wrong={{ data: "The readings are last month's saved ones, the same as before.", both: "One input changed. The saved readings held the data fixed, like table B." }} />
+    <Choice radio save="sat-confound-survey" label="A survey team updates its cleaning script and, in the same run, downloads the latest responses from its vendor. The average score moves. What explains the difference?" options={compare} answer="both" why="Both changed together, like table C. New responses and new cleaning arrived in one run, so the move can't be split between them. Rerunning the new script on the old export would separate them." wrong={{ code: "The responses were downloaded again, so the data changed too.", data: "The cleaning script changed as well." }} />
+    <p slot="reveal">The test is the same each time: list every input the result depends on, then count how many changed between the two runs.</p>
+  </Check>
+
+  <Touchline part="case-saturday" at={["Archive", "Parse"]} note="Parse re-reads what Archive kept." title="A parser change never fetches">
+    <p>In Touchline a change to a parser re-reads the archived bytes. It never sends a request. Fetching is a separate act, run on purpose, and it records what it got. Keeping the two apart means each change to a published table has one cause: new code over the same pages, or new pages through the same code.</p>
+  </Touchline>
+
+  <Beat part="case-saturday" name="Your claim" title="The changelog line for table B" />
+  <div class="cv-check" data-once="sat-claim">
+    <p class="cv-kind">Apply it</p>
+    <fieldset class="cv-opts" data-q data-type="radio" data-answer="replay"
+      data-why="The first. It names the cause, the inputs held fixed, the requests made and every changed cell, and each of those is something the replay can show."
+      data-wrong={JSON.stringify({
+        current: `That line describes table C. A reader can't tell which of its ${diffAC.length} changed cells came from the fix and which from Saturday.`,
+        checked: "A replay asks no site, so nothing was checked against the sites. The line claims evidence the rebuild doesn't have.",
+        none: `${fixedName}'s name is a change to the published table. A changelog that leaves it out tells readers nothing happened.`,
+      })}>
+      <legend>Riley publishes table B. Which line belongs in the table's changelog?</legend>
+      {claims.map(([v, text]) => <label><input type="radio" name="ar-sat-claim" value={v} data-save="sat-claim" /><span>{text}</span></label>)}
+      <p class="cv-fb" role="status"></p>
+    </fieldset>
+    <p class="cv-once">Pick one, then check.</p>
+    <button type="button" data-submit>Check answer</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>Each part of that line comes from the replay: the input that changed, the pages held fixed, zero requests, and a diff of {diffAB.length} cell. Rewind asks Kick to prove each part.</p></div>
+  </div>
+  <NextPart from="case-saturday">The replay worked because Kick kept Friday's pages. Would any saved copy have done?</NextPart>
 </section>
+
+<style>
+  .ar-fixtures { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 0.6rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .ar-fixtures li { display: grid; gap: 0.3rem; min-width: 0; margin: 0; padding: 0.7rem 0.85rem; border: 1px solid var(--tl-line); border-left: 3px solid var(--sl-color-orange); border-radius: 4px; background: var(--tl-card); }
+  .ar-fixtures p { margin: 0; }
+  .ar-fx-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 0.8rem; }
+  .ar-fx-head span, .ar-fx-src { color: var(--tl-muted); font-size: 0.85rem; }
+  .ar-fx-row { display: block; padding: 0.35rem 0.5rem; border-radius: 3px; background: var(--sl-color-bg); font-size: 0.78rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ar-facts { margin: 0 0 1rem; }
+  .ar-facts li { margin: 0.25rem 0; }
+
+  .ar-grid { display: grid; gap: 0.35rem; margin: 0.6rem 0 0.8rem; }
+  .ar-grid-head, .ar-grid-row { display: grid; grid-template-columns: minmax(8rem, 1fr) minmax(0, 1.55fr) minmax(0, 1.55fr); gap: 0.6rem; align-items: start; margin: 0; }
+  .ar-grid-head { color: var(--tl-muted); font-size: 0.82rem; font-weight: 700; }
+  .ar-grid-row { padding: 0.35rem 0; border-top: 1px solid var(--tl-line); }
+  .ar-grid-team { margin: 0; padding-top: 0.45rem; font-weight: 600; }
+  .ar-seg { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .ar-seg legend { padding: 0; }
+  .ar-seg-k { display: none; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; }
+  .ar-seg-opts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--tl-muted); border-radius: 4px; overflow: hidden; }
+  .ar-seg-opts label { position: relative; display: grid; place-items: center; min-height: 40px; margin: 0; border-left: 1px solid var(--tl-line); cursor: pointer; font-size: 0.86rem; }
+  .ar-seg-opts label:first-child { border-left: 0; }
+  .ar-seg-opts input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+  .ar-seg-opts label:has(input:checked) { background: var(--sl-color-accent); color: var(--sl-color-black); font-weight: 700; }
+  .ar-seg-opts label:has(input:focus-visible) { outline: 3px solid var(--sl-color-white); outline-offset: -3px; }
+  .ar-seg-opts label:has(input:disabled) { cursor: default; }
+  .ar-seg :global(.cv-fb) { margin: 0.25rem 0 0; font-size: 0.82rem; line-height: 1.35; }
+  .ar-seg :global(.cv-fb:empty) { display: none; }
+  .ar-exact { color: var(--tl-muted); font-size: 0.92rem; }
+
+  @media (max-width: 40rem) {
+    .ar-grid-head { display: none; }
+    .ar-grid-row { grid-template-columns: 1fr 1fr; gap: 0.3rem 0.5rem; }
+    .ar-grid-team { grid-column: 1 / -1; padding-top: 0.2rem; }
+    .ar-seg-k { display: block; margin-bottom: 0.15rem; }
+    .ar-seg-opts label { font-size: 0.8rem; }
+  }
+</style>

@@ -571,3 +571,45 @@ check(fridayPages.every((p) => changedLines(p.slug) === (p.slug in weekendCells 
 check(fridayPages.every((p) => { const a = rawRows(p.html); const b = rawRows(tuesdayOf(p.slug).html); return a.every((r, i) => r.result === b[i].result || (r.result === "" && b[i].line === r.line.replace("<td></td><td></td></tr>", `<td>${b[i].result}</td><td></td></tr>`))); }), "a Tuesday row changes anything but its result cell");
 check(["b", "c"].every((k) => archives[k as "b" | "c"].rows[0].includes("<td>Final</td>")) && archives.b.rows[1].includes("<td>at</td>") && !archives.a.excerpt.includes("Final"), "Case 2's tidied and raw rows no longer keep Final and at");
 check(policies.unchangedSinceFriday.map((x) => x.slug).sort().join() === "brightwater-state,cedar-grove", "the unchanged pages are not Brightwater State and Cedar Grove");
+
+// ---------------------------------------------------------------- the replay bench and Case 2's fourth bug
+
+const presetFetches: Record<string, string[]> = { "refetch-harbor": ["harbor-point"] };
+export type PresetFile = {
+  slug: string; name: string; storedFingerprint: string; nowFingerprint: string;
+  storedContent: string; nowContent: string; liveContent: string; fetched: boolean; rebuilt: boolean;
+};
+/** Each preset's seven parsed schedules: what each recorded, what the run sees now, and whether it is rebuilt. Hashes are 12 hex. */
+export const presetFiles: Record<string, PresetFile[]> = Object.fromEntries(presets.map((p) => {
+  const fetch = presetFetches[p.id] ?? [];
+  check(fetch.length === p.fetched, `preset ${p.id} fetches a page the bench does not know`);
+  const saved = savedFriday();
+  fetch.forEach((slug) => saved.set(slug, liveTuesday.get(slug)!));
+  const files = upToDate(p.fingerprintBefore).map((f): PresetFile => ({
+    slug: f.slug, name: programmes[f.slug].name, storedFingerprint: f.fingerprint, nowFingerprint: p.fingerprintAfter,
+    storedContent: f.content.slice(0, 12), nowContent: saved.get(f.slug)!.slice(0, 12), liveContent: liveTuesday.get(f.slug)!.slice(0, 12),
+    fetched: fetch.includes(f.slug), rebuilt: f.fingerprint !== p.fingerprintAfter || f.content !== saved.get(f.slug),
+  }));
+  check(files.filter((f) => f.rebuilt).length === p.rebuilt, `the bench's files for ${p.id} disagree with its rebuilt count`);
+  return [p.id, files];
+}));
+
+const resultOf = (cell: string) => (cell === "Final" ? null : score(cell) ?? fail(`unreadable result ${cell}`));
+const pointsFor = (results: (readonly [number, number] | null)[]) => results.reduce((n, s) => n + (!s ? 0 : s[0] > s[1] ? 3 : s[0] === s[1] ? 1 : 0), 0);
+const resultsKept: Record<Kept, (row: string) => readonly [number, number] | null> = {
+  a: (row) => { const r = JSON.parse(row); return [r.home_score, r.away_score] as const; },
+  b: (row) => resultOf(row.match(/<td>([WLT] \d+-\d+|Final)<\/td>/)?.[1] ?? fail("a tidied row has no result cell")),
+  c: (row) => resultOf(row.match(/<td>([WLT] \d+-\d+|Final)<\/td>/)?.[1] ?? fail("a raw row has no result cell")),
+};
+const drawTruth = pointsFor(CASE2.map((r) => resultOf(r.result)));
+const drawPoints = Object.fromEntries(KEPT.map((k) => [k, pointsFor(archives[k].rows.map(resultsKept[k]))])) as Record<Kept, number>;
+/** Case 2's fourth bug, a build step bug: replaying the fixed scoring rule over each archive's three rows, with bug 3 still in archive (a). */
+export const case2Draws = {
+  id: "draws" as const,
+  label: "The build scored a draw as two points, not one",
+  truth: drawTruth,
+  points: drawPoints,
+  answers: Object.fromEntries(KEPT.map((k) => [k, drawPoints[k] === drawTruth])) as Record<Kept, boolean>,
+};
+check(drawTruth === 3 && drawPoints.a === 4 && !case2Draws.answers.a && case2Draws.answers.b && case2Draws.answers.c, "Case 2's draw bug no longer gives Cedar Grove 3 points from (b) and (c) and 4 from (a)");
+check(Object.values(presetFiles).every((files) => files.length === fridayPages.length) && presetFiles["live-changed"].some((f) => f.liveContent !== f.nowContent && !f.fetched), "the bench's preset files no longer show the unseen live change");

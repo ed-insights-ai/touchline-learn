@@ -1,15 +1,146 @@
 ---
 import PartHead from "../coverage/PartHead.astro";
+import Beat from "../coverage/Beat.astro";
+import Touchline from "../coverage/Touchline.astro";
 import NextPart from "../coverage/NextPart.astro";
+import KickThink from "../coverage/KickThink.astro";
+import Check from "../lesson/Check.astro";
+import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
 import ReplayBench from "./ReplayBench.astro";
+import { spell } from "../../lib/cases";
+import { fingerprints, fridayPages, kickPartial, presets, presetFiles, stBrendanNote, story, tableKick } from "../../lib/archive";
+
+const files = presets[0].files;
+const lambertPage = fridayPages.find((p) => p.slug === "st-lambert")!;
+const title = (lambertPage.html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "").replaceAll("&#x27;", "'");
+if (!title.includes(story.mondayName)) throw new Error("St. Lambert's page title no longer names the school");
+const kickName = tableKick.rows.find((r) => r.slug === "st-lambert")!.name;
+const skipped = kickPartial.pagesNamingItAsOpponent.map((p) => p.name);
+const byId = Object.fromEntries(presets.map((p) => [p.id, p]));
+const harbor = byId["refetch-harbor"].watch!.name;
+const scene: Record<string, string> = {
+  "fix-rule": "The parsed files were written by Tuesday's parser.",
+  comment: "One comment line in the fixed parser. No code changes.",
+  alias: "A config edit. The parser's code is untouched.",
+  nothing: "Same code, same config, same saved pages.",
+  "refetch-harbor": "Same code. Its site has posted Saturday's result since Friday.",
+  "live-changed": "Its site has posted Saturday's result since Friday. Nothing is fetched.",
+};
+const because: Record<string, string> = {
+  "fix-rule": "The parser module changed, so every file's recorded fingerprint is out of date. A fingerprint change re-reads saved pages; it never fetches.",
+  comment: "The fingerprint hashes the whole module, comments included. The output won't change, and the rebuild is safe and cheap.",
+  alias: "The alias list is config, and config is part of the fingerprint, though no code changed.",
+  nothing: "Every recorded fingerprint and page hash still matches.",
+  "refetch-harbor": `The fetch replaced ${harbor}'s saved page, so that file's page hash changed and only it is stale. The archive keeps the latest capture only, so Friday's copy is gone.`,
+  "live-changed": "Nothing the run can see has changed. A replay reads saved pages, and only a fetch can see the live site.",
+};
+for (const p of presets) if (!scene[p.id] || !because[p.id]) throw new Error(`Case 3 has no text for preset ${p.id}`);
+const optionsOf: [string, string][] = presets.map((p, i) => [p.id, `${i + 1}. ${p.label}`]);
+const lambertFiles = presetFiles["fix-rule"];
+const nOf = (id: string) => presets.findIndex((p) => p.id === id) + 1;
+const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf("live-changed")];
+const lastCode = Math.max(nOf("fix-rule"), nComment, nOf("alias"));
 ---
 
 <section id="case-fingerprint">
   <PartHead id="case-fingerprint">Case 3. Which outputs are stale</PartHead>
-  <Draft items={["Look: Kick's plan to re-parse only St. Lambert's page, and why it changes nothing.", "Teach: a fingerprint of the parser code and its config, beside the saved page's content hash.", "The fingerprint bench: six presets, predicting schedules rebuilt and pages fetched.", "Name it: cache invalidation and its asymmetry. What Touchline does."]} />
-  <ReplayBench mode="presets" />
+  <p>Kick has the fixed parser and Friday's saved pages. Before replaying, it has to decide which of the {spell(files)} parsed schedules to rebuild.</p>
+
+  <Beat part="case-fingerprint" name="Look" title="Kick's careful plan" />
+  <KickThink duration="Thought for 4s" thoughts={[
+    `The bug is about ${story.fixedName}. Only one school's name was wrong.`,
+    `So I'll re-parse only ${story.mondayName}'s page with the fixed rule and leave the other ${spell(kickPartial.pagesSkipped)} parsed files alone. Less work, and nothing else gets touched.`,
+  ]} />
+  <Check once="stale-kick" kind="Prediction" note="Pick one. It isn't graded." button="Run Kick's plan" predict="Prediction recorded. Here is what Kick's plan produced.">
+    <Choice radio save="stale-kick" label={`After Kick's plan, what does the rebuilt table call ${story.mondayName}?`} options={[["saint", story.fixedName], ["state", `Still ${story.tuesdayName}`], ["stops", "Nothing: the build stops, because one team has two names"]]} answer="state" why="" />
+    <div slot="reveal">
+      <dl class="ar-result">
+        <div><dt>Table cells changed</dt><dd>{kickPartial.tableCellsChanged}</dd></div>
+        <div><dt>Parsed rows changed</dt><dd>{kickPartial.parsedRowsChanged}</dd></div>
+        <div><dt>{story.mondayName}'s name in the table</dt><dd>{kickName}</dd></div>
+      </dl>
+      <p>Nothing in the table changed. {story.mondayName}'s own page names the school only in its title:</p>
+      <pre class="ar-title" tabindex="0" aria-label={`${story.mondayName}'s page title`}><code>{`<title>${title}</title>`}</code></pre>
+      <p>The table takes each team's name from the opponent column of the other schools' pages. {spell(skipped.length, true)} pages name {story.mondayName} there: {skipped.join(", ")}. Those are the {spell(kickPartial.pagesSkipped)} Kick skipped, so they still say “{story.tuesdayName}”, all in agreement. The one row that did change is {stBrendanNote.opponent} on {story.mondayName}'s own page, a non-member that never reaches the table.</p>
+      <p>The plan sounded careful because it followed the bug's subject. A replay has to follow the bug's inputs instead: every file the changed code wrote.</p>
+    </div>
+  </Check>
+
+  <p>Kick would not have had to work out where a name comes from. A fingerprint answers it.</p>
+  <div class="cv-define">
+    <p>A <dfn>fingerprint</dfn> is a hash of everything that shapes a parse: the parser's code and every config input it depends on. Change any of it, even one character, and the fingerprint changes.</p>
+    <p class="cv-formula"><span>fingerprint</span> = hash(<span>parser module</span>, page reader, alias list, membership list, season)</p>
+  </div>
+  <p>A <strong>content hash</strong> does the same for a saved page: a hash of its bytes, kept in its sidecar. Each parsed file records two things, the fingerprint of the code that wrote it and the content hash of the page it read. The rule is short:</p>
+  <p class="ar-rule">A parsed file is <b>stale</b> when its recorded fingerprint differs from the current one, or its recorded page hash differs from the saved page's hash now.</p>
+  <p>On Tuesday, all {spell(files)} parsed schedules recorded Tuesday's fingerprint, <code>{fingerprints.v1}</code>. The fixed parser's is <code>{fingerprints.v2}</code>. All {spell(lambertFiles.filter((f) => f.rebuilt).length)} files are stale, the {spell(kickPartial.pagesSkipped)} Kick skipped among them, and nobody had to guess which files the bug touched.</p>
+
+  <div class="cv-check ar-presets" data-once="stale-presets">
+    <p class="cv-kind">Knowledge check</p>
+    <p class="cv-qlabel">Six changes, each starting from a full set of {files} up-to-date parsed schedules. For each, how many parsed schedules are rebuilt, and how many pages are fetched?</p>
+    <ol class="ar-plist">
+      {presets.map((p, i) => (
+        <li data-q data-type="number" data-answer={`${p.rebuilt},${p.fetched}`} data-why={`${p.rebuilt} rebuilt, ${p.fetched} fetched. ${because[p.id]}`}>
+          <p class="ar-pscene"><b>{i + 1}. {p.label}.</b> {scene[p.id]}</p>
+          <p class="ar-pin">
+            <label><input inputmode="numeric" autocomplete="off" data-save={`stale-${p.id}-rebuilt`} aria-label={`Change ${i + 1}: schedules rebuilt, of ${files}`} /><span>rebuilt, of {files}</span></label>
+            <label><input inputmode="numeric" autocomplete="off" data-save={`stale-${p.id}-fetched`} aria-label={`Change ${i + 1}: pages fetched`} /><span>fetched</span></label>
+          </p>
+          <p class="cv-fb" role="status"></p>
+        </li>
+      ))}
+    </ol>
+    <p class="cv-once">Enter both numbers for all six, then check.</p>
+    <button type="button" data-submit>Check answers</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal">
+      <p>Run each change on the bench and read every file's two hashes. Changes {nRefetch} and {nLive} are the pair to compare.</p>
+      <ReplayBench mode="presets" id="ar-bench-presets" />
+      <p>Changes 1 to {lastCode} rebuild everything and fetch nothing: code and config live in the fingerprint, and a fingerprint only ever re-reads saved pages. Change {nRefetch} is the only one that fetches, and it costs Friday's copy of {harbor}'s page. Change {nLive} is the blind spot. The live site differs, and no hash the run can see does.</p>
+    </div>
+  </div>
+
+  <Beat part="case-fingerprint" name="Name it" title="Cache invalidation, and why its mistakes aren't equal" />
+  <p class="cv-lede">Deciding which saved results are out of date is called cache invalidation. Its two mistakes cost very different amounts.</p>
+  <p>Rebuilding too much, as in change {nComment}, costs a few minutes of computing. Rebuilding too little publishes a stale number with no error: Kick's plan left {spell(kickPartial.pagesSkipped)} files stale, and the table went on saying “{kickName}” while the code was fixed. So a whole-file fingerprint over-rebuilds on purpose. It would rather redo {spell(files)} files for a comment than miss one that mattered.</p>
+  <p>Change {nLive} marks the edge of the idea. A fingerprint knows the code and the saved pages. It knows nothing about the live site, and only a fetch can tell you that changed.</p>
+
+  <Touchline part="case-fingerprint" at={["Archive", "Parse"]} note="A stale fingerprint sends Parse back to the archive, never to the site." title="A fingerprint over the whole parser">
+    <p>Touchline's fingerprint covers the parser's whole module plus its configured inputs: aliases, membership and the season. Each parsed result records it. When a parser or an alias list changes, every result with an old fingerprint is re-read from the archived bytes, without a single fetch.</p>
+  </Touchline>
+
   <AiCard part="case-fingerprint" />
-  <NextPart from="case-fingerprint">What would Kick's re-fetch have cost?</NextPart>
+  <Check once="stale-notebook" note="Match all three, then check.">
+    <p class="cv-qlabel">A notebook caches each cell's result under a key: a hash of the cell's code and its settings file, plus the hash of the data file the cell reads. Match each change to the preset it behaves like.</p>
+    <Choice save="stale-nb-comment" label="You reword a comment in the cell that draws a chart." options={optionsOf} answer="comment" why="Edit a comment. The code's hash changes though the output can't, so the cell reruns. Safe over-rebuilding." wrong={{ "fix-rule": "Also a code change, but this one can't change the output. The comment preset is the closer match." }} />
+    <Choice save="stale-nb-config" label="You change the chart's date range in the settings file, and leave the code alone." options={optionsOf} answer="alias" why="Add to the alias list. Settings are config, and config is part of the key, so the cell reruns though no code changed." wrong={{ nothing: "The settings file is part of the key, so the key changed.", "fix-rule": "No code changed. The change is in config, like the alias list." }} />
+    <Choice save="stale-nb-live" label="The data provider has published a corrected file online. You rerun the notebook without downloading it." options={optionsOf} answer="live-changed" why={`${byId["live-changed"].label}. The cache can only compare the file you saved, which hasn't changed, so nothing reruns and the correction stays unseen.`} wrong={{ "refetch-harbor": "That preset downloads the new file. Here nothing was downloaded.", nothing: "The outcome is the same, nothing reruns, but something did change: the copy online. The live-changed preset is the one that names it." }} />
+    <p slot="reveal">The same two hashes run every cache: one for the code and its settings, one for the input it read. Neither can see a source you never fetched again.</p>
+  </Check>
+  <NextPart from="case-fingerprint">Change {nRefetch} cost Friday's copy of one page. What would re-fetching all {spell(story.sites)} sites have cost?</NextPart>
 </section>
+
+<style>
+  .ar-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.4rem; margin: 0 0 0.8rem; }
+  .ar-result div { display: flex; flex-direction: column-reverse; justify-content: flex-end; padding: 0.45rem 0.7rem; border: 1px solid var(--tl-line); background: var(--tl-card); }
+  .ar-result dt { margin: 0; color: var(--tl-muted); font-size: 0.8rem; }
+  .ar-result dd { margin: 0; color: var(--sl-color-white); font-size: 1.2rem; font-weight: 750; }
+  .ar-title { margin: 0 0 0.8rem; padding: 0.45rem 0.6rem; overflow-x: auto; border: 0; border-radius: 3px; background: var(--sl-color-bg); font-size: 0.8rem; }
+  .ar-rule { margin: 0 0 1rem; padding: 0.7rem 0.9rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); color: var(--sl-color-white); }
+
+  .ar-plist { display: grid; gap: 0; margin: 0.6rem 0 0.8rem; padding: 0; list-style: none; }
+  .ar-plist li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.2rem 1rem; align-items: center; margin: 0; padding: 0.55rem 0; border-top: 1px solid var(--tl-line); }
+  .ar-plist p { margin: 0; }
+  .ar-pscene { font-size: 0.94rem; line-height: 1.4; }
+  .ar-pin { display: flex; gap: 0.7rem; }
+  .ar-pin label { display: flex; align-items: center; gap: 0.35rem; margin: 0; color: var(--tl-muted); font-size: 0.86rem; white-space: nowrap; }
+  .ar-pin input { width: 3.2rem; min-height: 40px; padding: 0.3rem 0.4rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: transparent; color: var(--tl-ink); font: inherit; font-size: 1rem; text-align: center; }
+  .ar-pin input:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 1px; }
+  .ar-plist :global(.cv-fb) { grid-column: 1 / -1; margin: 0; font-size: 0.86rem; }
+  .ar-plist :global(.cv-fb:empty) { display: none; }
+
+  @media (max-width: 40rem) {
+    .ar-plist li { grid-template-columns: 1fr; }
+  }
+</style>

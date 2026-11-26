@@ -1,18 +1,230 @@
 ---
-interface Props { mode: "tables" | "presets" }
-const { mode } = Astro.props;
-const what = mode === "tables"
-  ? "Tables A, B and C with a selector and a cell diff against Tuesday's table."
-  : "Six fingerprint presets, each with schedules rebuilt, pages fetched and a simulated request count.";
+import { COLUMNS, diffAB, diffAC, presetFiles, presets, tables, type Cell, type Column, type TableRow } from "../../lib/archive";
+
+type Key = "A" | "B" | "C";
+interface Props { mode: "tables" | "presets"; id?: string; choices?: Key[]; start?: Key | string; note?: string }
+const { mode, choices = ["A", "B", "C"], note } = Astro.props;
+const id = Astro.props.id ?? `ar-bench-${mode}`;
+const start = Astro.props.start ?? (mode === "tables" ? choices[0] : presets[0].id);
+
+const diffs: Record<Key, Cell[]> = { A: [], B: diffAB, C: diffAC };
+const inputs: Record<Key, string> = { A: "none, this is the starting table", B: "the code only", C: "the code and the pages" };
+const heads: [Column, string, string][] = [["place", "#", "Place"], ["name", "Team", "Team"], ["p", "P", "Played"], ["w", "W", "Won"], ["d", "D", "Drawn"], ["l", "L", "Lost"], ["gf", "GF", "Goals for"], ["ga", "GA", "Goals against"], ["gd", "GD", "Goal difference"], ["pts", "Pts", "Points"]];
+if (heads.map(([c]) => c).join() !== COLUMNS.join()) throw new Error("ReplayBench's columns differ from archive.ts COLUMNS");
+const signed = (c: Column, v: string | number) => (c === "gd" && typeof v === "number" && v > 0 ? `+${v}` : String(v));
+const cellOf = (k: Key, r: TableRow, c: Column) => diffs[k].find((d) => d.slug === r.slug && d.column === c);
+const rowInput = (k: Key, slug: string) => diffs[k].some((d) => d.slug === slug) ? "changed" : "";
+const rowsChanged = (k: Key) => new Set(diffs[k].map((d) => d.slug)).size;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const day = (date: string) => `${Number(date.slice(8, 10))} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
+const gapText = (t: (typeof tables)[Key]["table"]) => t.gaps.map((g) =>
+  g.kind === "no-score"
+    ? `${day(g.date)}, ${t.rows.find((r) => r.slug === g.home)!.name} v ${t.rows.find((r) => r.slug === g.away)!.name}: final, no score on either page.`
+    : `${t.rows.find((r) => r.slug === g.programme)!.name}'s page unavailable (${g.reason}); its home results read from visitors' pages.`);
+
+const fileReason = (f: (typeof presetFiles)[string][number]) =>
+  !f.rebuilt ? "Fresh" : f.storedFingerprint !== f.nowFingerprint && f.storedContent !== f.nowContent ? "Rebuilt: both" : f.storedFingerprint !== f.nowFingerprint ? "Rebuilt: fingerprint" : "Rebuilt: page hash";
+const reading: Record<string, (p: (typeof presets)[number]) => string> = {
+  "fix-rule": (p) => `The parser module changed, so the fingerprint changed, and every parsed schedule recorded the old one. All ${p.rebuilt} are re-read from Friday's saved pages. Nothing is fetched.`,
+  comment: (p) => `A comment changes no output, but the fingerprint hashes the whole file, so all ${p.rebuilt} are rebuilt. That costs a few seconds and can never leave a stale file behind.`,
+  alias: (p) => `The alias list is config, and config is part of the fingerprint. The code did not change, yet all ${p.rebuilt} are rebuilt from the saved pages.`,
+  nothing: () => "Every file's fingerprint and page hash match what it recorded, so nothing is rebuilt and nothing is fetched.",
+  "refetch-harbor": (p) => `A deliberate fetch replaced Harbor Point's saved page. Its content hash changed, so that one parsed file is rebuilt. The archive keeps the latest capture only, so Friday's copy of the page is gone.`,
+  "live-changed": (p) => `Harbor Point's live site now differs from the saved page, but a replay never asks the site. Every hash the run can see still matches, so ${p.rebuilt} are rebuilt and the change stays invisible. Only a fetch could see it.`,
+};
+for (const p of presets) if (!reading[p.id]) throw new Error(`ReplayBench has no reading for preset ${p.id}`);
+const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
 ---
 
-<figure class="ar-bench" data-bench={mode} aria-labelledby={`ar-bench-${mode}`}>
-  <figcaption id={`ar-bench-${mode}`}>The replay bench</figcaption>
-  <p class="ar-bench-draft">Draft. {what}</p>
-</figure>
+<div class="ar-bench not-content" id={id} data-rb role="group" aria-labelledby={`${id}-title`}>
+  <div class="ar-bench-head">
+    <p class="ar-bench-title" id={`${id}-title`}>The replay bench <span>{mode === "tables" ? "Same build, three sets of inputs" : "Six changes, each from a full set of up-to-date parsed schedules"}</span></p>
+    {note && <p class="ar-bench-note">{note}</p>}
+  </div>
+
+  <p class="sr-only" role="status" data-rb-status></p>
+  {mode === "tables" ? (
+    <>
+      {choices.length > 1 && (
+        <div class="ar-pick" role="group" aria-label="Which table to show">
+          {choices.map((k) => (
+            <button type="button" data-rb-pick={k} aria-pressed={pressed(k === start)} aria-controls={`${id}-${k}`}>
+              <b><span class="ar-key">{k}</span>{tables[k].label}</b>
+              <span>{tables[k].pages}, {tables[k].rule}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {choices.map((k) => {
+        const t = tables[k].table;
+        return (
+          <div class="ar-panel" id={`${id}-${k}`} data-rb-panel={k} data-rb-say={`Table ${k}, ${tables[k].label}: ${t.caption}${k === "A" ? "." : `, ${diffs[k].length} changed ${diffs[k].length === 1 ? "cell" : "cells"} from Tuesday's table.`}`} hidden={k !== start}>
+            <dl class="ar-tiles">
+              <div><dt>Counts</dt><dd>{t.caption}</dd></div>
+              {k !== "A" && <div><dt>Cells changed from Tuesday's table</dt><dd>{diffs[k].length} in {rowsChanged(k)} {rowsChanged(k) === 1 ? "row" : "rows"}</dd></div>}
+              {k !== "A" && <div><dt>Inputs changed from Tuesday's table</dt><dd>{inputs[k]}</dd></div>}
+            </dl>
+            {k !== "A" && <p class="ar-cap" aria-hidden="true">A changed cell shows Tuesday's value struck through, coloured by the input that changed it.</p>}
+            <div class="ar-scroll" tabindex="0" role="region" aria-label={`Table ${k}, ${tables[k].label}`}>
+              <table class="ar-table">
+                <caption class="sr-only">{k === "A" ? "Tuesday's table, as published." : `Table ${k}. A changed cell shows Tuesday's value and its new value, with the input that changed it.`}</caption>
+                <thead><tr>{heads.map(([, short, full]) => <th scope="col">{short === full ? short : <abbr title={full}>{short}</abbr>}</th>)}</tr></thead>
+                <tbody>
+                  {t.rows.map((r) => (
+                    <tr class:list={{ "is-changed": rowInput(k, r.slug) !== "" }}>
+                      {heads.map(([c]) => {
+                        const d = cellOf(k, r, c);
+                        const Tag = c === "name" ? "th" : "td";
+                        return (
+                          <Tag scope={c === "name" ? "row" : undefined} class:list={[d && `is-${d.input}`]}>
+                            {d ? <><del><span class="sr-only">was </span>{signed(c, d.before)}</del> <ins><span class="sr-only">now </span>{signed(c, d.after)}</ins><span class="sr-only">, changed by the {d.input}</span></> : signed(c, r[c])}
+                          </Tag>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <ul class="ar-gaps" aria-label="Named under the table">{gapText(t).map((g) => <li>{g}</li>)}</ul>
+          </div>
+        );
+      })}
+      {choices.length > 1 && <p class="ar-legend" aria-hidden="true"><span><i class="is-code"></i>Changed by the code</span><span><i class="is-pages"></i>Changed by the pages</span></p>}
+    </>
+  ) : (
+    <>
+      <div class="ar-pick ar-pick-six" role="group" aria-label="Which change to run">
+        {presets.map((p, i) => (
+          <button type="button" data-rb-pick={p.id} aria-pressed={pressed(p.id === start)} aria-controls={`${id}-${p.id}`}>
+            <b><span class="ar-key">{i + 1}</span>{p.label}</b>
+          </button>
+        ))}
+      </div>
+      {presets.map((p, i) => {
+        const files = presetFiles[p.id];
+        const changed = p.fingerprintBefore !== p.fingerprintAfter;
+        return (
+          <div class="ar-panel" id={`${id}-${p.id}`} data-rb-panel={p.id} data-rb-say={`Change ${i + 1}, ${p.label}: ${p.rebuilt} of ${p.files} rebuilt, ${p.fetched} fetched. ${reading[p.id](p)}`} hidden={p.id !== start}>
+            <dl class="ar-tiles">
+              <div><dt>Parser fingerprint</dt><dd class="ar-mono">{changed ? <><del>{p.fingerprintBefore}</del> <ins>{p.fingerprintAfter}</ins></> : <>{p.fingerprintAfter} <span class="ar-quiet">unchanged</span></>}</dd></div>
+              <div><dt>Schedules rebuilt</dt><dd>{p.rebuilt} of {p.files}</dd></div>
+              <div><dt>Pages fetched</dt><dd>{p.fetched}</dd></div>
+              <div><dt>Requests <span>simulated</span></dt><dd>{p.fetched}</dd></div>
+              <div class:list={{ "is-lost": p.fridayEvidenceLost }}><dt>Friday's captures</dt><dd>{p.fridayEvidenceLost ? `${p.watch?.name ?? "One"}'s overwritten` : "All kept"}</dd></div>
+            </dl>
+            <p class="ar-reading">{reading[p.id](p)}</p>
+            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded; beside it is what the run sees now.</p>
+            <div class="ar-scroll" tabindex="0" role="region" aria-label={`Parsed schedules after change ${i + 1}`}>
+              <table class="ar-files">
+                <caption class="sr-only">Parsed schedules after change {i + 1}: what each recorded, what the run sees now, and the result.</caption>
+                <thead><tr><th scope="col">Parsed schedule</th><th scope="col">Fingerprint</th><th scope="col">Saved page's hash</th><th scope="col">Result</th></tr></thead>
+                <tbody>
+                  {files.map((f) => (
+                    <tr class:list={{ "is-rebuilt": f.rebuilt, "is-watch": p.watch?.slug === f.slug }}>
+                      <th scope="row">{f.name}{f.fetched && <span class="ar-tag">fetched</span>}</th>
+                      <td class="ar-mono">{f.storedFingerprint === f.nowFingerprint ? f.nowFingerprint : <><del>{f.storedFingerprint}</del> <ins>{f.nowFingerprint}</ins></>}</td>
+                      <td class="ar-mono">{f.storedContent === f.nowContent ? f.nowContent : <><del>{f.storedContent}</del> <ins>{f.nowContent}</ins></>}{p.watch?.slug === f.slug && p.watch.liveDiffersFromArchive && <span class="ar-live">live site: {f.liveContent}, never fetched</span>}</td>
+                      <td>{fileReason(f)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+      <p class="ar-foot">Counts come from a small staleness model over the sample's seven saved schedules, and the request count is simulated. Fingerprints are real hashes of the lab's parser modules and config. A “live” page is Tuesday's capture. Rewind shows the lab's measured request count.</p>
+    </>
+  )}
+</div>
 
 <style>
-  .ar-bench { margin: 0 0 1.25rem; padding: 0.9rem 1rem; border: 1px dashed var(--tl-line); border-radius: 8px; }
-  .ar-bench figcaption { margin: 0 0 0.4rem; color: var(--sl-color-white); font-weight: 700; }
-  .ar-bench-draft { margin: 0; color: var(--tl-muted); font-size: 0.92rem; }
+  .ar-bench { container: arbench / inline-size; display: grid; gap: 0.9rem; min-width: 0; margin: 1.25rem 0 1.5rem; padding: 1rem; border: 1px solid var(--tl-line); border-radius: 8px; color: var(--tl-ink); line-height: 1.5; }
+  .ar-bench > * { min-width: 0; }
+  .ar-bench [hidden] { display: none !important; }
+  .ar-bench-head { display: grid; gap: 0.2rem; }
+  .ar-bench-title { margin: 0; color: var(--sl-color-white); font-weight: 700; }
+  .ar-bench-title span { margin-left: 0.45rem; color: var(--tl-muted); font-size: 0.88rem; font-weight: 400; }
+  .ar-bench-note { margin: 0; color: var(--tl-muted); font-size: 0.9rem; }
+
+  .ar-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.45rem; }
+  .ar-pick-six { grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); }
+  .ar-pick button { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 0.1rem; min-height: 48px; margin: 0; padding: 0.45rem 0.75rem; border: 1px solid var(--tl-muted); border-radius: 4px; background: transparent; color: var(--tl-ink); font: inherit; font-size: 0.9rem; line-height: 1.3; text-align: left; cursor: pointer; }
+  .ar-pick button b { display: flex; align-items: baseline; gap: 0.45rem; font-weight: 700; }
+  .ar-pick button > span { color: var(--tl-muted); font-size: 0.82rem; }
+  .ar-pick button[aria-pressed="true"] { border-color: var(--sl-color-accent); background: var(--sl-color-accent); color: var(--sl-color-black); }
+  .ar-pick button[aria-pressed="true"] > span { color: inherit; }
+  :global(:root[data-theme="light"] .cv) .ar-pick button[aria-pressed="false"] { color: var(--tl-ink); }
+  .ar-key { display: inline-grid; place-items: center; min-width: 1.35rem; height: 1.35rem; border: 1px solid currentColor; border-radius: 3px; font-size: 0.78rem; }
+  .ar-bench :is(button, [tabindex]):focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 2px; }
+
+  .ar-panel { display: grid; gap: 0.75rem; min-width: 0; }
+  .ar-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.75rem, 1fr)); gap: 0.4rem; margin: 0; }
+  .ar-tiles div { display: flex; flex-direction: column-reverse; justify-content: flex-end; padding: 0.45rem 0.7rem; border: 1px solid var(--tl-line); background: var(--tl-card); }
+  .ar-tiles dt { margin: 0; color: var(--tl-muted); font-size: 0.8rem; line-height: 1.3; }
+  .ar-tiles dt span { font-style: italic; }
+  .ar-tiles dd { margin: 0; color: var(--sl-color-white); font-size: 1rem; font-weight: 700; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .ar-tiles .is-lost { border-color: var(--sl-color-red); }
+  .ar-tiles .is-lost dd { color: var(--sl-color-red-high); }
+  .ar-reading { margin: 0; padding: 0.6rem 0.9rem; border-left: 3px solid var(--sl-color-accent); background: var(--tl-card); }
+
+  .ar-scroll { position: relative; max-width: 100%; overflow-x: auto; }
+  .ar-bench table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+  .ar-cap { margin: 0 0 -0.4rem; color: var(--tl-muted); font-size: 0.85rem; }
+  .ar-bench caption { padding-bottom: 0.35rem; color: var(--tl-muted); font-size: 0.85rem; text-align: left; caption-side: top; }
+  .ar-bench th, .ar-bench td { padding: 0.35rem 0.4rem; border: 0; border-bottom: 1px solid var(--tl-line); background: none; text-align: right; white-space: nowrap; }
+  .ar-bench thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 600; }
+  .ar-bench abbr { text-decoration: none; }
+  .ar-table :is(th, td):nth-child(2) { text-align: left; }
+  .ar-table tbody th { color: var(--tl-ink); font-weight: 600; white-space: normal; }
+  .ar-table td:first-child, .ar-table thead th:first-child { width: 1.5rem; text-align: left; }
+  .ar-table .is-code { background: color-mix(in srgb, var(--sl-color-accent) 18%, transparent); }
+  .ar-table .is-pages { background: color-mix(in srgb, var(--sl-color-orange) 22%, transparent); }
+  .ar-bench del { color: var(--tl-muted); font-weight: 400; }
+  .ar-bench ins { color: var(--sl-color-white); font-weight: 750; text-decoration: none; }
+  .ar-quiet { color: var(--tl-muted); font-weight: 400; }
+  .ar-gaps { margin: 0; padding-left: 1.1rem; color: var(--tl-muted); font-size: 0.86rem; }
+  .ar-gaps li { margin: 0; }
+  .ar-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.5rem; margin: 0; color: var(--tl-muted); font-size: 0.85rem; }
+  .ar-legend span { display: inline-flex; align-items: center; gap: 0.4rem; margin-right: 0.9rem; white-space: nowrap; }
+  .ar-legend i { display: inline-block; width: 1rem; height: 1rem; border-radius: 2px; }
+  .ar-legend .is-code { background: color-mix(in srgb, var(--sl-color-accent) 35%, transparent); }
+  .ar-legend .is-pages { background: color-mix(in srgb, var(--sl-color-orange) 40%, transparent); }
+
+  .ar-files :is(th, td) { text-align: left; }
+  .ar-files td:last-child { white-space: normal; }
+  .ar-files tbody th { color: var(--tl-ink); font-weight: 600; }
+  .ar-files tr.is-rebuilt td:last-child { color: var(--sl-color-white); font-weight: 700; }
+  .ar-files tr:not(.is-rebuilt) td:last-child { color: var(--tl-muted); }
+  .ar-files tr.is-watch { box-shadow: inset 3px 0 0 var(--sl-color-orange); }
+  .ar-mono { font-family: var(--sl-font-mono); font-size: 0.84rem; }
+  .ar-tag { margin-left: 0.4rem; padding: 0 0.3rem; border: 1px solid var(--sl-color-red); border-radius: 3px; color: var(--sl-color-red-high); font-size: 0.75rem; font-weight: 700; }
+  .ar-live { display: block; color: var(--sl-color-orange-high); font-family: var(--sl-font-system); font-size: 0.78rem; white-space: normal; }
+  .ar-foot { margin: 0; color: var(--tl-muted); font-size: 0.84rem; }
+
+  @container arbench (max-width: 34rem) {
+    .ar-bench table { font-size: 0.84rem; }
+    .ar-bench th, .ar-bench td { padding: 0.3rem 0.25rem; }
+    .ar-tiles { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 30rem) { .ar-bench { padding: 0.75rem; } }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-rb]").forEach((root) => {
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-rb-pick]")];
+    root.addEventListener("click", (e) => {
+      const b = (e.target as Element).closest<HTMLButtonElement>("[data-rb-pick]");
+      if (!b || !root.contains(b)) return;
+      const pick = b.dataset.rbPick!;
+      buttons.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      root.querySelectorAll<HTMLElement>("[data-rb-panel]").forEach((p) => {
+        p.hidden = p.dataset.rbPanel !== pick;
+        const status = root.querySelector<HTMLElement>("[data-rb-status]");
+        if (!p.hidden && status) status.textContent = p.dataset.rbSay ?? "";
+      });
+      root.dispatchEvent(new CustomEvent("bench:pick", { bubbles: true, detail: { id: root.id, pick } }));
+    });
+  });
+</script>
