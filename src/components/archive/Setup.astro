@@ -117,7 +117,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     <input type="hidden" data-save={refetchPredict.key} data-ar-locked />
   </div>
   <p class="ar-saved" data-when={refetchPredict.key} role="status" tabindex="-1" hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and Part 6 comes back to your answer.</p>
-  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick a prediction, then lock it in. We'll come back to it in Part 6.</p>
+  <p class="cv-once ar-once" data-when={refetchPredict.key} data-is="">Pick a prediction, then lock it in.</p>
 
   <AiCard part="setup" />
   <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>
@@ -160,6 +160,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-poster img { display: block; width: 100%; height: auto; border: 1px solid var(--tl-line); border-radius: 8px; }
   .ar-poster span { text-decoration: underline; text-underline-offset: 2px; }
   .ar-poster:hover span { color: var(--sl-color-white); }
+  @media (max-width: 39.99rem) { .ar-poster { grid-template-columns: 7rem minmax(0, 1fr); align-items: center; gap: 0.75rem; } }
   .ar-tuesday :global(tr[data-team="st-lambert"]) { background: color-mix(in srgb, #f4c62f 18%, transparent); }
   .ar-tuesday :global(tr[data-team="st-lambert"] th) { color: var(--sl-color-white); }
   .ar-tuesday :global(.fr-table) { margin-bottom: 0.4rem; }
@@ -174,5 +175,6 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-clause sup { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; margin: 0 0.3rem 0 0.1rem; border-radius: 50%; background: color-mix(in srgb, #f4c62f 22%, transparent); color: var(--sl-color-white); font-size: 0.7rem; font-weight: 750; line-height: 1; vertical-align: 0.2em; }
   .ar-lockrow { margin: 0.6rem 0 0.5rem; }
   .ar-lockrow[hidden] { display: none; }
+  .ar-once { margin: 0 0 1.25rem !important; }
   .ar-saved { margin: 0 0 1.25rem !important; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
 </style>

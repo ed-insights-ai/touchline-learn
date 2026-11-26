@@ -33,7 +33,7 @@ const terms = [
 ];
 
 const bakes = [
-  { recipe: "Old recipe", cells: [{ text: "Test loaf, old recipe", note: "same inputs as last week's loaf", is: "test" }, { text: "Not baked", is: "skip" }] },
+  { recipe: "Old recipe", cells: [{ text: "Test loaf, old recipe", note: "last week's setup", is: "test" }, { text: "Not baked", is: "skip" }] },
   { recipe: "New recipe", cells: [{ text: "Test loaf, new recipe", is: "test" }, { text: "Today's loaf", is: "now" }] },
 ];
 
@@ -46,8 +46,8 @@ const rules = [
 const loop = [
   ["for page in expected_pages:", "fetch"],
   ["    raw = fetch(page)", "fetch"],
-  ["    save(page, raw, fetched_at=now())  # or note it unavailable", "fetch"],
-  ["capture = archive.latest()  # Friday's, until a re-fetch replaces it", "replay"],
+  ["    save(page, raw, fetched_at=now())  # or mark it unavailable", "fetch"],
+  ["capture = archive.load(\"friday\")", "replay"],
   ["table = build([parse(p, code, config) for p in capture.schedules], capture.unavailable)", "replay"],
   ["record(table, capture, version(code, config))", "replay"],
 ];
@@ -107,12 +107,12 @@ const items: [string, string][] = [
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-two" aria-hidden="true"></i>Today's loaf (new recipe, new oven) against last week's (old recipe, old oven): both inputs changed.</span>
+      <span><i class="is-two" aria-hidden="true"></i>Today's loaf against last week's, which was baked in the top-left setup: both inputs changed.</span>
       <span><i class="is-one" aria-hidden="true"></i>Two test loaves in the old oven: only the recipe differs.</span>
     </figcaption>
   </figure>
   <div class="cv-define">
-    <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
+    <p>A <dfn>controlled comparison</dfn> changes one input and holds the others fixed, so it isolates that input's effect. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
   <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on newly fetched pages. Comparing Tuesday's table with a replay is the old oven column: the buggy code and the fixed code each run on Friday's pages, and unlike bread, the same code and config on the same pages give the same table every time. It works only because Friday's pages were kept.</p>
 
@@ -126,7 +126,7 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they read the saved capture, including which pages were unavailable, plus the code and the config. Rerunning them after a parser fix is a replay. Rerunning lines 1 to 3 is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they read Friday's saved capture, including which pages were unavailable, plus the code and the config. Rerunning them after a parser fix is a replay. Rerunning lines 1 to 3 is a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s results still come from the other schools' pages, as they did on Monday.</p>
@@ -136,10 +136,10 @@ const items: [string, string][] = [
   <h3 class="cv-try" id="idea-check">Check your understanding: a research survey</h3>
   <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control, with every cleaning and chart setting written into it. Since then they have downloaded fresh exports more than once.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
-    <Choice save="idea-gone" label="The saved export includes responses more than a year old. The vendor then deletes every response older than a year. Which of the four could the team never rebuild if that item alone were lost?"
+    <Choice save="idea-gone" label="The export behind the published study includes responses more than a year old. The vendor then deletes every response older than a year. Which of the four could the team never rebuild if that item alone were lost?"
       options={items}
       answer="export"
-      why="The survey export. The spreadsheet and chart are derived from it and can be computed again, and the script is kept in version control. Once the vendor deletes the responses, the team's copy is the only one left."
+      why="The survey export. The spreadsheet and chart are derived from it and can be computed again, and the script is kept in version control. Later exports leave out the deleted responses, so the team's copy of that export is the only one left."
       wrong={{
         sheet: "The spreadsheet can be rebuilt by running the script over the export.",
         chart: "The chart can be redrawn by running the script again.",
@@ -148,32 +148,32 @@ const items: [string, string][] = [
     <Choice save="idea-bug" label="The team finds a bug in the cleaning script: it dropped some valid responses. What do they need to produce a corrected spreadsheet and chart for the study they published?"
       options={[
         ["sheet", "Their saved cleaned spreadsheet, rerun through the fixed script"],
-        ["replay", "Their saved survey export, run through the fixed script"],
+        ["replay", "The study's saved export, run through the fixed script"],
         ["fresh", "A new export from the vendor, run through the fixed script"],
         ["chart", "The chart's numbers, corrected by hand to match the fix"],
       ]}
       answer="replay"
-      why="Their saved survey export, run through the fixed script. That's a replay: the export stays fixed and only the code changes, so every difference in the new spreadsheet comes from the fix."
+      why="The study's saved export, run through the fixed script. That's a replay: the export stays fixed and only the code changes, so every difference in the new spreadsheet comes from the fix."
       wrong={{
         sheet: "The spreadsheet is already missing the responses the bug dropped. Cleaning it again can't bring them back.",
         fresh: "A new export changes the evidence as well as the code. Responses added or edited since could mix in with the fix, and responses the vendor has since deleted would be missing.",
         chart: "Hand edits change numbers with no record of how, and leave the spreadsheet wrong.",
       }} />
-    <Choice save="idea-how" label="A reviewer with access to the team's files asks how one number on the published chart was produced, and wants to reproduce it exactly from the vendor export. What identifies the inputs they need?"
+    <Choice save="idea-how" label="A reviewer with access to the team's files asks how one number on the published chart was produced, and wants to reproduce it exactly. What do they need?"
       options={[
         ["sheet", "The cleaned spreadsheet the chart was drawn from"],
-        ["current", "The saved export and the script as it is today"],
+        ["current", "The newest export and the script as it is today"],
         ["fresh", "A new export, cleaned and charted again today"],
-        ["record", "Which export and script version made the chart"],
+        ["record", "A record of which export and script version ran"],
       ]}
       answer="record"
-      why="Which export and script version made the chart. Rerunning exactly those inputs gives the same number, and anyone can check it."
+      why="A record of which export and script version ran. Rerunning exactly those inputs gives the same number, and anyone can check it."
       wrong={{
         sheet: "The spreadsheet shows the cleaned rows, not which export and which version of the script produced them.",
-        current: "The export is the right one, but the script may have changed since the chart was made. Today's version may not be the one that produced the number.",
+        current: "They have several exports, and the script has changed since. Nothing here says which export or which version made this number.",
         fresh: "A new export could hold different responses, so its number may answer a different question.",
       }} />
-    <p slot="reveal">The vendor deleting responses is rule 1: save the bytes, because the source can take them away. The bug fix is rule 2: replay the saved export, so the code is the only thing that changes. The reviewer is rule 3: record what produced each output. The same three rules hold for Friday's pages.</p>
+    <p slot="reveal">The vendor deleting responses is rule 1: save the bytes, because the source can take them away. The bug fix is rule 2: replay the saved export, so the code is the only thing that changes. The reviewer is rule 3: record what produced each output. None of the four things the team kept records it. The same three rules hold for Friday's pages.</p>
   </Check>
 
   <NextPart from="idea">Saturday's matches finished after Friday's run. What does that do to a re-fetch?</NextPart>
