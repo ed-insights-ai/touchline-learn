@@ -7,10 +7,10 @@ import { spell } from "../../../lib/cases";
 const card = archiveAi["prove-it"];
 
 const artifacts = [
-  ["Citywide report", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
-  ["Dashboard download", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
-  ["Building inventory", "Unaffected", "is-ok", "Leave alone: its fingerprint shows a separate pipeline"],
-  ["Anything without provenance", "Unknown", "is-warn", "Hold for investigation"],
+  ["Citywide report", "Meter readings snapshot → unit conversion → monthly totals", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
+  ["Dashboard download", "Citywide report's monthly totals → export", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
+  ["Building inventory", "Facilities register → inventory build, no unit conversion", "Unaffected", "is-ok", "Leave alone: a separate pipeline"],
+  ["Anything without provenance", "No record", "Unknown", "is-warn", "Hold for investigation"],
 ];
 
 const agentPrompt = `Fix the watt-hour to kilowatt-hour conversion bug in the city electricity
@@ -62,7 +62,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("prove-it")}`}
   about="This is a reply an AI assistant gave to Module 2's recovery-plan study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 8 and check the reply's finished prompt against the slots you filled: what to replay, what is stale, what to republish and what to tell readers."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 8 and check the reply's finished prompt against the four slots."
 >
   <h2 class="pr-title">From recovery plan to agent prompt</h2>
   <p>Use fingerprints to decide <strong>what needs replay</strong>, then compare the replayed output with the published version to decide <strong>what needs a correction</strong>.</p>
@@ -76,8 +76,8 @@ const checks = [
     <p class="pr-label">The city's published package, classified</p>
     <div class="pr-scroll">
       <table class="pr-table">
-        <thead><tr><th scope="col">Artifact</th><th scope="col">Class</th><th scope="col">Action</th></tr></thead>
-        <tbody>{artifacts.map(([a, c, tone, act]) => <tr><th scope="row">{a}</th><td><span class:list={["pr-chip", tone]}>{c}</span></td><td>{act}</td></tr>)}</tbody>
+        <thead><tr><th scope="col">Artifact</th><th scope="col">Its provenance record</th><th scope="col">Class</th><th scope="col">Action</th></tr></thead>
+        <tbody>{artifacts.map(([a, rec, c, tone, act]) => <tr><th scope="row">{a}</th><td>{rec}</td><td><span class:list={["pr-chip", tone]}>{c}</span></td><td>{act}</td></tr>)}</tbody>
       </table>
     </div>
   </figure>
@@ -98,7 +98,7 @@ const checks = [
     <p class="pr-label">Course note</p>
     <p>The reply's “fingerprint” covers an artifact's whole provenance. In this course the word is narrower: a hash of one parser's code and the config it reads. A parsed file is stale when its stored fingerprint differs from the parser's current one, or when the content hash of the page it read has changed.</p>
     <p>Part 8 follows the reply's steps. The box-score parser changed, so all {boxes} parsed Alder Ridge box scores are stale, not only the one with overtime. The {fresh} parsed schedules stay fresh, like the city's building inventory, because the box-score parser is its own module with its own fingerprint. The match detail is republished. The standings are not: a semifinal is not a regular season conference match, so the table never counted it.</p>
-    <p>The reply's step 5 is Part 7's lesson again: the agent reports evidence and waits for approval before anything is republished.</p>
+    <p>Part 7 checks a rebuild report after the work is done. The reply's step 5 moves that check before publication: the agent reports its evidence and waits for approval before anything is replaced.</p>
   </aside>
 
   <h2>4. Check your understanding</h2>

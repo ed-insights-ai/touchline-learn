@@ -54,7 +54,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("carry-it")}`}
   about="This is a reply an AI assistant gave to Module 2's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and check World C's claim against what the reply says about overwritten files."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and match the reply's three new questions to Worlds A, B and C."
 >
   <h2 class="pr-title">One bug, three archives</h2>
   <p class="pr-pull">Fixing the code tells you how the data should have been processed. The archive determines which past results you can rebuild.</p>
@@ -63,6 +63,8 @@ const checks = [
   <p>A city publishes monthly totals for fees collected by its permit offices. Each office uploads a file of individual payments. If an office resubmits a file, the latest version received before publication is the one that counts.</p>
   <p>For six months, the importer dropped the cents from every payment before adding them up. A payment of ${payment.paid} contributed ${payment.counted} to the published total. The processed table records each month’s total and payment count.</p>
   <figure class="pr-card pa-worlds">
+    <p class="pr-label">The recovery claim each archive supports</p>
+    <ul class="pa-glance">{worlds.map((w) => <li><span>{w.tab}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></li>)}</ul>
     <fieldset class="pr-seg">
       <legend>What the city kept</legend>
       {worlds.map((w, i) => <label><input type="radio" name="pa-carry-world" value={w.id} checked={i === 0} /><span>{w.tab}</span></label>)}
@@ -106,6 +108,8 @@ const checks = [
 
 <style>
   .pa-worlds .pr-seg { margin-bottom: 0.7rem; }
+  .pa-glance { display: grid; gap: 0.35rem; margin: 0 0 0.9rem; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-glance li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-world { display: none; padding: 0.7rem 0.9rem; border: 1px solid var(--tl-line); border-radius: 10px; background: var(--tl-bg); }
   .pa-worlds:has([value="every"]:checked) [data-world="every"],
   .pa-worlds:has([value="table"]:checked) [data-world="table"],

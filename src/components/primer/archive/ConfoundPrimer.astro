@@ -23,7 +23,7 @@ const designs: { field: string; confounded: Arm[]; controlled: Arm[]; result: st
   {
     field: "Laboratory",
     confounded: [
-      { label: `Trial 1 · ${sugar.still} s`, factors: [["Water", "cool", false], ["Stirring", "still", false]] },
+      { label: `Trial 1 · ${sugar.still} s`, factors: [["Water", "cool", false], ["Stirring", "none", false]] },
       { label: `Trial 2 · ${sugar.stirred} s`, factors: [["Water", "warm", true], ["Stirring", "stirred", true]] },
     ],
     controlled: [
@@ -51,11 +51,11 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and check that your changelog line for table B claims only what the one changed input can explain."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and classify two new before-and-after comparisons."
 >
   <h2 class="pr-title">One change at a time</h2>
-  <p>A controlled comparison changes one input and holds the other relevant conditions steady. If the outcome changes, the setup gives you a reason to attribute the difference to the input you changed.</p>
-  <p class="pr-pull">If you change two inputs together, you can measure their combined effect, but you can’t tell how much each one contributed.</p>
+  <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>
+  <p>If the outcome changes, the setup gives you a reason to attribute the difference to the input you changed. If you change two inputs together, you can measure their combined effect, but you can’t tell how much each one contributed.</p>
 
   <h2>1. Website A/B test</h2>
   <p>Suppose {rate.before}% of visitors signed up last week. This week you rewrote the headline and changed the sign-up button from blue to green. Now {rate.after}% sign up. The increase is <strong>{rate.after - rate.before} percentage points</strong>, but the headline and button color are <strong>confounded</strong>. They changed together, so the increase could come from either change or from the two working together. The mix of visitors might also have changed from one week to the next.</p>

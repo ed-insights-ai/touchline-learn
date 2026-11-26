@@ -34,7 +34,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("decision")}`}
   about="This is a reply an AI assistant gave to Module 2's archive-history study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and name the question that decides the league office's call."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and pick a policy for the league office."
 >
   <h2 class="pr-title">How much history should an archive keep?</h2>
   <p>Suppose your archive fetches an online shop’s price list every morning at 8 a.m. On Monday, a kettle costs ${price.monday}. On Tuesday, it costs ${price.tuesday}. Your archive uses each morning’s list to publish a report of items under ${cutoff}.</p>
@@ -49,7 +49,7 @@ const checks = [
     </fieldset>
     {policies.map((p) => (
       <div class="pa-cap-view" data-policy={p.id}>
-        <p class="pr-label">The archive on Wednesday</p>
+        <p class="pr-label">The archive after Tuesday's fetch</p>
         <ol class="pa-cap-days">
           {days.map((d) => {
             const kept = p.kept.includes(d.day);

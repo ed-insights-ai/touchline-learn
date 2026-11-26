@@ -28,10 +28,12 @@ Notes on individual replies:
 - **Six replies were rerun** after the first council round changed their prompts, each
   in a fresh session with the same model and settings on the same date. Setup, Prove
   it and Carry it keep their first replies.
-  - **The idea** asks for three fields that are not sports or libraries, one shown with
-    numbers, and for two outputs that disagree with the record that explains why. Item 3
-    now names both unrecoverable cases: a version never saved, and a saved copy later
-    overwritten.
+  - **The idea** asks for two outputs that disagree with the record that explains why, and
+    item 3 names both unrecoverable cases: a version never saved, and a saved copy later
+    overwritten. It was run twice in round 2. The first rerun's examples were one or two
+    sentences each, and one was a shop. The prompt now asks for three worked examples with
+    small numbers, none of them sports, libraries or shops, and the page shows that third
+    reply (a weather station, a bus feed and a water meter).
   - **Case 1** asks for a before-and-after example with numbers in the pipeline item.
   - **Case 2** uses one running example, a museum's nightly import from a partner site.
   - **Case 3** asks why some systems hash a whole source file on purpose, so a comment

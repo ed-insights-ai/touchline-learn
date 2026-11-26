@@ -19,8 +19,8 @@ const changes: Change[] = [
   { id: "upstream", label: "Upstream sales.csv changes, nobody fetches it", touches: "sales.csv", upstream: true },
 ];
 const verdict = (c: Change, o: Output): [string, string, string] => {
-  const recipe = c.touches === o.code || c.touches === o.setting;
-  const input = c.touches === o.input;
+  const recipe = !!c.touches && (c.touches === o.code || c.touches === o.setting);
+  const input = !!c.touches && c.touches === o.input;
   if (c.upstream && input) return ["Reuse", "is-warn", "The local copy's hash still matches. The newer upstream file is invisible."];
   if (recipe && c.comment) return ["Rebuild", "is-ok", "The fingerprint differs. The output will come out the same."];
   if (recipe) return ["Rebuild", "is-ok", "The recipe fingerprint differs."];
@@ -40,7 +40,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and say why the comment-edit preset rebuilds every parsed schedule, and why that is the safe mistake."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 5 and match one change from the reply's notebook to a preset."
 >
   <h2 class="pr-title">How a cache decides what is stale</h2>
   <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
