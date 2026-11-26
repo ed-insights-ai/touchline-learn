@@ -48,8 +48,8 @@ const loop = [
   ["    raw = fetch(page)", "fetch"],
   ["    save(run, page, raw, fetched_at=now())  # or record it unavailable", "fetch"],
   ["rows = [parse(raw, code, config) for raw in archive.schedules(run)]", "replay"],
-  ["table = build(rows, unavailable=archive.unavailable(run))", "replay"],
-  ["record(table, run=run, pages=hashes(archive.schedules(run)), code=version(code, config))", "replay"],
+  ["table = build(rows, gaps=archive.unavailable(run))", "replay"],
+  ["record(table, run, hashes(archive.schedules(run)), version(code, config))", "replay"],
 ];
 
 const items: [string, string][] = [
@@ -126,7 +126,7 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6 on the run you choose, such as Friday's: that is a replay. Running line 2 again is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6 on a capture you still have, such as Friday's: that is a replay. Running line 2 again is a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s home results still come from visitors' pages, as they did on Monday.</p>
@@ -136,7 +136,7 @@ const items: [string, string][] = [
   <h4 class="cv-try" id="idea-check">Check your understanding: a research survey</h4>
   <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
-    <Choice save="idea-bug" label="The team finds a bug in the cleaning script. What do they need to produce a corrected spreadsheet and chart for the study they published?"
+    <Choice save="idea-bug" label="The team finds a bug in the cleaning script: it dropped some valid responses. What do they need to produce a corrected spreadsheet and chart for the study they published?"
       options={[
         ["sheet", "The cleaned spreadsheet, rerun through the fixed script"],
         ["replay", "Their saved survey export, run through the fixed script"],
@@ -146,7 +146,7 @@ const items: [string, string][] = [
       answer="replay"
       why="Their saved survey export, run through the fixed script. That's a replay: the export stays fixed and only the code changes, so every difference in the new spreadsheet comes from the fix."
       wrong={{
-        sheet: "The spreadsheet has already been cleaned, bug included. Cleaning it a second time doesn't undo what the first pass did.",
+        sheet: "The spreadsheet is already missing the responses the bug dropped. Cleaning it again can't bring them back.",
         fresh: "A new export changes the evidence as well as the code. Responses added or edited since could mix in with the fix.",
         chart: "Hand edits change numbers with no record of how, and leave the spreadsheet wrong.",
       }} />
@@ -217,7 +217,7 @@ const items: [string, string][] = [
   .ar-loop pre { margin: 0; padding: 0.7rem 0; overflow-x: auto; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.84rem; line-height: 1.65; }
   .ar-loop code { padding: 0; background: none; font-family: var(--sl-font-mono); overflow-wrap: normal; }
   .ar-ln { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); padding-right: 0.9rem; }
-  .ar-c { padding-left: 4ch; text-indent: -4ch; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ar-c { padding-left: 4ch; text-indent: -4ch; white-space: pre-wrap; overflow-wrap: break-word; }
   .ar-ln.is-fetch { box-shadow: inset 3px 0 0 var(--tl-raw-edge); }
   .ar-ln.is-replay { box-shadow: inset 3px 0 0 var(--tl-derived-edge); }
   .ar-n { padding-right: 0.8rem; color: var(--tl-muted); text-align: right; user-select: none; }
