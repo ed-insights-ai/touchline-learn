@@ -28,11 +28,6 @@ const done = kickPlan.filter((s) => s.done).length;
 
 const clauses = ["Can you rebuild Friday's table from the pages you kept,", "without asking a single site again,", "and show me you did?"];
 
-const feedback: [value: string, text: string][] = [
-  ["name", "That holds if the sites show the same pages on Tuesday as on Friday. A re-fetch reads whatever they show now, so it also depends on anything posted since."],
-  ["numbers", "That happens if a site posted a Saint Lambert result after Friday's run. Whether one did isn't anywhere on this page yet."],
-  ["unknown", "That's a careful reading. The answer depends on what the sites posted between Friday and Tuesday, and nothing you've seen shows that yet."],
-];
 ---
 
 <section id="setup">
@@ -64,7 +59,7 @@ const feedback: [value: string, text: string][] = [
   </div>
 
   <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
-  <p>Kick apologised, fixed the rule in a minute, and kept going. This is what Kick was thinking when it said “Re-fetching!”.</p>
+  <p>Kick apologized, fixed the rule in a minute, and kept going. This is what Kick was thinking when it said “Re-fetching!”.</p>
   <KickThink duration="Thought for 5s" thoughts={kickThoughts} />
   <div class="cv-kplan ar-plan" role="region" aria-label="Kick's fix plan, stopped after the first step">
     <div class="cv-kplan-bar">
@@ -86,7 +81,7 @@ const feedback: [value: string, text: string][] = [
       ))}
     </ol>
   </div>
-  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. One detail matters later. The film showed the rule on the published table, because that is where the name appeared. Kick wrote the rule into the parser, the step that turns each saved page into rows, so the rows already say “{story.tuesdayName}” before the table is built.</p>
+  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. One detail matters later. The film showed the rule on the published table, where the name appeared, but Kick wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before the table is built.</p>
 
   <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
   <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>
@@ -97,7 +92,7 @@ const feedback: [value: string, text: string][] = [
     </div>
     <p class="cv-chat-text ar-clauses">{clauses.map((c, i) => <><span class="ar-clause"><sup aria-hidden="true">{i + 1}</sup>{c}</span>{i < clauses.length - 1 && " "}</>)}</p>
   </div>
-  <p>Kick's plan fixes the code. Riley is asking about the table: rebuild it from the {spell(fridayPages.length)} pages saved on Friday, ask no site for anything, and leave evidence that the rebuild happened that way. Each of the three clauses needs an idea this module teaches.</p>
+  <p>By “Friday's table”, Riley means the standings built from Friday's saved pages: the table readers already have, Monday's {monday}, with Saint Lambert's name fixed. Kick's plan fixes the code. Riley is asking about the table: rebuild it from the {spell(fridayPages.length)} schedule pages saved on Friday, ask no site for anything, and leave evidence that the rebuild happened that way. Each of the three clauses needs an idea this module teaches.</p>
 
   <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
   <fieldset class="cv-choice" data-gate>
@@ -106,10 +101,7 @@ const feedback: [value: string, text: string][] = [
       <label><input type="radio" name="ar-refetch-predict" value={value} data-save={refetchPredict.key} /><span>{label}</span></label>
     ))}
   </fieldset>
-  <div class="ar-predict-fb">
-    {feedback.map(([value, text]) => <p data-when={refetchPredict.key} data-is={value} hidden>{text}</p>)}
-    <p data-when={refetchPredict.key} hidden>Every choice here is a reasonable reading of what you have seen so far. Case 1 shows what the sites did post, and The decision comes back to your answer.</p>
-  </div>
+  <p class="ar-saved" data-when={refetchPredict.key} hidden>Prediction saved. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
   <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick one to continue. We'll come back to your prediction in The decision.</p>
 
   <AiCard part="setup" />
@@ -161,8 +153,5 @@ const feedback: [value: string, text: string][] = [
   .ar-plan-wait { width: 1.1rem; height: 1.1rem; margin-top: 0.12rem; border: 2px dashed var(--tl-muted); border-radius: 50%; box-sizing: border-box; }
   .ar-clause { display: inline; }
   .ar-clause sup { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; margin: 0 0.3rem 0 0.1rem; border-radius: 50%; background: color-mix(in srgb, #f4c62f 22%, transparent); color: var(--sl-color-white); font-size: 0.7rem; font-weight: 750; line-height: 1; vertical-align: 0.2em; }
-  .ar-predict-fb { margin: 0 0 1.25rem; }
-  .ar-predict-fb p { margin: 0 0 0.5rem; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
-  .ar-predict-fb p:last-child { margin: 0; }
-  .ar-predict-fb + .cv-once { margin: -0.75rem 0 1.25rem !important; }
+  .ar-saved { margin: 0 0 1.25rem !important; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
 </style>

@@ -8,9 +8,9 @@ type Lane = { name: string; who: string; write: boolean; back: string; cells: Ce
 const stages = ["Pages", "Code", "Table", "Archive afterwards"];
 const lanes: Lane[] = [
   {
-    name: "Replay", who: "Riley's question", write: false, back: "read only: nothing is written back to the archive",
+    name: "Replay", who: "Riley's ask", write: false, back: "read only: nothing is written back to the archive",
     cells: [
-      { kind: "raw", tag: "same", title: "Friday's pages", sub: `${fridayPages.length} saved, hashes match` },
+      { kind: "raw", tag: "same", title: "Friday's pages", sub: "untouched since Friday" },
       { kind: "code", tag: "changed", title: "Fixed parser", sub: "same config" },
       { kind: "derived", title: "Rebuilt table", sub: "one input changed" },
       { kind: "kept", title: "Friday's capture", sub: "still in the archive" },
@@ -28,23 +28,25 @@ const lanes: Lane[] = [
 ];
 
 // Wide: lanes are rows, stages are columns. Narrow: lanes are columns, stages are rows.
-const W = { head: 146, cw: 192, gap: 22, top: 36, lh: 134, bh: 76, pad: 16, laneGap: 16 };
+const W = { head: 110, cw: 168, gap: 20, top: 34, pad: 16, bh: 74, laneGap: 14 };
+const laneH = W.pad + W.bh + 44;
 const wideW = W.head + stages.length * W.cw + (stages.length - 1) * W.gap + 4;
-const wideH = W.top + lanes.length * W.lh + (lanes.length - 1) * W.laneGap + 4;
+const wideH = W.top + lanes.length * laneH + (lanes.length - 1) * W.laneGap + 4;
 const wx = (i: number) => W.head + i * (W.cw + W.gap);
-const wy = (l: number) => W.top + l * (W.lh + W.laneGap);
+const wy = (l: number) => W.top + l * (laneH + W.laneGap);
 
-const N = { side: 60, cw: 150, gap: 10, top: 52, rh: 96, bh: 70 };
+const N = { side: 60, cw: 150, gap: 10, top: 52, rh: 96, bh: 70, foot: 26 };
 const narrowW = N.side + lanes.length * N.cw + (lanes.length - 1) * N.gap + 2;
-const narrowH = N.top + stages.length * N.rh + 4;
+const narrowH = N.top + stages.length * N.rh + N.foot + 4;
 const nx = (l: number) => N.side + l * (N.cw + N.gap);
 const ny = (i: number) => N.top + i * N.rh;
+const nbox = (l: number, i: number) => ({ x: nx(l) + 8, w: N.cw - 16, y: ny(i) + (N.rh - N.bh) / 2 + 4 });
 
-const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} saved pages stay the same, the fixed parser is the one input that changes, the table is rebuilt, and Friday's capture is still in the archive afterwards. Re-fetch: the sites are asked again, so Tuesday's pages replace Friday's and the parser changes too; the new table has two inputs changed, and Friday's capture is overwritten.`;
+const label = `Two ways to fix Tuesday, compared with Tuesday's table. Replay, what Riley asked for: Friday's ${fridayPages.length} saved schedule pages stay the same and are only read, the fixed parser is the one input that changes, and Friday's capture is still in the archive afterwards. Re-fetch, Kick's plan, which Riley stopped: the sites would be asked again, so Tuesday's pages and the fixed parser would both change, each new page would be saved in place of Friday's copy, and Friday's capture would be overwritten.`;
 ---
 
 <figure class="ar-lanes" aria-labelledby="ar-lanes-title">
-  <figcaption id="ar-lanes-title"><span>Two ways to fix Tuesday</span> Both lanes run the fixed parser. Only one keeps Friday's evidence.</figcaption>
+  <figcaption id="ar-lanes-title"><span>Two ways to fix Tuesday</span> Each lane compared with Tuesday's table. Both run the fixed parser. Only one keeps Friday's evidence.</figcaption>
 
   <svg class="ar-wide" viewBox={`0 0 ${wideW} ${wideH}`} role="img" aria-label={label}>
     <defs>
@@ -55,30 +57,30 @@ const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} s
     <line class="ar-split" x1={wx(3) - W.gap / 2} x2={wx(3) - W.gap / 2} y1={6} y2={wideH - 2} />
     {lanes.map((lane, l) => (
       <g>
-        <rect class={`ar-lane is-${l}`} x={2} y={wy(l)} width={wideW - 4} height={W.lh} rx={10} />
-        <text class="ar-name" x={16} y={wy(l) + 48}>{lane.name}</text>
-        <text class="ar-who" x={16} y={wy(l) + 68}>{lane.who}</text>
+        <rect class={`ar-lane is-${l}`} x={2} y={wy(l)} width={wideW - 4} height={laneH} rx={10} />
+        <text class="ar-name" x={14} y={wy(l) + W.pad + 30}>{lane.name}</text>
+        <text class="ar-who" x={14} y={wy(l) + W.pad + 50}>{lane.who}</text>
         {lane.cells.map((c, i) => {
-          const x = wx(i), y = wy(l) + (W.lh - W.bh) / 2;
+          const x = wx(i), y = wy(l) + W.pad;
           return (
             <g>
               {i > 0 && i < 3 && <line class="ar-arrow" x1={x - W.gap + 3} x2={x - 3} y1={y + W.bh / 2} y2={y + W.bh / 2} marker-end="url(#ar-ah)" />}
               <rect class={`ar-box is-${c.kind}`} x={x} y={y} width={W.cw} height={W.bh} rx={7} />
               {c.kind === "lost" && <line class="ar-cross" x1={x + 8} y1={y + 8} x2={x + W.cw - 8} y2={y + W.bh - 8} />}
-              <text class={`ar-t is-${c.kind}`} x={x + 12} y={y + 31}>{c.title}</text>
-              <text class={`ar-s is-${c.kind}`} x={x + 12} y={y + 55}>{c.kind === "kept" ? "✓ " : c.kind === "lost" ? "✕ " : ""}{c.sub}</text>
+              <text class={`ar-t is-${c.kind}`} x={x + 11} y={y + 31}>{c.title}</text>
+              <text class={`ar-s is-${c.kind}`} x={x + 11} y={y + 54}>{c.kind === "kept" ? "✓ " : c.kind === "lost" ? "✕ " : ""}{c.sub}</text>
               {c.tag && <>
-                <rect class={`ar-tag is-${c.tag}`} x={x + W.cw - 72} y={y - 10} width={64} height={20} rx={10} />
-                <text class={`ar-tagt is-${c.tag}`} x={x + W.cw - 40} y={y + 4} text-anchor="middle">{c.tag}</text>
+                <rect class={`ar-tag is-${c.tag}`} x={x + W.cw - 74} y={y - 10} width={66} height={20} rx={10} />
+                <text class={`ar-tagt is-${c.tag}`} x={x + W.cw - 41} y={y + 4} text-anchor="middle">{c.tag}</text>
               </>}
             </g>
           );
         })}
         {(() => {
-          const y0 = wy(l) + W.pad + W.bh, yl = y0 + 15, x0 = wx(0) + W.cw / 2, x3 = wx(3) + W.cw / 2;
+          const y0 = wy(l) + W.pad + W.bh, yl = y0 + 14, x0 = wx(0) + W.cw / 2, x3 = wx(3) + W.cw / 2;
           return lane.write
-            ? <><path class="ar-write" d={`M${x0} ${y0 + 2} V${yl} H${x3} V${y0 + 4}`} marker-end="url(#ar-ah-r)" /><text class="ar-writet" x={(x0 + x3) / 2} y={yl + 17} text-anchor="middle">{lane.back}</text></>
-            : <><path class="ar-read" d={`M${x0} ${y0 + 2} V${yl} H${x3} V${y0 + 2}`} /><text class="ar-readt" x={(x0 + x3) / 2} y={yl + 17} text-anchor="middle">{lane.back}</text></>;
+            ? <><path class="ar-write" d={`M${x0} ${y0 + 2} V${yl} H${x3} V${y0 + 3}`} marker-end="url(#ar-ah-r)" /><text class="ar-writet" x={(x0 + x3) / 2} y={yl + 19} text-anchor="middle">{lane.back}</text></>
+            : <><path class="ar-read" d={`M${x0} ${y0 + 2} V${yl} H${x3} V${y0 + 2}`} /><text class="ar-readt" x={(x0 + x3) / 2} y={yl + 19} text-anchor="middle">{lane.back}</text></>;
         })()}
       </g>
     ))}
@@ -87,6 +89,7 @@ const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} s
   <svg class="ar-narrow" viewBox={`0 0 ${narrowW} ${narrowH}`} role="img" aria-label={label}>
     <defs>
       <marker id="ar-ah-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ar-ahead" /></marker>
+      <marker id="ar-ah-nr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ar-aheadr" /></marker>
     </defs>
     {lanes.map((lane, l) => (
       <g>
@@ -100,7 +103,7 @@ const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} s
     ))}
     <line class="ar-split" x1={N.side - 4} x2={narrowW - 2} y1={ny(3) - 6} y2={ny(3) - 6} />
     {lanes.map((lane, l) => lane.cells.map((c, i) => {
-      const x = nx(l) + 8, w = N.cw - 16, y = ny(i) + (N.rh - N.bh) / 2 + 4;
+      const { x, w, y } = nbox(l, i);
       return (
         <g>
           {i > 0 && i < 3 && <line class="ar-arrow" x1={x + w / 2} x2={x + w / 2} y1={y - (N.rh - N.bh) + 3} y2={y - 3} marker-end="url(#ar-ah-n)" />}
@@ -109,12 +112,21 @@ const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} s
           <text class={`ar-t is-${c.kind}`} x={x + 9} y={y + 27}>{c.title}</text>
           <text class={`ar-s is-${c.kind}`} x={x + 9} y={y + 47}>{c.kind === "kept" ? "✓ " : c.kind === "lost" ? "✕ " : ""}{c.sub}</text>
           {c.tag && <>
-            <rect class={`ar-tag is-${c.tag}`} x={x + w - 58} y={y - 9} width={54} height={18} rx={9} />
-            <text class={`ar-tagt is-${c.tag}`} x={x + w - 31} y={y + 4} text-anchor="middle">{c.tag}</text>
+            <rect class={`ar-tag is-${c.tag}`} x={x + w - 64} y={y - 9} width={62} height={18} rx={9} />
+            <text class={`ar-tagt is-${c.tag}`} x={x + w - 33} y={y + 4} text-anchor="middle">{c.tag}</text>
           </>}
         </g>
       );
     }))}
+    {lanes.map((lane, l) => {
+      const p = nbox(l, 0), a = nbox(l, 3), xr = p.x + p.w + 4, ym = (b: { y: number }) => b.y + N.bh / 2;
+      return (
+        <g>
+          {lane.write && <path class="ar-write" d={`M${xr - 4} ${ym(p)} H${xr} V${ym(a)} H${xr - 2}`} marker-end="url(#ar-ah-nr)" />}
+          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 18} text-anchor="middle">{lane.write ? "saved over Friday's" : "read only"}</text>
+        </g>
+      );
+    })}
   </svg>
 
   <ul class="ar-lanes-key" aria-hidden="true">
@@ -138,7 +150,7 @@ const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} s
   .ar-lanes text { font-family: var(--sl-font); fill: var(--tl-ink); }
   .ar-col { fill: var(--tl-muted) !important; font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; }
   .ar-narrow .ar-col { font-size: 10px; letter-spacing: 0.04em; }
-  .ar-name { fill: var(--sl-color-white) !important; font-size: 20px; font-weight: 750; }
+  .ar-name { fill: var(--sl-color-white) !important; font-size: 19px; font-weight: 750; }
   .ar-narrow .ar-name { font-size: 15px; }
   .ar-who { fill: var(--tl-muted) !important; font-size: 14px; }
   .ar-narrow .ar-who { font-size: 11px; }
@@ -160,10 +172,12 @@ const label = `Two ways to fix Tuesday. Replay: Friday's ${fridayPages.length} s
   .ar-aheadr { fill: var(--sl-color-red); }
   .ar-writet { fill: var(--sl-color-red-high) !important; font-size: 13.5px; font-weight: 700; }
   .ar-cross { stroke: var(--sl-color-red); stroke-width: 1.4; opacity: 0.35; }
-  .ar-t { font-size: 16.5px; font-weight: 700; fill: var(--sl-color-white) !important; }
+  .ar-t { font-size: 16px; font-weight: 700; fill: var(--sl-color-white) !important; }
   .ar-narrow .ar-t { font-size: 12.5px; }
-  .ar-s { font-size: 14.5px; fill: var(--tl-muted) !important; }
+  .ar-s { font-size: 14px; fill: var(--tl-muted) !important; }
   .ar-narrow .ar-s { font-size: 11px; }
+  .ar-narrow .ar-tagt { font-size: 10.5px; }
+  .ar-narrow .ar-readt, .ar-narrow .ar-writet { font-size: 11px; }
   .ar-s.is-kept { fill: var(--tl-accent) !important; font-weight: 700; }
   .ar-s.is-lost, .ar-t.is-lost { fill: var(--sl-color-red-high) !important; font-weight: 700; }
   .ar-tag.is-changed { fill: #f4c62f; }
