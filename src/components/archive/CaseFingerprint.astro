@@ -83,7 +83,7 @@ const [nRefetch, nLive] = [nOf("refetch-harbor"), nOf("live-changed")];
 
   <div class="cv-check ar-presets" data-once="stale-presets">
     <p class="cv-kind">Knowledge check</p>
-    <p class="cv-qlabel">{spell(presets.length, true)} changes, each starting from a full set of {spell(files)} up-to-date parsed schedules. For each, how many parsed schedules are rebuilt? For the two {harbor} changes, also say how many parsed schedules afterwards show Saturday's {sat0.homeName} v {sat0.awayName} result. The first change is worked above.</p>
+    <p class="cv-qlabel">{spell(presets.length, true)} changes, each starting from {spell(files)} parsed schedules, all up to date with the parser and Friday's saved pages. For each, how many parsed schedules are rebuilt? For the two {harbor} changes, also say how many parsed schedules afterwards show Saturday's {sat0.homeName} v {sat0.awayName} result. The first change is worked above.</p>
     <ol class="ar-plist">
       <li class="ar-pworked">
         <p class="ar-pscene"><b>1. {first.label}.</b> {scene[first.id]}</p>

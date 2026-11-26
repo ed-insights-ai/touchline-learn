@@ -40,7 +40,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
 
 <div class="ar-bench not-content" id={id} data-rb role="group" aria-labelledby={`${id}-title`}>
   <div class="ar-bench-head">
-    <p class="ar-bench-title" id={`${id}-title`}>The replay bench <span>{mode === "tables" ? (choices.length > 1 ? "Same build, three sets of inputs" : "The starting table") : `${spell(presets.length, true)} changes, each from a full set of up-to-date parsed schedules`}</span></p>
+    <p class="ar-bench-title" id={`${id}-title`}>The replay bench <span>{mode === "tables" ? (choices.length > 1 ? "Same build, three sets of inputs" : "The starting table") : `${spell(presets.length, true)} changes, each from parsed schedules up to date with Friday's saved pages`}</span></p>
     {note && <p class="ar-bench-note">{note}</p>}
   </div>
 
@@ -116,7 +116,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
               <div class:list={{ "is-lost": p.fridayEvidenceLost }}><dt>Friday's captures</dt><dd>{p.fridayEvidenceLost ? `${p.watch?.name ?? "One"}'s overwritten` : "All kept"}</dd></div>
             </dl>
             <p class="ar-reading">{reading[p.id](p)}</p>
-            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded before this run; beside it is the current value. The result column is the rebuild decision.</p>
+            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded before this run; beside it is the current value. A fingerprint is 12 characters long; a content hash shows its first 12, and the run compares it in full. The result column is the rebuild decision.</p>
             <p class="ar-cue" aria-hidden="true">Scroll the table sideways for both hashes.</p>
             <div class="ar-scroll" tabindex="0" role="region" aria-label={`Parsed schedules for change ${i + 1}`}>
               <table class="ar-files">
