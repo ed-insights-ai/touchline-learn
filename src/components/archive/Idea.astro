@@ -49,7 +49,7 @@ const loop = [
   ["    save(page, raw, fetched_at=now())  # replaces the last capture, or records it unavailable", "fetch"],
   ["rows = [parse(raw, code, config) for raw in archive.schedules()]", "replay"],
   ["table = build(rows, gaps=archive.unavailable())", "replay"],
-  ["record(table, hashes(archive.schedules()), version(code, config))", "replay"],
+  ["record(table, hashes(archive.schedules()), archive.unavailable(), version(code, config))", "replay"],
 ];
 
 const items: [string, string][] = [
@@ -126,7 +126,7 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6 over the pages the archive holds: that is a replay. Running line 2 again is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only what lines 1 to 3 saved, including which pages were unavailable, plus the code and the config. A parser fix reruns lines 4 to 6 over the pages the archive holds: that is a replay. Running line 2 again is a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s results still come from the other schools' pages, as they did on Monday.</p>
@@ -134,7 +134,7 @@ const items: [string, string][] = [
   <AiCard part="idea" />
 
   <h4 class="cv-try" id="idea-check">Check your understanding: a research survey</h4>
-  <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control.</p>
+  <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control, with every cleaning and chart setting written into it.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
     <Choice save="idea-gone" label="The saved export includes responses more than a year old. The vendor then deletes every response older than a year. Which of the four could the team never rebuild if they lost their copy?"
       options={items}
