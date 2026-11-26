@@ -86,7 +86,7 @@ const checks = [
   <p>Each published pantry-month has a saved fingerprint built from its archived input snapshot, the processing steps it uses, and the rules and configuration for those steps. The agent computes the expected fingerprint using the <strong>same archived inputs</strong> and the corrected processing steps. It compares that fingerprint with the one saved at publication.</p>
   <figure class="pr-card pa-plan">
     <p class="pr-label">Three published outputs</p>
-    <label class="pa-reveal"><input type="checkbox" /> <span>Decide each action yourself, then show the reply's</span></label>
+    <label class="pa-reveal"><input type="checkbox" /> <span>Decide what to replay from the fingerprints, then show the replay and the reply's actions</span></label>
     <div class="pr-scroll">
       <table class="pr-table">
         <thead><tr><th scope="col">Published output</th><th scope="col">Fingerprint comparison</th><th scope="col">Published → replayed</th><th scope="col">Action</th></tr></thead>
@@ -94,7 +94,7 @@ const checks = [
           <tr>
             <th scope="row">{r.output}</th>
             <td>{r.fp}</td>
-            <td class="pa-num">{r.published} → {r.replayed ?? "—"}</td>
+            <td class="pa-num"><span class="pa-act">{r.published} → {r.replayed ?? "—"}</span><span class="pa-act-hidden">{r.published} → ?</span></td>
             <td><span class="pa-act"><span class:list={["pr-chip", r.tone]}>{r.verdict}</span> {r.rest}</span><span class="pa-act-hidden">Your call</span></td>
           </tr>
         ))}</tbody>
@@ -116,7 +116,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's fingerprint covers a whole pantry-month: its input snapshot, steps, rules and configuration. In this course a fingerprint covers one parser's code and config, and each parsed file also keeps the content hash of the page it read. Either way, a difference marks the output stale, and the replay, not the fingerprint, decides what to republish.</p>
-    <p>In Part 8 the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, like every Oak month that went through the importer. The {fresh} schedules come through their own parser and stay fresh, like Maple. The other {others} box scores are Oak's February: replayed, unchanged, nothing to republish. Part 8's third slot asks the reply's Maple question of each published table: did the bug ever reach it?</p>
+    <p>In Part 8 the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, like every Oak month that went through the importer. The {fresh} schedules come through their own parser and stay fresh, like Maple. The other {others} box scores are Oak's February: replayed, unchanged, nothing to republish. Part 8's third slot asks the reply's Maple question of the match detail and of the standings: did the bug ever reach it?</p>
   </aside>
 
   <h2>4. Check your understanding</h2>

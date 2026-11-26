@@ -52,7 +52,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify a fresh fetch with a new alias list against Tuesday's table.",
+    returnTask: "Then come back and classify two runs against Tuesday's: a replay with a new alias list, and a re-fetch with one.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -64,7 +64,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: `Then come back and place one more bug on the grid: a build step that gives Cedar Grove's ${win.away_score}–${win.home_score} win two points.`,
+    returnTask: `Then come back and place one more bug on the grid: a build step that gives Cedar Grove's ${win.away_score}–${win.home_score} win at Hartwell Tech two points instead of three.`,
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -76,7 +76,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and predict rebuilds and fetches when ten static-site pages read one settings file you edit.",
+    returnTask: "Then come back and compare the alias-list preset with a static site whose ten pages all read one settings file you edit.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -88,7 +88,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to choose a policy from the questions the archive will have to answer, such as disputes about past results, weighed against what storage costs.
 4. Why the code and configuration also need their own history for a rebuild of a past output to be exact.
 5. ${close}`,
-    returnTask: "Then come back and pick the league office's policy and name the question that decides it.",
+    returnTask: "Then come back and pick the league office's policy from the question it must answer.",
   },
   rewind: {
     slug: "02-archive-ai-criteria",
