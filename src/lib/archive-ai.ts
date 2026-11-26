@@ -28,7 +28,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Which of the two can reproduce yesterday's output exactly with the old code, or correct it with the fixed code, and what a re-fetch overwrites if I keep only the latest copy of each source.
 4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
 5. ${close}`,
-    returnTask: "Then come back and name one change a live site could have made since Friday, and the column of Saint Lambert's row it would move.",
+    returnTask: "Then come back and name one site change that could move Saint Lambert's numbers.",
   },
   idea: {
     slug: "02-archive-ai-raw",
@@ -52,7 +52,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify two new runs against Tuesday's: one that changes only the alias list, and a fresh fetch with a new alias list.",
+    returnTask: "Then come back and classify a fresh fetch with a new alias list against Tuesday's table.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -64,7 +64,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: `Then come back and place one more bug on the grid: the build step gives Cedar Grove's ${win.away_score}–${win.home_score} win over Hartwell Tech two points.`,
+    returnTask: `Then come back and place one more bug on the grid: a build step that gives Cedar Grove's ${win.away_score}–${win.home_score} win two points.`,
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -76,7 +76,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and predict pages rebuilt and fetched when an offline site generator's ten pages share one settings file, and you edit it.",
+    returnTask: "Then come back and predict rebuilds and fetches when ten static-site pages read one settings file you edit.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -112,7 +112,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What to tell the people who used the published output: a correction note that names what changed and why.
 4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
 5. ${close}`,
-    returnTask: "Then come back and check the finished prompt against the four slots: for each slot, find the step that answers it.",
+    returnTask: "Then come back and check the reply's finished prompt against the four slots.",
   },
   "carry-it": {
     slug: "02-archive-ai-carry",
