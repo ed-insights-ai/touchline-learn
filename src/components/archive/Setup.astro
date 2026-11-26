@@ -12,7 +12,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const film = (name: string) => `${base}film/${name}`;
 const monday = `${story.monday.scored} of ${story.monday.finished}`;
 const shownName = (slug: string) => tableA.rows.find((r) => r.slug === slug)?.name ?? slug;
-const day = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+const day = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 const gaps = tableA.gaps.map((g) => g.kind === "no-score"
   ? `${shownName(g.home)} v ${shownName(g.away)} on ${day(g.date)} finished with no score.`
   : `${shownName(g.programme)}'s page unavailable: ${g.reason}.`);
@@ -43,7 +43,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       <span>Previously: Monday, Then Tuesday</span>
     </a>
     <div>
-      <p>Monday's table went out at {monday} finished matches, with the one missing result named. Nobody called.</p>
+      <p>Monday's table went out at {monday} finished matches, with both gaps named. Nobody called.</p>
       <p>On Tuesday, Kick added a tidy rule to spell out abbreviations in school names. Every “St.” became “State”.</p>
       <p>Then Saint Lambert called.</p>
     </div>
@@ -87,7 +87,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       ))}
     </ol>
   </div>
-  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. The film showed the rule on the published table, where the name appeared, but Kick wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before the table is built.</p>
+  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. The film showed the rule on the published table. Kick actually wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before any table is built.</p>
 
   <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
   <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>

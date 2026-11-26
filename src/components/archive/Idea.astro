@@ -33,14 +33,14 @@ const terms = [
 ];
 
 const bakes = [
-  { recipe: "Old recipe", cells: [{ text: "Bake today", is: "test" }, { text: "Not needed", is: "skip" }] },
+  { recipe: "Old recipe", cells: [{ text: "Bake again today", was: "Last week's loaf", is: "test" }, { text: "Not baked", is: "skip" }] },
   { recipe: "New recipe", cells: [{ text: "Bake today", is: "test" }, { text: "Today's loaf", is: "now" }] },
 ];
 
 const rules = [
   { rule: "Save the bytes before any code parses them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt.", clause: "from the pages you kept", where: "Case 2" },
-  { rule: "Change one thing at a time.", then: "In Riley's replay the pages and config stay fixed, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Record which exact pages produced each output, by a content hash of their bytes (a short code computed from the bytes), and which code and config ran. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
+  { rule: "Change one thing at a time.", then: "Not asking a site again is what keeps the pages fixed. The config stays the same too, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
+  { rule: "Record what produced each output.", then: `Note which exact pages produced each output, by a content hash of their bytes (a short code computed from the bytes), and which code and config ran. Friday's run already recorded a hash for every page it saved. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
 ];
 
 const loop = [
@@ -65,7 +65,7 @@ const items: [string, string][] = [
   <p>Kick fixed the code, yet Tuesday's table still says “{story.tuesdayName}”. That's because the table isn't the code. It's what the code computed from the inputs it was given.</p>
 
   <div class="cv-define">
-    <p><dfn>Derived data is a calculation over saved evidence.</dfn> Every number and name in a published table is the output of three inputs.</p>
+    <p><strong>Derived data is a calculation over saved evidence.</strong> Every number and name in a published table is the output of three inputs.</p>
     <p class="cv-formula ar-formula"><span class="is-out">table</span> = build(parse(<span class="is-pages">saved pages</span>, <span class="is-code">code</span>, <span class="is-config">config</span>))</p>
   </div>
   <ul class="ar-inputs">
@@ -89,7 +89,7 @@ const items: [string, string][] = [
   <h3 id="idea-lanes">Replay or re-fetch</h3>
   <p>Kick's plan and Riley's question both end with the fixed parser and a new table. Compare what each one changes on the way, and what each one leaves in the archive.</p>
   <TwoLanes />
-  <p>The pages a re-fetch would replace are the evidence Monday's table was built from.</p>
+  <p>The pages Kick's re-fetch would replace are the evidence Monday's table was built from.</p>
   <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption="Replay, Don't Refetch." />
 
   <h3 id="idea-one-change">One change at a time</h3>
@@ -101,14 +101,14 @@ const items: [string, string][] = [
         {bakes.map((b) => (
           <tr>
             <th scope="row">{b.recipe}</th>
-            {b.cells.map((c) => <td class={`is-${c.is}`}>{c.text}</td>)}
+            {b.cells.map((c) => <td class={`is-${c.is}`}>{c.was && <span class="ar-was">{c.was}</span>}{c.text}</td>)}
           </tr>
         ))}
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-two" aria-hidden="true"></i>Today's loaf against last week's, which was old recipe, old oven: the recipe and the oven both changed.</span>
-      <span><i class="is-one" aria-hidden="true"></i>The two old oven loaves, baked side by side from the same flour: only the recipe differs.</span>
+      <span><i class="is-two" aria-hidden="true"></i>Last week's loaf against today's: the recipe and the oven both changed.</span>
+      <span><i class="is-one" aria-hidden="true"></i>Two loaves baked side by side today in the old oven, from the same flour: only the recipe differs.</span>
     </figcaption>
   </figure>
   <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To test the recipe, bake both recipes side by side in the old oven, if the bakery still has it, from the same flour on the same afternoon. Only the recipe differs between those two loaves, so any difference between them is the recipe's.</p>
@@ -205,7 +205,7 @@ const items: [string, string][] = [
   .ar-bake thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
   .ar-bake tbody th { width: 28%; color: var(--sl-color-white); font-weight: 650; }
   .ar-bake tbody td { border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); }
-  .ar-bake tbody td.is-was { border: 2px dashed var(--tl-muted); }
+  .ar-bake .ar-was { display: block; width: fit-content; margin: 0 0 0.35rem; padding: 0.05rem 0.4rem; border: 2px dashed var(--tl-muted); border-radius: 4px; color: var(--tl-muted); font-size: 0.8rem; font-weight: 650; }
   .ar-bake tbody td.is-now { border: 2px dashed var(--tl-muted); color: var(--sl-color-white); font-weight: 650; }
   .ar-bake tbody td.is-test { border: 2px solid var(--sl-color-accent); color: var(--sl-color-white); font-weight: 650; }
   .ar-bake tbody td.is-skip { border: 1px dashed var(--tl-line); background: none; color: var(--tl-muted); font-style: italic; }

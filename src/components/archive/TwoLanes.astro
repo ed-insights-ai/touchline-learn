@@ -13,7 +13,7 @@ const lanes: Lane[] = [
       { kind: "raw", tag: "same", title: "Friday's pages", sub: "read, never changed" },
       { kind: "code", tag: "changed", title: "Fixed parser", sub: "same config" },
       { kind: "derived", title: "Rebuilt table", sub: "one input changed" },
-      { kind: "kept", title: "Friday's schedules", sub: "still in the archive" },
+      { kind: "kept", title: "Friday's pages", sub: "still in the archive" },
     ],
   },
   {
@@ -22,7 +22,7 @@ const lanes: Lane[] = [
       { kind: "fresh", tag: "new capture", title: "Tuesday's pages", sub: `${tuesdayManifest.requested} sites, asked again` },
       { kind: "code", tag: "changed", title: "Fixed parser", sub: "same config" },
       { kind: "derived", title: "New table", sub: "two inputs changed" },
-      { kind: "lost", title: "Friday's schedules", sub: "would be replaced" },
+      { kind: "lost", title: "Friday's pages", sub: "would be replaced" },
     ],
   },
 ];
@@ -125,7 +125,7 @@ const label = `Two ways to fix Tuesday, compared with Tuesday's table, which Fri
       return (
         <g>
           {lane.write && <path class="ar-write" d={`M${xr - 4} ${ym(p)} H${xr} V${ym(a)} H${xr - 2}`} marker-end="url(#ar-ah-nr)" />}
-          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "would save over Friday's" : "raw archive unchanged"}</text>
+          <text class={lane.write ? "ar-writet" : "ar-readt"} x={a.x + a.w / 2} y={a.y + N.bh + 19} text-anchor="middle">{lane.write ? "raw archive overwritten" : "raw archive unchanged"}</text>
         </g>
       );
     })}
