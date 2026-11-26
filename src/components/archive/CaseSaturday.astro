@@ -50,7 +50,6 @@ if (!control) throw new Error("Case 1's grid needs an unchanged championship tea
 const graded = tableA.rows.filter((r) => r === control || changed(r.slug));
 const skippedRows = tableA.rows.length - graded.length - 1;
 const savedSide = (slug: string) => { const s = saturday.find((x) => x.home === slug || x.away === slug)!; return s.home === slug ? { name: s.awayName, role: "the visitor" } : { name: s.homeName, role: "the host" }; };
-const ptsCell = diffAC.find((c) => c.slug === "st-lambert" && c.column === "pts")!;
 
 const claims: [string, string][] = [
   ["current", `Fixed ${fixedName}'s name and brought the table up to date with the latest results: ${story.refetch.scored} of ${story.refetch.finished} finished matches.`],
@@ -122,7 +121,7 @@ const compare: [string, string][] = [["code", "Only the code or method changed"]
     <div class="cv-reveal">
       <p>The other {spell(skippedRows)} rows of table A change in neither table, like {worked.name}. Now see all three tables. Pick B, then C. Every changed cell shows table A's value struck through.</p>
       <ReplayBench mode="tables" id="ar-bench-abc" start="B" />
-      <p><b>A to B changes {diffAB.length} cell</b>: {fixedName}'s name. Every number, every place and both named gaps stay exactly as Monday published them. That is what a fix to a display rule should do, and the replay shows it did nothing more.</p>
+      <p><b>A to B changes {diffAB.length} cell</b>: {fixedName}'s name. Every number and every place stay exactly as Monday published them. Both named gaps remain, the first now with the new spelling. That is what a fix to a display rule should do, and the replay shows it did nothing more.</p>
       <p><b>A to C changes {diffAC.length} cells in {rowChanges.C.length} rows.</b> {fixedName}'s name changes for the same reason, and Saturday's two results add a match to each of four teams. The caption moves from {tableA.caption} to {tableC.caption}. The expected set said {story.expected} all along, as in Module 1; two more of them have now finished. {unsaved.map((slug) => <>{rowOf(slug).name}'s row changes although its site still doesn't answer: {rowOf(slug).name} was {savedSide(slug).role === "the host" ? "the visitor" : "the host"}, and {savedSide(slug).name}'s saved page shows the result. Reading both schools' pages, from Module 1, at work.</>)}</p>
       <p class="ar-exact">One exact line: the parsed rows change in more places than the table. “{stBrendanNote.opponent}”, a non-member opponent on {stBrendanNote.pages.length} schedules, stops being “{stBrendanNote.before}” and becomes “{stBrendanNote.after}”. It never reaches the conference table, so no cell shows it.</p>
     </div>
@@ -130,8 +129,8 @@ const compare: [string, string][] = [["code", "Only the code or method changed"]
 
   <Beat part="case-saturday" name="Name it" title="Confounding, on real tables" />
   <p class="cv-lede">Compared with A, table C changed two inputs at once, so A against C can't pin a difference on either one.</p>
-  <p>Look at {fixedName}'s row in C. Its name changed and its points went from {ptsCell.before} to {ptsCell.after}. You know Saturday's result explains the points only because this page stated the facts first. Kick, looking at A and C alone, could not tell. If the fixed rule had broken something, say by attaching a result to the wrong team, that damage would sit among Saturday's real changes and read as news. Part 2 named this: the effects of the code and the pages are <strong>confounded</strong>.</p>
-  <p>A against B holds the pages fixed and changes only the code, so every difference has one cause: its single changed cell is the fix's whole effect on the table, the evidence Riley asked for. B against C holds the code fixed and changes only the pages, so it isolates Saturday. The bench sorted C's {diffAC.length} cells by input the same way, one change at a time.</p>
+  <p>You could sort C's changes by input only because this page stated the facts first. Kick, looking at A and C alone, could not. If the fixed rule had broken something, say by attaching a result to the wrong team, that damage would sit among Saturday's real changes and read as news. Part 2 named this: the effects of the code and the pages are <strong>confounded</strong>.</p>
+  <p>A against B holds the pages fixed and changes only the code, so every difference has one cause: the fix. That diff is the evidence Riley asked for. B against C holds the code fixed and changes only the pages, so it isolates Saturday. The bench sorted C's {diffAC.length} cells by input the same way, one change at a time.</p>
   <p>A re-fetch isn't wrong. It answers a different question: what do the sites say now? Ask the two questions one at a time. Replay first and read a diff that shows only the fix. Fetch later, on purpose, and read a diff that shows only the new results.</p>
 
   <AiCard part="case-saturday" />

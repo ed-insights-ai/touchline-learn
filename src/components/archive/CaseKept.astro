@@ -62,7 +62,7 @@ const sidecarFields: [string, string, string][] = [
   <p>The replay worked because Kick kept Friday's pages. “Kept the pages” can mean several different files, though, and only some of them can check a fix.</p>
 
   <div class="cv-define">
-    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step. Every copy written after that step already carries it, so a fix can be verified only against a copy saved before the step that did the damage.</p>
+    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step. Every copy written after that step holds the damaged value. Unless such a copy also kept the original, a fix can be checked only against a copy saved before the step that did the damage.</p>
   </div>
   <p>The film showed “State Lambert” on the published table, but Kick wrote the tidy rule inside the parser. So the parsed rows already carry the bug, and only the page bytes are clean. Had the rule run only when the table was published, the parsed rows would have been enough.</p>
   <figure class="ar-layers">
@@ -106,7 +106,7 @@ const sidecarFields: [string, string, string][] = [
 
   <div class="cv-check ar-kgrid" data-once="kept-grid">
     <p class="cv-kind">Knowledge check</p>
-    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. For each archive, can you verify the corrected value from that archive alone, using only what the excerpts show?</p>
+    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. For each archive, does it alone still hold what the site published for that value, so you can rerun the fixed step and check the result? Use only what the excerpts show.</p>
     <div class="ar-kg" role="group" aria-label="Bugs against archives">
       <p class="ar-kg-head" aria-hidden="true"><span>Bug</span>{KEPT.map((k) => <span>{label(k)}</span>)}</p>
       {grid.map((bug, i) => (

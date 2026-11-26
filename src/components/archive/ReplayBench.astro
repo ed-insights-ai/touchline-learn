@@ -25,13 +25,14 @@ const gapText = (t: (typeof tables)[Key]["table"]) => t.gaps.map((g) =>
 
 const fileReason = (f: (typeof presetFiles)[string][number]) =>
   !f.rebuilt ? "Fresh" : f.storedFingerprint !== f.nowFingerprint && f.storedContent !== f.nowContent ? "Rebuilt: both" : f.storedFingerprint !== f.nowFingerprint ? "Rebuilt: fingerprint" : "Rebuilt: content hash";
+const watched = (p: (typeof presets)[number]) => presetFiles[p.id].find((f) => f.slug === p.watch!.slug)!;
 const reading: Record<string, (p: (typeof presets)[number]) => string> = {
   "fix-rule": (p) => `The parser module changed, so the fingerprint changed, and every parsed schedule recorded the old one. All ${p.rebuilt} are re-read from Friday's saved pages. Nothing is fetched.`,
   comment: (p) => `A comment changes no output, but the fingerprint hashes the whole file, so all ${p.rebuilt} are rebuilt. That re-reads every saved page for nothing, but it leaves none of the ${spell(p.files)} stale.`,
   alias: (p) => `The alias list is config, and config is part of the fingerprint. The code did not change, yet all ${p.rebuilt} are rebuilt from the saved pages.`,
   nothing: () => "Every parsed schedule's fingerprint and content hash match what it recorded, so nothing is rebuilt and nothing is fetched.",
-  "refetch-harbor": (p) => `A deliberate fetch overwrote ${p.watch!.name}'s saved page with a different one. Its content hash changed, so that one parsed schedule is rebuilt, and Friday's capture of the page is gone.`,
-  "live-changed": (p) => `${p.watch!.name}'s live site now differs from the saved page, but a replay never asks the site. Every hash the run can see still matches, so ${p.rebuilt} are rebuilt and the change stays invisible. Only a fetch could see it.`,
+  "refetch-harbor": (p) => `A deliberate fetch overwrote ${p.watch!.name}'s saved page with a different one. Its content hash went from ${watched(p).storedContent} to ${watched(p).nowContent}, so that one parsed schedule is rebuilt, and Friday's capture of the page is gone.`,
+  "live-changed": (p) => `${p.watch!.name}'s live site now differs from the saved page, but a replay never asks the site. The saved page still hashes to ${watched(p).nowContent}; the live one would hash to ${watched(p).liveContent}. Every hash the run can see still matches, so ${p.rebuilt} are rebuilt and the change stays invisible. Only a fetch could see it.`,
 };
 for (const p of presets) if (!reading[p.id]) throw new Error(`ReplayBench has no reading for preset ${p.id}`);
 const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");

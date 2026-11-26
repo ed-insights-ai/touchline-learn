@@ -45,7 +45,7 @@ const [first, ...rest] = presets;
 if (first.id !== "fix-rule") throw new Error("Case 3 works the tidy rule fix as its first preset");
 const lambertFiles = presetFiles["fix-rule"];
 const nOf = (id: string) => presets.findIndex((p) => p.id === id) + 1;
-const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf("live-changed")];
+const [nRefetch, nLive] = [nOf("refetch-harbor"), nOf("live-changed")];
 ---
 
 <section id="case-fingerprint">
@@ -74,7 +74,7 @@ const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf(
 
   <p>Kick would not have had to work out where a name comes from. A fingerprint flags every parsed schedule written by different code, wherever the name appears.</p>
   <div class="cv-define">
-    <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even the parts this parser doesn't read, so it errs toward rebuilding. Change any of it, even one character, and the fingerprint changes.</p>
+    <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even the parts this parser doesn't read, so it errs toward rebuilding. Change any of it, even one character in a comment, and the fingerprint changes, barring a hash collision too rare to plan for.</p>
     <p class="cv-formula"><span>fingerprint</span> = hash(<span>parser module</span>, page reader, alias list, membership list, season)</p>
   </div>
   <p>A <strong>content hash</strong> does the same for a saved page: a hash of its bytes, kept in its sidecar. The fingerprint tracks the code; the content hash tracks the page. Each parsed schedule records both, from the run that wrote it. The rule is short:</p>
@@ -113,7 +113,7 @@ const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf(
 
   <Beat part="case-fingerprint" name="Name it" title="Cache invalidation, and why its mistakes aren't equal" />
   <p class="cv-lede">Deciding which saved results are out of date is called cache invalidation. Its two mistakes cost very different amounts.</p>
-  <p>Rebuilding too much, as in change {nComment}, costs extra work: re-reading {spell(files)} saved pages that had not changed. Rebuilding too little risks publishing stale output with no error: Kick's plan left {spell(kickPartial.pagesSkipped)} parsed schedules stale, and the table went on saying “{kickName}” after the code was fixed. So a whole-file fingerprint over-rebuilds on purpose. Neither hash, though, can see a live site that changed after the last fetch.</p>
+  <p>Rebuilding too much costs extra work: re-reading saved pages that had not changed. Rebuilding too little risks publishing stale output with no error: Kick's plan left {spell(kickPartial.pagesSkipped)} parsed schedules stale, and the table went on saying “{kickName}” after the code was fixed. So a whole-file fingerprint over-rebuilds on purpose. Neither hash, though, can see a live site that changed after the last fetch.</p>
 
   <Touchline part="case-fingerprint" at={["Archive", "Parse"]} note="A stale fingerprint sends Parse back to the archive, never to the site." title="A fingerprint over the whole parser">
     <p>Touchline's fingerprint covers the parser's whole module plus its configured inputs: aliases, membership and the season. Each parsed result records it. When a parser or an alias list changes, every result with an old fingerprint is re-read from the archived bytes, without a single fetch.</p>
