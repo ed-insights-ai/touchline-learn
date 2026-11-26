@@ -1,0 +1,110 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { noScore } from "../../../lib/cases";
+
+const card = archiveAi["case-kept"];
+
+const layers = [
+  { name: "Raw vendor file", holds: "The original file, with the count blank", use: "Rerun the whole import and check what the vendor actually sent.", state: "clean" },
+  { name: "Parsed rows", holds: "Fields extracted from the file, with the blank still intact", use: "Start here to test the corrected cleaning step on the same input it originally received.", state: "last" },
+  { name: "Cleaned rows", holds: "A 0 where the cleaner mistakenly converted the blank", use: "Compare old and corrected results. This copy already carries the bug.", state: "bug", bug: true },
+  { name: "Published catalog", holds: "“0 copies available”", use: "Check what readers saw and verify that republishing displays “Availability unknown.”", state: "bug" },
+];
+const chips: Record<string, [string, string]> = {
+  clean: ["Before the damage", "is-ok"],
+  last: ["Last layer before the damage", "is-ok"],
+  bug: ["Carries the bug", "is-bad"],
+};
+
+const receipt = [
+  ["Source and request details, such as the URL, branch filter, and page number", "Identify which feed and slice the file represents."],
+  ["Fetch timestamp in UTC", "Establish when the library retrieved the file and help match it to a run or incident."],
+  ["Vendor snapshot ID or file version, if supplied", "Identify which edition the vendor served. A retry can retrieve the same edition at a later time."],
+  ["Response status, content type, and encoding, if supplied", "Help distinguish a catalog file from an error response and explain how the file should be read."],
+  ["Import run ID and fetcher version", "Tie the file to the logs and the code that retrieved it."],
+  ["File size and checksum", "Check whether the archived bytes still match what was saved."],
+];
+
+const checks = [
+  "If the parser turns blanks into zeros before saving the parsed rows, which saved copy would you replay from, and why?",
+  "If all you have is a cleaned row with a count of 0, what can you conclude about what the vendor sent?",
+  "If the library fetches the same vendor snapshot twice, which receipt field tells you it was the same edition, and which field distinguishes the two fetches?",
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("case-kept")}`}
+  about="This is a reply an AI assistant gave to Module 2's raw-zone study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 2 and place one more bug on the grid: the tidy rule that turned “St. Brendan” into “State Brendan”."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p>Imagine a public library imports a nightly catalog file from a vendor. One row lists the author as <code>García, Ana</code>, the title as <code>&lt;i&gt;River Maps&lt;/i&gt;</code>, and the available-copy count as blank. In this feed, a blank means the vendor hasn’t reported a count. A <code>0</code> means it reported that no copies are available.</p>
+
+  <h2>1. Save what arrived before cleaning it</h2>
+  <p>The <strong>raw zone</strong>, also called the <strong>bronze layer</strong>, stores the file as received, including its original spelling, markup, blanks, and even malformed rows. The library saves it before cleaning starts so the original survives if the cleaning step crashes, skips rows, or quietly changes a value. The vendor might replace the file the next night, so fetching it again could give the library a different starting point.</p>
+
+  <h2>2. Replay from the last saved layer before the bug</h2>
+  <p>Suppose the library saves a copy at each stage.</p>
+  <ol class="pa-ladder">
+    {layers.map((l) => (
+      <li class={`is-${l.state}`}>
+        <p class="pa-ladder-head"><b>{l.name}</b><span class:list={["pr-chip", chips[l.state][1]]}>{chips[l.state][0]}</span></p>
+        <p class="pa-ladder-holds">{l.holds}</p>
+        <p>{l.use}</p>
+        {l.bug && <p class="pa-ladder-step">The cleaner's bug runs here</p>}
+      </li>
+    ))}
+  </ol>
+  <p>The parsed rows are the <strong>last saved layer before the damage</strong>. Replay means feeding those rows through the corrected cleaner and rerunning the downstream steps. To verify the fix, check both a row with a blank and a row with an explicit <code>0</code>. They should come out differently.</p>
+
+  <h2>3. Keep the details future questions may depend on</h2>
+  <p>Once the cleaner turns both blank and <code>0</code> into <code>0</code>, the cleaned value alone can’t tell you which input produced it. The same goes for a plain title after markup removal or an author name after rewriting. Several different originals can produce the same cleaned value. You need an earlier copy that still preserves the distinction.</p>
+  <figure class="pr-card pa-merge">
+    <div class="pa-merge-in">
+      <p><code>blank</code><span>not reported</span></p>
+      <p><code>0</code><span>none available</span></p>
+    </div>
+    <p class="pr-arrow"><span>cleaner</span></p>
+    <div class="pa-merge-out"><p><code>0</code><span>which one was it?</span></p></div>
+  </figure>
+  <p>The raw file can also answer questions that never came up when the pipeline was designed. Months later, the library might ask whether the vendor left copy counts blank more often for e-books than for print books. If the feed included format and the original count, the archived files let the library investigate even if nobody tracked that metric at the time.</p>
+
+  <h2>4. Save a small receipt beside each raw file</h2>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Field</th><th scope="col">Why it’s worth keeping</th></tr></thead>
+      <tbody>{receipt.map(([f, w]) => <tr><th scope="row">{f}</th><td>{w}</td></tr>)}</tbody>
+    </table>
+  </div>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>The reply's blank read as zero is {noScore.home} v {noScore.away} on {noScore.day}: a bare “Final” with no score, read as a scoreless draw.</p>
+    <p>In the reply, the blank survives parsing because the bug is in the cleaner, so the parsed rows are the last layer before the damage. Kick's tidy rule ran inside the parser, so Kick's parsed rows already carry it. And Kick's tidied HTML looks raw, but the tidy step ran before the saver wrote it, so it is a cleaned layer too.</p>
+    <p>The reply's receipt is what Touchline calls the sidecar: the requested and final URL, the fetch time, the status and a content hash of the bytes.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-ladder { display: grid; gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pa-ladder li { padding: 0.6rem 0.85rem; border: 1px solid var(--tl-line); border-left-width: 4px; border-radius: 8px; background: var(--tl-card); }
+  .pa-ladder li.is-clean { border-left-color: var(--tl-raw-edge); }
+  .pa-ladder li.is-last { border-left-color: var(--pr-green); box-shadow: 0 0 0 1px var(--pr-green); }
+  .pa-ladder li.is-bug { border-left-color: var(--pr-red); }
+  :global(.pr) .pa-ladder p { margin: 0 0 0.2rem; font-size: 0.9rem; }
+  :global(.pr) .pa-ladder-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem 0.6rem; }
+  .pa-ladder-head b { color: var(--sl-color-white); font-size: 1rem; }
+  :global(.pr) .pa-ladder-holds { color: var(--tl-muted); }
+  :global(.pr) .pa-ladder-step { color: var(--pr-red); font-size: 0.78rem !important; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .pa-merge { display: grid; gap: 0.5rem; align-items: center; }
+  @media (min-width: 46rem) { .pa-merge { grid-template-columns: 1fr auto 1fr; } }
+  .pa-merge-in, .pa-merge-out { display: grid; gap: 0.35rem; }
+  :global(.pr) .pa-merge-in p, :global(.pr) .pa-merge-out p { display: flex; justify-content: space-between; gap: 0.5rem; margin: 0; padding: 0.4rem 0.7rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-size: 0.88rem; }
+  :global(.pr) .pa-merge-out p { border: 1.5px dashed var(--pr-red); }
+  .pa-merge span { color: var(--tl-muted); }
+</style>

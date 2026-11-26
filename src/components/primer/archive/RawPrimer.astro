@@ -1,0 +1,85 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi.idea;
+
+const stamp = [
+  ["Raw inputs", "Which saved files it was built from"],
+  ["Code version", "Which version of the code ran"],
+  ["Settings", "Which settings that code read"],
+];
+
+const days = [
+  { day: "Monday", saved: true, note: "Export saved. A replay with the fixed counting code rebuilds Monday’s counts, even though the live catalog has changed." },
+  { day: "Tuesday", saved: false, note: "Never saved. No replay can reconstruct what the catalog contained on Tuesday." },
+];
+
+const checks = [
+  "A parser strips leading zeros from customer IDs. What would you need to have saved to recover the original IDs?",
+  "Two reports use the same raw file but show different totals. What should each report record so you can investigate?",
+  "You saved a catalog on Monday and Friday. On Friday, you fix a counting bug. Which days can you rebuild, and what can you say about Wednesday’s catalog?",
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("idea")}`}
+  about="This is a reply an AI assistant gave to Module 2's raw-and-derived study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and say which of the things the research team kept it could rebuild if it lost them."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p><strong>Raw data</strong> is what a source actually sent. Save an exact copy before your code parses, filters, or transforms it. If the first step misreads a value or drops a field, you still have the original to work with.</p>
+  <p><strong>Derived data</strong> is what your code makes from those inputs. You can delete and rebuild it if you keep the raw inputs, the code version, and the settings that produced it. Record those three things with each output so you can trace where it came from, reproduce it, and identify which outputs a bug affected.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Recorded with each output</p>
+    <dl class="pa-stamp">
+      {stamp.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+    </dl>
+  </figure>
+
+  <h2>Three examples</h2>
+  <ol class="pa-examples">
+    <li><b>Weather</b><span>A station sends readings in Fahrenheit. Your code treats them as Celsius when calculating daily averages. Fix the unit conversion and replay the saved readings to rebuild the averages.</span></li>
+    <li><b>Retail</b><span>Your sales report drops refunds because the parser skips negative amounts. If you saved the original transaction file, a replay can count those refunds. If you saved only the daily totals, a replay cannot recover the missing transactions.</span></li>
+    <li><b>Libraries</b><span>You save Monday’s catalog export, then discover a bug in how your code counts books by language. Replaying Monday’s export can fix Monday’s counts, even if the live catalog has changed. If you never saved Tuesday’s catalog, a replay cannot reconstruct what it contained on Tuesday.</span></li>
+  </ol>
+  <figure class="pr-card">
+    <ol class="pa-days">
+      {days.map((d) => (
+        <li class={d.saved ? "is-saved" : "is-lost"}>
+          <p><b>{d.day}</b><span class:list={["pr-chip", d.saved ? "is-ok" : "is-bad"]}>{d.saved ? "Saved" : "Not saved"}</span></p>
+          <p>{d.note}</p>
+        </li>
+      ))}
+    </ol>
+    <figcaption>The library example, day by day. A replay rebuilds from what was saved, and only from that.</figcaption>
+  </figure>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config.</p>
+    <p>Dunmore's page is the library's Tuesday. It was never saved on Friday, so no replay recovers it. Its results still come from the visitors' saved pages, as they did on Monday.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-stamp { display: grid; gap: 0.4rem; margin: 0; }
+  @media (min-width: 46rem) { .pa-stamp { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .pa-stamp div { padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-derived-edge); border-radius: 6px; background: var(--tl-bg); }
+  .pa-stamp dt { color: var(--sl-color-white); font-weight: 700; }
+  .pa-stamp dd { margin: 0; color: var(--tl-muted); font-size: 0.86rem; }
+  .pa-examples { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
+  .pa-examples li { display: grid; gap: 0.15rem; padding: 0.6rem 0.85rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-card); }
+  .pa-examples b { color: var(--pr-ai); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pa-days { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 46rem) { .pa-days { grid-template-columns: 1fr 1fr; } }
+  .pa-days li { padding: 0.6rem 0.8rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); }
+  .pa-days li.is-lost { border: 1.5px dashed var(--pr-red); }
+  :global(.pr) .pa-days p { margin: 0 0 0.3rem; font-size: 0.9rem; }
+  :global(.pr) .pa-days p:first-child { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+  .pa-days b { color: var(--sl-color-white); }
+</style>

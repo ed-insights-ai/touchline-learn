@@ -1,0 +1,106 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi["prove-it"];
+
+const artifacts = [
+  ["Citywide report", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
+  ["Dashboard download", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
+  ["Building inventory", "Unaffected", "is-ok", "Leave alone: its fingerprint shows a separate pipeline"],
+  ["Anything without provenance", "Unknown", "is-warn", "Hold for investigation"],
+];
+
+const agentPrompt = `Fix the watt-hour to kilowatt-hour conversion bug in the city electricity
+reporting pipeline and stage a correction for the January–March releases.
+
+1. Inventory the published artifacts. For each artifact, read the build manifest
+   or verified provenance record. Identify its source snapshot, relevant step
+   versions and settings, and upstream artifact fingerprints. Trace downstream
+   dependencies from the faulty conversion. Classify each artifact as affected,
+   unaffected, or unknown. Explain each classification using the recorded
+   provenance. Hold unknown artifacts for investigation.
+
+2. Replay affected builds in staging using their original input snapshots and
+   pinned dependencies, with the conversion fix applied. Validate the conversion
+   and reconcile the rebuilt totals against the source readings. Compare the
+   rebuilt artifacts with the published versions, ignoring generation timestamps
+   and other incidental build metadata. Record which user-facing values changed.
+
+3. Propose republication for affected artifacts whose published content changed,
+   including downstream reports or downloads with changed values. Leave
+   unaffected artifacts and artifacts with identical published content in place.
+   Preserve the original releases in the archive and propose versioned
+   replacements for the corrected artifacts.
+
+4. Draft a correction note that names the affected releases, explains the unit
+   error, gives verified before-and-after figures, and identifies where readers
+   can get the corrected files. Include what readers should replace if they used
+   the original figures.
+
+5. Before publishing, report the root cause and fix, each artifact's classification
+   and supporting fingerprint evidence, the replay inputs, validation results,
+   before-and-after figures, unresolved provenance gaps, and the exact artifacts
+   proposed for replacement. Include the staged files and the draft correction
+   note. Stop and wait for my approval before replacing any published artifact or
+   sending the notice.`;
+
+const checks = [
+  "A February download has no build manifest, but its totals look plausible. How should the agent classify it, and why?",
+  "A report’s fingerprint shows it used the faulty conversion, but the replay produces identical published figures and content. What should the agent do with the report?",
+  "What evidence should you ask the agent to show before approving republication, and which parts of that evidence belong in the public correction note?",
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("prove-it")}`}
+  about="This is a reply an AI assistant gave to Module 2's recovery-plan study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Prove it and check the reply's finished prompt against the slots you filled: what to replay, what is stale, what to republish and what to tell readers."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p>Use fingerprints to decide <strong>what needs replay</strong>, then compare the replayed output with the published version to decide <strong>what needs a correction</strong>.</p>
+  <p>Suppose a city discovers in July that its January–March electricity reports treated some meter readings in watt-hours as though they were already in kilowatt-hours. The published package includes a citywide report, a dashboard download, and a separate inventory of city buildings.</p>
+
+  <h2>What to replay and republish</h2>
+  <p>Start with the archived inputs and a manifest of what actually produced each published artifact. A useful fingerprint identifies the source snapshot, the versions of the processing steps that ran, their relevant configuration, and the upstream artifacts they consumed. Use those recorded dependencies to trace the faulty conversion through the published outputs. Replay every affected build from its original input snapshot, with the conversion fixed and the other dependencies pinned. Hold any artifact whose provenance is missing or inconclusive for investigation.</p>
+  <p>Then compare each rebuilt artifact against the published version. Compare the data people use, such as CSV values or report totals, independently of incidental differences such as a fresh generation timestamp. Republish the report and dashboard download if their figures changed. Leave the building inventory alone if its fingerprint shows that it came from a separate pipeline. If a replayed artifact has identical published content, record the verification and keep the existing publication.</p>
+  <figure class="pr-card">
+    <p class="pr-label">The city's published package, classified</p>
+    <div class="pr-scroll">
+      <table class="pr-table">
+        <thead><tr><th scope="col">Artifact</th><th scope="col">Class</th><th scope="col">Action</th></tr></thead>
+        <tbody>{artifacts.map(([a, c, tone, act]) => <tr><th scope="row">{a}</th><td><span class:list={["pr-chip", tone]}>{c}</span></td><td>{act}</td></tr>)}</tbody>
+      </table>
+    </div>
+  </figure>
+
+  <h2>What to tell people who used it</h2>
+  <p>A correction note should identify the affected releases, name the figures that changed, explain the cause, and point readers to the corrected versions. For example, if the replay confirmed these results:</p>
+  <blockquote class="pa-note">
+    <p><strong>Correction to the January–March city electricity reports</strong></p>
+    <p>We corrected the monthly electricity totals in the citywide report and dashboard download. The original releases overstated consumption because some meter readings in watt-hours were counted as kilowatt-hours. The March total changed from 2.8 million kWh to 1.9 million kWh. The corrected files include revised figures for all three months. If you used the original figures, replace them with the corrected release.</p>
+  </blockquote>
+
+  <h2>Finished prompt for the coding agent</h2>
+  <div class="pr-code">
+    <p class="pr-label">Prompt</p>
+    <pre>{agentPrompt}</pre>
+  </div>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>The reply's “fingerprint” covers an artifact's whole provenance. In this course the word is narrower: a hash of one parser's code and the config it reads, stored with each parsed file beside the content hash of the page it read. The reasoning is the same. An output whose fingerprint changed is stale; one whose fingerprint did not change is left alone, like the city's building inventory.</p>
+    <p>The reply's step 5 is Rewind's lesson again: the agent reports evidence and waits for approval before anything is republished.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--pr-yellow); border-radius: 8px; background: var(--tl-card); font-style: normal; }
+  :global(.pr) .pa-note p:last-child { margin: 0; }
+  .pa-note strong { color: var(--sl-color-white); }
+  .pr-code pre { white-space: pre-wrap; }
+</style>

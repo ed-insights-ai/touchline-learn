@@ -1,0 +1,107 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi["case-saturday"];
+const rate = { before: 4, after: 6 };
+
+type Arm = { label: string; factors: [string, string, boolean][] };
+const designs: { field: string; confounded: Arm[]; controlled: Arm[]; verdict: [string, string] }[] = [
+  {
+    field: "Website",
+    confounded: [
+      { label: `Before · ${rate.before}% signup`, factors: [["Button", "old wording", false], ["Form", "long", false]] },
+      { label: `After · ${rate.after}% signup`, factors: [["Button", "new wording", true], ["Form", "short", true]] },
+    ],
+    controlled: [
+      { label: "Group A · same period", factors: [["Button", "old wording", false], ["Form", "same", false]] },
+      { label: "Group B · same period", factors: [["Button", "new wording", true], ["Form", "same", false]] },
+    ],
+    verdict: [`${rate.after - rate.before} points, two causes`, "One deliberate difference"],
+  },
+  {
+    field: "Laboratory",
+    confounded: [
+      { label: "Cup 1", factors: [["Water", "cool", false], ["Stirring", "none", false]] },
+      { label: "Cup 2", factors: [["Water", "hot", true], ["Stirring", "stirred", true]] },
+    ],
+    controlled: [
+      { label: "Cup 1", factors: [["Water", "cool", false], ["Stirring", "same rate", false]] },
+      { label: "Cup 2", factors: [["Water", "hot", true], ["Stirring", "same rate", false]] },
+    ],
+    verdict: ["Faster, two causes", "One deliberate difference"],
+  },
+];
+
+const checks = [
+  "A website changes its headline and adds customer reviews, and signups rise. Why can’t the team tell how much the new headline helped?",
+  "How would you redesign the salt experiment to test the effect of stirring, and what would you hold fixed?",
+  "You fix a bug that skipped some rows, then run the fixed pipeline on a fresh export. The output has more rows. What comparison would help you tell whether the fix caused the increase?",
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("case-saturday")}`}
+  about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 1 and say why table C's Saint Lambert row alone can't tell you whether the fixed rule changed any numbers."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p>A <strong>controlled comparison</strong> asks what happens when you change one input and keep the other relevant conditions the same. That gives you a way to attribute a difference to the input you deliberately changed. You still need enough observations to tell a real effect from ordinary variation.</p>
+
+  <h2>Website A/B test</h2>
+  <p>Suppose your website’s signup rate rises from {rate.before}% to {rate.after}% after you rewrite the signup button <strong>and</strong> shorten the form. Those changes are <strong>confounded</strong> in the before-and-after comparison. The two-percentage-point increase could come from the button, the shorter form, or the way they work together. The two measurements alone can’t tell you how much each change contributed.</p>
+  <p>To test the button wording, randomly assign visitors arriving during the same period to two versions of the page. Give both groups the same form, layout, and signup flow. Use the same definition of a completed signup. With button wording as the only deliberate difference, the gap between the groups estimates the effect of that wording.</p>
+
+  <h2>Laboratory experiment</h2>
+  <p>Suppose salt dissolves faster in a cup of hot water that you stir than in a cup of cool water that you leave still. Temperature and stirring changed together, so the result can’t tell you how much either contributed.</p>
+  <p>To test temperature, compare hot and cool water while stirring both at the same rate. Use the same amount of water, the same amount and grain size of salt, identical cups, and the same rule for deciding when the salt has dissolved. Repeat the trials to see how much the times vary.</p>
+  <figure class="pr-card pa-designs">
+    {designs.map((d) => (
+      <div class="pa-design">
+        <p class="pr-label">{d.field}</p>
+        <div class="pa-pair">
+          {([["Confounded", d.confounded, d.verdict[0], "is-bad"], ["Controlled", d.controlled, d.verdict[1], "is-ok"]] as const).map(([name, arms, verdict, tone]) => (
+            <div class="pa-side">
+              <p class="pa-side-head"><b>{name}</b><span class:list={["pr-chip", tone]}>{verdict}</span></p>
+              {arms.map((arm) => (
+                <div class="pa-arm">
+                  <span>{arm.label}</span>
+                  <ul>{arm.factors.map(([k, v, changed]) => <li class={changed ? "is-changed" : ""}>{k}: {v}</li>)}</ul>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+    <p class="pr-legend"><span class="pa-key-changed">Differs between the two arms</span></p>
+  </figure>
+
+  <h2>Fixing a data pipeline</h2>
+  <p>Treat the code version as the input you’re changing. Run the fixed code on the <strong>same saved input data</strong> and with the same settings as the original run. If you collect fresh data at the same time, a change in the output could come from the fix, the new data, or both. Reusing the original data isolates the effect of the code change. To check that the fix is correct, compare the new output with what you expect for those inputs.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Case 1's tables are the reply's two designs. Table C is the before-and-after: it changes the code and the pages at once, like the new button with the shorter form. Table B is the controlled comparison: Friday's saved pages held fixed and only the tidy rule changed, so every difference between Tuesday's table and table B has one cause.</p>
+    <p>The reply's third question is Kick's re-fetch in another field.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-designs { display: grid; gap: 1rem; }
+  .pa-pair { display: grid; gap: 0.5rem; }
+  @media (min-width: 46rem) { .pa-pair { grid-template-columns: 1fr 1fr; } }
+  .pa-side { display: grid; gap: 0.4rem; align-content: start; padding: 0.6rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); }
+  :global(.pr) .pa-side-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem; margin: 0; }
+  .pa-side-head b { color: var(--sl-color-white); }
+  .pa-arm { display: grid; grid-template-columns: minmax(0, 9.5rem) 1fr; gap: 0.5rem; align-items: center; font-size: 0.86rem; }
+  .pa-arm > span { color: var(--tl-muted); }
+  .pa-arm ul { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0; padding: 0; list-style: none; }
+  .pa-arm li { padding: 0.05rem 0.5rem; border: 1px solid var(--tl-line); border-radius: 999px; background: var(--tl-card); white-space: nowrap; }
+  .pa-arm li.is-changed { border-color: #d9822b; background: color-mix(in srgb, #d9822b 18%, var(--tl-card)); color: var(--sl-color-white); font-weight: 600; }
+  .pa-key-changed::before { border: 1px solid #d9822b; background: color-mix(in srgb, #d9822b 30%, transparent) !important; border-radius: 3px !important; }
+</style>

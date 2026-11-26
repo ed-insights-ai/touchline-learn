@@ -1,0 +1,98 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi["case-fingerprint"];
+
+const cells = [
+  { name: "Revenue cell", code: "revenue code", setting: "currency", input: "sales.csv" },
+  { name: "Inventory cell", code: "inventory code", setting: null, input: "inventory.csv" },
+];
+type Change = { label: string; touches: string; seen: boolean };
+const changes: Change[] = [
+  { label: "Edit the revenue cell's code", touches: "revenue code", seen: true },
+  { label: "Switch currency from USD to EUR", touches: "currency", seen: true },
+  { label: "Edit the local sales.csv", touches: "sales.csv", seen: true },
+  { label: "Edit the local inventory.csv", touches: "inventory.csv", seen: true },
+  { label: "The server updates sales.csv; nothing fetches it", touches: "sales.csv", seen: false },
+];
+const verdict = (c: Change, cell: (typeof cells)[number]) => {
+  const fingerprint = c.touches === cell.code || c.touches === cell.setting;
+  const input = c.touches === cell.input;
+  if (!fingerprint && !input) return ["Reuse", "is-quiet", ""];
+  if (!c.seen) return ["Reuse", "is-bad", "stale, unseen"];
+  return ["Rebuild", "is-ok", fingerprint ? "fingerprint differs" : "input hash differs"];
+};
+
+const checks = [
+  "A notebook cell’s code and CSV are unchanged, but the cell now reads currency=EUR instead of currency=USD. What should change in the cache records, and why?",
+  "A step hashes an entire CSV but uses only one column. Someone edits an unused column. What will the cache do, and what is the cost of that decision?",
+  "A report uses a local copy of a remote file. The remote file changes, but the local copy’s hash still matches. What would the system need to check to discover the change?",
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("case-fingerprint")}`}
+  about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 3 and say why the comment-edit preset rebuilds every parsed schedule, and why that is the safe mistake."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p>A cache answers one question: <strong>Would running this step today produce the same result as last time?</strong> Build tools approximate the answer by recording what the step ran and what it read.</p>
+
+  <h2>1. Fingerprint the code and the settings it uses</h2>
+  <p>A <strong>fingerprint</strong> is a compact identifier, usually a hash, computed from the code and configuration that determine a step’s behavior. Imagine a notebook cell that reads <code>sales.csv</code> and calculates revenue. If it reads a <code>currency</code> setting, switching from USD to EUR can change the result even when the cell and CSV stay byte-for-byte identical. The currency setting belongs in the fingerprint.</p>
+  <p>The same idea applies to memoisation. A function that formats dates can cache results by <code>(date, locale)</code>. If it reads the locale from a global setting and caches by <code>date</code> alone, changing the locale can leave it serving dates in the old format.</p>
+
+  <h2>2. Compare what the step ran and what it read</h2>
+  <p>Suppose the notebook cache records the cell’s fingerprint and the hash of <code>sales.csv</code> when the cell runs. On the next run, either difference makes the cached output stale:</p>
+  <ul>
+    <li>A <strong>different fingerprint</strong> means the calculation or its settings changed.</li>
+    <li>A <strong>different input hash</strong> means the data the calculation read changed.</li>
+  </ul>
+  <p>Recording these dependencies lets the system decide which outputs to rebuild. A cell that reads <code>sales.csv</code> can be invalidated automatically when the file changes, while a cell that reads only <code>inventory.csv</code> can reuse its own result if its other dependencies still match.</p>
+  <figure class="pr-card">
+    <p class="pr-label">The notebook's two cells after one change</p>
+    <div class="pr-scroll">
+      <table class="pr-table pa-stale">
+        <thead><tr><th scope="col">Change</th>{cells.map((c) => <th scope="col">{c.name}<small>{[c.code, c.setting, c.input].filter(Boolean).join(" · ")}</small></th>)}</tr></thead>
+        <tbody>
+          {changes.map((ch) => (
+            <tr>
+              <th scope="row">{ch.label}</th>
+              {cells.map((cell) => { const [v, tone, why] = verdict(ch, cell); return <td><span class:list={["pr-chip", tone]}>{v}</span>{why && <small>{why}</small>}</td>; })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <figcaption>Each cell keeps a fingerprint of its code and settings and a hash of the file it read. The last row is section 4: the local copy never changed, so nothing looks stale.</figcaption>
+  </figure>
+  <p>Classic <code>make</code> applies the same dependency idea using file modification times by default. For <code>report.html: sales.csv render.py</code>, it rebuilds a missing report or one older than either prerequisite. If the renderer also reads <code>report.toml</code>, declaring that file as a prerequisite lets <code>make</code> notice when it changes.</p>
+
+  <h2>3. Extra rebuilds and missed rebuilds have different costs</h2>
+  <p>For a deterministic step, rebuilding unnecessarily costs time and compute. Reusing a stale result can quietly give you the wrong answer. A report in yesterday’s currency can still open and look perfectly valid.</p>
+  <div class="pr-twin">
+    <div><p><b>Rebuild too much</b></p><p>Costs time and compute.</p></div>
+    <div><p><b>Rebuild too little</b></p><p>Can quietly give you the wrong answer.</p></div>
+  </div>
+  <p>That asymmetry is why some caches hash a whole file on purpose. If a calculation uses one column of <code>sales.csv</code>, a change to an unused column can trigger an extra rebuild. Hashing the whole file keeps the dependency check simple and also catches changes to headers, row order, or other details the calculation might rely on.</p>
+
+  <h2>4. A fingerprint can only capture what the system observes</h2>
+  <p>Suppose the notebook downloaded <code>sales.csv</code> on Monday and still has that local copy on Wednesday. If the server updated the file on Tuesday, hashing the local copy on Wednesday still gives Monday’s hash. The cache needs a fresh fetch or a check against a remote version identifier to discover the update. The same blind spot applies to untracked dependencies such as a notebook variable, an environment variable, or the current date.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Touchline's fingerprint hashes the parser's whole module plus the config it reads: the alias list, the membership file and the season. That is the reply's whole-file choice, applied to code instead of data. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
+    <p>The reply's section 4 is Case 3's last preset: a live site that changed since Friday stays invisible until something fetches it.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-stale th small, .pa-stale td small { display: block; color: var(--tl-muted); font-size: 0.75rem; font-weight: 500; letter-spacing: 0; text-transform: none; }
+  .pa-stale td small { margin-top: 0.2rem; }
+  .pa-stale :global(.pr-chip.is-quiet) { background: transparent; border: 1px solid var(--tl-line); color: var(--tl-muted); }
+</style>

@@ -1,0 +1,103 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi.setup;
+const usd = (n: number) => `$${n}`;
+
+const saved = [
+  { name: "First order", amount: 100, discount: 10 },
+  { name: "Second order", amount: 40, discount: 0 },
+];
+const today = [
+  { name: "First order", amount: 100, discount: 10 },
+  { name: "Second order", amount: 35, discount: 0, note: "corrected" },
+  { name: "Late order", amount: 20, discount: 0, note: "new" },
+];
+const buggy = (rows: typeof saved) => rows.reduce((n, r) => n + r.amount, 0);
+const fixed = (rows: typeof saved) => rows.reduce((n, r) => n + r.amount - r.discount, 0);
+
+const before = buggy(saved);
+const replay = fixed(saved);
+const refetch = fixed(today);
+const fromCode = replay - before;
+const fromSource = refetch - replay;
+const signed = (n: number) => `${n < 0 ? "−" : "+"}${usd(Math.abs(n))}`;
+
+const lanes = [
+  { head: "Yesterday's report", sub: "saved copies, buggy code", rows: saved, total: before, show: (r: (typeof today)[number]) => usd(r.amount), tone: "is-old" },
+  { head: "Replay", sub: "saved copies, fixed code", rows: saved, total: replay, show: (r: (typeof today)[number]) => usd(r.amount - r.discount), tone: "is-replay", diff: `${signed(fromCode)}, all of it from the fix` },
+  { head: "Re-fetch", sub: "today's source, fixed code", rows: today, total: refetch, show: (r: (typeof today)[number]) => usd(r.amount - r.discount), tone: "is-refetch", diff: `${signed(refetch - before)} = ${signed(fromCode)} from the fix ${signed(fromSource)} from the source` },
+];
+
+const checks = [
+  "If you want to measure only the effect of fixing the discount bug, which inputs would you use?",
+  `Why does comparing yesterday’s ${usd(before)} report with today’s ${usd(refetch)} re-fetch fail to tell you how much the bug fix changed the total?`,
+  `What would you need to reproduce the original ${usd(before)} report exactly, and what could you lose by keeping only the latest API response?`,
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("setup")}`}
+  about="This is a reply an AI assistant gave to Module 2's re-fetch study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and name one thing that could have changed on a school's site between Friday's fetch and Tuesday's."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p>Imagine a bakery’s nightly pipeline reads orders from a supplier’s API and totals the sales. Yesterday it fetched a {usd(saved[0].amount)} order with a {usd(saved[0].discount)} discount and a second order for {usd(saved[1].amount)}. A bug caused the pipeline to ignore discounts, so it reported <strong>{usd(before)}</strong>.</p>
+
+  <h2>Re-fetch versus replay</h2>
+  <p>A <strong>re-fetch</strong> asks the API for the orders again. Even if you request yesterday’s orders, the API returns whatever it currently shows for yesterday.</p>
+  <p>A <strong>replay</strong> runs the pipeline on the source responses you saved yesterday. Run the fixed code on those copies and you get <strong>{usd(replay)}</strong>. Since the inputs stayed the same, the {usd(-fromCode)} difference shows the effect of fixing the discount calculation.</p>
+
+  <h2>Why the live source can change</h2>
+  <p>By today, the supplier might have corrected the {usd(saved[1].amount)} order to {usd(today[1].amount)} and added a {usd(today[2].amount)} order that arrived late. Live sources can also remove records, fill in missing fields, or change how they represent values. With those two order changes, the fixed code would report <strong>{usd(refetch)}</strong> after a re-fetch. Compared with yesterday’s {usd(before)}, that looks like a {usd(refetch - before)} increase. It combines a {usd(-fromCode)} decrease from the bug fix with a {usd(fromSource)} increase from changes to the source data.</p>
+  <figure class="pr-card pa-lanes">
+    {lanes.map((lane) => (
+      <div class={`pa-lane ${lane.tone}`}>
+        <p class="pa-lane-head"><b>{lane.head}</b><span>{lane.sub}</span></p>
+        <ul>
+          {lane.rows.map((r) => <li><span>{r.name}{"note" in r && r.note && <em> · {r.note}</em>}</span><b>{lane.show(r)}</b></li>)}
+        </ul>
+        <p class="pa-lane-total"><span>Total</span><b>{usd(lane.total)}</b></p>
+        {lane.diff && <p class="pa-lane-diff">{lane.diff}</p>}
+      </div>
+    ))}
+    <figcaption>The replay changes one input, the code, so its whole difference has one cause. The re-fetch changes the code and the source together, and its {usd(refetch - before)} hides both.</figcaption>
+  </figure>
+
+  <h2>What you can reproduce</h2>
+  <p>To reproduce the <strong>original {usd(before)} report</strong> exactly, replay yesterday’s saved inputs with yesterday’s code and the same settings and other inputs that affected the run. To produce the <strong>corrected report for the data you had yesterday</strong>, replay those copies with the fixed code.</p>
+  <p>If you keep only the latest copy of each source, a re-fetch replaces yesterday’s saved API response with today’s version. The old {usd(saved[1].amount)} value and the record of which orders were visible at the time are then lost from your saved copies. Keeping yesterday’s final total alone won’t let you reconstruct those inputs.</p>
+
+  <h2>When to re-fetch</h2>
+  <p>Re-fetch when you need the supplier’s latest view, including late orders and corrections, or when the saved response is missing or incomplete. If you have a usable saved copy, replay it first to measure the effect of the code fix. Then re-fetch as a separate step so you can also measure what changed in the source.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again.</p>
+    <p>One detail matters for Tuesday. Touchline keeps the latest capture of each page, the reply's “latest copy”, so Kick's re-fetch would also have overwritten the pages Friday's table was built from.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-lanes { display: grid; gap: 0.6rem; }
+  @media (min-width: 46rem) { .pa-lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); } .pa-lanes figcaption { grid-column: 1 / -1; } }
+  .pa-lane { display: grid; align-content: start; padding: 0.65rem 0.8rem; border: 1px solid var(--tl-line); border-top-width: 4px; border-radius: 8px; background: var(--tl-bg); }
+  .pa-lane.is-old { border-top-color: var(--tl-muted); }
+  .pa-lane.is-replay { border-top-color: var(--pr-green); }
+  .pa-lane.is-refetch { border-top-color: #d9822b; }
+  :global(.pr) .pa-lane-head { display: grid; margin: 0 0 0.4rem; }
+  .pa-lane-head b { color: var(--sl-color-white); }
+  .pa-lane-head span { color: var(--tl-muted); font-size: 0.82rem; }
+  .pa-lane ul { display: grid; gap: 0.2rem; margin: 0 0 0.4rem; padding: 0; list-style: none; font-size: 0.88rem; }
+  .pa-lane li { display: flex; justify-content: space-between; gap: 0.5rem; }
+  .pa-lane li em { color: #d9822b; font-style: normal; font-weight: 600; }
+  .pa-lane li b { font-variant-numeric: tabular-nums; }
+  :global(.pr) .pa-lane-total { display: flex; justify-content: space-between; margin: 0; padding-top: 0.35rem; border-top: 1px solid var(--tl-line); }
+  .pa-lane-total b { color: var(--sl-color-white); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+  :global(.pr) .pa-lane-diff { margin: 0.35rem 0 0; color: var(--tl-muted); font-size: 0.82rem; }
+</style>

@@ -1,0 +1,121 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi.decision;
+const rebate = { monday: 500, tuesday: 350 };
+const mornings = 20;
+
+const policies = [
+  {
+    name: "Latest only",
+    slots: [
+      { day: "Monday", amount: rebate.monday, kept: false },
+      { day: "Tuesday", amount: rebate.tuesday, kept: true },
+    ],
+    answer: `Can't say why the calculator showed $${rebate.monday} on Monday`,
+    tone: "is-bad",
+  },
+  {
+    name: "Every capture",
+    slots: [
+      { day: "Monday", amount: rebate.monday, kept: true },
+      { day: "Tuesday", amount: rebate.tuesday, kept: true },
+    ],
+    answer: "Can retrieve Monday's CSV and the build that used it",
+    tone: "is-ok",
+  },
+];
+
+const checks = [
+  "If Tuesday’s CSV overwrote Monday’s and you kept Monday’s hash, what could you do if a resident sent you a file they said was Monday’s CSV? What could you do with the hash alone?",
+  "If disputes can be filed for 90 days and most daily fetches return identical bytes, what would you retain to answer those disputes while controlling storage costs?",
+  "You recovered Monday’s exact CSV, but rerunning the build produces a different rebate. What else would you look for in Monday’s build record?",
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("decision")}`}
+  about="This is a reply an AI assistant gave to Module 2's archive-history study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to The decision and name the question that decides the league office's call."
+>
+  <h2 class="pr-title">{card.title}</h2>
+  <p>Imagine a city publishes a CSV of home energy rebate amounts. Your archive fetches it every morning, and your code uses it to generate a public rebate calculator. On Monday, the CSV lists a ${rebate.monday} rebate for attic insulation. On Tuesday, it lists ${rebate.tuesday}. A resident later asks why the calculator showed ${rebate.monday} on Monday.</p>
+
+  <h2>1. What each policy can rebuild</h2>
+  <div class="pr-scroll">
+    <table class="pr-table">
+      <thead><tr><th scope="col">Archive policy</th><th scope="col">What you can rebuild later</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Keep only the latest copy, overwriting it after each successful fetch</th><td>You can rebuild from the latest archived CSV. Once Tuesday’s fetch overwrites Monday’s, the archive no longer has the CSV that produced Monday’s result.</td></tr>
+        <tr><th scope="row">Keep every copy with its fetch time</th><td>You can retrieve the CSV your archive captured on Monday. If you also record which snapshot each calculator build used, you can identify the exact input for the disputed result.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure class="pr-card pa-policies">
+    {policies.map((p) => (
+      <div class="pa-policy">
+        <p class="pa-policy-head"><b>{p.name}</b><span class:list={["pr-chip", p.tone]}>{p.answer}</span></p>
+        <ol>
+          {p.slots.map((s) => (
+            <li class={s.kept ? "is-kept" : "is-gone"}>
+              <span>{s.day}'s fetch</span>
+              <b>${s.amount}</b>
+              <small>{s.kept ? "in the archive" : "overwritten"}</small>
+            </li>
+          ))}
+        </ol>
+      </div>
+    ))}
+    <figcaption>The archive on Wednesday morning, after the resident's question arrives.</figcaption>
+  </figure>
+  <p>A fetch timestamp tells you when <strong>your archive observed</strong> a version. If the city changed the CSV three times between your morning fetches, your archive may have missed all three intermediate versions.</p>
+
+  <h2>2. What a hash can tell you</h2>
+  <p>Suppose you recorded the SHA-256 hash of Monday’s CSV in a trusted build log. If someone later gives you a candidate copy, you can hash it and compare. A match is strong evidence that it contains the same bytes your build recorded. A mismatch establishes that the bytes differ. The log supplies the context about when the hash was recorded and which build used it.</p>
+  <p>A hash is a fixed-size fingerprint. Many possible files map to the same digest, so the digest alone cannot uniquely specify the original bytes. If Monday’s CSV was overwritten, its hash can help you <strong>verify a copy you find elsewhere</strong>.</p>
+  <div class="pr-twin">
+    <div><p><b>A hash can</b></p><p>Verify a candidate copy against the bytes your build recorded.</p></div>
+    <div><p><b>A hash can't</b></p><p>Uniquely specify the original bytes, so it can't recover an overwritten copy.</p></div>
+  </div>
+
+  <h2>3. Choose based on the questions you need to answer</h2>
+  <p>If the archive only needs to answer “What rebate does the latest captured CSV list?”, keeping the latest copy may be enough. If it must answer “Why did this resident see ${rebate.monday} on Monday?”, keep the snapshots and build records for as long as you expect to handle disputes.</p>
+  <p>Estimate storage from the file size, fetch frequency, how often the contents change, and how long you need to retain them. If the city publishes the same bytes for {mornings} mornings, you can store one copy and keep {mornings} timestamped fetch records pointing to it. That preserves each observation while avoiding {mornings} copies of the same file.</p>
+  <figure class="pr-card">
+    <div class="pr-tiles is-three">
+      <p><b>{mornings}</b>mornings fetched, same bytes</p>
+      <p><b>1</b>copy stored</p>
+      <p><b>{mornings}</b>fetch records pointing to it</p>
+    </div>
+  </figure>
+
+  <h2>4. Preserve the code and configuration too</h2>
+  <p>Imagine Monday’s calculator showed the CSV amount directly, but Tuesday’s code started applying a cap set in configuration. Running Tuesday’s code and settings on Monday’s CSV could yield a different result even though you recovered the exact source file.</p>
+  <p>For each build, record the source snapshot, code revision, and configuration it actually used. Preserve any other inputs that can affect the output, such as dependency versions or a build timestamp embedded in the page. An exact rebuild needs the data and the rules that turned it into the original output.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Touchline runs the reply's first policy, with the fetch time kept beside each capture. The parser, build code and config of every past run are in version control, which is the reply's section 4. So on Tuesday the pages are the only input whose past can be lost.</p>
+    <p>The reply's one-copy-many-records idea is one way to make keeping every capture cheaper. Weigh it the way section 3 says: by the questions the archive must answer.</p>
+  </aside>
+
+  <h2>Check your understanding</h2>
+  <ol class="pr-checks">{checks.map((q) => <li><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-policies { display: grid; gap: 0.6rem; }
+  @media (min-width: 46rem) { .pa-policies { grid-template-columns: 1fr 1fr; } .pa-policies figcaption { grid-column: 1 / -1; } }
+  .pa-policy { padding: 0.6rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); }
+  :global(.pr) .pa-policy-head { display: grid; gap: 0.3rem; justify-items: start; margin: 0 0 0.5rem; }
+  .pa-policy-head b { color: var(--sl-color-white); }
+  .pa-policy-head :global(.pr-chip) { white-space: normal; }
+  .pa-policy ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .pa-policy li { display: grid; gap: 0.1rem; padding: 0.45rem 0.6rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-card); font-size: 0.84rem; }
+  .pa-policy li b { color: var(--sl-color-white); font-size: 1.25rem; }
+  .pa-policy li small { color: var(--tl-muted); }
+  .pa-policy li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; }
+  .pa-policy li.is-gone b { color: var(--tl-muted); text-decoration: line-through; }
+</style>
