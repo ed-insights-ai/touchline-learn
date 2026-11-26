@@ -233,11 +233,13 @@ RESULT: rebuilt by replay with 0 requests; only Saint Lambert's name changed
 end with its expected exit code, and the file must be its standard output from
 that heading to the end, whole and exact: no line left out, no `...`. A file not in the registry, one
 that is not `.txt`, or a registered file that is missing, fails. **After any
-change to the lab or the sample**, regenerate both quotes:
+change to the lab or the sample**, regenerate every quote (the last two are the field work page's):
 
 ```bash
 python labs/m02_archive.py | sed -n '/^Replay report/,$p' > src/data/quotes/m02_archive.replay-report.txt
 python labs/m02_archive.py --tuesday | sed -n '/^Confounded diff/,$p' > src/data/quotes/m02_archive.tuesday-diff.txt
+python labs/m02_archive.py | sed -n '/^Capture manifest/,$p' > src/data/quotes/m02_archive.run.txt
+python labs/m02_archive.py --missing hartwell-tech | sed -n '/^Replay report/,$p' > src/data/quotes/m02_archive.missing-report.txt
 ```
 
 A component that quotes more lab output adds a file here and a line to

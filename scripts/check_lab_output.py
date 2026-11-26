@@ -28,6 +28,8 @@ from run_all import RUNS  # noqa: E402
 QUOTED_RUNS = {
     "m02_archive.replay-report.txt": (["labs/m02_archive.py"], "Replay report: "),
     "m02_archive.tuesday-diff.txt": (["labs/m02_archive.py", "--tuesday"], "Confounded diff: "),
+    "m02_archive.run.txt": (["labs/m02_archive.py"], "Capture manifest: "),
+    "m02_archive.missing-report.txt": (["labs/m02_archive.py", "--missing", "hartwell-tech"], "Replay report: "),
 }
 
 

@@ -1,0 +1,65 @@
+Capture manifest: Friday's run
+------------------------------
+manifest       : sample/manifests/2026-11-20-friday.json, run 2026-11-20-friday
+fetched        : 2026-11-20T12:30:00+00:00 to 2026-11-20T12:30:57+00:00
+requested      : 20 pages, 19 saved
+schedules      : 7 saved of 8 requested
+  dunmore       : unavailable, site did not answer after 3 tries (listed, not absent)
+box scores     : 12 saved, kept for match detail; the table does not read them
+content hashes : 19 of 19 saved pages on disk match the manifest
+network counter: caught 2 of 2 test requests (a name lookup and a direct connection)
+
+Replay 1: Tuesday's parser, labs/m02_parser_tuesday.py
+------------------------------------------------------
+fingerprint    : 16ede3aa872b
+re-parsed      : 7, skipped 0
+names that cannot be right: ['State Brendan', 'State Lambert']
+ #  team                P  W  D  L  GF  GA   GD  Pts
+ 1  Alder Ridge        14  9  2  3  24  11  +13   29
+ 2  Hartwell Tech      14  5  6  3  29  17  +12   21
+ 3  Brightwater State  14  5  5  4  25  20   +5   20
+ 4  Eastbrook State    13  5  4  4  20  19   +1   19
+ 5  Dunmore            13  4  6  3  15  20   -5   18
+ 6  State Lambert      12  3  3  6  11  17   -6   12
+ 7  Harbor Point       13  2  6  5  21  32  -11   12
+ 8  Cedar Grove        13  2  4  7  18  27   -9   10
+    53 of 54 finished matches; 56 expected by the format
+
+Replay 2: same parser, same pages
+---------------------------------
+re-parsed      : 0, skipped 7: fingerprint and content hash unchanged
+
+Replay 3: fixed parser, labs/m02_parser_fixed.py
+------------------------------------------------
+fingerprint    : 16ede3aa872b -> cceba9f64b7c
+re-parsed      : 7, skipped 0
+Saint schools now: ['Saint Brendan', 'Saint Lambert']
+ #  team                P  W  D  L  GF  GA   GD  Pts
+ 1  Alder Ridge        14  9  2  3  24  11  +13   29
+ 2  Hartwell Tech      14  5  6  3  29  17  +12   21
+ 3  Brightwater State  14  5  5  4  25  20   +5   20
+ 4  Eastbrook State    13  5  4  4  20  19   +1   19
+ 5  Dunmore            13  4  6  3  15  20   -5   18
+ 6  Saint Lambert      12  3  3  6  11  17   -6   12
+ 7  Harbor Point       13  2  6  5  21  32  -11   12
+ 8  Cedar Grove        13  2  4  7  18  27   -9   10
+    53 of 54 finished matches; 56 expected by the format
+
+Replay report: Friday's pages rebuilt with the fixed parser
+-----------------------------------------------------------
+manifest       : sample/manifests/2026-11-20-friday.json
+replayed       : 7 of the 7 schedules it lists as saved, each matching its content hash
+listed         : Dunmore, unavailable: site did not answer after 3 tries
+requests       : 0, counted by a counter that caught 2 of 2 test requests
+fingerprint    : cceba9f64b7c, the fixed parser (was 16ede3aa872b on Tuesday)
+  covers       : labs/m02_parser_fixed.py, labs/common.py, aliases.json, membership.json, season 2026
+build revision : 2ae2156f06da, git blob of labs/m02_archive.py
+tables         : Tuesday's 53 of 54 finished matches; rebuild 53 of 54 finished matches
+cells changed  : 1
+  Saint Lambert   name 'State Lambert' -> 'Saint Lambert': the tidy rule, the only input that changed
+unchanged      : the other 79 cells, every place and number
+parsed rows    : 16 renamed, 'State Brendan' -> 'Saint Brendan' in 4, 'State Lambert' -> 'Saint Lambert' in 12
+named gap      : 2026-09-21 Cedar Grove v Saint Lambert finished with no score
+named gap      : Dunmore's page unavailable, its home results read from visitors' pages
+
+RESULT: rebuilt by replay with 0 requests; only Saint Lambert's name changed
