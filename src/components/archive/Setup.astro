@@ -103,7 +103,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     </div>
     <p class="cv-chat-text ar-clauses">{clauses.map((c, i) => <><span class="ar-clause"><sup aria-hidden="true">{i + 1}</sup>{c}</span>{i < clauses.length - 1 && " "}</>)}</p>
   </div>
-  <p>By “Friday's table”, Riley means the standings built from Friday's {spell(fridayPages.length)} saved schedule pages. That is Monday's table, {monday} finished matches, with the name now spelled “{story.fixedName}”.</p>
+  <p>The rebuild Riley wants is Monday's table, {monday} finished matches, built again from Friday's {spell(fridayPages.length)} saved schedule pages with the name spelled “{story.fixedName}”.</p>
 
   <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
   <fieldset class="cv-choice" data-ar-lock>
@@ -116,8 +116,8 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     <button type="button" data-ar-lock-btn disabled>Lock in my prediction</button>
     <input type="hidden" data-save={refetchPredict.key} data-ar-locked />
   </div>
-  <p class="ar-saved" data-when={refetchPredict.key} role="status" tabindex="-1" hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
-  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick a prediction, then lock it in. We'll come back to it in The decision.</p>
+  <p class="ar-saved" data-when={refetchPredict.key} role="status" tabindex="-1" hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and Part 6 comes back to your answer.</p>
+  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick a prediction, then lock it in. We'll come back to it in Part 6.</p>
 
   <AiCard part="setup" />
   <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>

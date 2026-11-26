@@ -33,23 +33,23 @@ const terms = [
 ];
 
 const bakes = [
-  { recipe: "Old recipe", cells: [{ text: "Test loaf, old recipe", is: "test" }, { text: "Not baked", is: "skip" }] },
+  { recipe: "Old recipe", cells: [{ text: "Test loaf, old recipe", note: "same inputs as last week's loaf", is: "test" }, { text: "Not baked", is: "skip" }] },
   { recipe: "New recipe", cells: [{ text: "Test loaf, new recipe", is: "test" }, { text: "Today's loaf", is: "now" }] },
 ];
 
 const rules = [
   { rule: "Save the bytes as received, before any step changes them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt. A site can also change or remove its page, so your copy may be the only one left.", clause: "from the pages you kept", where: "Case 2" },
   { rule: "Change one thing at a time.", then: "Not asking a site again is what keeps the pages fixed. The config stays the same too, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Note which exact pages produced each output and which code and config ran. Friday's run already noted a hash of every page it saved, a code computed from the page's bytes. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
+  { rule: "Record what produced each output.", then: `Note which exact pages produced each output and which code and config ran. Friday's run already recorded exactly which bytes it saved for each page. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
 ];
 
 const loop = [
   ["for page in expected_pages:", "fetch"],
   ["    raw = fetch(page)", "fetch"],
   ["    save(page, raw, fetched_at=now())  # or note it unavailable", "fetch"],
-  ["rows = [parse(raw, code, config) for raw in archive.schedules()]", "replay"],
-  ["table = build(rows, gaps=archive.unavailable())", "replay"],
-  ["record(table, hashes(archive.schedules()), archive.unavailable(), version(code, config))", "replay"],
+  ["capture = archive.latest()  # Friday's, until a re-fetch replaces it", "replay"],
+  ["table = build([parse(p, code, config) for p in capture.schedules], capture.unavailable)", "replay"],
+  ["record(table, capture, version(code, config))", "replay"],
 ];
 
 const items: [string, string][] = [
@@ -93,6 +93,7 @@ const items: [string, string][] = [
 
   <h3 id="idea-one-change">One change at a time</h3>
   <p>Step away from soccer for a moment. A baker switches to a new bread recipe on the same morning the bakery's new oven arrives. That afternoon the bread is better. Was it the recipe?</p>
+  <p>From last week's loaf and today's, nobody can say. At least two inputs changed together, the recipe and the oven, so the better bread might come from either, or both. To test the recipe, bake both recipes side by side in the old oven, from the same flour on the same afternoon. The recipe is the only planned difference between them, so a difference that holds when you repeat the test is the recipe's, at least in that oven.</p>
   <figure class="ar-bake" aria-labelledby="ar-bake-cap">
     <table>
       <thead><tr><td></td><th scope="col">Old oven</th><th scope="col">New oven</th></tr></thead>
@@ -100,17 +101,16 @@ const items: [string, string][] = [
         {bakes.map((b) => (
           <tr>
             <th scope="row">{b.recipe}</th>
-            {b.cells.map((c) => <td class={`is-${c.is}`}>{c.text}</td>)}
+            {b.cells.map((c) => <td class={`is-${c.is}`}>{c.text}{c.note && <small class="ar-note">{c.note}</small>}</td>)}
           </tr>
         ))}
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-two" aria-hidden="true"></i>Today's loaf against last week's, which was old recipe, old oven: the recipe and the oven both changed.</span>
-      <span><i class="is-one" aria-hidden="true"></i>Two loaves baked side by side today in the old oven, from the same flour: only the recipe differs.</span>
+      <span><i class="is-two" aria-hidden="true"></i>Today's loaf (new recipe, new oven) against last week's (old recipe, old oven): both inputs changed.</span>
+      <span><i class="is-one" aria-hidden="true"></i>Two test loaves in the old oven: only the recipe differs.</span>
     </figcaption>
   </figure>
-  <p>From last week's loaf and today's, nobody can say. At least two inputs changed together, the recipe and the oven, so the better bread might come from either, or both. To test the recipe, bake both recipes side by side in the old oven, from the same flour on the same afternoon. The recipe is the only planned difference between them, so a difference that holds when you repeat the test is the recipe's, at least in that oven.</p>
   <div class="cv-define">
     <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
@@ -126,17 +126,17 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only what lines 1 to 3 saved, including which pages were unavailable, plus the code and the config. A parser fix reruns lines 4 to 6 over the pages the archive holds: that is a replay. Running lines 1 to 3 again is a re-fetch. Under Kick's plan, line 3 would then save over Friday's copy.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they read the saved capture, including which pages were unavailable, plus the code and the config. Rerunning them after a parser fix is a replay. Rerunning lines 1 to 3 is a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s results still come from the other schools' pages, as they did on Monday.</p>
 
   <AiCard part="idea" />
 
-  <h4 class="cv-try" id="idea-check">Check your understanding: a research survey</h4>
-  <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control, with every cleaning and chart setting written into it.</p>
+  <h3 class="cv-try" id="idea-check">Check your understanding: a research survey</h3>
+  <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control, with every cleaning and chart setting written into it. Since then they have downloaded fresh exports more than once.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
-    <Choice save="idea-gone" label="The saved export includes responses more than a year old. The vendor then deletes every response older than a year. Which of the four could the team never rebuild if they lost their copy?"
+    <Choice save="idea-gone" label="The saved export includes responses more than a year old. The vendor then deletes every response older than a year. Which of the four could the team never rebuild if that item alone were lost?"
       options={items}
       answer="export"
       why="The survey export. The spreadsheet and chart are derived from it and can be computed again, and the script is kept in version control. Once the vendor deletes the responses, the team's copy is the only one left."
@@ -156,10 +156,10 @@ const items: [string, string][] = [
       why="Their saved survey export, run through the fixed script. That's a replay: the export stays fixed and only the code changes, so every difference in the new spreadsheet comes from the fix."
       wrong={{
         sheet: "The spreadsheet is already missing the responses the bug dropped. Cleaning it again can't bring them back.",
-        fresh: "A new export changes the evidence as well as the code. Responses added or edited since could mix in with the fix, and the ones the vendor deleted would be missing.",
+        fresh: "A new export changes the evidence as well as the code. Responses added or edited since could mix in with the fix, and responses the vendor has since deleted would be missing.",
         chart: "Hand edits change numbers with no record of how, and leave the spreadsheet wrong.",
       }} />
-    <Choice save="idea-how" label="A reviewer with access to the team's files asks how one number on the published chart was produced, and wants to reproduce it exactly. What would let them do that?"
+    <Choice save="idea-how" label="A reviewer with access to the team's files asks how one number on the published chart was produced, and wants to reproduce it exactly from the vendor export. What identifies the inputs they need?"
       options={[
         ["sheet", "The cleaned spreadsheet the chart was drawn from"],
         ["current", "The saved export and the script as it is today"],
@@ -206,6 +206,7 @@ const items: [string, string][] = [
   .ar-bake tbody td { border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); }
   .ar-bake tbody td.is-now { border: 2px dashed var(--tl-muted); color: var(--sl-color-white); font-weight: 650; }
   .ar-bake tbody td.is-test { border: 2px solid var(--sl-color-accent); color: var(--sl-color-white); font-weight: 650; }
+  .ar-bake .ar-note { display: block; margin-top: 0.2rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 500; }
   .ar-bake tbody td.is-skip { border: 1px solid var(--tl-line); background: none; color: var(--tl-muted); font-style: italic; }
   .ar-bake figcaption { padding-left: 2px; display: grid; gap: 0.25rem; margin-top: 0.35rem; color: var(--tl-muted); font-size: 0.88rem; }
   .ar-bake figcaption span { display: flex; align-items: baseline; gap: 0.5rem; }
