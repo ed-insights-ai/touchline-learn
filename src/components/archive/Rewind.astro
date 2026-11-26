@@ -25,12 +25,13 @@ const lines = [
   { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: "The counter caught both test requests, then recorded zero attempts during the lab's replay." },
   { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
+  { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "It names the fixed parser and its config, beside Tuesday's." },
   { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
   { text: find((l) => l.startsWith("unchanged "), "unchanged"), answer: "diff", why: "Explaining every changed cell includes showing that no other cell changed." },
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
 const draft: [string, string][] = [
-  ["reads", `It should count the ${rewind.schedulesSaved} page reads, since reading a saved page is a request.`],
+  ["sites", "Riley needs the requests listed by site, not a total."],
   ["counter", "Nothing shows the counter would have noticed a request, so its 0 means nothing."],
   ["fingerprint", "The fingerprint already shows nothing was fetched, so the line is redundant."],
   ["offline", "A replay can't make requests at all, so the line belongs nowhere in the report."],
@@ -101,7 +102,7 @@ const draft: [string, string][] = [
         <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
           options={draft} answer="counter"
           why="The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught both test requests, then recorded zero attempts during the lab's replay."
-          wrong={{ reads: "A replay reads saved pages from disk. A request goes over the network, and the point is that there were none.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
+          wrong={{ sites: "With zero requests there is nothing to list. The question is whether the 0 can be trusted.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
         <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
       </Check>
       <AiCard part="rewind" />
@@ -122,7 +123,7 @@ const draft: [string, string][] = [
   .ar-report { margin: 0; padding: 0.85rem 1rem; overflow-x: auto; border: 0; border-radius: 0; background: var(--tl-bg); font-size: 0.74rem; line-height: 1.5; }
   .ar-report code { padding: 0; background: none; white-space: pre-wrap; }
   .ar-ln { display: block; padding-left: 17ch; text-indent: -17ch; }
-  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } .ar-ln { padding-left: 2ch; text-indent: -2ch; } }
+  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } }
   .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
   .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }
 </style>
