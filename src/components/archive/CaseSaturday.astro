@@ -6,6 +6,7 @@ import NextPart from "../coverage/NextPart.astro";
 import Check from "../lesson/Check.astro";
 import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
+import { spell } from "../../lib/cases";
 import ReplayBench from "./ReplayBench.astro";
 import { championship, diffAB, diffAC, fridayPages, rawRows, rowChanges, saturday, stBrendanNote, story, tableA, tableC } from "../../lib/archive";
 
@@ -35,14 +36,19 @@ const why = (k: "B" | "C", slug: string) => {
   const a = answerOf(k, slug);
   const o = opponent(slug);
   const result = o ? `${o.mine}-${o.theirs} ${o.mine > o.theirs ? "win over" : o.mine === o.theirs ? "draw with" : "loss to"} ${o.other}` : "";
-  if (a === "same") return k === "B" ? "Same: no “St.” in this name." : `Same: no match on ${saturdayName}.`;
+  const final = [championship.home, championship.away].includes(slug) ? ` Its page did change, with Sunday's championship result, but the build leaves that match out.` : "";
+  if (a === "same") return k === "B" ? "Same: no “St.” in this name." : `Same: no match on ${saturdayName}.${final}`;
   if (a === "code") return `Code: the fixed rule shows “${fixedName}”.`;
   if (a === "both") return `Both: the rule renames it, and the pages add a ${result}.`;
   return unsaved.includes(slug) ? `Pages: its site still doesn't answer, but ${o!.other}'s page shows the result, a ${o!.mine}-${o!.theirs} ${o!.mine > o!.theirs ? "win" : o!.mine === o!.theirs ? "draw" : "loss"}.` : `Pages: Tuesday's pages add a ${result}.`;
 };
 if (diffAC.some((c) => c.column === "place")) throw new Error("Case 1 states that no team changes place");
 const worked = tableA.rows.find((r) => answerOf("B", r.slug) === "same" && answerOf("C", r.slug) === "same")!;
-const graded = tableA.rows.filter((r) => r !== worked);
+const changed = (slug: string) => rowChanges.B.some((r) => r.slug === slug) || rowChanges.C.some((r) => r.slug === slug);
+const control = tableA.rows.find((r) => r !== worked && [championship.home, championship.away].includes(r.slug) && !changed(r.slug));
+if (!control) throw new Error("Case 1's grid needs an unchanged championship team as its control row");
+const graded = tableA.rows.filter((r) => r === control || changed(r.slug));
+const skippedRows = tableA.rows.length - graded.length - 1;
 const savedSide = (slug: string) => { const s = saturday.find((x) => x.home === slug || x.away === slug)!; return s.home === slug ? { name: s.awayName, role: "the visitor" } : { name: s.homeName, role: "the host" }; };
 const ptsCell = diffAC.find((c) => c.slug === "st-lambert" && c.column === "pts")!;
 
@@ -77,12 +83,12 @@ const compare: [string, string][] = [["code", "Only the code or method changed"]
     <li>By Tuesday, the sites had posted both of {saturdayName}'s results. {unsaved.length > 0 && <>{unsaved.map((s) => rowOf(s).name).join(" and ")}'s site still doesn't answer.</>}</li>
     <li>Those two results are the only changes on the sites that reach the standings. Sunday's championship, {championship.homeName} v {championship.awayName}, was posted too, but it is not a regular season conference match, so the build leaves it out, as Module 1's did.</li>
     <li>The fixed tidy rule changes how names are shown and nothing else.</li>
-    <li>No team changes place in either table. A row changes when any of its other cells does.</li>
+    <li>No team changes place in either table. If any cell in a row changes, count the row as changed.</li>
   </ol>
 
   <div class="cv-check ar-predict" data-once="sat-rows">
     <p class="cv-kind">Predict, then check</p>
-    <p class="cv-qlabel">For each row of table A, what happens in the replay (B: Friday's pages, fixed rule) and in the re-fetch (C: Tuesday's pages, fixed rule)? Pick Same if the row doesn't change. Otherwise pick the input that changes it: the code, the pages, or both.</p>
+    <p class="cv-qlabel">For each of these rows of table A, what happens in the replay (B: Friday's pages, fixed rule) and in the re-fetch (C: Tuesday's pages, fixed rule)? Pick Same if the row doesn't change. Otherwise pick the input that changes it: the code, the pages, or both.</p>
     <div class="ar-grid" role="group" aria-label="Your prediction, row by row">
       <p class="ar-grid-head" aria-hidden="true"><span>Team in table A</span><span>B. Replay</span><span>C. Re-fetch</span></p>
       <div class="ar-grid-row ar-worked">
@@ -114,7 +120,7 @@ const compare: [string, string][] = [["code", "Only the code or method changed"]
     <button type="button" data-submit>Check my prediction</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>Now see all three tables. Pick B, then C. Every changed cell shows Tuesday's value struck through.</p>
+      <p>The other {spell(skippedRows)} rows of table A change in neither table, like {worked.name}. Now see all three tables. Pick B, then C. Every changed cell shows table A's value struck through.</p>
       <ReplayBench mode="tables" id="ar-bench-abc" start="B" />
       <p><b>A to B changes {diffAB.length} cell</b>: {fixedName}'s name. Every number, every place and both named gaps stay exactly as Monday published them. That is what a fix to a display rule should do, and the replay shows it did nothing more.</p>
       <p><b>A to C changes {diffAC.length} cells in {rowChanges.C.length} rows.</b> {fixedName}'s name changes for the same reason, and Saturday's two results add a match to each of four teams. The caption moves from {tableA.caption} to {tableC.caption}. The expected set said {story.expected} all along, as in Module 1; two more of them have now finished. {unsaved.map((slug) => <>{rowOf(slug).name}'s row changes although its site still doesn't answer: {rowOf(slug).name} was {savedSide(slug).role === "the host" ? "the visitor" : "the host"}, and {savedSide(slug).name}'s saved page shows the result. Reading both schools' pages, from Module 1, at work.</>)}</p>
@@ -130,13 +136,13 @@ const compare: [string, string][] = [["code", "Only the code or method changed"]
 
   <AiCard part="case-saturday" />
   <div class="ar-choices"><Check once="sat-confound" note="Answer both, then check.">
-    <Choice radio save="sat-confound-weather" label="A weather team fixes a rounding bug in its averaging script and reruns it on last month's saved station readings. The monthly average moves. What explains the difference?" options={compare} answer="code" why="Only the code changed. The readings were saved, so the script is the only input that differs, and the move is the fix's effect." wrong={{ data: "The readings are last month's saved ones, the same as before.", both: "One input changed. The saved readings held the data fixed, like table B." }} />
-    <Choice radio save="sat-confound-survey" label="A survey team updates its cleaning script and, in the same run, downloads a new export from its vendor that includes responses collected since the last run. The average score moves. What explains the difference?" options={compare} answer="both" why="Both changed together, like table C. New responses and new cleaning arrived in one run, so the move can't be split between them. Rerunning the new script on the old export would separate them." wrong={{ code: "The new export holds new responses, so the data changed too.", data: "The cleaning script changed as well." }} />
+    <Choice radio save="sat-confound-weather" label="A weather team fixes a rounding bug in its averaging script and reruns it on last month's saved station readings. The monthly average moves. What kind of comparison is this?" options={compare} answer="code" why="Only the code changed. The readings were saved, so the script is the only input that differs, and the move is the fix's effect." wrong={{ data: "The readings are last month's saved ones, the same as before.", both: "One input changed. The saved readings held the data fixed, like table B." }} />
+    <Choice radio save="sat-confound-survey" label="A survey team updates its cleaning script and, in the same run, downloads a new export from its vendor that includes responses collected since the last run. The average score moves. What kind of comparison is this?" options={compare} answer="both" why="Both changed together, like table C. New responses and new cleaning arrived in one run, so the move can't be split between them. Rerunning the new script on the old export would separate them." wrong={{ code: "The new export holds new responses, so the data changed too.", data: "The cleaning script changed as well." }} />
     <p slot="reveal">The test is the same each time: list every input the result depends on, then count how many changed between the two runs.</p>
   </Check></div>
 
   <Touchline part="case-saturday" at={["Archive", "Parse"]} note="Parse re-reads what Archive kept." title="A parser change never fetches">
-    <p>In Touchline a change to a parser re-reads the archived bytes. It never sends a request. Fetching is a separate act, run on purpose, and it records what it got. Keeping the two apart means each change to a published table has one cause: new code over the same pages, or new pages through the same code.</p>
+    <p>In Touchline a change to a parser re-reads the archived bytes. It never sends a request. Fetching is a separate act, run on purpose, and it records what it got. Keeping the two apart lets each rebuild change one input at a time: new code over the same pages, or new pages through the same code. A table that takes both still mixes them, as C did.</p>
   </Touchline>
 
   <Beat part="case-saturday" name="Your claim" title="The changelog line for table B" />

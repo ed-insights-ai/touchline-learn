@@ -167,6 +167,7 @@ holds for it after the run.
 |---|---|---|
 | `presetFiles` | For each preset id, the seven parsed schedules (`PresetFile`: slug, name, recorded and current fingerprint, recorded and current page hash, the live page's hash, `fetched`, `rebuilt`), from the same staleness model. Hashes are 12 hex. The build checks each preset's rebuilt files against its count. | `refetch-harbor`: Harbor Point fetched and rebuilt; `live-changed`: Harbor Point's live hash differs, nothing rebuilt |
 | `case2Draws` | A fourth Case 2 bug in the build step: a draw scored two points. `row` is Cedar Grove's first conference draw and `extra` shows it in each archive form. Cedar Grove's points over the three Case 2 rows plus that draw: `truth` from the published rows, `points` replaying the fixed rule over each archive (bug 3 still in archive (a)), `buggy` under the bug. | row 4926, 2026-09-13 v Dunmore, T 1-1; truth 4; points a 5, b 4, c 4; buggy b 5, c 5; answers a no, b yes, c yes |
+| `case2Sidecar` | Cedar Grove's full Friday sidecar, all six fields the sample records (archive (c)'s `sidecar` keeps five). The build checks the field names and that its `sha256` matches archive (c). | `etag` and `sha256` both start `6d6d02cd4de212ac` |
 
 ### Part 6: two archive policies
 

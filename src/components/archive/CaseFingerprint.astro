@@ -42,7 +42,6 @@ if (first.id !== "fix-rule") throw new Error("Case 3 works the tidy rule fix as 
 const lambertFiles = presetFiles["fix-rule"];
 const nOf = (id: string) => presets.findIndex((p) => p.id === id) + 1;
 const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf("live-changed")];
-const lastCode = Math.max(nOf("fix-rule"), nComment, nOf("alias"));
 ---
 
 <section id="case-fingerprint">
@@ -69,14 +68,14 @@ const lastCode = Math.max(nOf("fix-rule"), nComment, nOf("alias"));
     </div>
   </Check></div>
 
-  <p>Kick would not have had to work out where a name comes from. A fingerprint answers it.</p>
+  <p>Kick would not have had to work out where a name comes from. A fingerprint flags every parsed schedule written by different code, wherever the name appears.</p>
   <div class="cv-define">
     <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even the parts this parser doesn't read, so it errs toward rebuilding. Change any of it, even one character, and the fingerprint changes.</p>
     <p class="cv-formula"><span>fingerprint</span> = hash(<span>parser module</span>, page reader, alias list, membership list, season)</p>
   </div>
   <p>A <strong>content hash</strong> does the same for a saved page: a hash of its bytes, kept in its sidecar. The fingerprint tracks the code; the content hash tracks the page. Each parsed schedule records both, from the run that wrote it. The rule is short:</p>
   <p class="ar-rule">A parsed schedule is <b>stale</b> when its recorded fingerprint differs from the current one, or its recorded content hash differs from the saved page's content hash now.</p>
-  <p>Here is the rule at work on Kick's fix, the first of six changes below. On Tuesday, all {spell(files)} parsed schedules recorded Tuesday's fingerprint, <code>{fingerprints.v1}</code>. The fixed parser's is <code>{fingerprints.v2}</code>. All {spell(lambertFiles.filter((f) => f.rebuilt).length)} are stale, the {spell(kickPartial.pagesSkipped)} Kick skipped among them, and nobody had to guess which ones the bug touched.</p>
+  <p>Here is the rule at work on Kick's fix, the first of six changes below. On Tuesday, all {spell(files)} parsed schedules recorded the old parser's fingerprint, <code>{fingerprints.v1}</code>. The fixed parser's is <code>{fingerprints.v2}</code>. All {spell(lambertFiles.filter((f) => f.rebuilt).length)} are stale, the {spell(kickPartial.pagesSkipped)} Kick skipped among them, and nobody had to guess which ones the bug touched.</p>
 
   <div class="cv-check ar-presets" data-once="stale-presets">
     <p class="cv-kind">Knowledge check</p>
@@ -104,13 +103,13 @@ const lastCode = Math.max(nOf("fix-rule"), nComment, nOf("alias"));
     <div class="cv-reveal">
       <p>Run each change on the bench and read each parsed schedule's two hashes. Changes {nRefetch} and {nLive} are the pair to compare.</p>
       <ReplayBench mode="presets" id="ar-bench-presets" />
-      <p>Changes 1 to {lastCode} rebuild everything and fetch nothing: code and config live in the fingerprint, and a fingerprint only ever re-reads saved pages. Change {nRefetch} is the only one that fetches, and it costs Friday's copy of {harbor}'s page. Change {nLive} is the blind spot. The live site differs, and no hash the run can see does.</p>
+      <p>Code and config changes re-read saved pages and fetch nothing. Only change {nRefetch} fetches, at the cost of Friday's copy of {harbor}'s page, and change {nLive} is the blind spot no hash can see.</p>
     </div>
   </div>
 
   <Beat part="case-fingerprint" name="Name it" title="Cache invalidation, and why its mistakes aren't equal" />
   <p class="cv-lede">Deciding which saved results are out of date is called cache invalidation. Its two mistakes cost very different amounts.</p>
-  <p>Rebuilding too much, as in change {nComment}, costs extra work: a few seconds here. Rebuilding too little risks publishing stale output with no error: Kick's plan left {spell(kickPartial.pagesSkipped)} parsed schedules stale, and the table went on saying “{kickName}” after the code was fixed. So a whole-file fingerprint over-rebuilds on purpose. It would rather redo {spell(files)} parsed schedules for a comment than miss one that mattered. Neither hash, though, can see a live site that changed after the last fetch.</p>
+  <p>Rebuilding too much, as in change {nComment}, costs extra work: re-reading {spell(files)} saved pages that had not changed. Rebuilding too little risks publishing stale output with no error: Kick's plan left {spell(kickPartial.pagesSkipped)} parsed schedules stale, and the table went on saying “{kickName}” after the code was fixed. So a whole-file fingerprint over-rebuilds on purpose. Neither hash, though, can see a live site that changed after the last fetch.</p>
 
   <Touchline part="case-fingerprint" at={["Archive", "Parse"]} note="A stale fingerprint sends Parse back to the archive, never to the site." title="A fingerprint over the whole parser">
     <p>Touchline's fingerprint covers the parser's whole module plus its configured inputs: aliases, membership and the season. Each parsed result records it. When a parser or an alias list changes, every result with an old fingerprint is re-read from the archived bytes, without a single fetch.</p>
@@ -119,9 +118,9 @@ const lastCode = Math.max(nOf("fix-rule"), nComment, nOf("alias"));
   <AiCard part="case-fingerprint" />
   <Check once="stale-notebook" note="Match all three, then check.">
     <p class="cv-qlabel">A notebook caches each cell's result under a key: a hash of the cell's code and its settings file, plus the content hash of the data file the cell reads. Match each change to the preset that is the same kind of change.</p>
-    <Choice save="stale-nb-comment" label="You reword a comment in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's hash changes though the output can't, so the cell reruns. Safe over-rebuilding." wrong={{ "fix-rule": "Also a code change, but one that can't change the output." }} />
+    <Choice save="stale-nb-comment" label="You add a blank line between two statements in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's text changes though the output can't, so its hash changes and the cell reruns. Safe over-rebuilding." wrong={{ "fix-rule": "Also a code change, but one that can't change the output." }} />
     <Choice save="stale-nb-config" label="You change the chart's date range in the settings file, and leave the code alone." options={optionsOf} answer="alias" why="Settings are config, and config is part of the key, so the cell reruns though no code changed." wrong={{ "fix-rule": "No code changed. The change is in config." }} />
-    <Choice save="stale-nb-live" label="The data provider has published a corrected file online. You rerun the notebook without downloading it." options={optionsOf} answer="live-changed" why="The cache can only compare the file you saved, which hasn't changed, so nothing reruns and the correction stays unseen." wrong={{ "refetch-harbor": "That preset downloads the new file. Here nothing was downloaded." }} />
+    <Choice save="stale-nb-live" label="The data provider has fixed an error in its file online. You rerun the notebook on the copy you saved last week." options={optionsOf} answer="live-changed" why="The cache can only compare the file you saved, which hasn't changed, so nothing reruns and the correction stays unseen." wrong={{ "refetch-harbor": "That preset fetches the new file. Here the notebook reads last week's copy." }} />
     <p slot="reveal">Many caches use the same two checks: one hash for the code and its settings, one for the input it read. Neither can see a source you never fetched again.</p>
   </Check>
   <NextPart from="case-fingerprint">Change {nRefetch} cost Friday's copy of one page. What would re-fetching all {spell(story.sites)} sites have cost?</NextPart>

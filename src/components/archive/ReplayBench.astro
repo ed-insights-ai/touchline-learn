@@ -27,7 +27,7 @@ const fileReason = (f: (typeof presetFiles)[string][number]) =>
   !f.rebuilt ? "Fresh" : f.storedFingerprint !== f.nowFingerprint && f.storedContent !== f.nowContent ? "Rebuilt: both" : f.storedFingerprint !== f.nowFingerprint ? "Rebuilt: fingerprint" : "Rebuilt: content hash";
 const reading: Record<string, (p: (typeof presets)[number]) => string> = {
   "fix-rule": (p) => `The parser module changed, so the fingerprint changed, and every parsed schedule recorded the old one. All ${p.rebuilt} are re-read from Friday's saved pages. Nothing is fetched.`,
-  comment: (p) => `A comment changes no output, but the fingerprint hashes the whole file, so all ${p.rebuilt} are rebuilt. That costs a few seconds here and can never leave a stale parsed schedule behind.`,
+  comment: (p) => `A comment changes no output, but the fingerprint hashes the whole file, so all ${p.rebuilt} are rebuilt. That re-reads every saved page for nothing, but it leaves none of the ${spell(p.files)} stale.`,
   alias: (p) => `The alias list is config, and config is part of the fingerprint. The code did not change, yet all ${p.rebuilt} are rebuilt from the saved pages.`,
   nothing: () => "Every parsed schedule's fingerprint and content hash match what it recorded, so nothing is rebuilt and nothing is fetched.",
   "refetch-harbor": (p) => `A deliberate fetch overwrote ${p.watch!.name}'s saved page with a different one. Its content hash changed, so that one parsed schedule is rebuilt, and Friday's capture of the page is gone.`,
@@ -59,17 +59,17 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
       {choices.map((k) => {
         const t = tables[k].table;
         return (
-          <div class="ar-panel" id={`${id}-${k}`} data-rb-panel={k} data-rb-say={`Table ${k}, ${tables[k].label}: ${t.caption}${k === "A" ? "." : `, ${diffs[k].length} changed ${diffs[k].length === 1 ? "cell" : "cells"} from Tuesday's table.`}`} hidden={k !== start}>
+          <div class="ar-panel" id={`${id}-${k}`} data-rb-panel={k} data-rb-say={`Table ${k}, ${tables[k].label}: ${t.caption}${k === "A" ? "." : `, ${diffs[k].length} changed ${diffs[k].length === 1 ? "cell" : "cells"} from table A.`}`} hidden={k !== start}>
             <dl class="ar-tiles">
               <div><dt>Counts</dt><dd>{t.caption}</dd></div>
-              {k !== "A" && <div><dt>Cells changed from Tuesday's table</dt><dd>{diffs[k].length} in {rowsChanged(k)} {rowsChanged(k) === 1 ? "row" : "rows"}</dd></div>}
-              {k !== "A" && <div><dt>Inputs changed from Tuesday's table</dt><dd>{inputs[k]}</dd></div>}
+              {k !== "A" && <div><dt>Cells changed from table A</dt><dd>{diffs[k].length} in {rowsChanged(k)} {rowsChanged(k) === 1 ? "row" : "rows"}</dd></div>}
+              {k !== "A" && <div><dt>Inputs changed from table A</dt><dd>{inputs[k]}</dd></div>}
             </dl>
-            {k !== "A" && <p class="ar-cap" aria-hidden="true">A changed cell shows Tuesday's value struck through, coloured by the input that changed it.</p>}
+            {k !== "A" && <p class="ar-cap" aria-hidden="true">A changed cell shows table A's value struck through, coloured by the input that changed it.</p>}
             <p class="ar-cue" aria-hidden="true">Scroll the table sideways for every column.</p>
             <div class="ar-scroll" tabindex="0" role="region" aria-label={`Table ${k}, ${tables[k].label}`}>
               <table class="ar-table">
-                <caption class="sr-only">{k === "A" ? "Tuesday's table, as published." : `Table ${k}. A changed cell shows Tuesday's value and its new value, with the input that changed it.`}</caption>
+                <caption class="sr-only">{k === "A" ? "Tuesday's table, as published." : `Table ${k}. A changed cell shows table A's value and its new value, with the input that changed it.`}</caption>
                 <thead><tr>{heads.map(([, short, full]) => <th scope="col">{short === full ? short : <abbr title={full}>{short}</abbr>}</th>)}</tr></thead>
                 <tbody>
                   {t.rows.map((r) => (
@@ -115,11 +115,11 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
               <div class:list={{ "is-lost": p.fridayEvidenceLost }}><dt>Friday's captures</dt><dd>{p.fridayEvidenceLost ? `${p.watch?.name ?? "One"}'s overwritten` : "All kept"}</dd></div>
             </dl>
             <p class="ar-reading">{reading[p.id](p)}</p>
-            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded; beside it is what the run sees now.</p>
+            <p class="ar-cap">Each parsed schedule recorded the fingerprint that wrote it and the content hash of the page it read. A struck value is what it recorded before this run; beside it is the current value. The result column is the rebuild decision.</p>
             <p class="ar-cue" aria-hidden="true">Scroll the table sideways for both hashes.</p>
-            <div class="ar-scroll" tabindex="0" role="region" aria-label={`Parsed schedules after change ${i + 1}`}>
+            <div class="ar-scroll" tabindex="0" role="region" aria-label={`Parsed schedules for change ${i + 1}`}>
               <table class="ar-files">
-                <caption class="sr-only">Parsed schedules after change {i + 1}: what each recorded, what the run sees now, and the result.</caption>
+                <caption class="sr-only">Parsed schedules for change {i + 1}: what each recorded before this run, the current value, and the rebuild decision.</caption>
                 <thead><tr><th scope="col">Parsed schedule</th><th scope="col">Result</th><th scope="col">Fingerprint</th><th scope="col">Content hash</th></tr></thead>
                 <tbody>
                   {files.map((f) => (

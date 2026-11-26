@@ -620,3 +620,11 @@ export const case2Draws = {
 };
 check(drawTruth === 4 && drawPoints.a === 5 && drawBuggy.b === 5 && drawBuggy.c === 5 && !case2Draws.answers.a && case2Draws.answers.b && case2Draws.answers.c, "Case 2's draw bug no longer gives Cedar Grove 4 points from (b) and (c), 5 from (a) and 5 under the bug");
 check(Object.values(presetFiles).every((files) => files.length === fridayPages.length) && presetFiles["live-changed"].some((f) => f.liveContent !== f.nowContent && !f.fetched), "the bench's preset files no longer show the unseen live change");
+
+export const case2Sidecar: { requested_url: string; final_url: string; status: number; fetched_at: string; etag: string; sha256: string } = cedarSidecar;
+{
+  const keys = Object.keys(case2Sidecar).sort().join(",");
+  if (keys !== "etag,fetched_at,final_url,requested_url,sha256,status" || case2Sidecar.sha256 !== archives.c.sidecar.sha256) {
+    throw new Error(`case2Sidecar: unexpected fields ${keys}`);
+  }
+}
