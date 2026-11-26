@@ -10,7 +10,7 @@ import { controlled, exits, fingerprintScope, hashAnswers, labRun, missing, tamp
 
 const { keys } = archive;
 const n = (x: number) => x.toLocaleString("en-US");
-const times = (x: number) => `${Math.round(x)} times`;
+const times = (x: number) => (Number.isInteger(x) ? `${x} times` : `about ${Math.round(x)} times`);
 const lesson = (part: string) => `../02-archive/#${part}`;
 const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const word = (x: number) => words[x] ?? n(x);
@@ -35,13 +35,13 @@ const answerText = Object.fromEntries(hashAnswers);
 type Fetch = (typeof signatures.fetches)[number];
 const fetchWhy = (f: Fetch) => {
   if (f.answer === "neither") return `Neither hash. The bytes are the same as Friday's, so both hashes are too: ${f.byteHash} and ${f.signature}. Where the site supports one, a conditional request could have saved even the download.`;
-  if (f.answer === "bytes") return `Content hash only. The stamp, the token and the indentation change the bytes (${f.baselineByteHash} to ${f.byteHash}). The signature drops all three, so it stays ${f.signature}: the rows are Friday's.`;
+  if (f.answer === "bytes") return `Content hash only. The render time, the token and the indentation change the bytes (${f.baselineByteHash} to ${f.byteHash}). The signature drops all three, so it stays ${f.signature}: the rows are Friday's.`;
   return `Both hashes. ${f.real ? "One result cell is new" : "Under the noise, one result cell is new"}, and the signature keeps every cell, so it moves from ${f.baselineSignature} to ${f.signature}.${f.real ? "" : " That is the signature of Tuesday's capture from the sample: the noise made no difference to it."}`;
 };
 const fetchWrong = (f: Fetch) =>
   Object.fromEntries(hashAnswers.filter(([k]) => k !== f.answer).map(([k]) => [k, k === "signature"
     ? "The signature is computed from the bytes. With the same bytes and the same rules, it cannot change."
-    : f.answer === "bytes" && k === "neither" ? "Compare the lines under the fetch: the stamp, the token and the indentation are new bytes."
+    : f.answer === "bytes" && k === "neither" ? "Compare the lines under the fetch: the render time, the token and the indentation are new bytes."
     : f.answer === "bytes" ? "Compare the rows, not the bytes. What on this page would a reader call news?"
     : f.answer === "neither" ? "No line differs from Friday's capture."
     : "A result cell changed. Would a reader call that news?"]));
@@ -221,7 +221,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
           </table>
         </div>
         <p>Read the second row. With every row stored as a home match, the table build had already been stopping: {word(away.compared)} away rows are against another member whose page was saved, so two pages claim to host each of those matches, and the build raises <code>pages disagree on fixture</code> and stops. The fix is in <code>read_schedule()</code>, outside <code>tidy()</code>. A tidy-only fingerprint stays the same, so no parsed file is rebuilt, and the build stops again with the same error. The fix looks as if it failed, and the cause is in the cache, far from where anyone would look.</p>
-        <p>The other {word(away.hostUnsaved + away.nonMember)} away rows are never compared: {word(away.nonMember)} against non-members, which the build drops, and {word(away.hostUnsaved)} at {list(week.unavailable)}, whose page was never saved. They stay wrong without a word. This week the build happens to stop on the compared rows, so nothing is published; in a week when every wrong row was one nothing compares, the build would finish and publish them, and only a count in the coverage report would look wrong. That is the dangerous direction. The comment row is the other one: the module's hash changes although no output can, and every parsed file is rebuilt for nothing.</p>
+        <p>The other {word(away.hostUnsaved + away.nonMember)} away rows are never compared: {word(away.nonMember)} against non-members, which the build drops, and {word(away.hostUnsaved)} at {list(week.unavailable)}, whose page was never saved. They stay wrong without a word. This week the build happens to stop on the compared rows, so nothing is published; in a week when every wrong row was one nothing compares, the build would finish. Its rule that a second meeting at the same host is postseason would then drop some of those matches, so the published table would lose matches and change without an error. That is the dangerous direction. The comment row is the other one: the module's hash changes although no output can, and every parsed file is rebuilt for nothing.</p>
         <p>The hash under each edit is the lab's fingerprint. The comment and alias values are the same ones <a href={lesson("case-fingerprint")}>Case 3's presets</a> show.</p>
       </div>
     </div>
@@ -251,8 +251,8 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
         </label>
         <p class="cv-fb" role="status"></p>
       </div>
-      <div class="cv-line" data-q data-type="select" data-answer="bytes" data-why={`${POLICY.dedup}. A new stamp on every fetch gives new bytes, so every fetch lands on a new name, and the archive ends up storing every fetch. Stored by signature, it keeps one file per distinct normalised page, at the price of not keeping the exact bytes of every fetch; latest only never stores more than one per page either way.`} data-wrong={JSON.stringify({ latest: "Latest only keeps one capture per page, noise or not.", signature: "The signature drops the noise, so a re-render lands on a name that already exists." })}>
-        <label><span>Now every page carries a render stamp that is new on every fetch, like the made-up re-renders in the first section. Which archive ends up storing every fetch?</span>
+      <div class="cv-line" data-q data-type="select" data-answer="bytes" data-why={`${POLICY.dedup}. A new render time on every fetch gives new bytes, so every fetch lands on a new name, and the archive ends up storing every fetch. Stored by signature, it keeps one file per distinct normalised page, at the price of not keeping the exact bytes of every fetch; latest only never stores more than one per page either way.`} data-wrong={JSON.stringify({ latest: "Latest only keeps one capture per page, noise or not.", signature: "The signature drops the noise, so a re-render lands on a name that already exists." })}>
+        <label><span>Now every page carries a render time that is new on every fetch, like the made-up re-renders in the first section. Which archive ends up storing every fetch?</span>
           <select data-save="fw-ret-noise"><option value="">Choose</option><option value="latest">{POLICY.latest}</option><option value="bytes">{POLICY.dedup}</option><option value="signature">{POLICY.sig}</option></select>
         </label>
         <p class="cv-fb" role="status"></p>
@@ -303,7 +303,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
   <section id="layers">
     <h2>Bronze, silver and gold</h2>
     <p class="ar-for">For anyone who will meet these words at work.</p>
-    <p>Many data teams name a pipeline's layers after medals. <strong>Bronze</strong> holds data as it arrived. <strong>Silver</strong> holds it parsed into rows, typed and checked, and often joined into one row per match, with each school under one name. <strong>Gold</strong> holds what a reader uses: a table, a report, an input to a model. The pattern is often called the medallion architecture. Other teams say raw, staging and curated, or landing, refined and serving. The lesson's terms map onto it: <a href={lesson("idea")}>raw data</a> is bronze, and silver and gold are both derived.</p>
+    <p>Many data teams name a pipeline's layers after medals. <strong>Bronze</strong> holds data as it arrived. <strong>Silver</strong> holds anything code has already changed: often parsed into rows, typed and checked, and often joined into one row per match, with each school under one name. <strong>Gold</strong> holds what a reader uses: a table, a report, an input to a model. The pattern is often called the medallion architecture. Other teams say raw, staging and curated, or landing, refined and serving. The lesson's terms map onto it: <a href={lesson("idea")}>raw data</a> is bronze, and silver and gold are both derived.</p>
     <p>Touchline's steps sit on the boundaries. Collecting writes bronze; in production the archive sits in private object storage, and nothing on this page depends on where it lives. Parsing each page, and matching the saved rows by fixture id, write silver. Building the table and each match detail writes gold, which is what gets published.</p>
     <p>Some files describe a layer rather than hold it: what should be in it, where each item came from, and the hash of each. A capture manifest does that for a whole run: which pages were saved, the hash of each, and the gaps it names. A sidecar does it for one page and travels with it; Touchline's sidecar also carries the page's cached parse, which is silver.</p>
 
