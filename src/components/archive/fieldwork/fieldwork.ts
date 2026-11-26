@@ -103,7 +103,7 @@ const scopes = (module: string, cfg: Buffer = config) => ({
 check(scopes(PARSER.v1).lab === fingerprints.v1 && scopes(PARSER.v2).lab === fingerprints.v2, "the lab-scope fingerprint here is not the lab's");
 
 const SIDE = '"side": side,';
-check(PARSER.v2.includes(SIDE), "the fixed parser no longer stores the side as read");
+check(functionSource(PARSER.v2, "read_schedule").includes(SIDE), "read_schedule() no longer stores the side as read");
 const homeOnly = PARSER.v2.replace(SIDE, '"side": "vs",');
 const withComment = PARSER.v2.replace("\ndef tidy(", "\n# Saint before a name, State at the end.\ndef tidy(");
 const aliasConfig = Buffer.concat([
@@ -190,6 +190,20 @@ export const retention = {
   },
 };
 check(retention.tuesday.newFiles === 5 && retention.tuesday.unchanged === 2, "Tuesday's re-fetch no longer changes five of seven pages");
+const oneResultCell = (before: string, after: string) => {
+  const a = rawRows(before), b = rawRows(after);
+  const differ = a.filter((r, i) => r.line !== b[i]?.line);
+  return a.length === b.length && differ.length === 1 && differ.every((r) => {
+    const t = b[a.indexOf(r)];
+    return r.fixture === t.fixture && r.result !== t.result && r.line.replace(`<td>${r.result}</td>`, `<td>${t.result}</td>`) === t.line;
+  });
+};
+check(newOnTuesday.every((p) => oneResultCell(pageOf(fridayPages, p.slug).html, p.html)), "a page that changed on Tuesday no longer differs from Friday's in exactly one result cell");
+const posted = [...saturday, championship];
+const touched = new Set(posted.flatMap((f) => [f.home, f.away]).filter((slug) => saved.has(slug)));
+check([...touched].sort().join() === newOnTuesday.map((p) => p.slug).sort().join(), "the pages Tuesday changed are no longer the saved pages of the teams whose results were posted");
+/** The results posted between Friday's run and Tuesday's capture, as the learner reads them before the check. */
+export const postedSinceFriday = posted.map((f) => ({ home: f.homeName, away: f.awayName, date: f.date }));
 check(deduped < every && fridaySchedBytes < deduped, "the season model's three sizes are out of order");
 
 // ---------------------------------------------------------------- the lab's quotes
@@ -216,7 +230,14 @@ check(run.endsWith(replayReport), "the quoted lab run and the lesson's replay re
 /** The tail of `python labs/m02_archive.py --missing hartwell-tech` from its replay report. */
 export const missingReport = quote("m02_archive.missing-report.txt");
 check(missingReport.startsWith("Replay report: ") && /^replayed {7}: 6 of the 7 schedules/m.test(missingReport), "the quoted --missing report does not start at its heading");
-export const missing = { slug: "hartwell-tech", name: nameOf("hartwell-tech") };
+const MISSING = "hartwell-tech";
+const elsewhere = new Set(fridayPages.filter((p) => p.slug !== MISSING).flatMap((p) => rawRows(p.html).map((r) => r.fixture)));
+const lostRows = parseSchedule(pageOf(fridayPages, MISSING).html, tidyV2).filter((r) => !elsewhere.has(r.fixture) && members.includes(r.opponent) && r.result !== "");
+const finishedIn = (text: string) => Number((text.match(/^tables {9}: .*rebuild (\d+) of/m) ?? fail("a quoted report has no tables line"))[1]);
+check(lostRows.length === 2 && lostRows.every((r) => !saved.has(r.opponent)) && new Set(lostRows.map((r) => r.side)).size === 2, "the --missing page no longer holds one home and one away match against an unsaved school, on no other saved page");
+check(finishedIn(replayReport) - finishedIn(missingReport) === lostRows.length, "the --missing table no longer loses exactly the matches that were only on the missing page");
+/** --missing hartwell-tech: the page, and the conference matches that were on no other saved page. */
+export const missing = { slug: MISSING, name: nameOf(MISSING), lost: lostRows.length, opponent: nameOf(lostRows[0].opponent) };
 check(missingReport.includes(`skipped ${missing.slug}'s missing page`), "the quoted --missing report names a different page");
 export { tuesdayDiff };
 
