@@ -46,10 +46,10 @@ const rules = [
 const loop = [
   ["for page in expected_pages:", "fetch"],
   ["    raw = fetch(page)", "fetch"],
-  ["    save(page, raw, fetched_at=now())  # or record it unavailable", "fetch"],
-  ["rows = [parse(raw, code, config) for raw in archive.schedules]", "replay"],
-  ["table = build(rows)", "replay"],
-  ["record(table, pages=hashes(archive.schedules), code=version(code, config))", "replay"],
+  ["    save(run, page, raw, fetched_at=now())  # or record it unavailable", "fetch"],
+  ["rows = [parse(raw, code, config) for raw in archive.schedules(run)]", "replay"],
+  ["table = build(rows, unavailable=archive.unavailable(run))", "replay"],
+  ["record(table, run=run, pages=hashes(archive.schedules(run)), code=version(code, config))", "replay"],
 ];
 
 const items: [string, string][] = [
@@ -111,7 +111,7 @@ const items: [string, string][] = [
       <span><i class="is-one" aria-hidden="true"></i>Two loaves baked side by side today in the old oven, from the same flour: only the recipe differs.</span>
     </figcaption>
   </figure>
-  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To test the recipe, bake both recipes side by side in the old oven, if the bakery still has it, from the same flour on the same afternoon. Only the recipe differs between those two loaves, so any difference between them is the recipe's.</p>
+  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To test the recipe, bake both recipes side by side in the old oven, if the bakery still has it, from the same flour on the same afternoon. Only the recipe differs between those two loaves, so any difference between them is the recipe's, at least in the old oven.</p>
   <div class="cv-define">
     <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
@@ -127,7 +127,7 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6: that is a replay. Running line 2 again is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6 on the run you choose, such as Friday's: that is a replay. Running line 2 again is a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s home results still come from visitors' pages, as they did on Monday.</p>
