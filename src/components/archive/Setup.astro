@@ -1,21 +1,168 @@
 ---
+import FirstRunTable from "../FirstRunTable.astro";
+import KickThink from "../coverage/KickThink.astro";
 import PartHead from "../coverage/PartHead.astro";
 import NextPart from "../coverage/NextPart.astro";
 import AiCard from "./AiCard.astro";
-import Draft from "./Draft.astro";
 import { refetchPredict } from "../../lib/archive-state";
+import { fridayPages, story, tableA } from "../../lib/archive";
+import { spell } from "../../lib/cases";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const film = (name: string) => `${base}film/${name}`;
+const monday = `${story.monday.scored} of ${story.monday.finished}`;
+
+const kickThoughts = [
+  `Saint Lambert is right. My tidy rule turns every “St.” into “State”, so “${story.mondayName}” came out as “${story.tuesdayName}”. The fix is one line in the parser: “St.” in front of a name means Saint.`,
+  "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule. The cleanest way to be sure every row goes through the fixed parser is to start from fresh pages.",
+  `Fresh pages help in other ways too. Dunmore didn't answer on Friday, so it's worth asking again, and if any site has posted a result since, the table picks that up as well. Ask all ${spell(story.sites)} sites again, save the new pages over the old ones so the archive is current, parse, rebuild. Re-fetching!`,
+];
+
+const kickPlan = [
+  { stage: "Parse", text: "Fix the tidy rule in the parser: “St.” in front of a name becomes Saint.", done: true },
+  { stage: "Scrape", text: `Fetch the schedule page from all ${spell(story.sites)} school sites again.`, done: false },
+  { stage: "Store", text: "Save each new page in place of Friday's copy, so the archive is up to date.", done: false },
+  { stage: "Build", text: "Parse the new pages with the fixed rule, regenerate the table, and publish it.", done: false },
+];
+const done = kickPlan.filter((s) => s.done).length;
+
+const clauses = ["Can you rebuild Friday's table from the pages you kept,", "without asking a single site again,", "and show me you did?"];
+
+const feedback: [value: string, text: string][] = [
+  ["name", "That holds if the sites show the same pages on Tuesday as on Friday. A re-fetch reads whatever they show now, so it also depends on anything posted since."],
+  ["numbers", "That happens if a site posted a Saint Lambert result after Friday's run. Whether one did isn't anywhere on this page yet."],
+  ["unknown", "That's a careful reading. The answer depends on what the sites posted between Friday and Tuesday, and nothing you've seen shows that yet."],
+];
 ---
 
 <section id="setup">
   <PartHead id="setup">Setup: Tuesday, one line of code</PartHead>
-  <Draft items={["Three lines of story and Tuesday's table, with “State Lambert” in one row.", "Kick's think trace and plan: fix the tidy rule inside the parser, re-fetch all eight sites, regenerate.", "Riley's three-clause ask as a prompt card.", "The prediction below, returned in The decision."]} />
+  <div class="ar-previously">
+    <a class="ar-poster" href="../01-collection/#carry-it-tuesday">
+      <img src={film("monday-then-tuesday.jpg")} alt={`Riley on the bleachers with a laptop, beside Riley's table: ${monday}, with one unknown, Cedar Grove v St. Lambert on September 21.`} width="1920" height="1080" loading="lazy" decoding="async" />
+      <span>Previously: Monday, Then Tuesday</span>
+    </a>
+    <div>
+      <p>Monday's table went out at {monday} finished matches, with the one missing result named. Nobody called.</p>
+      <p>On Tuesday, Kick added a tidy rule to spell out abbreviations in school names. Every “St.” became “State”.</p>
+      <p>By lunchtime, Saint Lambert had called.</p>
+    </div>
+  </div>
+
+  <h3 class="cv-step" id="setup-tuesday"><span>1</span>Tuesday's table</h3>
+  <p>Every number in it is Monday's. One name is new.</p>
+  <div class="ar-tuesday">
+    <FirstRunTable rows={tableA.rows} caption={`Tuesday's table, ${tableA.caption}`} />
+  </div>
+  <div class="cv-vm ar-vm">
+    <div class="cv-vm-head">
+      <span class="cv-vm-tag">Voicemail · Tuesday</span>
+      <p class="cv-who">Saint Lambert soccer</p>
+    </div>
+    <p class="cv-vm-line">“Saint, as in the saint. Your table says State Lambert. We are not a state school. Please fix it.”</p>
+    <button type="button" class="cv-vm-play" data-ar-vm={film("monday-then-tuesday.mp4")} data-start="44.07" data-end="53.85" aria-label="Play the voicemail from Saint Lambert soccer" aria-pressed="false" hidden>Listen</button>
+  </div>
+
+  <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
+  <p>Kick apologised, fixed the rule in a minute, and kept going. This is what Kick was thinking when it said “Re-fetching!”.</p>
+  <KickThink duration="Thought for 5s" thoughts={kickThoughts} />
+  <div class="cv-kplan ar-plan" role="region" aria-label="Kick's fix plan, stopped after the first step">
+    <div class="cv-kplan-bar">
+      <span class="cv-kplan-who">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10.5l1.5 1.5 3-3"/><path d="M8.5 16l1.5 1.5 3-3"/></svg>
+        Kick · Plan
+      </span>
+      <span class="ar-plan-meta">{done} of {kickPlan.length} done · stopped by Riley</span>
+    </div>
+    <ol class="cv-kplan-list">
+      {kickPlan.map((s) => (
+        <li class:list={{ "is-waiting": !s.done }}>
+          {s.done
+            ? <span class="cv-kplan-tick" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            : <span class="ar-plan-wait" aria-hidden="true"></span>}
+          <span class="cv-kplan-text"><span class="sr-only">{s.done ? "Done: " : "Not run: "}</span>{s.text}</span>
+          <span class="cv-kplan-stage"><span class="sr-only">Stage: </span>{s.stage}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. One detail matters later. The film showed the rule on the published table, because that is where the name appeared. Kick wrote the rule into the parser, the step that turns each saved page into rows, so the rows already say “{story.tuesdayName}” before the table is built.</p>
+
+  <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
+  <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>
+  <div class="cv-user-prompt" role="region" aria-label="Riley's question to Kick">
+    <div class="cv-chat-bar">
+      <span class="cv-chat-badge">Prompt</span>
+      <span class="cv-chat-meta">Riley → Kick</span>
+    </div>
+    <p class="cv-chat-text ar-clauses">{clauses.map((c, i) => <><span class="ar-clause"><sup aria-hidden="true">{i + 1}</sup>{c}</span>{i < clauses.length - 1 && " "}</>)}</p>
+  </div>
+  <p>Kick's plan fixes the code. Riley is asking about the table: rebuild it from the {spell(fridayPages.length)} pages saved on Friday, ask no site for anything, and leave evidence that the rebuild happened that way. Each of the three clauses needs an idea this module teaches.</p>
+
+  <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
   <fieldset class="cv-choice" data-gate>
-    <legend><span class="cv-kind">Prediction <span>not graded</span></span>If Kick had re-fetched, what would Saint Lambert's row show?</legend>
+    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Suppose Riley hadn't stopped it. If Kick had re-fetched all {spell(story.sites)} sites on Tuesday and rebuilt with the fixed rule, what would Saint Lambert's row show?</legend>
     {refetchPredict.options.map(([value, label]) => (
       <label><input type="radio" name="ar-refetch-predict" value={value} data-save={refetchPredict.key} /><span>{label}</span></label>
     ))}
   </fieldset>
-  <p class="cv-once">We'll come back to your prediction in The decision.</p>
+  <div class="ar-predict-fb">
+    {feedback.map(([value, text]) => <p data-when={refetchPredict.key} data-is={value} hidden>{text}</p>)}
+    <p data-when={refetchPredict.key} hidden>Every choice here is a reasonable reading of what you have seen so far. Case 1 shows what the sites did post, and The decision comes back to your answer.</p>
+  </div>
+  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick one to continue. We'll come back to your prediction in The decision.</p>
+
   <AiCard part="setup" />
-  <NextPart from="setup">What does a published table depend on, besides the code?</NextPart>
+  <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>
 </section>
+
+<script>
+  let media: HTMLAudioElement | null = null;
+  let end = 0;
+  document.querySelectorAll<HTMLButtonElement>("[data-ar-vm]").forEach((button) => {
+    button.hidden = false;
+    const reset = () => button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", () => {
+      if (!media) {
+        media = new Audio();
+        media.preload = "metadata";
+        media.src = button.dataset.arVm!;
+        media.addEventListener("timeupdate", () => { if (media!.currentTime >= end) media!.pause(); });
+        media.addEventListener("pause", reset);
+        media.addEventListener("ended", reset);
+      }
+      if (!media.paused) { media.pause(); return; }
+      end = Number(button.dataset.end);
+      const start = Number(button.dataset.start);
+      button.setAttribute("aria-pressed", "true");
+      if (media.readyState >= HTMLMediaElement.HAVE_METADATA) media.currentTime = start;
+      else media.addEventListener("loadedmetadata", () => { media!.currentTime = start; }, { once: true });
+      media.play().catch(() => { reset(); button.textContent = "Audio could not play here"; });
+    });
+  });
+</script>
+
+<style>
+  .ar-previously { display: grid; gap: 0.9rem; align-items: center; margin: 0 0 1.25rem; }
+  @media (min-width: 40rem) { .ar-previously { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.25rem; } }
+  .ar-previously p { margin: 0 0 0.5rem; }
+  .ar-previously p:last-child { margin: 0; color: var(--sl-color-white); font-weight: 650; }
+  .ar-poster { display: grid; gap: 0.35rem; color: var(--tl-muted); font-size: 0.82rem; text-decoration: none; }
+  .ar-poster img { display: block; width: 100%; height: auto; border: 1px solid var(--tl-line); border-radius: 8px; }
+  .ar-poster span { text-decoration: underline; text-underline-offset: 2px; }
+  .ar-poster:hover span { color: var(--sl-color-white); }
+  .ar-tuesday :global(tr[data-team="st-lambert"]) { background: color-mix(in srgb, #f4c62f 18%, transparent); }
+  .ar-tuesday :global(tr[data-team="st-lambert"] th) { color: var(--sl-color-white); }
+  .ar-vm { margin: 0 0 1rem; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1rem; }
+  .ar-vm .cv-vm-line { grid-column: 1 / -1; grid-row: 2; }
+  .ar-vm .cv-vm-play { grid-column: 2; grid-row: 1; align-self: center; }
+  .ar-plan-meta { color: var(--tl-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ar-plan .is-waiting .cv-kplan-text { color: var(--tl-muted); }
+  .ar-plan-wait { width: 1.1rem; height: 1.1rem; margin-top: 0.12rem; border: 2px dashed var(--tl-muted); border-radius: 50%; box-sizing: border-box; }
+  .ar-clause { display: inline; }
+  .ar-clause sup { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; margin: 0 0.3rem 0 0.1rem; border-radius: 50%; background: color-mix(in srgb, #f4c62f 22%, transparent); color: var(--sl-color-white); font-size: 0.7rem; font-weight: 750; line-height: 1; vertical-align: 0.2em; }
+  .ar-predict-fb { margin: 0 0 1.25rem; }
+  .ar-predict-fb p { margin: 0 0 0.5rem; padding: 0.5rem 0.75rem; border-left: 3px solid var(--tl-muted); background: var(--tl-card); }
+  .ar-predict-fb p:last-child { margin: 0; }
+  .ar-predict-fb + .cv-once { margin: -0.75rem 0 1.25rem !important; }
+</style>
