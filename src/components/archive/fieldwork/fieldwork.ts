@@ -40,9 +40,10 @@ const tuesdayOther = pageOf(tuesdayPages, SAME_SLUG);
 check(fridayOther.html === tuesdayOther.html, `${SAME_SLUG}'s Tuesday page is no longer byte-identical to Friday's`);
 check(fridayHarbor.html !== tuesdayHarbor.html, `${SIG_SLUG}'s Tuesday page no longer differs from Friday's`);
 
-const changedLines = (before: string, after: string) => {
-  const was = new Set(before.split("\n").map((l) => l.trim()));
-  return after.split("\n").map((l) => l.trim()).filter((l) => l !== "" && !was.has(l));
+const lineDiff = (before: string, after: string) => {
+  const trim = (t: string) => t.split("\n").map((l) => l.trim()).filter((l) => l !== "");
+  const was = new Set(trim(before)), now = new Set(trim(after));
+  return { removed: trim(before).filter((l) => !now.has(l)), added: trim(after).filter((l) => !was.has(l)) };
 };
 type Fetch = { id: string; label: string; what: string; real: boolean; html: string; baseline: string; slug: string };
 const fetches: Fetch[] = [
@@ -71,7 +72,7 @@ export const signatures = {
       id: f.id, label: f.label, what: f.what, real: f.real, name: nameOf(f.slug),
       bytes: Buffer.byteLength(f.html), byteHash: short(sha(f.html)), signature: signatureOf(f.html),
       baselineByteHash: short(sha(f.baseline)), baselineSignature: signatureOf(f.baseline),
-      byteChanged, sigChanged, answer, changed: changedLines(f.baseline, f.html),
+      byteChanged, sigChanged, answer, ...lineDiff(f.baseline, f.html),
     };
   }),
 };
@@ -116,8 +117,14 @@ const renamedRows = fridayPages.flatMap((p) => {
   return a.filter((r, i) => r.shown !== b[i].shown);
 }).length;
 const awayRows = allRaw.filter((r) => r.side === "at").length;
-const awayUnchecked = fridayPages.flatMap((p) => parseSchedule(p.html, tidyV2)).filter((r) => r.side === "at" && !members.includes(r.opponent)).length;
-check(awayUnchecked > 0 && awayUnchecked < awayRows, "the away rows no longer split into conference and non-member matches");
+const saved = new Set(fridayPages.map((p) => p.slug));
+const away = fridayPages.flatMap((p) => parseSchedule(p.html, tidyV2)).filter((r) => r.side === "at");
+const awayGroups = {
+  compared: away.filter((r) => members.includes(r.opponent) && saved.has(r.opponent)).length,
+  hostUnsaved: away.filter((r) => members.includes(r.opponent) && !saved.has(r.opponent)).length,
+  nonMember: away.filter((r) => !members.includes(r.opponent)).length,
+};
+check(awayGroups.compared + awayGroups.hostUnsaved + awayGroups.nonMember === awayRows && Object.values(awayGroups).every((x) => x > 0), "the away rows no longer split into compared, one-sided and non-member rows");
 const spelledSaint = allRaw.filter((r) => r.opponent === "Saint Lambert").length;
 check(renamedRows > 0 && awayRows > 0 && spelledSaint === 0, "the parsed-row counts behind the fingerprint table changed shape");
 
@@ -142,7 +149,7 @@ export const scopeTable = edits.map((e) => ({ ...e, narrowest: narrowest(e) }));
 const presetAfter = (id: string) => presets.find((p) => p.id === id)?.fingerprintAfter ?? fail(`no preset ${id}`);
 check(scopeTable[2].after.lab === presetAfter("comment") && scopeTable[3].after.lab === presetAfter("alias"), "the comment and alias edits here are not the lesson's presets");
 check(scopeTable.map((e) => e.narrowest).join() === "fn,module,module,lab,none", "the five edits no longer fall one per scope as expected");
-export const fingerprintScope = { awayUnchecked, awayChecked: awayRows - awayUnchecked, functionLines: functionSource(PARSER.v2, "tidy").split("\n").length, moduleLines: PARSER.v2.trimEnd().split("\n").length, tidy: functionSource(PARSER.v2, "tidy") };
+export const fingerprintScope = { away: awayGroups, tidyBefore: functionSource(PARSER.v1, "tidy"), functionLinesBefore: functionSource(PARSER.v1, "tidy").split("\n").length, moduleLinesBefore: PARSER.v1.trimEnd().split("\n").length, functionLines: functionSource(PARSER.v2, "tidy").split("\n").length, moduleLines: PARSER.v2.trimEnd().split("\n").length, tidy: functionSource(PARSER.v2, "tidy") };
 
 // ---------------------------------------------------------------- retention
 
@@ -249,3 +256,8 @@ const exitOf = (args: string[]) => {
 /** The exit code labs/run_all.py expects from each run the page quotes. */
 export const exits = { tuesday: exitOf(["labs/m02_archive.py", "--tuesday"]), missing: exitOf(["labs/m02_archive.py", "--missing", "hartwell-tech"]) };
 check(exits.tuesday === 1 && exits.missing === 1, "the m02 exit codes in labs/run_all.py are not the ones the page explains");
+
+const counter = labRun[0].text.match(/network counter: caught (\d+) of (\d+) test requests/) ?? fail("the quoted run has no network counter line");
+check(counter[1] === counter[2], "the quoted run's counter missed a test request");
+/** How many test requests the lab's counter must catch before it is trusted. */
+export const testRequests = Number(counter[2]);
