@@ -20,8 +20,8 @@
    "state": "saved",
    "path": "captures/2026-11-24-tuesday/alder-ridge/2026-men-schedule.html",
    "fetched_at": "2026-11-24T09:15:00+00:00",
-   "bytes": 3062,
-   "sha256": "32be2061e5df72139157d819b2a370f161a9138dbc1be28147da9afd364909fb"
+   "bytes": 3013,
+   "sha256": "ada98c587d146264cc903b1fe23d82e08e93e932a4d6587343e4c05ad828b654"
   },
   {
    "programme": "brightwater-state",
@@ -58,8 +58,8 @@
    "state": "saved",
    "path": "captures/2026-11-24-tuesday/eastbrook-state/2026-men-schedule.html",
    "fetched_at": "2026-11-24T09:15:12+00:00",
-   "bytes": 2693,
-   "sha256": "0f6e1058636fbaa41cbf10d9f8b3a6b5978fe4b2bc10a906fe44e80905a7242f"
+   "bytes": 2644,
+   "sha256": "710f5f65a8709e9ea2a1c3986f7766a63f4c4ebd34540a44c2e86ca9236dd90e"
   },
   {
    "programme": "harbor-point",
@@ -88,8 +88,8 @@
    "state": "saved",
    "path": "captures/2026-11-24-tuesday/st-lambert/2026-men-schedule.html",
    "fetched_at": "2026-11-24T09:15:21+00:00",
-   "bytes": 2593,
-   "sha256": "953a04472d8dfc9a231c945b139a2bc4ff198c7615206d7873b9fcfcb14263d7"
+   "bytes": 2544,
+   "sha256": "892065796e45c777378664e27a9d45291a0bb137986db79b060d6e8ffdad7ad4"
   }
  ]
 }

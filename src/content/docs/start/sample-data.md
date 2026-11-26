@@ -107,7 +107,7 @@ python sample/generate.py --check
 ```
 
 ```
-86 files generated, 0 differ from disk
+87 files generated, 0 differ from disk
 ```
 
 That is the platform's determinism rule, applied to this

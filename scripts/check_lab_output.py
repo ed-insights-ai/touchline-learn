@@ -8,7 +8,8 @@ line ending in " ..." matches by its prefix.
 A file in src/data/quotes/ is a quote a component renders. Its name starts with
 the lab it quotes (m02_archive.replay-report.txt quotes labs/m02_archive.py),
 and its lines must appear in that order, unbroken except at "...", in the
-output of one of that lab's runs in labs/run_all.py.
+standard output of one of that lab's runs in labs/run_all.py that ended with
+its expected exit code. A quote with no line of real output fails.
 """
 
 from __future__ import annotations
@@ -51,11 +52,13 @@ def lab_output(key: str) -> set[str]:
 
 
 def lab_runs(lab: str) -> list[list[str]]:
+    """The stdout of each of this lab's runs that ended with its expected exit code."""
     runs = []
-    for args, _, _ in RUNS:
+    for args, code, _ in RUNS:
         if Path(args[0]).stem == lab:
             done = subprocess.run([sys.executable, *args], cwd=ROOT, capture_output=True, text=True)
-            runs.append([line.rstrip() for line in (done.stdout + done.stderr).splitlines()])
+            if done.returncode == code:
+                runs.append([line.rstrip() for line in done.stdout.splitlines()])
     return runs
 
 
@@ -100,7 +103,9 @@ def main() -> int:
         block = [line.rstrip() for line in quote.read_text(encoding="utf-8").splitlines()]
         runs = lab_runs(quote.name.split(".")[0])
         checked += len(block)
-        if not runs:
+        if not any(line.strip() and line.strip() != "..." for line in block):
+            missing.append(f"{quote.relative_to(ROOT)}: quotes nothing")
+        elif not runs:
             missing.append(f"{quote.relative_to(ROOT)}: no run of {quote.name.split('.')[0]} in labs/run_all.py")
         elif not any(in_order(block, run) for run in runs):
             missing.append(f"{quote.relative_to(ROOT)}: not one unbroken block of any run's output")

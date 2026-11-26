@@ -35,7 +35,7 @@ GENDERS = ("men", "women")
 COLLECTED = {2025: "2025-12-16T12:30:00+00:00", 2026: "2026-11-20T12:30:00+00:00"}
 SHADOW_COLLECTED = "2026-11-23T09:05:00+00:00"
 # Capture runs of the 2026 men's raw zone. Friday's is the one Monday's table was built from.
-FRIDAY, TUESDAY = "2026-11-20-friday", "2026-11-24-tuesday"
+FRIDAY, TUESDAY, LATER = "2026-11-20-friday", "2026-11-24-tuesday", "2026-11-25-later"
 FRIDAY_AT, TUESDAY_AT, LATER_AT = "2026-11-20T12:30", "2026-11-24T09:15", "2026-11-25T08:05"
 DOWN_ON = {FRIDAY: "dunmore", TUESDAY: "dunmore"}
 TRIES = 3
@@ -652,7 +652,7 @@ def schedule_page(slug, gender, season, fixtures, title_year=True, payload=None)
         else:
             result = "Final" if f["status"] == "final" else ""
         link = ""
-        if f["status"] == "final" and f["id"].split(":")[1] == slug:
+        if f["status"] == "final" and f["id"].split(":")[1] == slug and not f.get("box_not_yet_linked"):
             link = f'<a class="box" href="boxscore/{f["id"].rsplit(":", 1)[1]}">Box Score</a>'
         rows.append(f'    <tr data-game="{f["id"].rsplit(":", 1)[1]}"><td>{f["date"]}</td>'
                     f'<td>{"vs" if at_home else "at"}</td><td>{html.escape(opp)}</td>'
@@ -808,6 +808,7 @@ def build() -> dict[str, bytes]:
         if f["id"] in weekend:
             f["status"] = "final"
             f["home_score"], f["away_score"] = games[f["id"]]["home_score"], games[f["id"]]["away_score"]
+            f["box_not_yet_linked"] = True
     root = f"captures/{TUESDAY}"
     for slug in sorted(MEMBERS):
         if slug == DOWN_ON[TUESDAY]:
@@ -818,6 +819,23 @@ def build() -> dict[str, bytes]:
              stamp_at(TUESDAY_AT, sorted(MEMBERS).index(slug)), root=root)
     files[f"manifests/{TUESDAY}.json"] = dump(manifest(
         TUESDAY, TUESDAY_AT, root, [], "schedule pages only"))
+
+    # The pages captured after Tuesday: Dunmore's current schedule, and the past seasons Riley asked for.
+    later = []
+    for n, (slug, path) in enumerate([("dunmore", "dunmore/2026-men-schedule.html"),
+                                      ("cedar-grove", "cedar-grove/2019-men-schedule.html"),
+                                      ("dunmore", "dunmore/2019-men-schedule.html"),
+                                      ("alder-ridge", "traps/alder-ridge-2025-embedded.html")]):
+        side = json.loads(files[f"raw_html/{path}.meta.json"])
+        assert side["fetched_at"] == stamp_at(LATER_AT, n)
+        later.append({"programme": slug, "kind": "schedule", "requested_url": side["requested_url"],
+                      "state": "saved", "path": f"raw_html/{path}", "fetched_at": side["fetched_at"],
+                      "bytes": len(files[f"raw_html/{path}"]), "sha256": side["sha256"]})
+    files[f"manifests/{LATER}.json"] = dump({
+        "schema": "learn.capture-manifest/1", "run": LATER, "season": None, "gender": "men", "conference": CONF,
+        "scope": "Dunmore's 2026 schedule, and schedules for past seasons", "started_at": later[0]["fetched_at"],
+        "finished_at": later[-1]["fetched_at"], "requested": len(later), "saved": len(later), "unavailable": [],
+        "pages": later})
     # A page that is not a box score for two teams. A reader must refuse it.
     fid = boxes[0]
     files["raw_html/traps/three-team-box.html"] = box_page(

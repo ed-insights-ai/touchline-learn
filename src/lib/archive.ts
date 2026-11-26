@@ -16,7 +16,7 @@ const check = (ok: boolean, what: string) => { if (!ok) fail(what); };
 export const SEASON = 2026;
 const CONFERENCE = "PLC";
 
-type ManifestPage = {
+export type ManifestPage = {
   programme: string; kind: "schedule" | "box_score"; requested_url: string; state: "saved" | "unavailable";
   path?: string; fetched_at?: string; bytes?: number; sha256?: string; fixture?: string; reason?: string; tries?: number;
 };
@@ -50,13 +50,17 @@ export const tidyV1: Tidy = (name) => name.replaceAll("St.", "State");
 export const tidyV2: Tidy = (name) => name.replace(/\bSt\.(?=\s+\w)/g, "Saint").replace(/\bSt\.$/, "State");
 
 const decode = (t: string) => t.replaceAll("&#x27;", "'").replaceAll("&quot;", '"').replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
+const ROW_START = /<tr data-game="/g;
 const ROW = /<tr data-game="(\d+)"><td>([\d-]+)<\/td><td>([^<]*)<\/td><td>([^<]+)<\/td><td>([^<]*)<\/td><td>(.*?)<\/td><\/tr>/g;
 
 export type RawRow = { fixture: string; date: string; side: string; opponent: string; result: string; line: string };
 export type ParsedRow = { fixture: string; date: string; side: string; opponent: string; shown: string; result: string };
 
-export const rawRows = (html: string): RawRow[] =>
-  [...html.matchAll(ROW)].map((m) => ({ fixture: m[1], date: m[2], side: m[3], opponent: decode(m[4]), result: m[5], line: m[0] }));
+export const rawRows = (html: string): RawRow[] => {
+  const rows = [...html.matchAll(ROW)].map((m) => ({ fixture: m[1], date: m[2], side: m[3], opponent: decode(m[4]), result: m[5], line: m[0] }));
+  check(rows.length === [...html.matchAll(ROW_START)].length, "a schedule row does not have the layout the reader expects");
+  return rows;
+};
 
 export const parseSchedule = (html: string, tidy: Tidy): ParsedRow[] =>
   rawRows(html).map((r) => ({
@@ -88,6 +92,7 @@ export type Table = {
   caption: string; postseason: string[]; gaps: Gap[]; parsed: Record<string, ParsedRow[]>;
 };
 
+const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 const score = (result: string) => {
   const m = result.match(/^[WLT] (\d+)-(\d+)$/);
   return m ? [Number(m[1]), Number(m[2])] as const : null;
@@ -116,7 +121,7 @@ function build(key: string, pages: { slug: string; html: string; tidy: Tidy }[],
     }
   }
   const regular = new Map<string, string>();
-  [...matches.entries()].sort(([ia, a], [ib, b]) => a.date.localeCompare(b.date) || ia.localeCompare(ib))
+  [...matches.entries()].sort(([ia, a], [ib, b]) => cmp(a.date, b.date) || cmp(ia, ib))
     .forEach(([id, m]) => { if (!regular.has(`${m.home}>${m.away}`)) regular.set(`${m.home}>${m.away}`, id); });
   const games = [...regular.values()].map((id) => matches.get(id)!);
   const rows = new Map(members.map((s) => [s, { slug: s, name: "", place: 0, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }]));
@@ -129,7 +134,7 @@ function build(key: string, pages: { slug: string; html: string; tidy: Tidy }[],
     }
   }
   const table = [...rows.values()].map((r) => ({ ...r, gd: r.gf - r.ga, pts: 3 * r.w + r.d }))
-    .sort((a, b) => b.pts - a.pts || b.gd - a.gd || a.slug.localeCompare(b.slug))
+    .sort((a, b) => b.pts - a.pts || b.gd - a.gd || cmp(a.slug, b.slug))
     .map((r, i) => ({ ...r, place: i + 1 }));
   const finished = games.filter((g) => g.finished);
   const scored = finished.filter((g) => g.score).length;
@@ -209,7 +214,7 @@ const brendan = parsedAB.filter((x) => x.before.opponent === "st-brendan");
 /** The exact line under Case 1: parsed rows change for St. Brendan too, a non-member that never reaches the table. */
 export const stBrendanNote = {
   opponent: "St. Brendan", before: brendan[0]?.before.shown, after: brendan[0]?.after.shown, member: members.includes("st-brendan"),
-  rows: brendan.length, pages: [...new Set(brendan.map((x) => programmes[x.page].name))],
+  rows: brendan.length, pages: [...new Set(brendan.map((x) => x.page))].map((slug) => ({ slug, name: programmes[slug].name })),
   parsedRowsChanged: parsedAB.length, stLambertRows: parsedAB.filter((x) => x.before.opponent === "st-lambert").length,
 };
 
@@ -218,38 +223,30 @@ export const kickPartial = {
   tableCellsChanged: cellsBetween(tableA, tableKick).length,
   parsedRowsChanged: shownChanges(tableA, tableKick).length,
   ownPageNamesSchool: { inTitle: /<title>[^<]*St\. Lambert/.test(fridayPages.find((p) => p.slug === "st-lambert")!.html), asOpponent: tableA.parsed["st-lambert"].some((r) => r.opponent === "st-lambert") },
-  pagesNamingItAsOpponent: fridayPages.filter((p) => rawRows(p.html).some((r) => r.opponent === "St. Lambert")).map((p) => p.slug),
+  pagesNamingItAsOpponent: fridayPages.filter((p) => rawRows(p.html).some((r) => r.opponent === "St. Lambert")).map((p) => ({ slug: p.slug, name: programmes[p.slug].name })),
   pagesSkipped: fridayPages.filter((p) => p.slug !== "st-lambert").length,
 };
 
 // ---------------------------------------------------------------- fingerprints
 
-const pySource = (file: string, name: string) => {
-  const lines = readFileSync(root("labs", file), "utf-8").split("\n");
-  const start = lines.findIndex((l) => l.startsWith(`def ${name}(`) || l.startsWith(`class ${name}(`));
-  check(start >= 0, `labs/${file} has no ${name}`);
-  let end = start + 1;
-  while (end < lines.length && (lines[end] === "" || /^\s/.test(lines[end]))) end += 1;
-  while (lines[end - 1] === "") end -= 1;
-  return `${lines.slice(start, end).join("\n")}\n`;
-};
+const SHARED = root("labs", "common.py");
+const PARSERS = { v1: root("labs", "m02_parser_tuesday.py"), v2: root("labs", "m02_parser_fixed.py") };
 const configBytes = () => Buffer.concat([bytes(aliasPath), bytes(membershipPath)]);
-const fingerprintOf = (sources: string[], config: Buffer) =>
-  createHash("sha256").update(sources.join("")).update(config).update(String(SEASON)).digest("hex").slice(0, 12);
-const parserSources = (tidy: "tidy_v1" | "tidy_v2") => [pySource("common.py", "Page"), pySource("m02_archive.py", "read_schedule"), pySource("m02_archive.py", tidy)];
-/** The lab's own fingerprints (parser source plus aliases, membership and season), recomputed here. */
+const fingerprintOf = (parser: Buffer, config: Buffer) =>
+  createHash("sha256").update(parser).update(bytes(SHARED)).update(config).update(String(SEASON)).digest("hex").slice(0, 12);
+/** The lab's fingerprints: the parser's whole module, labs/common.py, aliases.json, membership.json and the season. */
 export const fingerprints = {
-  v1: fingerprintOf(parserSources("tidy_v1"), configBytes()),
-  v2: fingerprintOf(parserSources("tidy_v2"), configBytes()),
+  v1: fingerprintOf(bytes(PARSERS.v1), configBytes()),
+  v2: fingerprintOf(bytes(PARSERS.v2), configBytes()),
 };
 
 type Lineage = { slug: string; fingerprint: string; content: string };
-type PresetRun = { fingerprint: string; saved: Map<string, string>; fetch: { slug: string; live: string }[] };
+type PresetRun = { fingerprint: string; saved: Map<string, string> };
 const stale = (files: Lineage[], run: PresetRun) => files.filter((f) => f.fingerprint !== run.fingerprint || f.content !== run.saved.get(f.slug)).length;
 const upToDate = (fp: string): Lineage[] => fridayPages.map((p) => ({ slug: p.slug, fingerprint: fp, content: p.sha256 }));
 const savedFriday = () => new Map(fridayPages.map((p) => [p.slug, p.sha256]));
 const liveTuesday = new Map(tuesdayPages.map((p) => [p.slug, p.sha256]));
-const withComment = () => { const s = parserSources("tidy_v2"); s[2] = s[2].replace("\n", "\n    # Saint before a name, State at the end.\n"); return s; };
+const withComment = () => Buffer.from(bytes(PARSERS.v2).toString("utf-8").replace("\ndef tidy(", "\n# Saint before a name, State at the end.\ndef tidy("));
 const withAlias = () => {
   const extra = { ...aliases, "st-lambert": [...aliases["st-lambert"], "Saint Lambert"] };
   return Buffer.concat([Buffer.from(`${JSON.stringify(extra, null, 1)}\n`), bytes(membershipPath)]);
@@ -257,25 +254,35 @@ const withAlias = () => {
 
 export type Preset = {
   id: string; label: string; fingerprintBefore: string; fingerprintAfter: string; files: number;
-  rebuilt: number; fetched: number; overwritesFriday: boolean; liveDiffers: boolean;
+  rebuilt: number; fetched: number;
+  /** Latest-only archive: a fetch replaces the saved capture of that page. */
+  replacesFridayCapture: boolean;
+  /** The replaced capture differed from the new one, so Friday's evidence for that page is gone. */
+  fridayEvidenceLost: boolean;
+  /** The live site differs from what the archive holds after this run. */
+  liveDiffers: boolean;
+  /** Counts come from the staleness model, not from a measured run. */
+  simulated: true;
 };
 function preset(id: string, label: string, before: string, after: string, fetch: string[] = [], watch?: string): Preset {
   const files = upToDate(before);
   const saved = savedFriday();
   fetch.forEach((slug) => saved.set(slug, liveTuesday.get(slug)!));
-  const run: PresetRun = { fingerprint: after, saved, fetch: fetch.map((slug) => ({ slug, live: liveTuesday.get(slug)! })) };
+  const run: PresetRun = { fingerprint: after, saved };
   const slug = watch ?? fetch[0];
   return {
     id, label, fingerprintBefore: before, fingerprintAfter: after, files: files.length, rebuilt: stale(files, run), fetched: fetch.length,
-    overwritesFriday: fetch.some((s) => liveTuesday.get(s) !== savedFriday().get(s)),
+    replacesFridayCapture: fetch.length > 0,
+    fridayEvidenceLost: fetch.some((s) => liveTuesday.get(s) !== savedFriday().get(s)),
     liveDiffers: slug ? liveTuesday.get(slug) !== saved.get(slug) : false,
+    simulated: true,
   };
 }
 /** Case 3's six presets, each from a full set of up-to-date parsed schedules. Counts come from the staleness model. */
 export const presets: Preset[] = [
   preset("fix-rule", "Fix the tidy rule", fingerprints.v1, fingerprints.v2),
   preset("comment", "Edit a comment in the parser", fingerprints.v2, fingerprintOf(withComment(), configBytes())),
-  preset("alias", "Add \"Saint Lambert\" to the alias list", fingerprints.v2, fingerprintOf(parserSources("tidy_v2"), withAlias())),
+  preset("alias", "Add \"Saint Lambert\" to the alias list", fingerprints.v2, fingerprintOf(bytes(PARSERS.v2), withAlias())),
   preset("nothing", "Run again with nothing changed", fingerprints.v2, fingerprints.v2),
   preset("refetch-harbor", "Re-fetch Harbor Point's page on purpose", fingerprints.v2, fingerprints.v2, ["harbor-point"]),
   preset("live-changed", "Harbor Point's live site changed; replay without fetching", fingerprints.v2, fingerprints.v2, [], "harbor-point"),
@@ -296,14 +303,16 @@ export const rewind = {
   unavailable: down(fridayManifest).map((p) => ({ programme: p.programme, name: programmes[p.programme].name, reason: p.reason! })),
   requests: Number(reportField("requests").split(",")[0]),
   fingerprint: reportField("fingerprint").split(",")[0],
+  fingerprintTuesday: reportField("fingerprint").match(/was (\w+) on Tuesday/)?.[1] ?? fail("the replay report does not name Tuesday's fingerprint"),
   buildRevision: reportField("build revision").split(",")[0],
   cellsChanged: Number(reportField("cells changed")),
   lines: replayReport.split("\n"),
 };
+check(rewind.fingerprintTuesday === fingerprints.v1, `the quoted report's Tuesday fingerprint is not ${fingerprints.v1}`);
 check(rewind.fingerprint === fingerprints.v2, `the quoted report's fingerprint ${rewind.fingerprint} is not the fixed parser's ${fingerprints.v2}; rerun the lab and update ${quotePath}`);
 check(rewind.buildRevision === labBlob(), "the quoted report's build revision is not labs/m02_archive.py as it stands; rerun the lab and update the quote");
 check(rewind.requests === 0 && rewind.cellsChanged === diffAB.length, "the quoted report disagrees with the replay computed here");
-check(replayReport.includes(`${tableA.caption} before and ${tableB.caption} after`), "the quoted report's caption differs");
+check(replayReport.includes(`Tuesday's ${tableA.caption}; rebuild ${tableB.caption}`), "the quoted report's caption differs");
 
 // ---------------------------------------------------------------- Case 2: what Kick kept
 
@@ -385,8 +394,9 @@ export const policies = {
   latest: answers("latest"),
   every: answers("every"),
   harborCell: { friday: cellOn(fridayPages.find((p) => p.slug === "harbor-point")!.html, "7318"), tuesday: cellOn(tuesdayPages.find((p) => p.slug === "harbor-point")!.html, "7318") },
-  unchangedSinceFriday,
-  changedSinceFriday: fridayPages.filter((p) => !unchangedSinceFriday.includes(p.slug)).map((p) => p.slug),
+  unchangedSinceFriday: unchangedSinceFriday.map((slug) => ({ slug, name: programmes[slug].name })),
+  changedSinceFriday: fridayPages.filter((p) => !unchangedSinceFriday.includes(p.slug)).map((p) => ({ slug: p.slug, name: programmes[p.slug].name })),
+  simulated: true as const,
 };
 
 // ---------------------------------------------------------------- Part 8: Prove it, box 8210
@@ -401,16 +411,19 @@ const tableOf = (html: string, caption: string) => {
 const periodRows = tableOf(boxHtml, "Score by Period");
 const goalRows = tableOf(boxHtml, "Scoring Summary");
 const overtimeGoal = goalRows.find((r) => r[0] === "101:44") ?? fail("box 8210 has no 101:44 goal");
-const abbrName: Record<string, string> = { ARU: "Alder Ridge", EBSU: "Eastbrook State" };
+const abbrSlug = (abbr: string) => nameIndex.get(abbr) ?? fail(`no alias for ${abbr}`);
 const fx8210 = fixtures.find((f) => f.id === BOX)!;
 const regulation = periodRows.slice(1).map((r) => ({ team: r[0], sum: Number(r[1]) + Number(r[2]), final: Number(r[r.length - 1]) }));
+const homeRow = regulation.find((r) => nameIndex.get(r.team.replace("St.", "State")) === fx8210.home || r.team === programmes[fx8210.home].name)!;
+const awayRow = regulation.find((r) => r !== homeRow)!;
 const boxHtmlOf = (p: ManifestPage) => bytes(sample(p.path!)).toString("utf-8");
 const withOvertime = fridayBoxes.filter((p) => tableOf(boxHtmlOf(p), "Score by Period")[0].includes("OT")).map((p) => p.fixture!);
 const scheduleCell = (slug: string) => cellOn(fridayPages.find((p) => p.slug === slug)!.html, "8210");
-const boxFiles = fridayBoxes.map((p): Lineage => ({ slug: p.fixture!, fingerprint: "box-v1", content: p.sha256! }));
+const boxParser = { before: fingerprintOf(bytes(root("labs", "m04_parse.py")), configBytes()), after: fingerprintOf(Buffer.concat([bytes(root("labs", "m04_parse.py")), Buffer.from("# score = every period, overtime included\n")]), configBytes()) };
+const boxFiles = fridayBoxes.map((p): Lineage => ({ slug: p.fixture!, fingerprint: boxParser.before, content: p.sha256! }));
 const scheduleFiles = upToDate(fingerprints.v2);
-const boxRun: PresetRun = { fingerprint: "box-v2", saved: new Map(fridayBoxes.map((p) => [p.fixture!, p.sha256!])), fetch: [] };
-const scheduleRun: PresetRun = { fingerprint: fingerprints.v2, saved: savedFriday(), fetch: [] };
+const boxRun: PresetRun = { fingerprint: boxParser.after, saved: new Map(fridayBoxes.map((p) => [p.fixture!, p.sha256!])) };
+const scheduleRun: PresetRun = { fingerprint: fingerprints.v2, saved: savedFriday() };
 const day = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
 /** Part 8: the March bug in box 8210, its two excerpts, and the four slot answers. */
 export const proveIt = {
@@ -419,15 +432,17 @@ export const proveIt = {
   round: fx8210.stage?.round_published,
   conferenceGame: fx8210.conference_game,
   scoreByPeriod: { head: periodRows[0], rows: periodRows.slice(1) },
-  goal: { time: overtimeGoal[0], team: abbrName[overtimeGoal[1]], abbr: overtimeGoal[1], scorer: overtimeGoal[2], play: overtimeGoal[4] },
-  published: { home: fx8210.home_score!, away: fx8210.away_score! },
-  buggy: { home: regulation.find((r) => r.team === "Alder Ridge")!.sum, away: regulation.find((r) => r.team !== "Alder Ridge")!.sum },
+  home: { slug: fx8210.home, name: programmes[fx8210.home].name },
+  away: { slug: fx8210.away, name: programmes[fx8210.away].name },
+  goal: { time: overtimeGoal[0], team: programmes[abbrSlug(overtimeGoal[1])].name, abbr: overtimeGoal[1], scorer: overtimeGoal[2], play: overtimeGoal[4] },
+  published: { home: homeRow.final, away: awayRow.final },
+  buggy: { home: homeRow.sum, away: awayRow.sum },
   schedules: { "alder-ridge": scheduleCell("alder-ridge"), "eastbrook-state": scheduleCell("eastbrook-state") },
   slots: {
     replay: { boxScores: fridayBoxes.length, school: "Alder Ridge", withOvertime: withOvertime.length },
-    stale: { boxScores: stale(boxFiles, boxRun), of: boxFiles.length, schedules: stale(scheduleFiles, scheduleRun), schedulesFresh: scheduleFiles.length - stale(scheduleFiles, scheduleRun) },
+    stale: { boxScores: stale(boxFiles, boxRun), of: boxFiles.length, schedules: stale(scheduleFiles, scheduleRun), schedulesFresh: scheduleFiles.length - stale(scheduleFiles, scheduleRun), boxParser, simulated: true as const },
     republish: { matchDetail: true, standings: !tableA.postseason.includes("8210") },
-    tell: { note: "correction", match: `Alder Ridge ${fx8210.home_score}-${fx8210.away_score} Eastbrook State, ${fx8210.stage?.round_published?.toLowerCase().replace(/s$/, "")}, ${day(fx8210.date)}`, cause: "the box-score parser summed only the regulation periods" },
+    tell: { note: "correction", match: `${programmes[fx8210.home].name} ${homeRow.final}-${awayRow.final} ${programmes[fx8210.away].name}, ${fx8210.stage?.round_published?.toLowerCase().replace(/s$/, "")}, ${day(fx8210.date)}`, cause: "the box-score parser summed only the regulation periods" },
   },
 };
 
@@ -440,7 +455,7 @@ export const saturday = weekend.map((f) => {
   return { fixture: f.id, date: f.date, home: f.home, away: f.away, homeName: programmes[f.home].name, awayName: programmes[f.away].name, fridayStatus: f.status, home_score: later.home_score!, away_score: later.away_score! };
 });
 const final8211 = laterFixtures.find((f) => f.id === "tally:alder-ridge:8211")!;
-export const championship = { fixture: final8211.id, date: final8211.date, home_score: final8211.home_score!, away_score: final8211.away_score!, conferenceGame: final8211.conference_game, inStandings: !tableC.postseason.includes("8211") };
+export const championship = { fixture: final8211.id, date: final8211.date, home: final8211.home, away: final8211.away, homeName: programmes[final8211.home].name, awayName: programmes[final8211.away].name, home_score: final8211.home_score!, away_score: final8211.away_score!, conferenceGame: final8211.conference_game, inStandings: !tableC.postseason.includes("8211") };
 export const story = {
   fridayOriginal: reported.reduce((n, r) => n + r.p, 0) / 2,
   monday: { scored: tableA.scored, finished: tableA.finished },
@@ -497,6 +512,15 @@ const cg2019 = json(sample("raw_html", "cedar-grove", "2019-men-schedule.html.me
 check(cg2019.final_url === cg2019.requested_url && cg2019.final_url.endsWith("/2019") && readFileSync(sample("raw_html", "cedar-grove", "2019-men-schedule.html"), "utf-8").includes("<title>2026 "), "Cedar Grove's 2019 page no longer proves the Module 3 handoff");
 check(laterScore("tally:alder-ridge:8203") === "1-1" && cellOn(tuesdayOf("alder-ridge").html, "8203") === "W 1-0", "Tuesday's pages touch the 8 September score");
 check(case2.pattern.a === 0 && case2.pattern.b === 2 && case2.pattern.c === 3 && case2.grid[0].answers.c && !case2.grid[0].answers.b && case2.grid[1].answers.b && !case2.grid[1].answers.a, "the Case 2 grid is no longer 0, 2 and 3 of 3");
-check(presets.map((p) => `${p.rebuilt}/${p.fetched}`).join() === "7/0,7/0,7/0,0/0,1/1,0/0" && presets[4].overwritesFriday && presets[5].liveDiffers, "the fingerprint presets no longer give 7, 7, 7, 0, 1 and 0 rebuilt");
+check(presets.map((p) => `${p.rebuilt}/${p.fetched}`).join() === "7/0,7/0,7/0,0/0,1/1,0/0" && presets[4].fridayEvidenceLost && presets[4].replacesFridayCapture && presets[5].liveDiffers, "the fingerprint presets no longer give 7, 7, 7, 0, 1 and 0 rebuilt");
 check(policies.latest.today && !policies.latest.monday && !policies.latest.harborFriday && policies.every.today && policies.every.monday && policies.every.harborFriday, "the policy answers are no longer one of three and three of three");
 check(policies.harborCell.friday === "" && policies.harborCell.tuesday === "T 1-1" && policies.every.harborFridayCell === "", "Harbor Point's 21 November cell is not blank on Friday and T 1-1 on Tuesday");
+check(Boolean(homeRow) && homeRow !== awayRow && homeRow.final === fx8210.home_score && awayRow.final === fx8210.away_score, "box 8210's Score by Period does not total the fixture's 4-3");
+check(proveIt.round === "Semifinals" && proveIt.goal.play === "Penalty kick" && proveIt.goal.team === "Alder Ridge" && cg2019.status === 200, "box 8210's round, goal or Cedar Grove's 2019 status changed");
+const weekendCells = { "eastbrook-state": ["7318", "T 1-1"], "harbor-point": ["7318", "T 1-1"], "st-lambert": ["8779", "W 1-0"], "alder-ridge": ["8211", "L 1-6"], "hartwell-tech": ["8211", "W 6-1"] } as const;
+check(Object.entries(weekendCells).every(([slug, [id, cell]]) => cellOn(fridayOf(slug).html, id) === "" && cellOn(tuesdayOf(slug).html, id) === cell), "Tuesday's result cells are not the weekend's results");
+const changedLines = (slug: string) => { const a = fridayOf(slug).html.split("\n"); const b = tuesdayOf(slug).html.split("\n"); return a.length === b.length ? a.filter((l, i) => l !== b[i]).length : -1; };
+check(fridayPages.every((p) => changedLines(p.slug) === (p.slug in weekendCells ? 1 : 0)), "Tuesday's pages change more than one row each");
+check(fridayPages.every((p) => { const a = rawRows(p.html); const b = rawRows(tuesdayOf(p.slug).html); return a.every((r, i) => r.result === b[i].result || (r.result === "" && b[i].line === r.line.replace("<td></td><td></td></tr>", `<td>${b[i].result}</td><td></td></tr>`))); }), "a Tuesday row changes anything but its result cell");
+check(["b", "c"].every((k) => cellText(k as Kept, 0, 3) === "Final") && cellText("b", 1, 1) === "at", "Case 2's tidied and raw rows no longer keep Final and at");
+check(policies.unchangedSinceFriday.map((x) => x.slug).join() === "brightwater-state,cedar-grove", "the unchanged pages are not Brightwater State and Cedar Grove");
