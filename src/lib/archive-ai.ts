@@ -24,7 +24,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   },
   idea: {
     slug: "02-archive-ai-raw",
-    title: "Want raw and derived outside sports?",
+    title: "What can you rebuild from raw data?",
     prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three worked examples, each from a different field, none of them sports, libraries or shops. Work each one through with small numbers.
 
 1. What raw data is, and why it is saved exactly as received, before any of my code reads it.
@@ -32,7 +32,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
 4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
 5. ${close}`,
-    returnTask: "Then come back and take the research team's check.",
+    returnTask: "Then come back and add a fourth situation to the research team's check: the cleaning script was lost. What can the team still answer?",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
@@ -44,7 +44,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify two new before-and-after comparisons.",
+    returnTask: "Then come back and classify tables B and C: which one changed a single input?",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -80,7 +80,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to choose a policy from the questions the archive will have to answer, such as disputes about past results, weighed against what storage costs.
 4. Why the code and configuration also need their own history for a rebuild of a past output to be exact.
 5. ${close}`,
-    returnTask: "Then come back and pick a policy for the league office.",
+    returnTask: "Then come back and pick a policy for the league office again, this time if disputes could only be raised within one week.",
   },
   rewind: {
     slug: "02-archive-ai-criteria",
@@ -116,7 +116,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "Then come back and pick the honest recovery claim for each world.",
+    returnTask: "Then come back and give the honest claim for a fourth world: every submission kept, but no record of which one each report used.",
   },
 };
 

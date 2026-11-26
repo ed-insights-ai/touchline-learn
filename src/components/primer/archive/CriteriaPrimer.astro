@@ -118,10 +118,20 @@ const checks = [
     </div>
     <figcaption>One input value changed, and a correction record says why. The same averaging rule turns it into exactly the change the diff reports, so nothing is left unexplained.</figcaption>
   </figure>
+  <figure class="pr-card">
+    <p class="pr-label">The same four criteria on a code-only fix</p>
+    <ul class="pa-audit">
+      <li><span>Saved inputs: every content hash matches the archived manifest</span><span class="pr-chip is-ok">Pass</span></li>
+      <li><span>Code: new commit, new parser fingerprint</span><span class="pr-chip is-ok">Pass</span></li>
+      <li><span>Network: zero attempts, full coverage</span><span class="pr-chip is-ok">Pass</span></li>
+      <li><span>Comparison: one changed cell, traced to the code change</span><span class="pr-chip is-ok">Pass</span></li>
+    </ul>
+    <figcaption>When the inputs are held fixed, the only line allowed to change is the code, so every changed cell must trace to it.</figcaption>
+  </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
-    <p>The reply's changed cell comes from a corrected input. Kick's replay holds Friday's pages fixed, so its one changed cell must trace to the code. And Kick's network counter hooks only Python's lookup and connect calls in its own process, after showing it catches a test request.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Kick's report adds the build revision beside the fingerprint, the reply's Git commit. The reply's fingerprint covers config alone; Touchline's covers the parser code too.</p>
+    <p>The reply's changed cell comes from a corrected input. Kick's replay holds Friday's pages fixed, so its one changed cell must trace to the code. And Kick's network counter hooks only Python's lookup and connect calls in its own process, after showing it catches a test request, so its zero says nothing about child processes or calls outside those hooks.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>

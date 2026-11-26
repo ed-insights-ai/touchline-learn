@@ -5,13 +5,22 @@ import { run } from "../../../lib/first-run";
 import { spell } from "../../../lib/cases";
 
 const card = archiveAi["prove-it"];
+const boxes = spell(run.boxes);
 
-const artifacts = [
-  ["Citywide report", "Meter readings snapshot → unit conversion → monthly totals", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
-  ["Dashboard download", "Citywide report's monthly totals → export", "Affected", "is-bad", "Replay, compare, republish if its figures changed"],
-  ["Building inventory", "Facilities register → inventory build, no unit conversion", "Unaffected", "is-ok", "Leave alone: a separate pipeline"],
-  ["Anything without provenance", "No record", "Unknown", "is-warn", "Hold for investigation"],
+type Artifact = { id: string; name: string; rec: string; used: boolean | null; changed?: boolean };
+const artifacts: Artifact[] = [
+  { id: "report", name: "Citywide report", rec: "Meter readings snapshot → unit conversion → monthly totals", used: true, changed: true },
+  { id: "dash", name: "Dashboard download", rec: "Citywide report's monthly totals → export", used: true, changed: true },
+  { id: "count", name: "Meters reporting, by month", rec: "Converted readings → count of meters that reported", used: true, changed: false },
+  { id: "inventory", name: "Building inventory", rec: "Facilities register → inventory build, no unit conversion", used: false },
+  { id: "unknown", name: "A download with no manifest", rec: "No record", used: null },
 ];
+const yesNo = (b: boolean | undefined) => (b === undefined ? "Not replayed" : b ? "Yes" : "No");
+const action = (a: Artifact): [string, string, string] =>
+  a.used === null ? ["Unknown", "is-warn", "Hold for investigation."]
+  : !a.used ? ["Unaffected", "is-ok", "Leave alone: a separate pipeline."]
+  : a.changed ? ["Republish", "is-bad", "Replayed, and its published figures changed."]
+  : ["Keep", "is-ok", "Replayed with identical published content: record the verification."];
 
 const agentPrompt = `Fix the watt-hour to kilowatt-hour conversion bug in the city electricity
 reporting pipeline and stage a correction for the January–March releases.
@@ -73,14 +82,25 @@ const checks = [
   <p>Start with the archived inputs and a manifest of what actually produced each published artifact. A useful fingerprint identifies the source snapshot, the versions of the processing steps that ran, their relevant configuration, and the upstream artifacts they consumed. Use those recorded dependencies to trace the faulty conversion through the published outputs. Replay every affected build from its original input snapshot, with the conversion fixed and the other dependencies pinned. Hold any artifact whose provenance is missing or inconclusive for investigation.</p>
   <p>Then compare each rebuilt artifact against the published version. Compare the data people use, such as CSV values or report totals, independently of incidental differences such as a fresh generation timestamp. Republish the report and dashboard download if their figures changed. Leave the building inventory alone if its fingerprint shows that it came from a separate pipeline.</p>
   <p class="pr-pull">If a replayed artifact has identical published content, record the verification and keep the existing publication.</p>
-  <figure class="pr-card">
-    <p class="pr-label">The city's published package, classified</p>
-    <div class="pr-scroll">
-      <table class="pr-table">
-        <thead><tr><th scope="col">Artifact</th><th scope="col">Its provenance record</th><th scope="col">Class</th><th scope="col">Action</th></tr></thead>
-        <tbody>{artifacts.map(([a, rec, c, tone, act]) => <tr><th scope="row">{a}</th><td>{rec}</td><td><span class:list={["pr-chip", tone]}>{c}</span></td><td>{act}</td></tr>)}</tbody>
-      </table>
-    </div>
+  <figure class="pr-card pa-cls">
+    <fieldset class="pr-seg">
+      <legend>Classify one artifact</legend>
+      {artifacts.map((a, i) => <label><input type="radio" name="pa-rec-art" value={a.id} checked={i === 0} /><span>{a.name}</span></label>)}
+    </fieldset>
+    {artifacts.map((a) => {
+      const [verdict, tone, why] = action(a);
+      return (
+        <div class="pa-cls-view" data-art={a.id}>
+          <ul class="pa-cls-steps">
+            <li><span>Provenance record</span><b>{a.rec}</b></li>
+            <li><span>Used the faulty conversion?</span><b>{a.used === null ? "Can't tell" : a.used ? "Yes" : "No"}</b></li>
+            <li><span>Replay changed published values?</span><b>{a.used ? yesNo(a.changed) : "Not replayed"}</b></li>
+          </ul>
+          <p class="pa-cls-verdict"><span class:list={["pr-chip", tone]}>{verdict}</span> {why}</p>
+        </div>
+      );
+    })}
+    <figcaption>Provenance decides what to replay. The replay's comparison decides what to republish. The meter count shows the difference: stale, but unchanged.</figcaption>
   </figure>
 
   <h2>2. What to tell people who used it</h2>
@@ -99,7 +119,8 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's “fingerprint” covers an artifact's whole provenance. In this course it is a hash of one parser's code and config. A parsed file is stale when that fingerprint or the content hash of its page has changed.</p>
-    <p>Part 8's box-score parser is its own module, like the city's separate building inventory: a change to it leaves the {fresh} parsed schedules fresh. The reply's step 5 adds what Part 7 checks afterwards: evidence, and approval before anything is replaced.</p>
+    <p>Part 8's four slots follow the reply's steps. Steps 1 and 2 are what to replay and what is stale: the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, not only the one with overtime, while the {fresh} schedules stay fresh, like the city's separate building inventory. Step 3 is what to republish, and step 4 is what to tell readers.</p>
+    <p>Step 5 brings Part 7's report check forward: the agent shows its evidence and waits for approval before anything is replaced.</p>
   </aside>
 
   <h2>4. Check your understanding</h2>
@@ -107,6 +128,18 @@ const checks = [
 </PrimerChat>
 
 <style>
+  .pa-cls .pr-seg { margin-bottom: 0.7rem; }
+  .pa-cls-view { display: none; }
+  .pa-cls:has([value="report"]:checked) [data-art="report"],
+  .pa-cls:has([value="dash"]:checked) [data-art="dash"],
+  .pa-cls:has([value="count"]:checked) [data-art="count"],
+  .pa-cls:has([value="inventory"]:checked) [data-art="inventory"],
+  .pa-cls:has([value="unknown"]:checked) [data-art="unknown"] { display: block; }
+  .pa-cls-steps { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-cls-steps li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 0.8rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
+  .pa-cls-steps span { color: var(--tl-muted); }
+  .pa-cls-steps b { color: var(--sl-color-white); font-weight: 600; }
+  :global(.pr) .pa-cls-verdict { margin: 0.6rem 0 0; font-size: 0.9rem; }
   .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border: 1px solid var(--tl-line); border-left: 4px solid var(--pr-yellow); border-radius: 8px; background: var(--tl-card); font-style: normal; }
   :global(.pr) .pa-note p:last-child { margin: 0; }
   .pa-note strong { color: var(--sl-color-white); }

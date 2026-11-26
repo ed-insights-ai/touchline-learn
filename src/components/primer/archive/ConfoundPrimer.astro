@@ -34,6 +34,18 @@ const designs: { field: string; confounded: Arm[]; controlled: Arm[]; result: st
   },
 ];
 
+const trials = [
+  { id: "both", label: "Change both", water: true, stir: true },
+  { id: "water", label: "Change the water only", water: true, stir: false },
+  { id: "stir", label: "Change the stirring only", water: false, stir: true },
+  { id: "none", label: "Change neither", water: false, stir: false },
+];
+const estimate = (t: { water: boolean; stir: boolean }): [string, string, string] =>
+  t.water && t.stir ? ["Confounded", "is-bad", "Temperature and stirring changed together. The difference has two possible sources."]
+  : t.water ? ["Temperature", "is-ok", "Only the water temperature differs, so the difference estimates its effect."]
+  : t.stir ? ["Stirring", "is-ok", "Only the stirring differs, so the difference estimates its effect."]
+  : ["Nothing", "is-quiet", "Nothing differs between the trials, so any gap is run-to-run variation."];
+
 const rows = [["A", 30], ["B", 20], ["B", 20]] as const;
 const buggy = rows.reduce((n, [, a]) => n + a, 0);
 const seen = new Set<string>();
@@ -51,7 +63,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and classify two new before-and-after comparisons."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and classify tables B and C: which one changed a single input?"
 >
   <h2 class="pr-title">One change at a time</h2>
   <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>
@@ -64,6 +76,24 @@ const checks = [
   <h2>2. Laboratory experiment</h2>
   <p>Suppose sugar dissolves in {sugar.still} seconds in cool, still water and in {sugar.stirred} seconds in warm, stirred water. Temperature and stirring changed together. Those two measurements can’t tell you how much of the {sugar.still - sugar.stirred}-second difference came from warming the water.</p>
   <p>To isolate temperature, compare cool and warm water with no stirring in either trial. Use the same amount and grain size of sugar, the same volume of water, identical containers, and the same rule for deciding when the sugar has dissolved. Repeat each condition to see how much the times vary.</p>
+  <figure class="pr-card pa-trial">
+    <fieldset class="pr-seg">
+      <legend>Design the second trial</legend>
+      {trials.map((t, i) => <label><input type="radio" name="pa-conf-trial" value={t.id} checked={i === 0} /><span>{t.label}</span></label>)}
+    </fieldset>
+    {trials.map((t) => {
+      const [what, tone, why] = estimate(t);
+      return (
+        <div class="pa-trial-view" data-trial={t.id}>
+          <div class="pa-pair">
+            <div class="pa-arm"><span>Trial 1</span><ul><li>Water: cool</li><li>Stirring: none</li></ul></div>
+            <div class="pa-arm"><span>Trial 2</span><ul><li class={t.water ? "is-changed" : ""}>Water: {t.water ? "warm" : "cool"}</li><li class={t.stir ? "is-changed" : ""}>Stirring: {t.stir ? "stirred" : "none"}</li></ul></div>
+          </div>
+          <p class="pa-trial-say"><span class="pa-trial-k">Measures</span><span class:list={["pr-chip", tone]}>{what}</span> {why}</p>
+        </div>
+      );
+    })}
+  </figure>
   <figure class="pr-card pa-designs">
     {designs.map((d) => (
       <div>
@@ -112,6 +142,15 @@ const checks = [
 </PrimerChat>
 
 <style>
+  .pa-trial .pr-seg { margin-bottom: 0.7rem; }
+  .pa-trial-view { display: none; }
+  .pa-trial:has([value="both"]:checked) [data-trial="both"],
+  .pa-trial:has([value="water"]:checked) [data-trial="water"],
+  .pa-trial:has([value="stir"]:checked) [data-trial="stir"],
+  .pa-trial:has([value="none"]:checked) [data-trial="none"] { display: block; }
+  :global(.pr) .pa-trial-say { margin: 0.6rem 0 0; font-size: 0.9rem; }
+  .pa-trial-k { margin-right: 0.4rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pa-trial :global(.pr-chip.is-quiet) { border: 1px solid var(--tl-line); background: transparent; color: var(--tl-muted); }
   .pa-designs { display: grid; gap: 1rem; }
   .pa-pair { display: grid; gap: 0.5rem; }
   @media (min-width: 46rem) { .pa-pair { grid-template-columns: 1fr 1fr; } }
