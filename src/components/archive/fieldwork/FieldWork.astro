@@ -14,7 +14,7 @@ const times = (x: number) => `${Math.round(x)}×`;
 const lesson = (part: string) => `../02-archive/#${part}`;
 const words = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const word = (x: number) => words[x] ?? n(x);
-const out = (t: string) => t.split("\n").map((l) => ({ text: l || " ", kv: /^.{15}: /.test(l) || l.startsWith("RESULT: ") }));
+const out = (t: string) => t.split("\n").map((l) => ({ text: l || " ", kv: /^.{15}: /.test(l) || l.startsWith("RESULT: "), diff: /^  [A-Z][A-Za-z. ]{14} [a-z]/.test(l) }));
 const cap = (t: string) => t[0].toUpperCase() + t.slice(1);
 const list = (xs: string[]) => (xs.length < 3 ? xs.join(" and ") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
 
@@ -121,7 +121,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
 
     <h3>Two hashes, two jobs</h3>
     <p>A <strong>content signature</strong> is a hash taken after known render noise is removed. The content hash answers “is this exactly what we saved?” The signature answers “is this news?” The signature on this page drops three things before hashing: comments, the per-visit token, and whitespace between tags. A real collector keeps such rules per kind of page; these three are enough here.</p>
-    <p>Friday's capture of {signatures.name}'s page is {n(signatures.friday.bytes)} bytes, with content hash <code>{signatures.friday.byteHash}</code> and signature <code>{signatures.friday.signature}</code>. {cap(word(signatures.fetches.length))} later fetches follow: {word(sigRows)} of {signatures.name}'s page and {word(signatures.fetches.length - sigRows)} of {otherFetch.name}'s, {word(signatures.fetches.filter((f) => f.real).length)} from the sample and {word(signatures.fetches.filter((f) => !f.real).length)} made up for this page. Under each are the lines that differ from Friday's capture of the same page.</p>
+    <p>Friday's capture of {signatures.name}'s page is {n(signatures.friday.bytes)} bytes. Its content hash begins <code>{signatures.friday.byteHash}</code> and its signature begins <code>{signatures.friday.signature}</code>; this page shows the first {signatures.friday.byteHash.length} characters of every hash. {cap(word(signatures.fetches.length))} later fetches follow: {word(sigRows)} of {signatures.name}'s page and {word(signatures.fetches.length - sigRows)} of {otherFetch.name}'s, {word(signatures.fetches.filter((f) => f.real).length)} from the sample and {word(signatures.fetches.filter((f) => !f.real).length)} made up for this page. Under each are the lines that differ from Friday's capture of the same page.</p>
 
     <div class="cv-check" data-once="fw-signatures">
       <p class="cv-kind">Knowledge check</p>
@@ -216,7 +216,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
           </table>
         </div>
         <p>Read the second row. With every row stored as a home match, the table build had already been stopping: {word(away.compared)} away rows are against another member whose page was saved, so two pages claim to host each of those matches, and the build stops with <code>pages disagree on fixture</code>. The fix is in <code>read_schedule()</code>, outside <code>tidy()</code>. A tidy-only fingerprint stays the same, so no parsed file is rebuilt, and the build stops again with the same error. The fix looks as if it failed, and the cause is in the cache, far from where anyone would look.</p>
-        <p>The other {word(away.hostUnsaved + away.nonMember)} away rows are never compared: {word(away.nonMember)} against non-members, which the build drops, and {word(away.hostUnsaved)} at {list(week.unavailable)}, whose page was never saved. They stay wrong without a word. That is the dangerous direction. The comment row is the other one: the module's hash changes although no output can, and every parsed file is rebuilt for nothing.</p>
+        <p>The other {word(away.hostUnsaved + away.nonMember)} away rows are never compared: {word(away.nonMember)} against non-members, which the build drops, and {word(away.hostUnsaved)} at {list(week.unavailable)}, whose page was never saved. They stay wrong without a word. This week the build happens to stop on the compared rows, so nothing is published; in a week when every wrong row was one nothing compares, the build would finish and publish them. That is the dangerous direction. The comment row is the other one: the module's hash changes although no output can, and every parsed file is rebuilt for nothing.</p>
         <p>The hash under each edit is the lab's fingerprint. The comment and alias values are the same ones <a href={lesson("case-fingerprint")}>Case 3's presets</a> show.</p>
       </div>
     </div>
@@ -230,14 +230,14 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
   <section id="retention">
     <h2>What every capture costs</h2>
     <p class="ar-for">For anyone who decides what a pipeline keeps.</p>
-    <p><a href={lesson("decision")}>The decision</a> compares two policies. <strong>Latest only</strong> keeps one capture per page, and a new fetch overwrites it. <strong>Every capture</strong> keeps each capture beside the last. An every-capture archive can be stored two ways, and this section names both: <em>{POLICY.dedup.toLowerCase()}</em>, and <em>{POLICY.every.toLowerCase()}</em>. Here is what each costs, in page bytes from the sample. A record of each fetch, with its time, adds a few bytes more and is left out.</p>
+    <p><a href={lesson("decision")}>The decision</a> compares two policies. <strong>Latest only</strong> keeps one capture per page, and a new fetch overwrites it. <strong>Every capture</strong> keeps each capture beside the last. An every-capture archive can be stored two ways, and this section names both: <em>{POLICY.dedup.toLowerCase()}</em>, and <em>{POLICY.every.toLowerCase()}</em>. Here is what each costs, in page bytes from the sample. The figures count the pages only, not the record of each fetch that an every-fetch archive also keeps.</p>
 
     <h3>Tuesday, measured</h3>
     <p>Friday's run saved {retention.schedules} schedule pages, {n(retention.fridaySchedBytes)} bytes, and {retention.boxes} box scores, {n(retention.fridayBoxBytes)} bytes. Tuesday's capture, the sample's stand-in for the re-fetch Riley stopped, holds the {retention.tuesday.pages} schedule pages again: {n(retention.tuesday.bytes)} bytes. From here on the section counts schedule pages only.</p>
     <p>An every-capture archive need not store a page that is identical to one it already holds. If each file is named by its content hash, an identical page lands on a name that already exists, and nothing new is written. Files can be named by content signature instead. Then a re-render that only added noise lands on an existing name too, and the archive keeps one file per distinct normalised page, though not the exact bytes of every fetch.</p>
     <p>Between Friday's run and Tuesday's capture, {word(postedSinceFriday.length)} results were posted:</p>
     <ul class="ar-posted">{postedSinceFriday.map((f) => <li>{f.home} v {f.away}, {f.date}</li>)}</ul>
-    <p>A schedule page changes when a result on it is posted. {list(week.unavailable)}'s page was not saved on Friday or on Tuesday.</p>
+    <p>The sample's pages carry no render noise. Each posted result changed one result cell on the saved page of each team that played, and nothing else on those pages changed. {list(week.unavailable)}'s page was not saved on Friday or on Tuesday.</p>
     <div class="cv-check" data-once="fw-retention">
       <p class="cv-kind">Knowledge check</p>
       <div class="cv-line" data-q data-type="number" data-answer={retention.tuesday.newFiles} data-why={`${retention.tuesday.newFiles}. ${list(week.unchangedOnTuesday)} were byte-identical on Tuesday, so their hashes name files the archive already holds. The other ${retention.tuesday.newFiles} each changed one result cell: Saturday's ${word(sinceFriday.saturday)} results and Sunday's ${sinceFriday.championship} final, each on both teams' pages where the page was saved.`}>
@@ -277,7 +277,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     </div>
 
     <h3>A season, modelled</h3>
-    <p>One fetch adds little. A season of them is the real cost. Here is a model, with its assumptions in plain view: the collector fetches the {retention.schedules} schedule pages once a day, before that day's results are posted, from the first match on any of them ({m.firstDate}) to Friday's run ({m.runDate}), which is {n(m.days)} days. A page changes only on a day a result cell on it is filled in, with a score or a status such as “Final”. So it has one version before its first result and one more for each such day: between {m.minVersions} and {m.maxVersions} versions per page, {n(m.versions)} in all. Every version is counted at Friday's size, a slight overestimate, since earlier versions have blank result cells.</p>
+    <p>One fetch adds little. A season of them is the real cost. Here is a model, with its assumptions in plain view: the collector fetches the {retention.schedules} schedule pages once a day, before that day's results are posted, from the first match on any of them ({m.firstDate}) to Friday's run ({m.runDate}), which is {n(m.days)} days. Each result is assumed to be posted on its match day, and a page changes only on a day a result cell on it is filled in, with a score or a status such as “Final”. So it has one version before its first result and one more for each such day: between {m.minVersions} and {m.maxVersions} versions per page, {n(m.versions)} in all. Every version is counted at Friday's size, a slight overestimate, since earlier versions have blank result cells.</p>
     <figure class="ar-bars">
       {bars.map((b) => (
         <div class="ar-bar">
@@ -332,24 +332,24 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
       {labRun.map((s, i) => (
         <li>
           <p>{i < sectionNote.length ? sectionNote[i] : <>The report that <a href={lesson("rewind")}>Rewind</a> teaches you to check. Each line answers one of Riley's acceptance criteria.</>}</p>
-          <pre tabindex="0" class="ar-out"><code>{out(s.text).map((l) => <span class:list={{ "ar-kv": l.kv }}>{l.text}</span>)}</code></pre>
+          <pre tabindex="0" class="ar-out"><code>{out(s.text).map((l) => <span class:list={{ "ar-kv": l.kv, "ar-kv ar-diffrow": l.diff }}>{l.text}</span>)}</code></pre>
         </li>
       ))}
     </ol>
 
     <pre tabindex="0"><code>python labs/m02_archive.py --tuesday</code></pre>
     <p>This builds the re-fetch table from Tuesday's capture with the fixed parser and compares it with Tuesday's table. Two inputs changed at once, so the lab says it cannot trace a cell to one cause, and exits with code {exits.tuesday}. <a href={lesson("case-saturday")}>Case 1</a> works through why. After the same manifest check and replays as above, and a fourth replay, Tuesday's capture with the fixed parser, the run ends with:</p>
-    <pre tabindex="0" class="ar-out"><code>{out(tuesdayDiff).map((l) => <span class:list={{ "ar-kv": l.kv }}>{l.text}</span>)}</code></pre>
+    <pre tabindex="0" class="ar-out"><code>{out(tuesdayDiff).map((l) => <span class:list={{ "ar-kv": l.kv, "ar-kv ar-diffrow": l.diff }}>{l.text}</span>)}</code></pre>
 
     <pre tabindex="0"><code>python labs/m02_archive.py --missing {missing.slug}</code></pre>
     <p>This replays a scratch copy of the archive with {missing.name}'s schedule page deleted, while the manifest still lists it as saved. Two checks notice. The manifest check at the top of the run, not quoted here, counts one page fewer that matches its hash; run it to see. The report below says the replay read one schedule fewer than the manifest lists. The replay itself skipped the page without a word. The run exits with code {exits.missing}, and ends with this report:</p>
-    <pre tabindex="0" class="ar-out"><code>{out(missingReport).map((l) => <span class:list={{ "ar-kv": l.kv }}>{l.text}</span>)}</code></pre>
+    <pre tabindex="0" class="ar-out"><code>{out(missingReport).map((l) => <span class:list={{ "ar-kv": l.kv, "ar-kv ar-diffrow": l.diff }}>{l.text}</span>)}</code></pre>
     <p>Compare the <code>tables</code> line with the default run's. {missing.name}'s page held {word(missing.lost)} finished matches against {missing.opponent} that no other saved page has, one at each school, because {missing.opponent}'s own page was never saved. The table lost both, as Friday's copy of {missing.name}'s page shows them:</p>
     <ul class="ar-posted">{missing.rows.map((r) => <li>{r.host} v {r.visitor}, {r.date}: {missing.name} <code>{r.result}</code></li>)}</ul>
-    <p>The report counts one of them, in its last line: one of {missing.opponent}'s home matches now has no page on either side. It does not say which. The list above, read from {missing.name}'s saved schedule, does. {missing.name}'s home match against {missing.opponent} is gone too, and no line names it. Nor does the <code>tables</code> line flag the loss: it compares the rebuild with the old parser run on the same short archive, not with the table readers have, so both of its numbers drop together. That is a second silent gap, and the second exercise below is about it.</p>
+    <p>The report counts one of them, in its last <code>named gap</code> line: one of {missing.opponent}'s home matches now has no page on either side. It does not say which. The list above, read from {missing.name}'s saved schedule, does. {missing.name}'s home match against {missing.opponent} is gone too, and no line names it. Nor does the <code>tables</code> line flag the loss: it compares the rebuild with the old parser run on the same short archive, not with the table readers have, so both of its numbers drop together. That is a second silent gap, and the second exercise below is about it.</p>
 
     <h3>Your turn</h3>
-    <p>Each change starts from the original files, so undo one before you try the next: <code>git checkout -- &lt;the file you changed&gt;</code> restores just that file.</p>
+    <p>Start from a clean checkout, with <code>git status</code> showing nothing changed. Each change starts from the original files, so undo one before you try the next: <code>git checkout -- &lt;the file you changed&gt;</code> restores that file to the commit, discarding every edit in it.</p>
     <ol class="ar-turns">
       <li>
         <p><b>Alter the evidence.</b> In <code>sample/raw_html/harbor-point/2026-men-schedule.html</code>, change one result cell, a tie to a win. Before you run <code>python labs/m02_archive.py</code>, record what you expect.</p>
@@ -370,7 +370,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
       <li><b>Make Tuesday's comparison controlled.</b> <code>--tuesday</code> changed the parser and the pages at once. Add a run that parses Tuesday's pages with Tuesday's parser, and compare its table with the <code>--tuesday</code> table. Exactly one cell should differ: “{controlled.was}” against “{controlled.name}”. Every other change in the confounded diff then traces to the pages alone.</li>
       <li><b>Narrow the fingerprint.</b> Add <code>import inspect</code> to <code>labs/m02_archive.py</code>, make <code>fingerprint()</code> return <code>hashlib.sha256(inspect.getsource(parser.tidy).encode()).hexdigest()[:12]</code>, and run the lab. It still passes. Read its report's <code>covers</code> line: is every line of the report still true? Which edits from <a href="#scope">How much a fingerprint covers</a> would the narrow fingerprint now miss?</li>
     </ol>
-    <p>Every run above checked that each saved page's bytes are the ones Friday's manifest recorded. None checked that the page is the one its sidecar says it is: the season and school its address names. <a href="../03-provenance/">Module 3</a> tests that.</p>
+    <p>Every run above checked each saved page's bytes against its capture manifest. None checked that the page is the one its sidecar says it is: the season and school its address names. <a href="../03-provenance/">Module 3</a> tests that.</p>
   </section>
 </div>
 
@@ -409,6 +409,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
   .ar-out code { display: block; }
   .ar-out code > :global(span) { display: block; white-space: pre; }
   .ar-out code > :global(span.ar-kv) { white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 17ch; text-indent: -17ch; }
+  .ar-out code > :global(span.ar-diffrow) { padding-left: 18ch; text-indent: -18ch; }
   .ar-posted { margin: 0 0 1rem; }
   .ar-run { padding-left: 1.25rem; }
   .ar-run li { margin-bottom: 0.5rem; }

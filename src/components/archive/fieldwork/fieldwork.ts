@@ -195,7 +195,7 @@ const oneResultCell = (before: string, after: string) => {
   const differ = a.filter((r, i) => r.line !== b[i]?.line);
   return a.length === b.length && differ.length === 1 && differ.every((r) => {
     const t = b[a.indexOf(r)];
-    return r.fixture === t.fixture && r.result !== t.result && r.line.replace(`<td>${r.result}</td>`, `<td>${t.result}</td>`) === t.line;
+    return r.fixture === t.fixture && r.result !== t.result && r.line.replace(`<td>${r.result}</td>`, `<td>${t.result}</td>`) === t.line && before.replace(r.line, t.line) === after;
   });
 };
 check(newOnTuesday.every((p) => oneResultCell(pageOf(fridayPages, p.slug).html, p.html)), "a page that changed on Tuesday no longer differs from Friday's in exactly one result cell");
