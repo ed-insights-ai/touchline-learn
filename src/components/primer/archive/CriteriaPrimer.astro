@@ -12,9 +12,9 @@ const criteria = [
 ];
 
 const audits = [
-  ["coverage: full run · attempts: 0", "Pass", "is-ok"],
-  ["coverage: full run · attempts: 1 (blocked)", "Fail: the restriction worked, the zero-attempt criterion did not", "is-bad"],
-  ["network-audit.json not saved", "Unverified", "is-warn"],
+  ["coverage: full run · attempts: 0", "Pass", "is-ok", "Zero attempts, and the audit covers the whole run."],
+  ["coverage: full run · attempts: 1 (blocked)", "Fail", "is-bad", "The restriction worked, but the zero-attempt criterion did not."],
+  ["network-audit.json not saved", "Unverified", "is-warn", "Without an audit, the claim has no evidence."],
 ];
 
 const baseline = [19.0, 21.0];
@@ -91,7 +91,7 @@ const checks = [
   <ol class="pa-criteria">{criteria.map(([head, body]) => <li><b>{head}</b> {body}</li>)}</ol>
   <figure class="pr-card">
     <p class="pr-label">Criterion 3: three network audits, judged</p>
-    <ul class="pa-audit">{audits.map(([what, v, tone]) => <li><code>{what}</code><span class:list={["pr-chip", tone]}>{v}</span></li>)}</ul>
+    <ul class="pa-audit">{audits.map(([what, v, tone, why]) => <li><code>{what}</code><span class:list={["pr-chip", tone]}>{v}</span><small>{why}</small></li>)}</ul>
   </figure>
 
   <h2>2. Example rebuild report</h2>
@@ -134,7 +134,7 @@ const checks = [
   .pa-criteria b { color: var(--sl-color-white); }
   .pa-audit { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-audit li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
-  .pa-audit :global(.pr-chip) { white-space: normal; }
+  .pa-audit small { flex-basis: 100%; color: var(--tl-muted); font-size: 0.82rem; }
   .pa-break .pr-seg { margin-bottom: 0.7rem; }
   .pa-break-view { display: none; }
   .pa-break:has([value="none"]:checked) [data-break="none"],

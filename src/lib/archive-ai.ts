@@ -73,7 +73,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   decision: {
     slug: "02-archive-ai-captures",
     title: "Latest only or every capture?",
-    prompt: `I'm learning how much history a data archive should keep of a source that changes. Teach me with one running example: an online shop whose price list my archive fetches every morning.
+    prompt: `I'm learning how much history a data archive should keep of a source that changes. Teach me with one running example: a university's course listings page that my archive fetches every morning.
 
 1. Two policies: keeping only the latest copy of each source, overwritten by every new fetch, and keeping every copy with the time it was fetched. What each can rebuild later.
 2. What a recorded hash can show about a copy, and why it can never bring back a copy that has been overwritten.
@@ -109,7 +109,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   "carry-it": {
     slug: "02-archive-ai-carry",
     title: "Same fix, different archives",
-    prompt: `I'm learning to carry one idea to new kinds of data: after the same bug is fixed, what I can honestly claim depends on what was archived. Teach me with one running example that is not about sports, healthcare or public libraries.
+    prompt: `I'm learning to carry one idea to new kinds of data: after the same bug is fixed, what I can honestly claim depends on what was archived. Teach me with one running example that is not about sports, healthcare, public libraries or city government.
 
 1. One processing bug that ran for months, in three situations: one that kept every raw input, one that kept only the processed table, and one that kept raw inputs but overwrote a source's file whenever it resubmitted.
 2. The honest recovery claim in each situation: what can be rebuilt exactly, what can only be flagged or estimated, and what is lost.

@@ -3,49 +3,45 @@ import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi["carry-it"];
-const payment = { paid: "42.85", counted: "42.00" };
-const perMonth = 1000;
-const maxCents = 99;
-const bound = (perMonth * maxCents) / 100;
-const money = (n: number) => `$${n.toLocaleString("en-US")}`;
+const kg = { whole: 12, fraction: 12.8 };
 
 const worlds = [
   {
     id: "every",
     tab: "Every version",
-    kept: "Every raw file, including resubmissions, with receipt times and publication cutoffs",
-    recover: "It can select the same inputs used for each original release, rerun the corrected importer, and calculate exactly how much each month was understated.",
-    needed: "This archive is sufficient, assuming the city can still apply the original file selection and reporting rules.",
+    kept: "Every raw submission, including resubmissions",
+    recover: "It can replay the original inputs and rebuild exact shipment weights and monthly totals, provided it knows which submissions counted in each month. It can identify exactly which rows changed.",
+    needed: "The raw files plus enough history to tell when each version arrived and which version each report used.",
     claim: ["Exact", "is-ok"],
   },
   {
     id: "table",
     tab: "Processed table only",
     kept: "Only the processed table",
-    recover: `It can flag the six months as exposed to the bug. For a month with ${perMonth.toLocaleString("en-US")} payments, the missing cents total somewhere between $0 and ${money(bound)}. That’s a bound. A point estimate would require assumptions about how often payments included cents and how large those amounts were. The original payment amounts and exact corrected totals are lost.`,
-    needed: "It needed the original payment amounts at full precision, plus a record of which submissions fed each release.",
+    recover: `It can flag rows that went through the faulty importer if it can identify them. Each stored ${kg.whole} kg came from a weight of at least ${kg.whole} kg and less than ${kg.whole + 1} kg, so it can calculate bounds for the totals. It cannot tell which rows actually lost weight or recover the discarded decimals. A point estimate would require assumptions about those missing decimals.`,
+    needed: "The original decimal weight for each imported row, with enough version history to match it to the report. Keeping an unaltered copy of that field would have been enough for this bug.",
     claim: ["Bounded", "is-bad"],
   },
   {
     id: "over",
     tab: "Overwritten on resubmission",
-    kept: "Raw files, with each resubmission overwriting the previous file for that office and month",
-    recover: "It can calculate exact totals for the versions it still has. It can also rebuild an original release exactly wherever it can verify that the surviving files are the ones that fed that release. If a later submission replaced a file used for publication, the earlier payment amounts are lost. The city can flag the gap and use the published count to bound the cents dropped, but the surviving replacement alone cannot establish the exact correction.",
-    needed: "It needed to retain each file version under a distinct identifier and record which versions fed each release.",
-    claim: ["Exact where verified, bounded elsewhere", "is-warn"],
+    kept: "Raw files, but each resubmission overwrote the source’s previous file",
+    recover: "It can recover exact weights for rows it can match to the surviving versions. It cannot assume the latest file contains the same weights as an earlier one. Where an earlier raw file is gone and only its processed rows survive, it can flag those rows and bound the missing amounts, but the original decimals are lost.",
+    needed: "A separate copy of each submitted version, with a record of which version each report used.",
+    claim: ["Partly exact", "is-warn"],
   },
 ];
 
 const notes = [
-  ["Every version retained", "“From January through June, the importer dropped cents from individual payments. We recalculated the monthly totals using the submission versions selected for each original release. The revised totals are shown below.”"],
-  ["Only the processed table retained", "“From January through June, the importer dropped cents from individual payments. We retained the published totals and payment counts. The counts let us calculate an upper bound on the amount omitted each month. Exact corrected totals cannot be reconstructed from those records.”"],
-  ["Some versions overwritten", "“We recalculated totals from the submission files still on record. For the months marked below, later submissions replaced files used in the original releases. The revised figures reflect the retained submissions. The earlier files are unavailable, so the exact understatement in those releases cannot be determined.”"],
+  ["Every submission survived", "“We corrected the six months of shipment totals by reprocessing the original file versions used in each report.”"],
+  ["Only the processed table survived", "“The importer discarded fractional kilograms. The retained table supports a range for each monthly total. The original fractional weights cannot be recovered from that table.”"],
+  ["Some submissions were overwritten", "“We corrected weights where we could match a retained source file to the version used in the original report. Earlier versions were overwritten for some submissions, so the original fractional weights for those rows could not be verified.”"],
 ];
 
 const checks = [
-  ["Museum collections", "A scanner rounded object weights down to whole grams for four months. The museum kept every original scanner export and recorded which export fed each inventory report. What can it now reconstruct exactly?"],
-  ["Commercial electricity billing", "A billing job dropped fractional kilowatt-hours from every interval reading. Only the monthly sums and interval counts survive. What can the company say about the omitted usage, and what would a single numerical estimate require?"],
-  ["Book publishing", "A script excluded footnotes from manuscript word counts. Authors’ revised files overwrote earlier submissions, and some arrived after the original reports went out. How would you word a correction note that gives exact counts for the surviving files and explains what was lost?"],
+  ["Museum collections", "For months, an importer dropped the day from acquisition dates. The museum kept every original form, and a log identifies which form version fed each catalog entry. What can it restore exactly?"],
+  ["Manufacturing", "A sensor importer dropped the decimal part of each temperature in degrees Celsius. Only the processed table survives. If a row says 80 °C, what can you say about the original reading, and what remains unknown?"],
+  ["Publishing", "An importer dropped the cents from royalty amounts. A publisher kept only the latest raw file from each distributor, because resubmissions overwrote earlier files. How would you word a correction note for an old statement that used a version you can no longer find?"],
 ];
 ---
 
@@ -57,53 +53,48 @@ const checks = [
   turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and match the reply's three new questions to Worlds A, B and C."
 >
   <h2 class="pr-title">One bug, three archives</h2>
-  <p class="pr-pull">Fixing the code tells you how the data should have been processed. The archive determines which past results you can rebuild.</p>
+  <p class="pr-pull">A bug fix tells you how to process an input correctly. The archive tells you which past inputs you can still process.</p>
 
   <h2>1. One bug across three archives</h2>
-  <p>A city publishes monthly totals for fees collected by its permit offices. Each office uploads a file of individual payments. If an office resubmits a file, the latest version received before publication is the one that counts.</p>
-  <p>For six months, the importer dropped the cents from every payment before adding them up. A payment of ${payment.paid} contributed ${payment.counted} to the published total. The processed table records each month’s total and payment count.</p>
+  <p>Imagine a coffee roaster whose suppliers submit shipment weights in kilograms. For six months, the importer dropped the decimal part of every weight. It stored <code>{kg.fraction} kg</code> as <code>{kg.whole} kg</code>. A shipment of exactly <code>{kg.whole.toFixed(1)} kg</code> also appeared as <code>{kg.whole} kg</code>. The roaster fixes the importer and wants to correct its monthly totals.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Two weights, one stored value</p>
+    <div class="pa-merge">
+      <div class="pa-merge-in"><p><code>{kg.whole.toFixed(1)} kg</code></p><p><code>{kg.fraction} kg</code></p></div>
+      <p class="pr-arrow"><span>importer</span></p>
+      <div class="pa-merge-out"><p><code>{kg.whole} kg</code><span>at least {kg.whole}, less than {kg.whole + 1}</span></p></div>
+    </div>
+    <figcaption>The stored value fixes a range, not a weight. That range is all a processed table can offer.</figcaption>
+  </figure>
   <figure class="pr-card pa-worlds">
     <p class="pr-label">The recovery claim each archive supports</p>
     <ul class="pa-glance">{worlds.map((w) => <li><span>{w.tab}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></li>)}</ul>
     <fieldset class="pr-seg">
-      <legend>What the city kept</legend>
+      <legend>What the roaster kept</legend>
       {worlds.map((w, i) => <label><input type="radio" name="pa-carry-world" value={w.id} checked={i === 0} /><span>{w.tab}</span></label>)}
     </fieldset>
     {worlds.map((w) => (
       <div class="pa-world" data-world={w.id}>
         <p class="pa-world-head"><span class="pa-world-kept">{w.kept}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
-        <p class="pr-label">What it can recover after the fix</p>
+        <p class="pr-label">What it can honestly recover</p>
         <p>{w.recover}</p>
-        <p class="pr-label">What it needed for full recovery</p>
+        <p class="pr-label">What it needed to keep for full recovery</p>
         <p>{w.needed}</p>
       </div>
     ))}
   </figure>
-  <figure class="pr-card">
-    <p class="pr-label">Where the bound comes from</p>
-    <div class="pr-eq">
-      <span><b>{perMonth.toLocaleString("en-US")}</b>payments in the month</span>
-      <span class="pr-eq-op">×</span>
-      <span><b>${(maxCents / 100).toFixed(2)}</b>most cents one payment can lose</span>
-      <span class="pr-eq-op">=</span>
-      <span class="is-result"><b>{money(bound)}</b>most the month can be short</span>
-    </div>
-    <figcaption>The payment count survives in the processed table, so the bound needs no guess. The least is $0, a month in which every payment was whole dollars.</figcaption>
-  </figure>
-  <p>The third case gives you two different questions to ask. “What total do the latest files support?” can have an exact answer even when “What would we have published that day with the fixed code?” cannot.</p>
 
   <h2>2. What to put in a correction note</h2>
-  <p>Name the affected period and the error. Then describe the inputs behind any replacement figures and identify what the archive can no longer establish.</p>
+  <p>A correction note should describe what the archive let you verify. Here’s how the roaster could write one in each case.</p>
   <ul class="pa-notes">{notes.map(([k, v]) => <li><b>{k}</b><span>{v}</span></li>)}</ul>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to permit offices. Every version retained is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
-    <p>The reply's third case splits one question in two, and that split is the line World C's claims must respect. Exact totals from the surviving files are honest. What the city would have published that day with the fixed code is not, wherever a resubmission overwrote the file that fed the release.</p>
+    <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to a coffee roaster. Every raw submission is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
+    <p>The reply's third row draws the line World C's claims must respect: exact where a surviving file can be matched to the version a report used, flagged and bounded where it cannot. The latest file is not evidence of what an earlier one held.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([field, q]) => <li><b>{field}</b><span>{q}</span></li>)}</ol>
-  <p>I’ll wait for your answers before giving mine.</p>
 </PrimerChat>
 
 <style>
@@ -119,6 +110,12 @@ const checks = [
   :global(.pr) .pa-worlds .pr-label { margin: 0 0 0.15rem; }
   :global(.pr) .pa-world-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3rem 0.6rem; margin: 0 0 0.6rem !important; }
   :global(.pr) .pa-world-kept { color: var(--sl-color-white); font-weight: 700; }
+  .pa-merge { display: grid; gap: 0.4rem; align-items: center; }
+  @media (min-width: 46rem) { .pa-merge { grid-template-columns: 1fr auto 1fr; } }
+  .pa-merge-in, .pa-merge-out { display: grid; gap: 0.35rem; }
+  :global(.pr) .pa-merge-in p, :global(.pr) .pa-merge-out p { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; margin: 0; padding: 0.4rem 0.7rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-size: 0.88rem; }
+  :global(.pr) .pa-merge-out p { border: 1.5px dashed var(--pr-red); }
+  .pa-merge-out span { color: var(--tl-muted); }
   .pa-notes { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding: 0; list-style: none; }
   .pa-notes li { display: grid; gap: 0.2rem; padding: 0.6rem 0.85rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); }
   .pa-notes b { color: var(--sl-color-white); }

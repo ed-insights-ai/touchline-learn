@@ -16,7 +16,7 @@ const changes: Change[] = [
   { id: "sales", label: "Correct sales.csv", touches: "sales.csv" },
   { id: "comment", label: "Edit a comment in the totals cell", touches: "totals cell", comment: true },
   { id: "none", label: "Change nothing" },
-  { id: "upstream", label: "Upstream sales.csv changes, nobody fetches it", touches: "sales.csv", upstream: true },
+  { id: "upstream", label: "Upstream file changes, not fetched", touches: "sales.csv", upstream: true },
 ];
 const verdict = (c: Change, o: Output): [string, string, string] => {
   const recipe = !!c.touches && (c.touches === o.code || c.touches === o.setting);
@@ -58,6 +58,15 @@ const checks = [
     <li>Both match → the cached output can be reused, assuming the record covers everything that affects the result.</li>
   </ul>
   <p>This lets a build tool make the decision for each output from its recorded dependencies. If two reports read the sales file and a third reads only inventory, a sales correction invalidates the two sales reports.</p>
+  <p><code>make</code> illustrates the dependency rule. By default, it compares file modification times. If a declared prerequisite is newer than its target, <code>make</code> rebuilds the target. A configuration file can be declared as a prerequisite so its edits trigger the same check. Content-based build tools use hashes to make a similar decision.</p>
+
+  <h2>3. Rebuilding too much versus too little</h2>
+  <p>For a repeatable build step, an unnecessary rebuild spends time and compute to produce a result you could have reused. A missed rebuild can leave an old report in place and let the run finish successfully. Anyone reading the report may assume it reflects the latest inputs.</p>
+  <p>Some systems deliberately hash a whole source file, comments included. Hashing bytes is simple and avoids having to determine which edits affect behavior. A comment edit may cause an unnecessary rebuild, and the system accepts that cost.</p>
+
+  <h2>4. A fingerprint can only describe what the system observed</h2>
+  <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday’s copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
+  <h2>5. Try it: one change, three outputs</h2>
   <figure class="pr-card pa-fp">
     <fieldset class="pr-seg">
       <legend>Make one change</legend>
@@ -79,21 +88,13 @@ const checks = [
     ))}
     <figcaption>Each output keeps the fingerprint of its code and settings, and the hash of the file it read. Only a difference in one of those triggers a rebuild.</figcaption>
   </figure>
-  <p><code>make</code> illustrates the dependency rule. By default, it compares file modification times. If a declared prerequisite is newer than its target, <code>make</code> rebuilds the target. A configuration file can be declared as a prerequisite so its edits trigger the same check. Content-based build tools use hashes to make a similar decision.</p>
-
-  <h2>3. Extra rebuilds cost time. Missed rebuilds can silently give wrong answers.</h2>
-  <p>For a repeatable build step, an unnecessary rebuild spends time and compute to produce a result you could have reused. A missed rebuild can leave an old report in place and let the run finish successfully. Anyone reading the report may assume it reflects the latest inputs.</p>
-  <p>Some systems deliberately hash a whole source file, comments included. Hashing bytes is simple and avoids having to determine which edits affect behavior. A comment edit may cause an unnecessary rebuild, and the system accepts that cost.</p>
-
-  <h2>4. A fingerprint can only describe what the system observed</h2>
-  <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday’s copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Touchline's fingerprint hashes the parser's whole module plus the config it reads: the alias list, the membership file and the season. That is the reply's whole-source-file choice. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
     <p>Case 3's last preset is the reply's section 4. Harbor Point's site posted a result after Friday, but the saved page did not change, so its hash still matches and nothing looks stale until something fetches it.</p>
   </aside>
 
-  <h2>5. Check your understanding</h2>
+  <h2>6. Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 

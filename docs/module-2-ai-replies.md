@@ -26,8 +26,8 @@ reply text inside the primer component and keep or rewrite its Course note.
 Notes on individual replies:
 
 - **Six replies were rerun** after the first council round changed their prompts, each
-  in a fresh session with the same model and settings on the same date. Setup, Prove
-  it and Carry it keep their first replies.
+  in a fresh session with the same model and settings on the same date. Setup and Prove it
+  keep their first replies.
   - **The idea** asks for two outputs that disagree with the record that explains why, and
     item 3 names both unrecoverable cases: a version never saved, and a saved copy later
     overwritten. It was run twice in round 2. The first rerun's examples were one or two
@@ -38,10 +38,15 @@ Notes on individual replies:
   - **Case 2** uses one running example, a museum's nightly import from a partner site.
   - **Case 3** asks why some systems hash a whole source file on purpose, so a comment
     edit triggers a rebuild.
-  - **The decision** uses one running example, a shop's price list fetched every morning,
-    and asks what a recorded hash can show about a copy and why it cannot bring one back.
+  - **The decision** asks what a recorded hash can show about a copy and why it cannot
+    bring one back. Its running example was first a shop's price list. After the second
+    council round it became a university's course listings page, to cut the number of
+    shop and sales examples, and the page shows that third reply.
   - **Rewind** uses one running example, a research lab's daily sensor readings, and asks
     for an example report that meets every criterion.
+- **Carry it** was rerun after the second council round. Its first reply was set in a
+  city's permit offices, right after Prove it's city electricity reports. The prompt now
+  also excludes city government, and the page shows the second reply (a coffee roaster).
 - **Rewind** has had three replies. The first used a library example, the third in
   Module 2 after Module 1 used one throughout. The second used a street-tree inventory.
   The page shows the third (lab sensor readings), which also includes a sample report.

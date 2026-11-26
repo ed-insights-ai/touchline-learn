@@ -11,12 +11,12 @@ const designs: { field: string; confounded: Arm[]; controlled: Arm[]; result: st
   {
     field: "Website",
     confounded: [
-      { label: `Last week · ${rate.before}%`, factors: [["Headline", "old", false], ["Button", "blue", false]] },
-      { label: `This week · ${rate.after}%`, factors: [["Headline", "new", true], ["Button", "green", true]] },
+      { label: `Last week · ${rate.before}%`, factors: [["Headline", "old", false], ["Button", "blue", false], ["Visitors", "last week", false]] },
+      { label: `This week · ${rate.after}%`, factors: [["Headline", "new", true], ["Button", "green", true], ["Visitors", "this week", true]] },
     ],
     controlled: [
-      { label: "Version A · same period", factors: [["Headline", "old", false], ["Button", "same", false]] },
-      { label: "Version B · same period", factors: [["Headline", "new", true], ["Button", "same", false]] },
+      { label: "Version A", factors: [["Headline", "old", false], ["Button", "same", false], ["Visitors", "random half", false]] },
+      { label: "Version B", factors: [["Headline", "new", true], ["Button", "same", false], ["Visitors", "random half", false]] },
     ],
     result: `+${rate.after - rate.before} points`,
   },
@@ -69,7 +69,7 @@ const checks = [
       <div>
         <p class="pr-label">{d.field}</p>
         <div class="pa-pair">
-          {([["Before and after", d.confounded, `${d.result}, two factors changed`, "is-bad"], ["Controlled", d.controlled, "One factor changed", "is-ok"]] as const).map(([name, arms, verdict, tone]) => (
+          {([["Before and after", d.confounded, d.result, "is-bad"], ["Controlled", d.controlled, "One change", "is-ok"]] as const).map(([name, arms, verdict, tone]) => (
             <div class="pa-side">
               <p class="pa-side-head"><b>{name}</b><span class:list={["pr-chip", tone]}>{verdict}</span></p>
               {arms.map((arm) => (
@@ -88,7 +88,7 @@ const checks = [
 
   <h2>3. Fixing a data pipeline</h2>
   <p>Suppose a pipeline is meant to sum payments by transaction ID, counting each transaction once. Its input contains three rows:</p>
-  <div class="pa-pipe">
+  <figure class="pr-card pa-pipe">
     <table class="pr-table pr-num">
       <thead><tr><th scope="col">Transaction ID</th><th scope="col">Amount</th></tr></thead>
       <tbody>{rows.map(([id, a]) => <tr><th scope="row">{id}</th><td>${a}</td></tr>)}</tbody>
@@ -98,11 +98,11 @@ const checks = [
       <p class="is-fixed"><span>Fixed code, the same rows</span><b>${fixed}</b></p>
       <p class="pa-pipe-diff">−${buggy - fixed}: one input changed, so one cause</p>
     </div>
-  </div>
+  </figure>
   <p>The buggy code counts all three rows and reports <strong>${buggy}</strong>. The fixed code runs on the <strong>same rows</strong> and reports <strong>${fixed}</strong>, the expected total. Because the input stayed fixed, you can trace the ${buggy - fixed} decrease to the code change. If you ran the fixed code only on freshly collected data and got ${fixed}, that difference could also reflect a different set of payments. The original input lets you check whether the fix corrects the specific failure you saw.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Case 1 has the same three designs. Table A, Tuesday's table, is the baseline. Table B is the reply's three-row replay: Friday's saved pages held fixed and only the tidy rule changed, so every difference from table A has one cause. Table C is last week against this week: the code and the pages changed together.</p>
+    <p>Case 1 makes the reply's two comparisons from three tables. Table A, Tuesday's table, is the baseline. A against B is the controlled comparison, like the reply's three-row replay: Friday's saved pages held fixed and only the tidy rule changed, so every difference has one cause. A against C is the before and after: the code and the pages changed together.</p>
     <p>An honest changelog line is written the way the reply writes its last paragraph. It names the one input that changed, and claims nothing that input can't explain.</p>
   </aside>
 

@@ -7,14 +7,12 @@ const card = archiveAi["case-kept"];
 
 const record = `<p class="maker">Émilie du Pré</p>
 <p class="object-count"></p>`;
-const flow = `Raw response → Extracted fields → Parsed counts → Published catalog
-                                    blank → 0`;
 
 const layers = [
-  { name: "Raw response", holds: "The markup, accents and the blank count, as received", verdict: ["Verifies the fix by replaying the whole import", "is-ok"] },
-  { name: "Extracted fields", holds: "The fields pulled from the markup, with the count still blank", verdict: ["Last layer before the damage", "is-ok"], last: true },
-  { name: "Parsed counts", holds: "A 0 where the count was blank", verdict: ["Carries the bug", "is-bad"], bug: true },
-  { name: "Published catalog", holds: "Zero objects, where the partner supplied no count", verdict: ["Carries the bug", "is-bad"] },
+  { name: "Raw response", holds: "The markup, accents and the blank count, as received", verdict: ["Full replay", "is-ok"] },
+  { name: "Extracted fields", holds: "The fields pulled from the markup, with the count still blank", verdict: ["Last before the bug", "is-ok"], last: true },
+  { name: "Parsed counts", holds: "A 0 where the count was blank", verdict: ["Carries it", "is-bad"], bug: true },
+  { name: "Published catalog", holds: "Zero objects, where the partner supplied no count", verdict: ["Carries it", "is-bad"] },
 ];
 
 const merges = [
@@ -56,7 +54,6 @@ const checks = [
 
   <h2>2. Replay from the last layer before the damage</h2>
   <p>Suppose the museum saves a copy after each step:</p>
-  <div class="pr-code"><pre>{flow}</pre></div>
   <ol class="pa-ladder">
     {layers.map((l) => (
       <li class:list={[{ "is-last": l.last, "is-bug": l.bug, "is-carry": l.verdict[1] === "is-bad" }]}>
