@@ -37,7 +37,7 @@ const why = (k: "B" | "C", slug: string) => {
   const o = opponent(slug);
   const result = o ? `${o.mine}-${o.theirs} ${o.mine > o.theirs ? "win over" : o.mine === o.theirs ? "draw with" : "loss to"} ${o.other}` : "";
   const final = [championship.home, championship.away].includes(slug) ? ` Its page did change, with Sunday's championship result, but the build leaves that match out.` : "";
-  if (a === "same") return k === "B" ? "Same: no “St.” in this name." : `Same: no match on ${saturdayName}.${final}`;
+  if (a === "same") return k === "B" ? "Same: no “St.” here." : `Same: no match on ${saturdayName}.${final}`;
   if (a === "code") return `Code: the fixed rule shows “${fixedName}”.`;
   if (a === "both") return `Both: the rule renames it, and the pages add a ${result}.`;
   return unsaved.includes(slug) ? `Pages: its site still doesn't answer, but ${o!.other}'s page shows the result, a ${o!.mine}-${o!.theirs} ${o!.mine > o!.theirs ? "win" : o!.mine === o!.theirs ? "draw" : "loss"}.` : `Pages: Tuesday's pages add a ${result}.`;

@@ -192,7 +192,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
   .ar-legend span { display: inline-flex; align-items: center; gap: 0.4rem; margin-right: 0.9rem; white-space: nowrap; }
   .ar-legend i { display: inline-grid; place-items: center; width: 1.1rem; height: 1.1rem; border-radius: 2px; color: var(--tl-ink); font-size: 0.72rem; font-style: normal; font-weight: 700; }
   .ar-mk { margin-left: 0.15rem; color: var(--tl-muted); font-size: 0.66rem; font-weight: 700; }
-  .ar-cue { display: none; margin: 0 0 -0.4rem; color: var(--tl-muted); font-size: 0.8rem; font-style: italic; }
+  .ar-cue { margin: 0 0 -0.4rem; color: var(--tl-muted); font-size: 0.8rem; font-style: italic; }
   .ar-table tbody th, .ar-table thead th:nth-child(2) { position: sticky; left: 0; z-index: 1; background-color: var(--sl-color-bg); }
   .ar-files tbody th, .ar-files thead th:first-child { position: sticky; left: 0; z-index: 1; background-color: var(--sl-color-bg); }
   .ar-files .ar-res { white-space: normal; min-width: 6.5rem; }
@@ -209,7 +209,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
   .ar-live { display: block; color: var(--sl-color-orange-high); font-family: var(--sl-font-system); font-size: 0.78rem; white-space: normal; }
   .ar-foot { margin: 0; color: var(--tl-muted); font-size: 0.84rem; }
 
-  @container arbench (max-width: 40rem) { .ar-cue { display: block; } }
+  .ar-cue[hidden] { display: none; }
   @container arbench (max-width: 34rem) {
     .ar-bench table { font-size: 0.84rem; }
     .ar-bench th, .ar-bench td { padding: 0.3rem 0.25rem; }
@@ -219,6 +219,12 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
 </style>
 
 <script>
+  const cues = () => document.querySelectorAll<HTMLElement>("[data-rb] .ar-cue").forEach((cue) => {
+    const s = cue.nextElementSibling as HTMLElement | null;
+    if (s?.offsetParent) cue.hidden = s.scrollWidth <= s.clientWidth + 1;
+  });
+  new ResizeObserver(cues).observe(document.documentElement);
+  document.addEventListener("bench:pick", cues);
   document.querySelectorAll<HTMLElement>("[data-rb]").forEach((root) => {
     const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-rb-pick]")];
     root.addEventListener("click", (e) => {

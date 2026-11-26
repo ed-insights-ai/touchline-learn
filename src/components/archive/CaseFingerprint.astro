@@ -9,7 +9,7 @@ import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
 import ReplayBench from "./ReplayBench.astro";
 import { spell } from "../../lib/cases";
-import { fingerprints, fridayPages, kickPartial, presets, presetFiles, stBrendanNote, story, tableKick } from "../../lib/archive";
+import { fingerprints, fridayPages, kickPartial, presets, presetFiles, presetShowsSaturday, saturday, stBrendanNote, story, tableKick } from "../../lib/archive";
 
 const files = presets[0].files;
 const lambertPage = fridayPages.find((p) => p.slug === "st-lambert")!;
@@ -19,9 +19,11 @@ const kickName = tableKick.rows.find((r) => r.slug === "st-lambert")!.name;
 const skipped = kickPartial.pagesNamingItAsOpponent.map((p) => p.name);
 const byId = Object.fromEntries(presets.map((p) => [p.id, p]));
 const harbor = byId["refetch-harbor"].watch!.name;
+const sat0 = saturday[0];
+const sat = `${sat0.home_score}-${sat0.away_score}`;
 const scene: Record<string, string> = {
   "fix-rule": "The parsed schedules were written by Tuesday's parser.",
-  comment: "One comment line in the fixed parser. No code changes.",
+  comment: "One comment line in the fixed parser. The parser behaves exactly as before.",
   alias: "A config edit. The parser's code is untouched.",
   nothing: "Same code, same config, same saved pages.",
   "refetch-harbor": "Same code. Its site has posted Saturday's result since Friday.",
@@ -32,10 +34,12 @@ const because: Record<string, string> = {
   comment: "The fingerprint hashes the whole module, comments included. The output won't change, and the rebuild is safe and cheap.",
   alias: "The alias list is config, and config is part of the fingerprint, though no code changed.",
   nothing: "Every recorded fingerprint and content hash still matches.",
-  "refetch-harbor": `The fetch overwrote ${harbor}'s saved page with a different one, so that parsed schedule's content hash no longer matches and only it is stale. Friday's capture of the page was overwritten.`,
-  "live-changed": "Nothing the run can see has changed. A replay reads saved pages, and only a fetch can see the live site.",
+  "refetch-harbor": `The fetch overwrote ${harbor}'s saved page with a different one, so that parsed schedule's content hash no longer matches and only it is stale. Its new page shows the ${sat}; ${sat0.homeName}'s saved page is still Friday's, so its schedule doesn't. Friday's capture of ${harbor}'s page was overwritten.`,
+  "live-changed": `Nothing the run can see has changed, so nothing is rebuilt and no parsed schedule shows the ${sat}. A replay reads saved pages, and only a fetch can see the live site.`,
 };
 for (const p of presets) if (!scene[p.id] || !because[p.id]) throw new Error(`Case 3 has no text for preset ${p.id}`);
+const answerOf = (p: (typeof presets)[number]) => (p.watch ? `${p.rebuilt},${presetShowsSaturday[p.id]}` : String(p.rebuilt));
+const whyOf = (p: (typeof presets)[number]) => `${p.rebuilt} rebuilt${p.watch ? `; ${presetShowsSaturday[p.id]} ${presetShowsSaturday[p.id] === 1 ? "shows" : "show"} the ${sat}` : ""}. ${because[p.id]}`;
 const optionsOf: [string, string][] = presets.filter((p) => p.id !== "nothing").map((p) => [p.id, `${presets.indexOf(p) + 1}. ${p.label}`]);
 const [first, ...rest] = presets;
 if (first.id !== "fix-rule") throw new Error("Case 3 works the tidy rule fix as its first preset");
@@ -79,25 +83,25 @@ const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf(
 
   <div class="cv-check ar-presets" data-once="stale-presets">
     <p class="cv-kind">Knowledge check</p>
-    <p class="cv-qlabel">{spell(presets.length, true)} changes, each starting from a full set of {spell(files)} up-to-date parsed schedules. For each, how many parsed schedules are rebuilt, and how many pages are fetched? The first is worked above.</p>
+    <p class="cv-qlabel">{spell(presets.length, true)} changes, each starting from a full set of {spell(files)} up-to-date parsed schedules. For each, how many parsed schedules are rebuilt? For the two {harbor} changes, also say how many parsed schedules afterwards show Saturday's {sat0.homeName} v {sat0.awayName} result. The first change is worked above.</p>
     <ol class="ar-plist">
       <li class="ar-pworked">
         <p class="ar-pscene"><b>1. {first.label}.</b> {scene[first.id]}</p>
-        <p class="ar-pin" aria-hidden="true"><span class="ar-pval">{first.rebuilt}</span><span>rebuilt, of {files}</span><span class="ar-pval">{first.fetched}</span><span>fetched</span></p>
-        <p class="ar-pwhy"><span class="sr-only">Worked: {first.rebuilt} rebuilt, {first.fetched} fetched. </span>{because[first.id]}</p>
+        <p class="ar-pin" aria-hidden="true"><span class="ar-pval">{first.rebuilt}</span><span>rebuilt, of {files}</span></p>
+        <p class="ar-pwhy"><span class="sr-only">Worked: {first.rebuilt} rebuilt. </span>{because[first.id]}</p>
       </li>
       {rest.map((p, j) => { const i = j + 1; return (
-        <li data-q data-type="number" data-answer={`${p.rebuilt},${p.fetched}`} data-why={`${p.rebuilt} rebuilt, ${p.fetched} fetched. ${because[p.id]}`}>
+        <li data-q data-type="number" data-answer={answerOf(p)} data-why={whyOf(p)}>
           <p class="ar-pscene"><b>{i + 1}. {p.label}.</b> {scene[p.id]}</p>
           <p class="ar-pin">
             <label><input inputmode="numeric" autocomplete="off" data-save={`stale-${p.id}-rebuilt`} aria-label={`Change ${i + 1}: schedules rebuilt, of ${files}`} /><span>rebuilt, of {files}</span></label>
-            <label><input inputmode="numeric" autocomplete="off" data-save={`stale-${p.id}-fetched`} aria-label={`Change ${i + 1}: pages fetched`} /><span>fetched</span></label>
+            {p.watch && <label><input inputmode="numeric" autocomplete="off" data-save={`stale-${p.id}-shows`} aria-label={`Change ${i + 1}: parsed schedules that show Saturday's ${sat}`} /><span>show the {sat}</span></label>}
           </p>
           <p class="cv-fb" role="status"></p>
         </li>
       ); })}
     </ol>
-    <p class="cv-once">Enter both numbers for changes 2 to {presets.length}, then check.</p>
+    <p class="cv-once">Enter the numbers for changes 2 to {presets.length}, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
@@ -118,7 +122,7 @@ const [nComment, nRefetch, nLive] = [nOf("comment"), nOf("refetch-harbor"), nOf(
   <AiCard part="case-fingerprint" />
   <Check once="stale-notebook" note="Match all three, then check.">
     <p class="cv-qlabel">A notebook caches each cell's result under a key: a hash of the cell's code and its settings file, plus the content hash of the data file the cell reads. Match each change to the preset that is the same kind of change.</p>
-    <Choice save="stale-nb-comment" label="You add a blank line between two statements in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's text changes though the output can't, so its hash changes and the cell reruns. Safe over-rebuilding." wrong={{ "fix-rule": "Also a code change, but one that can't change the output." }} />
+    <Choice save="stale-nb-comment" label="You add a blank line between two statements in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's text changes though the output can't, so its hash changes and the cell reruns. Safe over-rebuilding." wrong={{ "fix-rule": "The tidy rule fix changed the output. A blank line can't." }} />
     <Choice save="stale-nb-config" label="You change the chart's date range in the settings file, and leave the code alone." options={optionsOf} answer="alias" why="Settings are config, and config is part of the key, so the cell reruns though no code changed." wrong={{ "fix-rule": "No code changed. The change is in config." }} />
     <Choice save="stale-nb-live" label="The data provider has fixed an error in its file online. You rerun the notebook on the copy you saved last week." options={optionsOf} answer="live-changed" why="The cache can only compare the file you saved, which hasn't changed, so nothing reruns and the correction stays unseen." wrong={{ "refetch-harbor": "That preset fetches the new file. Here the notebook reads last week's copy." }} />
     <p slot="reveal">Many caches use the same two checks: one hash for the code and its settings, one for the input it read. Neither can see a source you never fetched again.</p>

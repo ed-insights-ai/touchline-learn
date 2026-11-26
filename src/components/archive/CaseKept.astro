@@ -14,7 +14,7 @@ const awayRow = case2.rows.find((r) => r.fixture === grid.find((b) => b.id === "
 const KEPT: Kept[] = ["a", "b", "c"];
 const what: Record<Kept, string> = {
   a: "Kick's parser read each page and saved only the rows it produced.",
-  b: "Kick's saver cleaned each page before writing it: scripts, ids and classes stripped, whitespace collapsed, names spelled out by the tidy rule. The other visible cell text stays: dates, “vs” and “at”, results.",
+  b: "Kick's saver cleaned each page before writing it: scripts and every attribute except links stripped, whitespace collapsed, names spelled out by the tidy rule. The other visible cell text stays: dates, “vs” and “at”, results.",
   c: "Kick saved each page's bytes exactly as they arrived, before any code read them, with a small record beside it.",
 };
 const reasons: Record<string, Record<Kept, [boolean, string]>> = {
@@ -38,17 +38,17 @@ grid.forEach((bug) => KEPT.forEach((k) => {
   if (reasons[bug.id]?.[k]?.[0] !== bug.answers[k]) throw new Error(`Case 2's reason for ${bug.id}/${k} disagrees with archive.ts`);
 }));
 const drawReasons: Record<Kept, [boolean, string]> = {
-  a: [false, `No. The fixed rule over (a) gives ${case2Draws.points.a}, because bug 3's 0-0 counts as a draw nobody saw. The published rows support ${case2Draws.truth}.`],
-  b: [true, `Yes. A bare “Final” has no score, so the fixed rule gives ${case2Draws.points.b}, down from ${case2Draws.buggy.b} under the bug.`],
-  c: [true, `Yes. The fixed rule over the bytes gives ${case2Draws.points.c}, down from ${case2Draws.buggy.c} under the bug.`],
+  a: [false, `${case2Draws.points.a}. Bug 3's 0-0 counts as a draw nobody saw, one point the published rows don't support. They support ${case2Draws.truth}.`],
+  b: [true, `${case2Draws.points.b}. A bare “Final” has no score and earns nothing, so (b) agrees with the published rows. Under the bug it gave ${case2Draws.buggy.b}.`],
+  c: [true, `${case2Draws.points.c}, the published rows' total. Under the bug the bytes gave ${case2Draws.buggy.c}.`],
 };
-KEPT.forEach((k) => { if (drawReasons[k][0] !== case2Draws.answers[k]) throw new Error(`Case 2's draw reason for ${k} disagrees with archive.ts`); });
+KEPT.forEach((k) => { if (drawReasons[k][0] !== case2Draws.answers[k] || (case2Draws.points[k] === case2Draws.truth) !== case2Draws.answers[k]) throw new Error(`Case 2's draw reason for ${k} disagrees with archive.ts`); });
 const yn: [string, string][] = [["yes", "Yes"], ["no", "No"]];
 const label = (k: Kept) => `(${k}) ${archives[k].label.replace(/, with a sidecar$/, "")}`;
 const sidecar = case2Sidecar;
 const sidecarFields: [string, string, string][] = [
   ["requested_url", sidecar.requested_url, "The address Kick asked for, so the request can be repeated or questioned."],
-  ["final_url", sidecar.final_url, "The address the site answered from after any redirects. Here it matches the request. Whether that shows the page is the one asked for is Module 3's question."],
+  ["final_url", sidecar.final_url, "Where the site answered from after any redirects. Here it matches the request; Module 3 asks what that proves."],
   ["fetched_at", sidecar.fetched_at, "When the bytes arrived, which places the page in time: Friday's capture, not Tuesday's."],
   ["status", String(sidecar.status), `What the site's server said. ${sidecar.status} means it answered with a page.`],
   ["etag", sidecar.etag, "A tag the site gave this version of the page. Module 1's conditional requests send it back to ask whether the page has changed."],
@@ -155,24 +155,21 @@ const sidecarFields: [string, string, string][] = [
     <p class="cv-kind">One more bug</p>
     <p class="cv-qlabel">4. {case2Draws.label}. The bug is in the build, after all three archives were written, and bug 3 is still in archive (a). Here is one more row from Cedar Grove's page, a real draw, as each archive holds it:</p>
     <ul class="ar-extra">{KEPT.map((k) => <li><span>{label(k)}</span><code>{case2Draws.extra[k]}</code></li>)}</ul>
-    <p class="cv-qlabel">Replay the fixed rule over each archive's four rows. Which archives give Cedar Grove the points its published rows support?</p>
-    <div class="ar-kg ar-kg-one" role="group" aria-label="Bug 4 against archives">
+    <p class="cv-qlabel">Replay the corrected points rule, three for a win and one for a draw, over each archive's four rows. How many points does each archive give Cedar Grove?</p>
+    <div class="ar-kg ar-kg-one" role="group" aria-label="Bug 4: Cedar Grove's points from each archive">
       <div class="ar-kg-row">
         {KEPT.map((k) => (
-          <fieldset class="ar-seg" data-q data-type="radio" data-answer={case2Draws.answers[k] ? "yes" : "no"} data-why={drawReasons[k][1]}>
-            <legend><span class="ar-seg-k">{label(k)}</span></legend>
-            <div class="ar-seg-opts">
-              {yn.map(([v, t]) => <label><input type="radio" name={`ar-kept-draws-${k}`} value={v} data-save={`kept-draws-${k}`} /><span>{t}</span></label>)}
-            </div>
+          <div class="ar-knum" data-q data-type="number" data-answer={String(case2Draws.points[k])} data-why={drawReasons[k][1]}>
+            <label><span class="ar-seg-k">{label(k)}</span><input inputmode="numeric" autocomplete="off" data-save={`kept-draws-${k}`} /><span class="ar-knum-u">points</span></label>
             <p class="cv-fb" role="status"></p>
-          </fieldset>
+          </div>
         ))}
       </div>
     </div>
-    <p class="cv-once">Answer for all three archives, then check.</p>
+    <p class="cv-once">Enter a number for all three archives, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one. Damage stacks. Archive (b) passes here only because tidying never touched a result, and it still fails bug 1. The only copy that is before every step is the bytes as received.</p></div>
+    <div class="cv-reveal"><p>Cedar Grove's published rows support {case2Draws.truth} points, so {spell(KEPT.filter((k) => case2Draws.answers[k]).length)} archives give the right total. The last layer before this bug is the parsed rows, but they carry an earlier one. Damage stacks. Archive (b) passes here only because tidying never touched a result, and it still fails bug 1. The only copy that is before every step is the bytes as received.</p></div>
   </div>
   <NextPart from="case-kept">The bytes are kept and the parser is fixed. Which parsed schedules are now out of date?</NextPart>
 </section>
@@ -216,6 +213,11 @@ const sidecarFields: [string, string, string][] = [
   .ar-seg legend { padding: 0; }
   .ar-seg-k { display: none; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; }
   .ar-kg-one .ar-seg-k { display: block; margin-bottom: 0.15rem; }
+  .ar-knum label { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; gap: 0.2rem 0.4rem; margin: 0; }
+  .ar-knum .ar-seg-k { grid-column: 1 / -1; }
+  .ar-knum input { width: 3.6rem; min-height: 40px; padding: 0.3rem 0.4rem; border: 1px solid var(--tl-muted); border-radius: 3px; background: transparent; color: var(--tl-ink); font: inherit; font-size: 1rem; text-align: center; }
+  .ar-knum input:focus-visible { outline: 3px solid var(--sl-color-white); outline-offset: 1px; }
+  .ar-knum-u { color: var(--tl-muted); font-size: 0.86rem; }
   .ar-seg-opts { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--tl-muted); border-radius: 4px; overflow: hidden; }
   .ar-seg-opts label { position: relative; display: grid; place-items: center; min-height: 40px; margin: 0; border-left: 1px solid var(--tl-line); cursor: pointer; font-size: 0.88rem; }
   .ar-seg-opts label:first-child { border-left: 0; }

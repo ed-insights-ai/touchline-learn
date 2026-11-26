@@ -628,3 +628,14 @@ export const case2Sidecar: { requested_url: string; final_url: string; status: n
     throw new Error(`case2Sidecar: unexpected fields ${keys}`);
   }
 }
+
+const pageByHash = new Map([...fridayPages, ...tuesdayPages].map((p) => [p.sha256, p.html]));
+const scoredOn = (html: string, fixture: string) => /^[WLT] \d+-\d+$/.test(rawRows(html).find((r) => r.fixture === fixture)?.result ?? "");
+/** Per preset, how many of the parsed schedules after the run read a page that shows Saturday's Eastbrook State v Harbor Point result. */
+export const presetShowsSaturday: Record<string, number> = Object.fromEntries(presets.map((p) => {
+  const saved = savedFriday();
+  (presetFetches[p.id] ?? []).forEach((slug) => saved.set(slug, liveTuesday.get(slug)!));
+  return [p.id, [...saved.values()].filter((h) => scoredOn(pageByHash.get(h) ?? fail("a preset reads a page the sample does not hold"), "7318")).length];
+}));
+check(presets.every((p) => presetShowsSaturday[p.id] === (p.id === "refetch-harbor" ? 1 : 0)), "only the Harbor Point re-fetch should show Saturday's 7318 result");
+check(saturday[0].fixture.endsWith(":7318"), "Saturday's first match is not 7318");
