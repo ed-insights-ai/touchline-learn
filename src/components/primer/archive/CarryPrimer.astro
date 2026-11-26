@@ -12,7 +12,7 @@ const shipments = [kg.whole, kg.fraction];
 const revised = 12.4;
 const kgs = (x: number) => `${x} kg`;
 const bound = (x: number) => `${Math.floor(x)} to under ${Math.floor(x) + 1} kg`;
-type Fate = "exact" | "bound" | "boundIf" | "lost";
+type Fate = "exact" | "bound" | "lost";
 const worlds: { id: string; tab: string; kept: string; recover: string; needed: string; claim: [string, string]; fates: [Fate, Fate] }[] = [
   {
     id: "every",
@@ -39,7 +39,7 @@ const worlds: { id: string; tab: string; kept: string; recover: string; needed: 
     recover: `It can recover exact weights as reported in the surviving files. If the surviving file says ${kgs(revised)}, that establishes the revised weight. The earlier weight could have been ${kgs(kg.fraction)}, but the surviving file cannot establish it. Where an older processed row survives, the roaster can still flag it and give the same rounding bounds.`,
     needed: "It needed to keep each resubmission as a separate version and record which file version each import used.",
     claim: ["Partly exact", "is-warn"],
-    fates: ["boundIf", "exact"],
+    fates: ["lost", "exact"],
   },
 ];
 const versions = [
@@ -49,8 +49,7 @@ const versions = [
 const fateText = (f: Fate, w: number): [string, string] =>
   f === "exact" ? [`${kgs(w)}, from its file`, "is-ok"]
   : f === "bound" ? [`${bound(w)}, from its rounded row`, "is-warn"]
-  : f === "boundIf" ? [`${bound(w)}, if its old row survives`, "is-warn"]
-  : ["Unavailable: its row was replaced", "is-bad"];
+  : ["Unavailable: replaced by the resubmission", "is-bad"];
 
 const checks = [
   ["Weather monitoring", "A station’s importer rounded rainfall readings down to whole millimeters. It kept every raw upload and a log of when each version was used. What can it reconstruct about last spring’s readings, including later revisions?"],
@@ -98,7 +97,7 @@ const checks = [
         <p class="pa-world-head"><span class="pa-world-kept">{w.kept}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></p>
         <ul class="pa-versions">{versions.map((v, i) => {
           const [text, tone] = fateText(w.fates[i], v.weight);
-          return <li><span>{v.name}, reported {kgs(v.weight)}</span><span class:list={["pr-chip", tone]}>{text}</span></li>;
+          return <li><span>{v.name} (the supplier sent {kgs(v.weight)})</span><span class:list={["pr-chip", tone]}>{text}</span></li>;
         })}</ul>
         <p class="pr-label">What it can honestly recover</p>
         <p>{w.recover}</p>

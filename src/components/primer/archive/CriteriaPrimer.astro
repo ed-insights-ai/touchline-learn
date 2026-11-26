@@ -105,7 +105,7 @@ const checks = [
     {breaks.map((b) => (
       <div class="pa-break-view" data-break={b.id}>
         <p class="pa-break-line"><span>Report line</span><code>{b.line}</code></p>
-        <label class="pa-reveal"><input type="checkbox" /> <span>Predict which criterion fails, then show the audit</span></label>
+        {b.fails >= 0 && <label class="pa-reveal"><input type="checkbox" /> <span>Predict which criterion fails, then show the audit</span></label>}
         <ul class="pa-audit">{short.map((c, i) => <li><span>{c}</span><span class:list={["pr-chip", i === b.fails ? "is-bad" : b.skip?.includes(i) ? "is-quiet" : "is-ok"]}>{i === b.fails ? "Fail" : b.skip?.includes(i) ? "Not reached" : "Pass"}</span></li>)}</ul>
         <p class="pa-break-result"><b>Result: {b.fails < 0 ? "PASS" : "FAIL"}</b> {b.why}</p>
       </div>
@@ -131,8 +131,8 @@ const checks = [
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply names a commit and needs a clean checkout to tie it to the code that ran. Kick's fingerprint and build revision hash the parser, <code>labs/common.py</code>, the config and the build script directly; what they leave out is whether those bytes are committed anywhere, and code outside those files, such as libraries and the interpreter.</p>
-    <p>The reply's changed cell comes from a corrected input, so its inputs differ from the baseline's. Under Riley's criteria that would not count as a replay of Friday's pages. Kick's replay holds them fixed, so its one changed cell must trace to the code. And Kick's network counter hooks Python's name lookups and socket connects and sends in its own process, after showing it catches test requests, so its zero says nothing about child processes or calls outside those hooks.</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash with Dunmore listed as unavailable, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. The reply ties a commit to the running code with a clean checkout. Kick's fingerprint and build revision hash the bytes that ran instead; they don't show those bytes were committed, or cover libraries and the interpreter.</p>
+    <p>The reply's changed cell comes from a corrected input, so under Riley's criteria it would not count as a replay of Friday's pages. Kick's replay holds them fixed, so its one changed cell must trace to the code. Kick's zero requests covers the socket calls its counter patches, in its own process, during the replay.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>
@@ -143,13 +143,14 @@ const checks = [
   .pa-criteria { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding-left: 1.4rem; }
   .pa-criteria li { padding-left: 0.2rem; }
   .pa-criteria b { color: var(--sl-color-white); }
+  .pa-audit :global(.pr-chip.is-quiet) { border: 1px solid var(--tl-line); background: transparent; color: var(--tl-muted); }
   .pa-audit { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-audit li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-audit small { flex-basis: 100%; color: var(--tl-muted); font-size: 0.82rem; }
   .pa-break .pr-seg { margin-bottom: 0.7rem; }
   .pa-break-view { display: none; }
-  .pa-break-view:not(:has(.pa-reveal input:checked)) .pa-audit,
-  .pa-break-view:not(:has(.pa-reveal input:checked)) .pa-break-result { display: none; }
+  .pa-break-view:has(.pa-reveal):not(:has(.pa-reveal input:checked)) .pa-audit,
+  .pa-break-view:has(.pa-reveal):not(:has(.pa-reveal input:checked)) .pa-break-result { display: none; }
   .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0 0 0.5rem; font-size: 0.88rem; cursor: pointer; }
   .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
   .pa-break:has([value="none"]:checked) [data-break="none"],

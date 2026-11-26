@@ -1,12 +1,13 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
-import { run } from "../../../lib/first-run";
+import { proveIt } from "../../../lib/archive";
 import { spell } from "../../../lib/cases";
 
 const card = archiveAi["prove-it"];
-const boxes = spell(run.boxes);
-const others = spell(run.boxes - 1);
+const { boxScores, withOvertime } = proveIt.slots.replay;
+const boxes = spell(boxScores);
+const others = spell(boxScores - withOvertime);
 
 type Artifact = { id: string; name: string; rec: string; used: boolean | null; changed?: boolean };
 const artifacts: Artifact[] = [
@@ -57,7 +58,7 @@ reporting pipeline and stage a correction for the January–March releases.
    note. Stop and wait for my approval before replacing any published artifact or
    sending the notice.`;
 
-const fresh = spell(run.schedules - 1);
+const fresh = spell(proveIt.slots.stale.schedulesFresh);
 
 const [briefIntro, ...briefSteps] = agentPrompt.split(/\n\n/).map((p) => p.replace(/\s*\n\s*/g, " ").trim());
 
@@ -145,6 +146,6 @@ const checks = [
   :global(.pr) .pa-note p:last-child { margin: 0; }
   .pa-note strong { color: var(--sl-color-white); }
   .pa-brief { border-left: 3px solid var(--pr-ai); }
-  :global(.pr) .pa-brief p { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--sl-color-white); font-weight: 600; }
+  :global(.pr) .pa-brief p:not(.pr-label) { margin: 0 0 0.5rem; font-size: 0.92rem; color: var(--sl-color-white); font-weight: 600; }
   .pa-brief ol { display: grid; gap: 0.45rem; margin: 0; padding-left: 1.3rem; font-size: 0.92rem; }
 </style>

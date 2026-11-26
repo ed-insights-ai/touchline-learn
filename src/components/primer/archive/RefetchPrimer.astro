@@ -90,13 +90,13 @@ const checks = [
       {states.map((st) => (
         <div class="pa-lane is-refetch" data-s={st.key}>
           <p class="pa-lane-head"><b>Re-fetch</b><span>today's source, fixed code</span></p>
-          <ul>{st.rows.map((r) => <li class={saved.find((x) => x.id === r.id)?.status !== r.status ? "is-moved" : ""}><span>Page {r.id} · {r.status}</span><b>{counts.fixed(r) ? 1 : 0}</b></li>)}</ul>
+          <ul>{st.rows.map((r) => <li class={(() => { const y = saved.find((x) => x.id === r.id); return !y || y.status !== r.status || counts.fixed(r) !== counts.old(y) ? "is-moved" : ""; })()}><span>Page {r.id} · {r.status}</span><b>{counts.fixed(r) ? 1 : 0}</b></li>)}</ul>
           <p class="pa-lane-total"><span>Pages counted</span><b>{st.total}</b></p>
           <p class="pa-lane-diff">{st.diff}</p>
         </div>
       ))}
     </div>
-    <figcaption>Shaded rows differ from yesterday's report. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with one change switched off its total matches yesterday's while the records behind it differ.</figcaption>
+    <figcaption>Shaded rows differ from yesterday's saved record or count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with one change switched off its total matches yesterday's while the records behind it differ.</figcaption>
   </figure>
 
   <h2>3. What a re-fetch overwrites</h2>

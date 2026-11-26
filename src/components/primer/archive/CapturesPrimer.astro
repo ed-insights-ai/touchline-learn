@@ -17,7 +17,7 @@ const policies = [
 ];
 const questions = [
   { q: "What did the latest fetch show?", needs: "Tuesday" },
-  { q: "Does it hold the capture Tuesday's report records as its input?", needs: "Tuesday" },
+  { q: "Can it rebuild Monday's report exactly?", needs: "Monday" },
   { q: "What did the archive see when it produced Monday's report?", needs: "Monday" },
 ];
 
@@ -97,7 +97,7 @@ const checks = [
     <p class="pr-label">Course note</p>
     <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume every past run's code and config are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
     <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like Monday's seat count, Harbor Point's result cell for November 21 had changed by Tuesday, from blank to a result, and under latest only a Tuesday re-fetch would replace Friday's capture of it.</p>
-    <p>The reply calls a page's hash a “fingerprint”; this course calls it a content hash, and keeps “fingerprint” for the hash of the parser code and its config.</p>
+    <p>Different pages can share a hash in principle, but nobody can find two that share a SHA-256, which is why a match is strong evidence. The reply calls a page's hash a “fingerprint”; this course calls it a content hash, and keeps “fingerprint” for the hash of the parser code and its config.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
@@ -116,6 +116,7 @@ const checks = [
   .pa-cap-days li small { color: var(--tl-muted); }
   .pa-cap-days li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; }
   .pa-cap-days li.is-gone b { color: var(--tl-muted); text-decoration: line-through; }
+  .pa-cap-qs :global(.pr-chip.is-quiet) { border: 1px solid var(--tl-line); background: transparent; color: var(--tl-muted); }
   .pa-cap-qs { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-cap-qs li { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; background: var(--tl-bg); }
 </style>

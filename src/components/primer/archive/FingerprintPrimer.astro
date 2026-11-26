@@ -1,11 +1,11 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
-import { run } from "../../../lib/first-run";
+import { fridayPages } from "../../../lib/archive";
 import { spell } from "../../../lib/cases";
 
 const card = archiveAi["case-fingerprint"];
-const saved = spell(run.schedules - 1);
+const saved = spell(fridayPages.length);
 
 type Output = { name: string; code: string; setting?: string; input: string };
 const outputs: Output[] = [
