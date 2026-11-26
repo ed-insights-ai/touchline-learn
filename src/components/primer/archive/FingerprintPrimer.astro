@@ -69,20 +69,21 @@ const checks = [
 
   <h2>4. A fingerprint can only describe what the system observed</h2>
   <p>Suppose the notebook hashes a local copy of a CSV downloaded yesterday. The upstream CSV changes today, but the notebook never fetches or checks it again. The local hash still describes yesterday’s copy accurately. To detect the upstream change, the workflow needs a fresh fetch or a check against a trustworthy upstream version identifier. Untracked dependencies, such as an environment variable the step reads, create the same kind of blind spot.</p>
-  <figure class="pr-card pa-fp">
+  <figure class="pr-card pa-fp" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Try it: sections 1 to 4 in one notebook. Make one change</legend>
       {changes.map((c, i) => <label><input type="radio" name="pa-fp-change" value={c.id} checked={i === 0} /><span>{c.label}</span></label>)}
     </fieldset>
+    <label class="pa-reveal"><input type="checkbox" /> <span>Predict which outputs rebuild, then show the verdicts</span></label>
     {changes.map((c) => (
       <ul class="pa-fp-out" data-change={c.id}>
         {outputs.map((o) => {
           const [v, tone, why] = verdict(c, o);
           return (
             <li>
-              <p class="pa-fp-head"><b>{o.name}</b><span class:list={["pr-chip", tone]}>{v}</span></p>
+              <p class="pa-fp-head"><b>{o.name}</b><span class:list={["pr-chip", "pa-fp-v", tone]}>{v}</span></p>
               <p class="pa-fp-deps">{[o.code, o.setting, o.input].filter(Boolean).join(" · ")}</p>
-              <p>{why}</p>
+              <p class="pa-fp-why">{why}</p>
             </li>
           );
         })}
@@ -102,6 +103,10 @@ const checks = [
 
 <style>
   .pa-fp .pr-seg { margin-bottom: 0.7rem; }
+  .pa-fp:not(:has(.pa-reveal input:checked)) .pa-fp-v,
+  .pa-fp:not(:has(.pa-reveal input:checked)) .pa-fp-why { visibility: hidden; }
+  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0 0 0.5rem; font-size: 0.88rem; cursor: pointer; }
+  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
   .pa-fp-out { display: none; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
   @media (min-width: 46rem) { .pa-fp-out { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .pa-fp:has([value="tz"]:checked) [data-change="tz"],

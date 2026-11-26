@@ -83,7 +83,7 @@ const checks = [
   <p>A <strong>re-fetch</strong> asks the source for a fresh copy. Since yesterday, one page count changed, a pending record was approved, a record was deleted, and a new record appeared. With the fixed code, today’s records give you <strong>{today.total}</strong> approved pages ({today.rows.filter((r) => r.approved).map((r) => `${r.pages} from ${r.id}`).join(", ").replace(/, ([^,]*)$/, ", and $1")}).</p>
   <p class="pr-pull">Yesterday’s report and today’s fresh report both say {before}. That equality hides two changes.</p>
   <p>The code fix brings yesterday’s total down from {before} to {replay}, and the source updates bring the corrected total back up from {replay} to {today.total}.</p>
-  <figure class="pr-card pa-rf">
+  <figure class="pr-card pa-rf" aria-live="polite">
     <fieldset class="pa-rf-controls">
       <legend>What changed at the source since yesterday</legend>
       {changes.map((c) => <label><input type="checkbox" value={c.key} checked /> <span>{c.label}</span></label>)}

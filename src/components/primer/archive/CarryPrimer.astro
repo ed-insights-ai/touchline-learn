@@ -54,7 +54,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("carry-it")}`}
   about="This is a reply an AI assistant gave to Module 2's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and pick the honest claim for World B, and name what it would have needed to keep."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and ask each of Part 9's worlds one new question: can it show what a clinic's form said before the clinic resubmitted it?"
 >
   <h2 class="pr-title">One bug, three archives</h2>
   <p class="pr-pull">A bug fix tells you how to process an input correctly. The archive tells you which past inputs you can still process.</p>
@@ -77,7 +77,7 @@ const checks = [
     </div>
     <figcaption>The stored value fixes a range, not a weight: the shaded kilogram. That range is all a processed table can offer.</figcaption>
   </figure>
-  <figure class="pr-card pa-worlds">
+  <figure class="pr-card pa-worlds" aria-live="polite">
     <p class="pr-label">The recovery claim each archive supports</p>
     <ul class="pa-glance">{worlds.map((w) => <li><span>{w.tab}</span><span class:list={["pr-chip", w.claim[1]]}>{w.claim[0]}</span></li>)}</ul>
     <fieldset class="pr-seg">
@@ -101,7 +101,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's three archives are Part 9's three worlds, moved from a clinic network to a coffee roaster. Every raw submission is World A, only the processed table is World B, and overwritten on resubmission is World C.</p>
-    <p>The reply's third row draws the line World C's claims must respect: exact where a surviving file can be matched to the version a report used, flagged where it cannot. The latest file is not evidence of what an earlier one held. A bound depends on what survives. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a much wider one: any of its new-patient rows might have been a follow-up.</p>
+    <p>The reply's third row draws the line World C's claims must respect: exact where a surviving file can be matched to the version a report used, flagged where it cannot. The latest file is not evidence of what an earlier one held. A bound depends on what survives, in the archive's own terms. Each stored weight gives the roaster a range one kilogram wide. A clinic table that filed follow-up visits as new patients gives a count instead: of its rows marked new patient, anywhere from none to all of them might have been follow-ups.</p>
   </aside>
 
   <h2>3. Check your understanding</h2>

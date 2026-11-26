@@ -18,7 +18,7 @@ const designs: { field: string; confounded: Arm[]; controlled: Arm[]; result: st
       { label: "Version A", factors: [["Headline", "old", false], ["Button", "same", false], ["Visitors", "random half", false]] },
       { label: "Version B", factors: [["Headline", "new", true], ["Button", "same", false], ["Visitors", "random half", false]] },
     ],
-    result: `+${rate.after - rate.before} points`,
+    result: `+${rate.after - rate.before} points observed`,
   },
 ];
 
@@ -51,7 +51,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and pick the changelog line that table B supports, and say what each other line claims that B can't show."
+  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 3 and classify two more comparisons as one change or two: Tuesday's table against a replay with a new alias list, and against a re-fetch with that same new list."
 >
   <h2 class="pr-title">One change at a time</h2>
   <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>
@@ -81,12 +81,13 @@ const checks = [
       </div>
     ))}
     <p class="pr-legend"><span class="pa-key">Differs between the two arms</span></p>
+    <figcaption>The before and after changed the visitors too, so its rise is an observed difference, not the combined effect of the two edits. Only the controlled version measures an effect.</figcaption>
   </figure>
 
   <h2>2. Laboratory experiment</h2>
   <p>Suppose sugar dissolves in {sugar.still} seconds in cool, still water and in {sugar.stirred} seconds in warm, stirred water. Temperature and stirring changed together. Those two measurements can’t tell you how much of the {sugar.still - sugar.stirred}-second difference came from warming the water.</p>
   <p>To isolate temperature, compare cool and warm water with no stirring in either trial. Use the same amount and grain size of sugar, the same volume of water, identical containers, and the same rule for deciding when the sugar has dissolved. Repeat each condition to see how much the times vary.</p>
-  <figure class="pr-card pa-trial">
+  <figure class="pr-card pa-trial" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Design the second trial</legend>
       {trials.map((t, i) => <label><input type="radio" name="pa-conf-trial" value={t.id} checked={i === 0} /><span>{t.label}</span></label>)}
@@ -122,7 +123,6 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>Case 1 makes the reply's two comparisons from three tables. Table A, Tuesday's table, is the baseline. A against B is the controlled comparison, like the reply's three-row replay: Friday's saved pages held fixed and only the tidy rule changed, so every difference has one cause. A against C is the before and after: the code and the pages changed together.</p>
-    <p>One caution on the website example: the reply's “combined effect” holds only if nothing else changed between the two weeks. The visitors may have changed too, so the two-point rise is an observed difference. Only the controlled version measures an effect.</p>
     <p>An honest changelog line is written the way the reply writes its last paragraph. It names the one input that changed, and claims nothing that input can't explain.</p>
   </aside>
 

@@ -82,7 +82,7 @@ const checks = [
   <p>Start with the archived inputs and a manifest of what actually produced each published artifact. A useful fingerprint identifies the source snapshot, the versions of the processing steps that ran, their relevant configuration, and the upstream artifacts they consumed. Use those recorded dependencies to trace the faulty conversion through the published outputs. Replay every affected build from its original input snapshot, with the conversion fixed and the other dependencies pinned. Hold any artifact whose provenance is missing or inconclusive for investigation.</p>
   <p>Then compare each rebuilt artifact against the published version. Compare the data people use, such as CSV values or report totals, independently of incidental differences such as a fresh generation timestamp. Republish the report and dashboard download if their figures changed. Leave the building inventory alone if its fingerprint shows that it came from a separate pipeline.</p>
   <p class="pr-pull">If a replayed artifact has identical published content, record the verification and keep the existing publication.</p>
-  <figure class="pr-card pa-cls">
+  <figure class="pr-card pa-cls" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Classify one artifact</legend>
       {artifacts.map((a, i) => <label><input type="radio" name="pa-rec-art" value={a.id} checked={i === 0} /><span>{a.name}</span></label>)}

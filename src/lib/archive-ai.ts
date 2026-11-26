@@ -1,4 +1,11 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { ArchivePartId } from "./archive-parts";
+
+type Fixture = { date: string; home: string; away: string; home_score?: number; away_score?: number };
+const season = JSON.parse(readFileSync(join(process.cwd(), "sample", "data", "fixtures", "2026-men-plc.json"), "utf-8"));
+const draw: Fixture = season.fixtures.find((f: Fixture) => f.home === "cedar-grove" && f.away === "dunmore" && f.home_score !== undefined && f.home_score === f.away_score);
+const drawDay = new Date(`${draw.date}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 
 export type ArchiveAiCard = {
   slug: string;
@@ -44,7 +51,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and pick the changelog line that table B supports, and say what each other line claims that B can't show.",
+    returnTask: "Then come back and classify two more comparisons as one change or two: Tuesday's table against a replay with a new alias list, and against a re-fetch with that same new list.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -56,7 +63,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: "Then come back and place one more bug on the grid: the table step gives Cedar Grove two points, not one, for its home draw with Dunmore.",
+    returnTask: `Then come back and place one more bug on the grid: the table step gives Cedar Grove two points, not one, for its ${draw.home_score}–${draw.away_score} home draw with Dunmore on ${drawDay}.`,
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -116,7 +123,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "Then come back and pick the honest claim for World B, and name what it would have needed to keep.",
+    returnTask: "Then come back and ask each of Part 9's worlds one new question: can it show what a clinic's form said before the clinic resubmitted it?",
   },
 };
 

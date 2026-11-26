@@ -97,11 +97,12 @@ const checks = [
   <h2>2. Example rebuild report</h2>
   <p>This example uses illustrative hashes and artifact names.</p>
   <div class="pr-code"><p class="pr-label">Rebuild report</p><pre>{report}</pre></div>
-  <figure class="pr-card pa-break">
+  <figure class="pr-card pa-break" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Break one line of the report</legend>
       {breaks.map((b, i) => <label><input type="radio" name="pa-crit-break" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
     </fieldset>
+    <label class="pa-reveal"><input type="checkbox" /> <span>Predict which criterion fails, then show the audit</span></label>
     {breaks.map((b) => (
       <div class="pa-break-view" data-break={b.id}>
         <p class="pa-break-line"><span>Report line</span><code>{b.line}</code></p>
@@ -119,14 +120,14 @@ const checks = [
     <figcaption>One input value changed, and a correction record says why. The same averaging rule turns it into exactly the change the diff reports, so nothing is left unexplained.</figcaption>
   </figure>
   <figure class="pr-card">
-    <p class="pr-label">The same four criteria on a code-only fix</p>
+    <p class="pr-label">Excerpt: the same four criteria on a code-only fix</p>
     <ul class="pa-audit">
       <li><code>inputs/sensor-17/2026-11-20.csv  4e71c0b9…  matches manifest</code><span class="pr-chip is-ok">Pass</span></li>
       <li><code>Git commit: d05a3e2…  (baseline 71c8f9a…)</code><span class="pr-chip is-ok">Pass</span></li>
       <li><code>network-audit.json: full run, 0 attempts</code><span class="pr-chip is-ok">Pass</span></li>
       <li><code>Changed cells: 1. Inputs identical; traced to d05a3e2.</code><span class="pr-chip is-ok">Pass</span></li>
     </ul>
-    <figcaption>When the inputs are held fixed, the only line allowed to change is the code, so every changed cell must trace to it.</figcaption>
+    <figcaption>One line per criterion; the full report would also carry the input manifest, the effective config and the diff evidence, as the reply's does. When the inputs are held fixed, the only line allowed to change is the code, so every changed cell must trace to it.</figcaption>
   </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
@@ -147,6 +148,10 @@ const checks = [
   .pa-audit small { flex-basis: 100%; color: var(--tl-muted); font-size: 0.82rem; }
   .pa-break .pr-seg { margin-bottom: 0.7rem; }
   .pa-break-view { display: none; }
+  .pa-break:not(:has(.pa-reveal input:checked)) .pa-audit,
+  .pa-break:not(:has(.pa-reveal input:checked)) .pa-break-result { display: none; }
+  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0 0 0.5rem; font-size: 0.88rem; cursor: pointer; }
+  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
   .pa-break:has([value="none"]:checked) [data-break="none"],
   .pa-break:has([value="missing"]:checked) [data-break="missing"],
   .pa-break:has([value="dirty"]:checked) [data-break="dirty"],

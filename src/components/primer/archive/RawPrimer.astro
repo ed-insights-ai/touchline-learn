@@ -70,7 +70,7 @@ const checks = [
 
   <h2>2. Public transit: changing a setting</h2>
   <p>A bus feed sends two arrival times, <code>{arrivals[0]}</code> and <code>{arrivals[1]}</code>, for buses both scheduled at <code>08:00</code>. You save the feed as <code>arrivals-01</code>. The code calculates delays of {delays[0]} and {delays[1]} minutes, then counts how many meet the configured threshold.</p>
-  <figure class="pr-card pa-bus">
+  <figure class="pr-card pa-bus" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Setting: late means at least</legend>
       {thresholds.map((th, i) => <label><input type="radio" name="pa-raw-th" value={`t${th}`} checked={i === 0} /><span>{th} minutes</span></label>)}
@@ -90,7 +90,7 @@ const checks = [
   <h2>3. Water monitoring: losing the original input</h2>
   <p>A water meter sends an original batch of <code>{original[0]} L</code> and <code>{original[1]} L</code>. You save it, and version 1 publishes a total of <code>{original[0]} L</code> because a bug skips the second reading. With the original batch available, version 2 could replay it and calculate <code>{original.join(" + ")} = {sum(original)} L</code>.</p>
   <p>Now suppose a revised batch arrives with <code>{revised[0]} L</code> and <code>{revised[1]} L</code>, and you overwrite your only copy of the original. Version 2 can calculate <code>{revised.join(" + ")} = {sum(revised)} L</code> from the revised batch. The old <code>{original[0]} L</code> output gives you no way to recover the skipped <code>{original[1]} L</code>. Recording a distinct input version for each output would show which batch each run used. Keeping both versions would let you replay either one.</p>
-  <figure class="pr-card pa-water">
+  <figure class="pr-card pa-water" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>What the archive holds</legend>
       {states.map((st, i) => <label><input type="radio" name="pa-raw-water" value={st.id} checked={i === 0} /><span>{st.label}</span></label>)}

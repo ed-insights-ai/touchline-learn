@@ -48,7 +48,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-kept")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-zone study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn="In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and place one more bug on the grid: the table step gives Cedar Grove two points, not one, for its home draw with Dunmore."
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 4 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">What a museum's archive must keep</h2>
   <p>Every night, a museum downloads collection records from a partner’s website. One night, the partner sends a record that looks like this:</p>
@@ -61,7 +61,7 @@ const checks = [
 
   <h2>2. Replay from the last layer before the damage</h2>
   <p>Suppose the museum saves a copy after each step:</p>
-  <figure class="pr-card pa-keep">
+  <figure class="pr-card pa-keep" aria-live="polite">
     <fieldset class="pr-seg">
       <legend>Where the bug runs</legend>
       {bugSteps.map((b, i) => <label><input type="radio" name="pa-keep-bug" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
@@ -110,7 +110,7 @@ const checks = [
     <p class="pr-label">Course note</p>
     <p>The museum's blank count is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
     <p>One difference decides Case 2. In the museum the bug runs after extraction, so the extracted fields are the last layer before the damage. In Case 2 the tidy rule runs inside the parser, so the parsed rows already carry it, and the tidied HTML is a cleaned copy too: it was tidied before saving. Ask which step did the damage, then find the last copy saved before it.</p>
-    <p>The reply's fetch record is Case 2's sidecar. Its curator example needs every nightly download; Touchline keeps only the latest capture, a choice Part 6 weighs.</p>
+    <p>Case 2's sidecar is a smaller fetch record: the requested and final URL, status, fetch time, ETag and content hash, with no run ID or encoding. The curator example needs every nightly download; Touchline keeps only the latest capture, a choice Part 6 weighs.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>
