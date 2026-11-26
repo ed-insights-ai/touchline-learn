@@ -43,18 +43,18 @@ const claims: [string, string, string][] = [
   ["none", "Not from what was kept. Asking the clinics to resubmit is a new fetch, and the claim must say so", "Not from what was kept"],
   ["full", "Every month's report can be corrected from the forms it read, and each change has one cause: the fix", "Every report, one cause"],
   ["nopast", "This month's figures can be fixed, but no past month can be corrected", "This month only"],
-  ["recount", "Every month can be recounted, but March's change at Northside can't be put down to the fix alone", "Every month, March confounded"],
+  ["recount", "Every month can be replayed from the files kept, but March at Northside replays a different file than its report read", "Every month, March confounded"],
 ];
 const worlds: { key: string; name: string; kept: string; answer: string; why: string; wrong: Record<string, string> }[] = [
-  { key: "a", name: "World A", kept: "Kept every submission, each resubmission stored beside the file it replaced.", answer: "full",
+  { key: "a", name: "World A", kept: "Kept every file, each resubmitted file stored beside the one it replaced.", answer: "full",
     why: "The raw forms still have the box as the clinic ticked it, and each report's record names its files. March's report is replayed from Northside's original file, so the replay changes one input, the code, and the diff has one cause. The resubmission can then be applied as a second, separately attributed change.",
     wrong: { recount: "Nothing was replaced. March's report can be replayed from the very file it read.", nopast: "Every month's forms are kept, so every month can be replayed.", none: "The raw forms keep the follow-up box. Only the mapped table lost it." } },
   { key: "b", name: "World B", kept: "Kept only the mapped table. A form ticked “follow-up visit” and one ticked “new patient” both sit in it as new patient.", answer: "none",
     why: "The mapping ran before anything was saved, so the table can't tell the two forms apart: Case 2's parsed rows. Asking the clinics again is the only route, and it is a new fetch, not a replay.",
-    wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A recount needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
+    wrong: { full: "There is nothing to replay. The table is the damaged layer.", recount: "A replay needs the forms, and none were kept.", nopast: "This month's forms are already mapped too, and their raw forms weren't kept either." } },
   { key: "c", name: "World C", kept: "Kept each clinic's file for every month, but a resubmitted file overwrote the one before it.", answer: "recount",
-    why: "Every month can be recounted from the files that survive. But Northside's original March file is gone, so March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so any difference between the published figure and the recount has two possible causes: Case 1's two causes, and Part 6's latest only.",
-    wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be recounted.", none: "The raw forms that survive still have the box. Replay can recount every month." } },
+    why: "Every month can be replayed from the files that survive. But March's report recorded the hash of Northside's original file, and the file now held has a different one: the hash shows the original is gone, and can't bring it back. So March's report can't be replayed from the forms it read. The fix's effect on the resubmitted file can be measured; its effect on the lost original can't, so any difference between the published figure and the replay has two possible causes: Case 1's two causes, and Part 6's latest only.",
+    wrong: { full: "March's report read a file that is gone, so its change can't be traced to the fix alone.", nopast: "The surviving files still have the box, so every month can be replayed.", none: "The raw forms that survive still have the box. Every month can be replayed." } },
 ];
 const claimNo = (key: string) => claims.findIndex(([k]) => k === key) + 1;
 const claimOpts: [string, string][] = claims.map(([k, , brief], i) => [k, `${i + 1} · ${brief}`]);
@@ -88,7 +88,7 @@ const staleOpts: [string, string][] = [
       why="Every mapped record. Each carries the old fingerprint, and the mapping step's fingerprint changed, including forms with the box left blank. Rebuilding them all costs minutes; rebuilding too few publishes a wrong count with no error."
       wrong={{ ticked: "That picks stale records by guessing what the bug touched. The fingerprint, not a guess, decides.", none: "The forms didn't change, but the code did. Either one makes a mapped record stale." }} />
     <Fragment slot="reveal">
-      <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can recount March, but not from Northside's original file, so it can't replay March's report or isolate the fix's effect on it. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
+      <p>Same bug, same one-line fix, three different claims. World A can show its correction is the fix and nothing else. World C can replay March, but not from Northside's original file, so it can't reproduce March's report or isolate the fix's effect on it. World B can only say what it no longer knows. The fix didn't decide what could be recovered. The archive did, months before anyone found the bug.</p>
     </Fragment>
   </Check>
   <AiCard part="carry-it" />
@@ -129,9 +129,9 @@ const staleOpts: [string, string][] = [
     <label><input type="radio" name="ar-carry-season" value="unknown" data-save="carry-season" /><span>Not on its own</span></label>
   </fieldset>
   <div class="ar-title" data-when="carry-season" hidden>
-    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The requested URL says only what was asked for. The final URL is one witness to what came back. The page itself is the other, and the sidecar doesn't hold it.</p>
-    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>Right. The requested URL says only what was asked for. The final URL is one witness to what came back. The page itself is the other, and the sidecar doesn't hold it.</p>
-    <p class="ar-said" data-when="carry-season" data-is="no" hidden>Nothing in the sidecar names another season. The page itself does.</p>
+    <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The URLs say what was asked for and where the answer came from, not what the page is. The page itself says that, and so does its hash, once you compare it with Friday's manifest.</p>
+    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>Right. The URLs say what was asked for and where the answer came from, not what the page is. The page itself says that, and so does its hash, once you compare it with Friday's manifest.</p>
+    <p class="ar-said" data-when="carry-season" data-is="no" hidden>Its URLs name no other season. Its hash does, once you compare it with Friday's manifest. So does the page itself.</p>
     <p>Open the saved bytes. The page's own title says:</p>
     <p class="cv-mono ar-title-line">&lt;title&gt;{title}&lt;/title&gt;</p>
     <p>Its content hash is the one Friday's manifest recorded for Cedar Grove's {titled} page: byte for byte, the same page. The archive did its job and kept exactly what arrived. A pipeline that believed the URLs would file this as {asked}, and every replay with that code would rebuild the same wrong season, faithfully.</p>

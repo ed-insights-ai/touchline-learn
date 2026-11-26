@@ -49,9 +49,9 @@ const questions = [
   { key: "monday", label: "Rebuild Monday's table exactly, from the pages it was built from.",
     why: `Every capture only. Monday's table read Friday's ${seven} captures, and Friday's manifest names them. Latest only replaced all ${seven} on Tuesday, and ${spell(changed.length)} of them had changed, so their Friday bytes are gone.`,
     wrong: { both: `Latest only now holds Tuesday's pages. ${spell(changed.length, true)} of them differ from Friday's, so it no longer has the full set Monday's table read.`, neither: `Every capture still holds Friday's ${seven} captures, each beside Tuesday's.` } },
-  { key: "harborFriday", label: `What did Harbor Point's result cell for ${saturdayDate} say on Friday: blank, or a result Kick missed?`,
-    why: `Every capture only. Friday's capture of Harbor Point is still there. Latest only holds Tuesday's capture, which says ${policies.harborCell.tuesday} and nothing about Friday.`,
-    wrong: { both: `Latest only holds Tuesday's capture of Harbor Point, which says ${policies.harborCell.tuesday}. Nothing in it says what the cell held on Friday.`, neither: "Every capture keeps Friday's capture of Harbor Point beside Tuesday's." } },
+  { key: "harborFriday", label: "Show a coach the exact Harbor Point page Monday's table read.",
+    why: `Every capture only. Friday's capture of Harbor Point, ${harbor.friday.sha256.slice(0, 12)}, is still there beside Tuesday's. Latest only holds Tuesday's, ${harbor.tuesday.sha256.slice(0, 12)}: its hash shows the page changed, not what Monday's table read.`,
+    wrong: { both: `Latest only holds Tuesday's capture of Harbor Point. Its hash isn't the one Friday's manifest recorded, so the page Monday's table read is gone.`, neither: "Every capture keeps Friday's capture of Harbor Point beside Tuesday's." } },
 ] as const;
 const grid = questions.map((q) => ({ ...q, answer: verdict(q.key) }));
 if (grid.map((q) => q.answer).join() !== "both,every,every") throw new Error("The policy answers changed; rewrite The decision's explanations");
@@ -59,7 +59,7 @@ if (grid.map((q) => q.answer).join() !== "both,every,every") throw new Error("Th
 const calls = [
   { key: "hashes", text: "Latest only, with each capture's content hash recorded in the run's manifest" },
   { key: "season", text: "Every capture until the season closes, then only the captures the final table's manifest names" },
-  { key: "forever", text: "Every capture, kept for every season" },
+  { key: "recent", text: "Every capture from the last month, then only the latest of each page" },
   { key: "tables", text: "Latest only, plus a saved copy of every week's published table" },
 ];
 ---
@@ -94,7 +94,6 @@ const calls = [
   </table>
   <p class="ar-key"><span><span class="ar-swatch is-code"></span><span><b>Changed by the code:</b> the name</span></span><span><span class="ar-swatch is-pages"></span><span><b>Changed by the pages:</b> {spell(byPages.length)} numbers</span></span></p>
   <p class="cv-label">“St. Lambert” is the school as its own pages write it. “State Lambert” is the bug's display name and “Saint Lambert” the fix's.</p>
-  <p>That is the visible cost: a diff with two causes.</p>
 
   <h3 id="decision-policies">Two archive policies</h3>
   <p>A table is a build over saved pages, code and config. Suppose every run's parser, build code and config are kept in version control, and every run's manifest records which captures it read. Then only one question is left: how long are the pages kept? There are two common answers.</p>
@@ -135,7 +134,7 @@ const calls = [
         </div>
       </figure>
       <p class="cv-label">Fetch times and content hashes are the sample's. The Tuesday capture is kept apart from the archive, so the overwrite is simulated.</p>
-      <p>The third question has teeth. Harbor Point's cell went from {cell(policies.harborCell.friday)} to “{policies.harborCell.tuesday}”, so from Tuesday's capture alone nobody can say whether Friday's page already showed a result that Kick failed to read. Friday's capture settles it: {cell(policies.every.harborFridayCell ?? "")}, so Kick missed nothing in that cell.</p>
+      <p>The third question is the one disputes ask. Friday's manifest names the page Monday's table read by its hash, {harbor.friday.sha256.slice(0, 12)}. Latest only holds {harbor.tuesday.sha256.slice(0, 12)}, with “{policies.harborCell.tuesday}” in the {saturdayShort} cell: the hash shows the page changed, and can't bring Friday's back. Every capture still has it, with that cell {cell(policies.every.harborFridayCell ?? "")}.</p>
       <p class="cv-rule">A recorded hash can verify that an unchanged page is identical. It can never recover a page that changed.</p>
       <p>Friday's manifest records every page's hash, so even latest only can verify that its {names(same)} captures are still Friday's bytes. For the other {spell(changed.length)}, the hash shows only that the bytes differ. It cannot say what they were.</p>
     </Fragment>
@@ -143,18 +142,18 @@ const calls = [
 
   <h3 id="decision-touchline">What Touchline keeps</h3>
   <div class="cv-touchline">
-    <p>Touchline keeps latest only: the newest capture of each page, with its fetch time. So Friday's table could be rebuilt on Tuesday because Friday's bytes were still there: nothing had fetched those {seven} pages since Friday. Kick's “Re-fetching!” would have replaced all {seven}, and {spell(changed.length)} had changed ({changed.map((c) => c.name).join(", ")}). After that, Monday's table, the one readers have, could not be rebuilt: {spell(changed.length)} of the pages it read would be gone, and their hashes could say only that they differed.</p>
+    <p>Touchline keeps latest only: the newest capture of each page, with its fetch time. Friday's table could be rebuilt on Tuesday because Friday's bytes were still there: nothing had fetched those {seven} pages since. Kick's “Re-fetching!” would have replaced all {seven}, and Monday's table, the one readers have, could no longer be rebuilt.</p>
     <p>That is why a parser change re-reads the archive and never fetches, and why a re-fetch is a separate, deliberate act.</p>
   </div>
 
   <AiCard part="decision" />
 
   <h3 id="decision-your-call">Your call: the league office</h3>
-  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage can hold every capture of one season, plus the pages each past season's final table read, but not every capture of every season.</p>
+  <p>The conference office publishes the standings every week. Until the season closes, a coach can dispute any week's table, and the office must then show the pages that table was built from. After that, only the final table is ever questioned. The office's storage can't hold every capture of every season.</p>
   <Check once="decide-call" kind="Your call" note="Pick one policy, then check." button="Check answer">
     <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
       why="Every capture until the season closes, then the final table's. A dispute about an early week needs the pages that week's table read, and later fetches will have replaced some of them. Once disputes close, only the final table is questioned, and its manifest names the captures it read."
-      wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", tables: "A saved table shows what was published, not what it was built from. That is Case 2's lesson: an output can't stand in for its inputs.", forever: "It answers every dispute, but storage holds one season of captures, not every season's. After the season closes, only the captures the final table read answer a question anyone asks." }} />
+      wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", tables: "A saved table shows what was published, not what it was built from. That is Case 2's lesson: an output can't stand in for its inputs.", recent: "A coach can dispute any week until the season closes, the first week included. A month's window has already lost the pages the early weeks' tables read." }} />
     <p slot="reveal">The policy follows from the questions the archive must answer, and for how long. A table needs its pages for as long as somebody may ask what it was built from.</p>
   </Check>
 

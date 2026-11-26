@@ -4,7 +4,7 @@ import NextPart from "../coverage/NextPart.astro";
 import Check from "../lesson/Check.astro";
 import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
-import { fridayManifest, proveIt } from "../../lib/archive";
+import { fingerprints, fridayManifest, proveIt } from "../../lib/archive";
 import { spell } from "../../lib/cases";
 
 const { home, away, published, buggy, scoreByPeriod, goal, slots } = proveIt;
@@ -65,7 +65,7 @@ const tell: [string, string][] = [
     <p class="ar-detail-score"><span>{home.name}</span><b>{buggy.home}–{buggy.away}</b><span>{away.name}</span></p>
     <p class="ar-detail-foot">{round.charAt(0).toUpperCase() + round.slice(1)}, {date} · Full time</p>
   </div>
-  <p>Kick saved {home.name}'s {n} box scores on Friday, under their fixture ids. Nothing has fetched them since, so the archive still holds Friday's capture. Here are two excerpts from this one, as saved.</p>
+  <p>Kick saved {home.name}'s {n} box scores on {savedOn}, under their fixture ids. Nothing has fetched them since, so the archive still holds Friday's capture. Here are two excerpts from this one, as saved.</p>
   <div class="ar-excerpts">
     <div class="cv-scroll">
       <table class="cv-log ar-box">
@@ -92,14 +92,19 @@ const tell: [string, string][] = [
     <p class="ar-said" data-when="prove-where" data-is="site" hidden>The saved box score's F column says {published.home}–{published.away}, the same as the schedules.</p>
     <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column's total, the goal at {goal.time}, so it never reached the match detail.</p>
   </div>
-  <p>The parser is fixed in a minute. Now recover, using only what Cases 1 to 3 taught. Four facts you need:</p>
-  <ul>
-    <li>Each parsed box score records {fp.before}, the fingerprint of the parser that wrote it. The fixed parser's is {fp.after}.</li>
-    <li>The box-score parser is its own module, with its own fingerprint, separate from the schedule parser. The {fresh} parsed schedules carry the schedule parser's fingerprint, which the fix doesn't touch.</li>
-    <li>The match detail is built from the parsed box score.</li>
-    <li>The standings are built from the parsed schedules, which show this match as {cells}, and they count only regular-season conference matches.</li>
-  </ul>
-
+  <p>The parser is fixed in a minute. Now recover, using only what Cases 1 to 3 taught. Here is what each output is built from.</p>
+  <div class="cv-scroll">
+    <table class="cv-log ar-lineage">
+      <caption>Lineage after the fix</caption>
+      <thead><tr><th scope="col">Output</th><th scope="col">Built from</th><th scope="col">Fingerprint it records</th><th scope="col">Its parser's now</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">{spell(boxes, true)} parsed box scores</th><td>saved box-score pages</td><td class="cv-mono">{fp.before}</td><td class="cv-mono">{fp.after}</td></tr>
+        <tr><th scope="row">{spell(slots.stale.schedulesFresh, true)} parsed schedules</th><td>saved schedule pages</td><td class="cv-mono">{fingerprints.v2}</td><td class="cv-mono">{fingerprints.v2}</td></tr>
+        <tr><th scope="row">Match detail</th><td>parsed box score</td><td>–</td><td>–</td></tr>
+        <tr><th scope="row">Standings</th><td>parsed schedules, regular-season conference matches only, where this match is {cells}</td><td>–</td><td>–</td></tr>
+      </tbody>
+    </table>
+  </div>
   <p class="cv-label">The fingerprints are real hashes of Module 4's box-score parser, before and after a simulated one-line edit. Which files go stale is simulated.</p>
   <Check once="prove-recover" kind="Assessment" note="Answer all four, then check.">
     <Choice save="prove-replay" label="1. What do you replay, and from where?" options={replay} answer="all"
@@ -139,6 +144,8 @@ const tell: [string, string][] = [
   .ar-excerpts { display: grid; gap: 0.25rem 1.25rem; margin: 0 0 0.5rem; }
   @media (min-width: 50rem) { .ar-excerpts { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
   .ar-box { max-width: none; }
+  .ar-lineage { max-width: none; }
+  .ar-lineage td:nth-child(2) { min-width: 12rem; }
   .ar-box caption { color: var(--sl-color-white); font-weight: 700; text-align: left; }
   .ar-box td, .ar-box th { white-space: nowrap; font-variant-numeric: tabular-nums; }
   .ar-diag { margin: 0 0 1.25rem; padding: 0.85rem 1rem; border-left: 4px solid var(--cv-yellow); background: var(--tl-card); }
