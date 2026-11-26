@@ -18,7 +18,7 @@ const CONFERENCE = "PLC";
 
 export type ManifestPage = {
   programme: string; kind: "schedule" | "box_score"; requested_url: string; state: "saved" | "unavailable";
-  path?: string; fetched_at?: string; bytes?: number; sha256?: string; fixture?: string; reason?: string; tries?: number;
+  path?: string; fetched_at?: string; bytes?: number; sha256?: string; fixture?: string; reason?: string; tries?: number; note?: string;
 };
 export type Manifest = {
   schema: "learn.capture-manifest/1"; run: string; purpose: string; season: number; gender: string; conference: string; scope: string; started_at: string; finished_at: string; requested: number; saved: number;
@@ -37,6 +37,7 @@ const manifestAt = (file: string): Manifest => {
   check(m.requested === m.pages.length && m.saved === saved.length, `${file}'s counts disagree with its pages`);
   check(m.unavailable.slice().sort().join() === m.pages.filter((p) => p.state === "unavailable").map((p) => p.programme).sort().join(), `${file}'s unavailable list disagrees with its pages`);
   saved.forEach((p) => check(sha256(bytes(sample(p.path!))) === p.sha256, `${p.path} no longer matches its manifest hash`));
+  check(new Set(saved.map((p) => p.path)).size === saved.length && new Set(m.pages.map((p) => `${p.kind}:${p.fixture ?? p.programme}`)).size === m.pages.length, `${file} lists a page twice`);
   return m;
 };
 export const fridayManifest = manifestAt("2026-11-20-friday.json");
@@ -304,6 +305,7 @@ export const presets: Preset[] = [
 const quotePath = root("src", "data", "quotes", "m02_archive.replay-report.txt");
 /** The replay report exactly as `python labs/m02_archive.py` prints it; scripts/check_lab_output.py verifies it. */
 export const replayReport = readFileSync(quotePath, "utf-8").replace(/\n$/, "");
+check(replayReport.startsWith("Replay report: ") && /^manifest {7}: .*\nreplayed {7}: 7 of the 7 schedules/m.test(replayReport), "the quoted replay report does not start at its heading");
 const reportField = (label: string) => replayReport.split("\n").find((l) => l.startsWith(`${label} `))?.split(": ").slice(1).join(": ") ?? fail(`the replay report has no ${label} line`);
 const labBlob = () => { const body = bytes(root("labs", "m02_archive.py")); return createHash("sha1").update(`blob ${body.length}\0`).update(body).digest("hex").slice(0, 12); };
 export const rewind = {
@@ -335,6 +337,7 @@ check(diffAB.length === 1 && rewind.lines.includes(`  ${diffAB[0].name.padEnd(15
 const tuesdayQuotePath = root("src", "data", "quotes", "m02_archive.tuesday-diff.txt");
 /** The confounded diff exactly as `python labs/m02_archive.py --tuesday` prints it; scripts/check_lab_output.py verifies it. */
 export const tuesdayDiff = readFileSync(tuesdayQuotePath, "utf-8").replace(/\n$/, "");
+check(tuesdayDiff.startsWith("Confounded diff: ") && tuesdayDiff.includes("\ninputs changed : parser code"), "the quoted Tuesday diff does not start at its heading");
 const diffLines = tuesdayDiff.split("\n");
 const tuesdayRows = rowsOf(diffAC).map((r) => `  ${r.name.padEnd(15)} ${diffAC.filter((c) => c.slug === r.slug).map(cellText).join(", ")}`);
 const at = diffLines.findIndex((l) => l.startsWith("cells changed"));
@@ -514,6 +517,8 @@ const laterScore = (id: string) => { const f = laterFixtures.find((x) => x.id ==
 const fridayOf = (slug: string) => fridayPages.find((p) => p.slug === slug)!;
 const tuesdayOf = (slug: string) => tuesdayPages.find((p) => p.slug === slug)!;
 const allRows = fridayPages.flatMap((p) => rawRows(p.html));
+const fixtureByNumber = new Map(fixtures.map((f) => [f.id.split(":").pop()!, f]));
+check([...fridayPages, ...tuesdayPages].every((p) => rawRows(p.html).every((r) => !fixtureByNumber.has(r.fixture) || fixtureByNumber.get(r.fixture)!.date === r.date)), "a saved page dates a fixture differently from the fixture list");
 
 check(fridayManifest.pages.filter((p) => p.kind === "schedule").length === 8 && fridayPages.length === 7 && fridayBoxes.length === 12, "Friday's manifest is not 7 schedules and 12 box scores of 8 sites");
 check(fridayManifest.unavailable.join() === "dunmore" && down(fridayManifest)[0]?.programme === "dunmore", "Dunmore is not listed as unavailable on Friday");

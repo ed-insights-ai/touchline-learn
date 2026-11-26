@@ -78,7 +78,7 @@ def test_requests() -> None:
 
 
 def fingerprint(parser) -> str:
-    """The parser's whole module, the shared page reader, and every config input that shapes what it writes."""
+    """The parser's whole module, the shared page reader, and the build's config: aliases, membership and season."""
     h = hashlib.sha256()
     for path in (Path(parser.__file__), SHARED, *CONFIG):
         h.update(path.read_bytes())
@@ -223,7 +223,8 @@ def describe_manifest(manifest: dict, path: Path, root: Path) -> dict:
     saved = [p for p in schedules if p["state"] == "saved"]
     boxes = [p for p in pages if p["kind"] == "box_score" and p["state"] == "saved"]
     kept = [p for p in pages if p["state"] == "saved"]
-    problems = [f"{p['programme']} {p['kind']} has state {p['state']!r}" for p in pages if p["state"] not in ("saved", "unavailable")]
+    problems = ["it lists a page twice"] if len({(p["kind"], p.get("fixture", p["programme"])) for p in pages}) != len(pages) else []
+    problems += [f"{p['programme']} {p['kind']} has state {p['state']!r}" for p in pages if p["state"] not in ("saved", "unavailable")]
     problems += [f"{p['programme']} {p['kind']} is unavailable with no reason" for p in pages
                  if p["state"] == "unavailable" and not p.get("reason")]
     if (manifest["requested"], manifest["saved"]) != (len(pages), len(kept)):
@@ -326,6 +327,9 @@ def main() -> int:
             compare = standings(refetch_dir, r4["read"], slugs)
             print_table(compare)
         requests = len(attempts)
+    if args.tuesday and (not counter_works or requests):
+        print(f"\nRESULT: could not run, the replay made {requests} requests or the counter failed its test")
+        return 2
 
     changes = diff(table_a, compare)
     name_of = {r["slug"]: r["name"] for r in compare["rows"]}

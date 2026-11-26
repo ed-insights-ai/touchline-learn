@@ -39,3 +39,5 @@ npm run check && npm run build && python3 scripts/check_links.py
 - Internal links in the docs are relative (`../02-archive/`), because the site
   is served under `/touchline-learn/`.
 - Labs use the standard library, DuckDB and jsonschema, and never the network.
+- Module 2's fingerprints hash `labs/common.py` and the `labs/m02_parser_*.py`
+  modules. After editing them, regenerate its quotes (`docs/module-2-data.md`).

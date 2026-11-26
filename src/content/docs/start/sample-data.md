@@ -37,7 +37,7 @@ sample/
     sample.json               a manifest: every file with its size and SHA-256
   raw_html/                   the raw zone: pages as a site would serve them
   manifests/                  what each capture run asked for and saved, by content hash
-  captures/                   Tuesday's later capture of the schedule pages, for Module 2
+  captures/                   what a Tuesday re-fetch would have saved, kept apart for Module 2
   shadow/                     a second pipeline's copy, for the parity lab
 ```
 

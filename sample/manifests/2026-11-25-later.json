@@ -20,7 +20,8 @@
    "path": "raw_html/dunmore/2026-men-schedule.html",
    "fetched_at": "2026-11-25T08:05:00+00:00",
    "bytes": 2750,
-   "sha256": "b9bb85e7f98a92d79765cd7c8fc8d97b0941b66502afee7a55b886f71743029f"
+   "sha256": "b9bb85e7f98a92d79765cd7c8fc8d97b0941b66502afee7a55b886f71743029f",
+   "note": "Dunmore's site had not yet posted Saturday's 21 November result when this page was saved, so its row for fixture 8779 is still blank"
   },
   {
    "programme": "cedar-grove",

@@ -834,6 +834,8 @@ def build() -> dict[str, bytes]:
         later.append({"programme": slug, "kind": "schedule", "requested_url": side["requested_url"],
                       "state": "saved", "path": f"raw_html/{path}", "fetched_at": side["fetched_at"],
                       "bytes": len(files[f"raw_html/{path}"]), "sha256": side["sha256"]})
+    later[0]["note"] = ("Dunmore's site had not yet posted Saturday's 21 November result when this page was saved, "
+                        "so its row for fixture 8779 is still blank")
     files[f"manifests/{LATER}.json"] = dump({
         "schema": "learn.capture-manifest/1", "run": LATER,
         "purpose": "requests made after Tuesday: Dunmore's current page, and the past seasons Riley asked for",

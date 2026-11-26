@@ -18,11 +18,11 @@ prints the headline values and ends
 | Path | What it is |
 |---|---|
 | `sample/manifests/2026-11-20-friday.json` | Friday's capture manifest: 20 pages requested, 19 saved by content hash (7 schedules, 12 Alder Ridge box scores), Dunmore's schedule listed as `unavailable` with its reason. |
-| `sample/raw_html/**` | Friday's pages. Every sidecar now has `fetched_at` and `sha256`. |
-| `sample/raw_html/dunmore/2026-men-schedule.html` | Not Friday's: a later capture (`fetched_at` 2026-11-25T08:05), kept so Module 3's lab still finds eight 2026 pages. No Module 2 table reads it. Its bytes cannot change without changing Module 1, so its 21 November cell is still blank: Dunmore's site had not posted Saturday's result when it was taken. Do not show this page in Module 2. |
+| `sample/raw_html/**` | Friday's pages, plus the four later captures `2026-11-25-later.json` lists (below). Every sidecar now has `fetched_at` and `sha256`. |
+| `sample/raw_html/dunmore/2026-men-schedule.html` | Not Friday's: a later capture (`fetched_at` 2026-11-25T08:05), kept so Module 3's lab still finds eight 2026 pages. No Module 2 table reads it. Its bytes cannot change without changing Module 1, so its 21 November cell is still blank: Dunmore's site had not posted Saturday's result when it was taken. Its entry in the later manifest carries a `note` saying so. Do not show this page in Module 2. |
 | `sample/manifests/2026-11-25-later.json` | The four pages captured after Tuesday: Dunmore's 2026 schedule, Cedar Grove's and Dunmore's 2019 requests, and the Alder Ridge 2025 page Module 3 uses. Every fetched page with a sidecar is now listed in a manifest; `traps/three-team-box.html`, a hand-made Module 4 trap with no sidecar, is not. |
 | `sample/manifests/2026-11-24-tuesday.json` | Tuesday's manifest: schedule pages only, 7 saved, Dunmore still unavailable. |
-| `sample/captures/2026-11-24-tuesday/**` | Tuesday's seven schedule pages: Friday's bytes with three result cells filled in, 7318 (Eastbrook State 1-1 Harbor Point, 21 Nov), 8779 (St. Lambert 1-0 Dunmore, 21 Nov) and 8211 (the championship, Alder Ridge 1-6 Hartwell Tech, 22 Nov). Only the result cell changes; no box-score link is added. Brightwater State's and Cedar Grove's pages are byte-identical to Friday's; the other five each change one row. The 8 September 8203 score is untouched (Module 7 owns it). |
+| `sample/captures/2026-11-24-tuesday/**` | Tuesday's seven schedule pages: Friday's bytes with five result cells filled in, for three fixtures, each on both teams' pages where the page was saved: 7318 (Eastbrook State 1-1 Harbor Point, 21 Nov), 8779 (St. Lambert 1-0 Dunmore, 21 Nov) and 8211 (the championship, Alder Ridge 1-6 Hartwell Tech, 22 Nov). Only the result cell changes; no box-score link is added. Brightwater State's and Cedar Grove's pages are byte-identical to Friday's; the other five each change one row. The 8 September 8203 score is untouched (Module 7 owns it). |
 
 Each manifest carries a `purpose` line saying what the run was for. Tuesday's
 says it is not part of the archive: the archive keeps the latest capture only,
@@ -115,6 +115,10 @@ St. Lambert `Final`; 2 Oct at Hartwell Tech `W 2-1`; 18 Oct at St. Lambert
 - `c`, bytes as received, plus `sidecar` (requested and final URL, fetched_at,
   status, sha256).
 
+The 21 September row links box score 4928 in forms (b) and (c). Expect a
+learner to ask whether the score could be read there; the bug is about what the
+schedule page published, and the archive does not hold that box score.
+
 `case2.grid` (`Case2Bug`: id, label, truth, fixture, `answers` keyed by `Kept`, `"a" | "b" | "c"`) is derived by
 one rule, not typed: a bug's correct value is verifiable from an archive when
 that archive keeps the true row and the bug's wrong reading apart. For each bug
@@ -127,7 +131,7 @@ b yes, c yes. `case2.pattern` is `{a: 0, b: 2, c: 3}`.
 
 | Export | What it is | Value now |
 |---|---|---|
-| `fingerprints` | The lab's fingerprints, recomputed here from the same bytes: SHA-256 of the parser's whole module (`labs/m02_parser_tuesday.py` or `labs/m02_parser_fixed.py`), then `labs/common.py` (its page reader), `aliases.json`, `membership.json` and the season, first 12 hex. Whole files, so any edit to them, even a comment, changes it. | `v1` `16ede3aa872b`, `v2` `cceba9f64b7c` |
+| `fingerprints` | The lab's fingerprints, recomputed here from the same bytes: SHA-256 of the parser's whole module (`labs/m02_parser_tuesday.py` or `labs/m02_parser_fixed.py`), then `labs/common.py` (its page reader), `aliases.json`, `membership.json` and the season, first 12 hex. Whole files, so any edit to them, even a comment, changes it. Membership and the season are hashed on purpose although the parser does not read them: they are the build's config, so changing them rebuilds every parsed file. | `v1` `16ede3aa872b`, `v2` `cceba9f64b7c` |
 | `kickPartial` | Kick's "re-parse only St. Lambert's page". `pagesNamingItAsOpponent` lists `{slug, name}`. | `tableCellsChanged` 0; `parsedRowsChanged` 1 (St. Brendan on St. Lambert's own page); St. Lambert's page names the school only in its title; the 6 pages naming it as an opponent are the 6 skipped |
 | `tableKick` | That table. | equal to `tableA` |
 | `presets` | The six presets (`Preset`: id, label, fingerprintBefore, fingerprintAfter, files, rebuilt, fetched, replacesFridayCapture, fridayEvidenceLost, optional `watch`, `simulated: true`). | see below |
@@ -225,9 +229,9 @@ RESULT: rebuilt by replay with 0 requests; only Saint Lambert's name changed
 
 **How a quote is verified.** `scripts/check_lab_output.py` reads every file in
 `src/data/quotes/`. Its `QUOTED_RUNS` registry names the one run of
-`labs/run_all.py` each file quotes; that run must end with its expected exit
-code, and the file must be its standard output from some line to the end,
-whole and exact: no line left out, no `...`. A file not in the registry, one
+`labs/run_all.py` each file quotes and the heading it starts at; that run must
+end with its expected exit code, and the file must be its standard output from
+that heading to the end, whole and exact: no line left out, no `...`. A file not in the registry, one
 that is not `.txt`, or a registered file that is missing, fails. **After any
 change to the lab or the sample**, regenerate both quotes:
 
@@ -257,10 +261,11 @@ A component that quotes more lab output adds a file here and a line to
 The box score's bytes are checked against Friday's manifest hash. The stale
 counts run the Case 3 model with the box-score parser as its own module. Its
 fingerprint is SHA-256 of `labs/m04_parse.py` (Module 4's box-score parser,
-standing in for the story's) and `labs/common.py`, the only inputs it reads (it
-loads no alias or membership file), before and after a simulated one-line edit to the module
-(`ddd0b4bac980` to `519b34f773b8`); the schedule parser's fingerprint does not
-change. Simulated (`boxParser.simulated`): no lab runs this fix.
+standing in for the story's) and `labs/common.py`, before and after a simulated
+one-line edit to the module; the schedule parser's fingerprint does not change.
+Simulated (`boxParser.simulated`): no lab runs this fix. Its values are not
+written here, so an edit to Module 4's lab never fails this doc's check; read
+them from `proveIt.slots.stale.boxParser`.
 
 Do not show the 8210 play-by-play (it is a Module 4 trap, out of order by
 design) or the Fouls row (id `offsides`, Module 4's).
