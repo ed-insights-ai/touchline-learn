@@ -15,7 +15,7 @@ const monday = `${story.monday.scored} of ${story.monday.finished}`;
 const kickThoughts = [
   `Saint Lambert is right. My tidy rule turns every “St.” into “State”, so “${story.mondayName}” came out as “${story.tuesdayName}”. The fix is one line in the parser: “St.” in front of a name means Saint.`,
   "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule. The cleanest way to be sure every row goes through the fixed parser is to start from fresh pages.",
-  `Fresh pages help in other ways too. Dunmore didn't answer on Friday, so it's worth asking again, and if any site has posted a result since, the table picks that up as well. Ask all ${spell(story.sites)} sites again, save the new pages over the old ones so the archive is current, parse, rebuild. Re-fetching!`,
+  `Fresh pages help in other ways too. Dunmore didn't answer on Friday, so it's worth asking again, and if any site has posted a result since, the table picks that up as well. Re-fetching!`,
 ];
 
 const kickPlan = [
@@ -40,7 +40,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     <div>
       <p>Monday's table went out at {monday} finished matches, with the one missing result named. Nobody called.</p>
       <p>On Tuesday, Kick added a tidy rule to spell out abbreviations in school names. Every “St.” became “State”.</p>
-      <p>By lunchtime, Saint Lambert had called.</p>
+      <p>Then Saint Lambert called.</p>
     </div>
   </div>
 
@@ -81,7 +81,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       ))}
     </ol>
   </div>
-  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. One detail matters later. The film showed the rule on the published table, where the name appeared, but Kick wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before the table is built.</p>
+  <p>Each step sounds sensible: fix the bug, get fresh pages, rebuild. The film showed the rule on the published table, where the name appeared, but Kick wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before the table is built.</p>
 
   <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
   <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>
@@ -92,23 +92,30 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     </div>
     <p class="cv-chat-text ar-clauses">{clauses.map((c, i) => <><span class="ar-clause"><sup aria-hidden="true">{i + 1}</sup>{c}</span>{i < clauses.length - 1 && " "}</>)}</p>
   </div>
-  <p>By “Friday's table”, Riley means the standings built from Friday's saved pages: the table readers already have, Monday's {monday}, with Saint Lambert's name fixed. Kick's plan fixes the code. Riley is asking about the table: rebuild it from the {spell(fridayPages.length)} schedule pages saved on Friday, ask no site for anything, and leave evidence that the rebuild happened that way. Each of the three clauses needs an idea this module teaches.</p>
+  <p>By “Friday's table”, Riley means the standings built from Friday's {spell(fridayPages.length)} saved schedule pages: Monday's {monday}, the numbers readers have had since Monday, now with the name spelled “{story.fixedName}”.</p>
 
   <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
-  <fieldset class="cv-choice" data-gate>
+  <fieldset class="cv-choice" data-gate data-ar-lock>
     <legend><span class="cv-kind">Prediction <span>not graded</span></span>Suppose Riley hadn't stopped it. If Kick had re-fetched all {spell(story.sites)} sites on Tuesday and rebuilt with the fixed rule, what would Saint Lambert's row show?</legend>
     {refetchPredict.options.map(([value, label]) => (
       <label><input type="radio" name="ar-refetch-predict" value={value} data-save={refetchPredict.key} /><span>{label}</span></label>
     ))}
   </fieldset>
-  <p class="ar-saved" data-when={refetchPredict.key} hidden>Prediction saved. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
-  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick one to continue. We'll come back to your prediction in The decision.</p>
+  <p class="ar-saved" data-when={refetchPredict.key} hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and The decision comes back to your answer.</p>
+  <p class="cv-once" data-when={refetchPredict.key} data-is="">Pick a prediction. We'll come back to it in The decision.</p>
 
   <AiCard part="setup" />
   <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>
 </section>
 
 <script>
+  document.querySelectorAll<HTMLFieldSetElement>("[data-ar-lock]").forEach((set) => {
+    const radios = [...set.querySelectorAll<HTMLInputElement>("input[type=radio]")];
+    const lock = () => { if (radios.some((r) => r.checked)) radios.forEach((r) => { r.disabled = !r.checked; }); };
+    radios.forEach((r) => r.addEventListener("change", () => setTimeout(lock)));
+    window.addEventListener("load", lock);
+  });
+
   let media: HTMLAudioElement | null = null;
   let end = 0;
   document.querySelectorAll<HTMLButtonElement>("[data-ar-vm]").forEach((button) => {

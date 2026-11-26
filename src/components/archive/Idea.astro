@@ -15,7 +15,8 @@ const silent = rewind.unavailable.map((u) => u.name).join(" and ");
 const terms = [
   {
     term: "Raw data",
-    say: `is the bytes exactly as a site sent them, saved before any of your code reads them. Where you keep them is the <strong>raw zone</strong>; you'll also hear it called the bronze layer.`,
+    say: `is the bytes exactly as a site sent them, saved before any of your code parses or changes them.`,
+    also: `Where you keep raw data is the <strong>raw zone</strong>, also called the bronze layer.`,
     tuesday: `Friday's ${saved} schedule pages. Every one still says “${story.mondayName}”, byte for byte as it arrived.`,
   },
   {
@@ -25,20 +26,21 @@ const terms = [
   },
   {
     term: "Replay",
-    say: `is rerunning code over raw data you saved. When it rebuilds past runs, it's also called a <strong>backfill</strong>.`,
+    say: `is rerunning code over raw data you saved.`,
+    also: `A replay that rebuilds past runs is also called a <strong>backfill</strong>.`,
     tuesday: `Run the fixed parser over Friday's ${saved} pages and build again. The pages and config are the ones Monday's table was built from. Only the code is different.`,
   },
 ];
 
 const bakes = [
-  { recipe: "Old recipe", old: "Last week's loaf", neu: "Bake this one" },
-  { recipe: "New recipe", old: "", neu: "Today's loaf" },
+  { recipe: "Old recipe", cells: [{ text: "Last week's loaf", is: "was" }, { text: "Not needed", is: "skip" }] },
+  { recipe: "New recipe", cells: [{ text: "Bake this one", is: "test" }, { text: "Today's loaf", is: "now" }] },
 ];
 
 const rules = [
-  { rule: "Save the bytes before any code reads them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt.", clause: "from the pages you kept", where: "Case 2" },
+  { rule: "Save the bytes before any code parses them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt.", clause: "from the pages you kept", where: "Case 2" },
   { rule: "Change one thing at a time.", then: "A replay holds the pages and config fixed, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: "Name each saved page by its content hash, a short code computed from the page's exact bytes that changes if any byte does, and name the code and config by version. Then anyone can check a rebuild instead of trusting it.", clause: "and show me you did", where: "Case 3" },
+  { rule: "Record what produced each output.", then: `Record the content hash of each saved page, a short code computed from its exact bytes that changes if any byte does, and which code and config produced the output. Friday's manifest records the content hash of each of the ${saved} schedule pages it saved. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3" },
 ];
 
 const loop = [
@@ -46,7 +48,7 @@ const loop = [
   ["    raw = fetch(page)", "fetch"],
   ["    save(page, raw, sha256=hash(raw), fetched_at=now())", "fetch"],
   ["rows = [parse(saved, code, config) for saved in archive]", "replay"],
-  ["table = build(rows, config)", "replay"],
+  ["table = build(rows)", "replay"],
   ["record(table, pages=hashes(archive), code=version(code, config))", "replay"],
 ];
 
@@ -71,7 +73,7 @@ const items: [string, string][] = [
     <li class="is-code"><b>Code</b><span>The parser, with its tidy rule, and the build that turns rows into standings.</span></li>
     <li class="is-config"><b>Config</b><span>The alias list, the membership file and the season, {SEASON}.</span></li>
   </ul>
-  <p>Change any input and the table can change. Keep all three, and you can compute the same table again whenever you need it. On Tuesday Kick changed one input, the code, and the table changed with it.</p>
+  <p>Change any input and the table can change. Keep all three, and you can compute the same table again whenever you need it. When Kick added the tidy rule on Tuesday, one input changed, the code, and the table changed with it.</p>
 
   <h3 id="idea-terms">Raw, derived and replay</h3>
   <ol class="ar-terms">
@@ -79,6 +81,7 @@ const items: [string, string][] = [
       <li>
         <p><dfn>{t.term}</dfn> <Fragment set:html={t.say} /></p>
         <p class="ar-eg"><span>Tuesday</span><Fragment set:html={t.tuesday} /></p>
+        {t.also && <p class="ar-also"><Fragment set:html={t.also} /></p>}
       </li>
     ))}
   </ol>
@@ -86,7 +89,7 @@ const items: [string, string][] = [
   <h3 id="idea-lanes">Replay or re-fetch</h3>
   <p>Kick's plan and Riley's question both end with the fixed parser and a new table. Compare what each one changes on the way, and what each one leaves in the archive.</p>
   <TwoLanes />
-  <p>Both lanes end in a table that spells Saint Lambert's name right. The replay changes one input. The re-fetch would change two, and the pages it would replace are the evidence Monday's table was built from.</p>
+  <p>The pages a re-fetch would replace are the evidence Monday's table was built from.</p>
   <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption="Replay, Don't Refetch." />
 
   <h3 id="idea-one-change">One change at a time</h3>
@@ -98,23 +101,21 @@ const items: [string, string][] = [
         {bakes.map((b) => (
           <tr>
             <th scope="row">{b.recipe}</th>
-            <td class:list={{ "is-was": b.old, "is-gone": !b.old }}>{b.old || "The old oven is gone"}</td>
-            <td class:list={{ "is-now": b.neu === "Today's loaf", "is-test": b.neu === "Bake this one" }}>{b.neu}</td>
+            {b.cells.map((c) => <td class={`is-${c.is}`}>{c.text}</td>)}
           </tr>
         ))}
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-was" aria-hidden="true"></i>Last week's loaf against today's: the recipe and the oven both changed.</span>
-      <span><i class="is-test" aria-hidden="true"></i>“Bake this one” against today's: only the recipe changed.</span>
-      <span><i class="is-gone" aria-hidden="true"></i>The new recipe in the old oven would also change one thing, but the old oven is gone.</span>
+      <span><i class="is-two" aria-hidden="true"></i>Last week's loaf against today's: the recipe and the oven both changed.</span>
+      <span><i class="is-one" aria-hidden="true"></i>Last week's loaf against “Bake this one”: same old oven, only the recipe changed.</span>
     </figcaption>
   </figure>
-  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To find out, bake the old recipe in the new oven beside the new one. Only the recipe differs between those two loaves, so any difference is the recipe's.</p>
+  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, so the better bread might come from the recipe, the oven, or both. To find out, bake the new recipe in the old oven, if the bakery still has it. Only the recipe differs between that loaf and last week's, so any difference is the recipe's.</p>
   <div class="cv-define">
     <p>A <dfn>controlled comparison</dfn> changes one input at a time, so a difference has one cause. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
   </div>
-  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is the diagonal, new code on new pages. A replay is the cell this baker can't use, new code on the old pages. Software can bake there as long as someone kept the old oven, and Friday's saved pages are the old oven.</p>
+  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Last week's loaf is Tuesday's table, the old code on Friday's pages. Kick's re-fetch is today's loaf, new code on new pages. A replay is “Bake this one”, new code on Friday's pages. It works only because Friday's pages were kept, like an old oven nobody threw out.</p>
 
   <h3 id="idea-rules">Three rules, one for each clause</h3>
   <ol class="cv-rules">
@@ -126,7 +127,7 @@ const items: [string, string][] = [
   <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive. Here it is in six lines of pseudocode.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 read only the archive. A parser fix reruns lines 4 to 6: that is a replay. Running line 2 again is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Only line 2 talks to a site, and lines 1 to 3 never parse. Lines 4 to 6 make no requests: they use only the saved pages, the code and the config. A parser fix reruns lines 4 to 6: that is a replay. Running line 2 again is a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
   <p>{silent}'s site didn't answer on Friday, so the archive has no {silent} page, and no replay can recover one. {silent}'s home results still come from visitors' pages, as they did on Monday.</p>
@@ -136,7 +137,7 @@ const items: [string, string][] = [
   <h4 class="cv-try" id="idea-check">Check your understanding: a research survey</h4>
   <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
-    <Choice save="idea-bug" label="The team finds a bug in the cleaning script. What do they need to produce a corrected spreadsheet and chart?"
+    <Choice save="idea-bug" label="The team finds a bug in the cleaning script. What do they need to produce a corrected spreadsheet and chart from the same responses as before?"
       options={[
         ["sheet", "The cleaned spreadsheet, rerun through the fixed script"],
         ["replay", "Their saved survey export, run through the fixed script"],
@@ -147,7 +148,7 @@ const items: [string, string][] = [
       why="Their saved survey export, run through the fixed script. That's a replay: the export stays fixed and only the code changes, so every difference in the new spreadsheet comes from the fix."
       wrong={{
         sheet: "The spreadsheet has already been cleaned, bug included. Cleaning it a second time doesn't undo what the first pass did.",
-        fresh: "A new export changes the evidence as well as the code. Responses added or edited since would mix in with the fix.",
+        fresh: "A new export changes the evidence as well as the code. Responses added or edited since could mix in with the fix.",
         chart: "Hand edits change numbers with no record of how, and leave the spreadsheet wrong.",
       }} />
     <Choice save="idea-gone" label="The vendor deletes every response older than a year. Which of the four could the team never rebuild if they lost their copy?"
@@ -159,7 +160,7 @@ const items: [string, string][] = [
         chart: "The chart can be redrawn by running the script again.",
         script: "The script is in version control. The deleted responses are in nobody's.",
       }} />
-    <Choice save="idea-how" label="A reviewer asks how one number on the published chart was produced, and wants to reproduce it exactly. What should the team give them?"
+    <Choice save="idea-how" label="A reviewer with access to the team's files asks how one number on the published chart was produced, and wants to reproduce it exactly. What should the team give them?"
       options={[
         ["sheet", "The cleaned spreadsheet the chart was drawn from"],
         ["current", "The current script, rerun on today's spreadsheet"],
@@ -171,7 +172,7 @@ const items: [string, string][] = [
       wrong={{
         sheet: "The spreadsheet shows the cleaned rows, not which export and which version of the script produced them.",
         current: "The script may have changed since the chart was made, so today's run may not be the one that made the number.",
-        fresh: "A new export may hold different responses, so its number answers a different question.",
+        fresh: "A new export could hold different responses, so its number may answer a different question.",
       }} />
     <p slot="reveal">Fix code by replaying the raw input you kept. Keep the raw data a source can take away. Record what produced each output. The same three rules hold for Friday's pages.</p>
   </Check>
@@ -196,6 +197,7 @@ const items: [string, string][] = [
   .ar-terms li::before { content: counter(ar-term); position: absolute; left: 0.85rem; top: 0.8rem; display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--sl-color-accent-low); color: var(--sl-color-accent-high); font-size: 0.8rem; font-weight: 750; }
   .ar-terms p { margin: 0 0 0.45rem; }
   .ar-terms .ar-eg { margin: 0; padding: 0.4rem 0.65rem; border-left: 3px solid var(--tl-raw-edge); background: var(--tl-bg); font-size: 0.93rem; }
+  .ar-terms .ar-also { margin: 0.45rem 0 0; color: var(--tl-muted); font-size: 0.88rem; }
   .ar-eg span { display: block; color: var(--tl-muted); font-size: 0.72rem; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; }
   .ar-bake { margin: 0 0 1rem; }
   .ar-bake table { display: table; width: 100%; max-width: 34rem; margin: 0; border-collapse: separate; border-spacing: 0.35rem; table-layout: fixed; }
@@ -203,16 +205,15 @@ const items: [string, string][] = [
   .ar-bake thead th { color: var(--tl-muted); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
   .ar-bake tbody th { width: 28%; color: var(--sl-color-white); font-weight: 650; }
   .ar-bake tbody td { border: 1px solid var(--tl-line); border-radius: 6px; background: var(--tl-card); }
-  .ar-bake tbody td.is-was { border: 2px dashed var(--sl-color-red); }
-  .ar-bake tbody td.is-now { border: 2px solid var(--sl-color-accent); color: var(--sl-color-white); font-weight: 650; }
-  .ar-bake tbody td.is-gone { border: 1px dashed var(--tl-muted); background: var(--tl-bg); color: var(--tl-muted); font-style: italic; }
-  .ar-bake figcaption i.is-gone { border: 1px dashed var(--tl-muted); }
-  .ar-bake tbody td.is-test { border: 2px dashed var(--sl-color-accent); color: var(--sl-color-white); font-weight: 650; }
+  .ar-bake tbody td.is-was { border: 2px dashed var(--tl-muted); }
+  .ar-bake tbody td.is-now { border: 2px dashed var(--tl-muted); color: var(--sl-color-white); font-weight: 650; }
+  .ar-bake tbody td.is-test { border: 2px solid var(--sl-color-accent); color: var(--sl-color-white); font-weight: 650; }
+  .ar-bake tbody td.is-skip { border: 1px dashed var(--tl-line); background: none; color: var(--tl-muted); font-style: italic; }
   .ar-bake figcaption { display: grid; gap: 0.25rem; margin-top: 0.35rem; color: var(--tl-muted); font-size: 0.88rem; }
   .ar-bake figcaption span { display: flex; align-items: baseline; gap: 0.5rem; }
   .ar-bake figcaption i { flex: none; width: 1.1rem; height: 0.7rem; border-radius: 3px; }
-  .ar-bake figcaption i.is-was { border: 2px dashed var(--sl-color-red); }
-  .ar-bake figcaption i.is-test { border: 2px dashed var(--sl-color-accent); }
+  .ar-bake figcaption i.is-two { border: 2px dashed var(--tl-muted); }
+  .ar-bake figcaption i.is-one { border: 2px solid var(--sl-color-accent); }
   .ar-loop { margin: 0 0 1rem; }
   .ar-loop pre { margin: 0; padding: 0.7rem 0; overflow-x: auto; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); color: var(--tl-ink); font-size: 0.84rem; line-height: 1.65; }
   .ar-loop code { padding: 0; background: none; font-family: var(--sl-font-mono); overflow-wrap: normal; }
