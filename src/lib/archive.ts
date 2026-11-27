@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { repaired, reported } from "./first-run";
+import { monthDay } from "./us-dates";
 
 // Module 2's numbers, computed from the sample at build time. docs/module-2-data.md lists every export.
 
@@ -467,8 +468,6 @@ const boxFiles = fridayBoxes.map((p): Lineage => ({ slug: p.fixture!, fingerprin
 const scheduleFiles = upToDate(fingerprints.v2);
 const boxRun: PresetRun = { fingerprint: boxParser.after, saved: new Map(fridayBoxes.map((p) => [p.fixture!, p.sha256!])) };
 const scheduleRun: PresetRun = { fingerprint: fingerprints.v2, saved: savedFriday() };
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const day = (date: string) => `${Number(date.slice(8, 10))} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
 /** Part 8: the March bug in box 8210, its two excerpts, and the four slot answers. */
 export const proveIt = {
   fixture: BOX,
@@ -486,7 +485,7 @@ export const proveIt = {
     replay: { boxScores: fridayBoxes.length, school: programmes[boxSchool].name, withOvertime: withOvertime.length },
     stale: { boxScores: stale(boxFiles, boxRun), of: boxFiles.length, schedules: stale(scheduleFiles, scheduleRun), schedulesFresh: scheduleFiles.length - stale(scheduleFiles, scheduleRun), boxParser, simulated: true as const },
     republish: { matchDetail: true, standings: !tableA.postseason.includes("8210") },
-    tell: { note: "correction", match: `${programmes[fx8210.home].name} ${homeRow.final}-${awayRow.final} ${programmes[fx8210.away].name}, ${fx8210.stage?.round_published?.toLowerCase().replace(/s$/, "")}, ${day(fx8210.date)}`, cause: "the box-score parser summed only the regulation periods" },
+    tell: { note: "correction", match: `${programmes[fx8210.home].name} ${homeRow.final}-${awayRow.final} ${programmes[fx8210.away].name}, ${fx8210.stage?.round_published?.toLowerCase().replace(/s$/, "")}, ${monthDay(fx8210.date)}`, cause: "the box-score parser summed only the regulation periods" },
   },
 };
 

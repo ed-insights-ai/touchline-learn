@@ -29,10 +29,10 @@ const lines = [
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
 const agentRun: [string, string][] = [
-  ["enough", "Yes. Its counter caught both test requests"],
-  ["offline", "Yes. A replay reads saved pages, so nothing would fetch"],
-  ["whole", "No. It must count the whole run's requests, child processes and tools included"],
-  ["pages", "No. It must count per saved page"],
+  ["enough", "This requests line: its counter caught both test requests"],
+  ["sandbox", "A run in a sandbox with no network"],
+  ["audit", "An audit of every network attempt by the agent, its child processes and its tool calls"],
+  ["pages", "A request count for each saved page"],
 ];
 ---
 
@@ -84,8 +84,9 @@ const agentRun: [string, string][] = [
         </div>
         <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-rule": /^-+$/.test(l), "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
-      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the start of Git's hash of the program that built the table, so it changes whenever that file does. In a larger repository it would be the commit, plus a check that no file was edited after it. Anyone with the repository can hash their copy and compare.</p>
-      <p>The <code>requests</code> counter has a limit. It wraps the replay process's own socket calls and name lookups. It would not see a request from a child process, or from a tool an agent ran beside it. For an agent's run, the criterion has to cover every process and tool, counted where all of them pass, such as a sandbox with no network.</p>
+      <p>A replay proves the fix only if the build is deterministic: run it twice and compare the output hashes.</p>
+      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the start of Git's hash of the program that built the table, so it changes whenever that file does. In a larger repository it would be the commit, plus a check that no file was edited after it.</p>
+      <p>The <code>requests</code> counter has a limit. It wraps the replay process's own socket calls and name lookups, so it misses requests from child processes and from tools an agent runs. A sandbox with no network blocks such traffic but does not show that nothing tried. Evidence of zero attempts needs an audit covering the agent, its child processes and its tool calls.</p>
 
       <AiCard part="rewind" />
 
@@ -100,11 +101,11 @@ const agentRun: [string, string][] = [
             <p class="cv-fb" role="status"></p>
           </div>
         ))}
-        <Choice radio save="rewind-agent" label="Next time Kick runs the rebuild as an agent, starting other programs and calling tools. Is a requests line like this one enough for Riley's second criterion?"
-          options={agentRun} answer="whole"
-          why="No. The counter is proven only for the process it wraps; a request from a child process or a tool never passes through it."
-          wrong={{ enough: "It caught test requests made by this process. A request from a child process or a tool never passes through it.", offline: "Kick's own plan was to re-fetch. Nothing stops a tool from fetching during a rebuild, so the run has to be measured.", pages: "The count is of network attempts, and splitting a 0 by page doesn't widen what the counter sees." }} />
-        <p slot="reveal">Every criterion has a line that could have come out differently. Without the criteria, the report is text you trust or don't; with them, Riley can check it in a minute.</p>
+        <Choice radio save="rewind-agent" label="Next time Kick runs the rebuild as an agent, starting other programs and calling tools. What evidence does Riley need for the second criterion?"
+          options={agentRun} answer="audit"
+          why="An audit of every attempt. The counter is proven only for the process it wraps, and a sandbox blocks traffic without recording what tried."
+          wrong={{ enough: "It caught test requests made by this process. A request from a child process or a tool never passes through it.", sandbox: "A sandbox stops the traffic, but a blocked attempt leaves no count. The criterion asks for zero attempts, measured.", pages: "The count is of network attempts, and splitting a 0 by page doesn't widen what the counter sees." }} />
+        <p slot="reveal">Without the criteria, Riley takes the report on trust; with them, Riley can check it in a minute.</p>
       </Check>
     </div>
   </div>

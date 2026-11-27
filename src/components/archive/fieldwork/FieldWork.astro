@@ -171,7 +171,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
 
     <h3>When the signature is the same</h3>
     <p>A <a href="../01-collection-field-work/#platform">conditional request</a> can save the download when a site answers “unchanged”. A signature cannot save the download; it works after it, on sites that send no ETag or send a new one with every render. When a fresh fetch's signature equals the saved one, the collector has a choice: write the new bytes, or keep the old ones and note that the page was verified. Keeping the old bytes means every output built from them still points at a file with the content hash its manifest recorded, and a re-fetch that found only noise has overwritten nothing. (When it does write, it uses an <a href="../01-collection-field-work/#platform">atomic write</a>.)</p>
-    <p>That is why a sidecar can carry two times: when the bytes were fetched, and when they were last verified against the live page. Touchline's sidecar records a content signature, the fetch time and the verify time. It keeps the latest capture of each page, and a deliberate re-fetch rewrites it.</p>
+    <p>That is why a sidecar can carry two times: when the bytes were fetched, and when they were last verified against the live page. Touchline's sidecar holds the fetch record, with both times, the content hash and signature, and the page's coverage state. Touchline keeps the latest capture of each page, and a deliberate re-fetch rewrites it.</p>
   </section>
 
   <section id="scope">
@@ -320,8 +320,8 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     <h2>Bronze, silver and gold</h2>
     <p class="ar-for">For anyone who will meet these words at work.</p>
     <p>Many data teams name a pipeline's layers after medals. <strong>Bronze</strong> holds data as it arrived. <strong>Silver</strong> holds anything code has already changed: often parsed into rows, typed and checked, and often joined into one row per match, with each school under one name. <strong>Gold</strong> holds what a reader uses: a table, a report, an input to a model. The pattern is often called the medallion architecture. Other teams say raw, staging and curated, or landing, refined and serving. The lesson's terms map onto it: <a href={lesson("idea")}>raw data</a> is bronze, and silver and gold are both derived.</p>
-    <p>Touchline's steps sit on the boundaries. Collecting writes bronze; in production the archive sits in private object storage, and nothing on this page depends on where it lives. Parsing each page, and matching the saved rows by fixture id, write silver. Building the table and each match detail writes gold, which is what gets published.</p>
-    <p>Some files describe a layer rather than hold it: what should be in it, where each item came from, and the hash of each. A capture manifest does that for a whole run: which pages were saved, the hash of each, and the gaps it names. A sidecar does it for one page and travels with it; Touchline's sidecar also carries the page's cached parse, which is silver.</p>
+    <p>Touchline's steps sit on the boundaries. Collecting writes bronze. Parsing each page, and matching the saved rows by fixture id, write silver. Building the table and each match detail writes gold, which is what gets published.</p>
+    <p>Some files describe a layer rather than hold it. A capture manifest does that for a whole run: which pages were saved, the hash of each, and the gaps it names. A sidecar does it for one page and travels with it. Touchline's sidecar holds the fetch record, the content hash and signature, and the page's coverage state. Its cached parse is silver kept beside the page, not part of the bronze bytes.</p>
 
     <div class="cv-check" data-once="fw-layers">
       <p class="cv-kind">Knowledge check</p>

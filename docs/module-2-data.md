@@ -268,7 +268,7 @@ A component that quotes more lab output adds a file here and a line to
 | `proveIt.slots.replay` | `boxScores` 12 (Alder Ridge, all of Friday's box scores), `withOvertime` 1 |
 | `proveIt.slots.stale` | `boxScores` 12 of 12; `schedules` 0, `schedulesFresh` 7; `boxParser` fingerprints; `simulated: true` |
 | `proveIt.slots.republish` | `matchDetail: true`, `standings: false` (8210 is postseason by the format rule) |
-| `proveIt.slots.tell` | a correction note: `Alder Ridge 4-3 Eastbrook State, semifinal, 15 November`; cause `the box-score parser summed only the regulation periods` |
+| `proveIt.slots.tell` | a correction note: `Alder Ridge 4-3 Eastbrook State, semifinal, November 15`; cause `the box-score parser summed only the regulation periods` |
 
 The box score's bytes are checked against Friday's manifest hash. The stale
 counts run the Case 3 model with the box-score parser as its own module. Its

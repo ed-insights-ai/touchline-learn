@@ -5,7 +5,7 @@ import Check from "../lesson/Check.astro";
 import Choice from "../lesson/Choice.astro";
 import AiCard from "./AiCard.astro";
 import { labelsOf, refetchPredict } from "../../lib/archive-state";
-import { fridayPages, rewind, tuesdayManifest, tuesdayPages, policies, prediction, rowChanges, saturday, tableA, tableC, type Column } from "../../lib/archive";
+import { fridayPages, rewind, story, tuesdayManifest, tuesdayPages, policies, prediction, rowChanges, saturday, tableA, tableC, type Column } from "../../lib/archive";
 import { spell } from "../../lib/cases";
 import { monthDay } from "../../lib/us-dates";
 
@@ -24,6 +24,9 @@ const byPages = lambert.columns.filter((c) => c !== "name").map(change);
 const sites = spell(tuesdayManifest.pages.filter((p) => p.kind === "schedule").length);
 const lambertWin = saturday.find((s) => s.home === "st-lambert" || s.away === "st-lambert")!;
 const saturdayShort = monthDay(lambertWin.date).replace(/^(\w{3})\w*/, "$1");
+const [winner, loser] = lambertWin.home_score > lambertWin.away_score ? [lambertWin.homeName, lambertWin.awayName] : [lambertWin.awayName, lambertWin.homeName];
+const [hi, lo] = [Math.max(lambertWin.home_score, lambertWin.away_score), Math.min(lambertWin.home_score, lambertWin.away_score)];
+if (winner !== story.mondayName || !rewind.unavailable.some((u) => u.name === loser) || new Date(`${lambertWin.date}T12:00:00Z`).getUTCDay() !== 6) throw new Error("The decision says St. Lambert beat the silent site on Saturday; the sample no longer does");
 const seven = spell(fridayPages.length);
 if (rewind.unavailable.map((u) => u.slug).join() !== tuesdayManifest.unavailable.join()) throw new Error("Tuesday's unavailable sites are not Friday's");
 const down = rewind.unavailable.map((u) => u.name).join(" and ");
@@ -54,7 +57,7 @@ const questions = [
     why: `Every capture only. Monday's table read Friday's ${seven} captures. Latest only replaced them on Tuesday, and ${spell(changed.length)} had changed, so their Friday bytes are gone.`,
     wrong: { latest: `Latest only replaced Friday's captures on Tuesday. Every capture still holds them.`, both: `Latest only now holds Tuesday's pages. ${spell(changed.length, true)} of them differ from Friday's, so it no longer has the full set Monday's table read.`, neither: `Every capture still holds Friday's ${seven} captures, each beside Tuesday's.` } },
   { key: "cedar", label: "Show a coach the exact Cedar Grove page Monday's table read.",
-    why: `Both policies. Cedar Grove's page hadn't changed, so Tuesday's capture has the hash Friday's manifest recorded, ${cedarHash}. Even latest only holds the exact bytes, and the hash verifies them.`,
+    why: `Both policies. Cedar Grove's page hadn't changed, so Tuesday's capture has the hash Friday's manifest recorded, ${cedarHash}. Even latest only holds the exact bytes, and the hash verifies them; its sidecar records Tuesday's fetch.`,
     wrong: { latest: "Every capture holds Friday's capture of Cedar Grove too.", every: `Latest only holds Tuesday's capture, and its hash is the one Friday's manifest recorded, ${cedarHash}: the same bytes.`, neither: "Both archives hold a capture whose hash matches Friday's manifest." } },
 ] as const;
 const grid = questions.map((q) => ({ ...q, answer: verdict(q.key) }));
@@ -75,12 +78,12 @@ const calls = [
     <p data-when={refetchPredict.key} hidden><span data-show={refetchPredict.key} data-show-labels={labelsOf(refetchPredict)}></span></p>
     <p data-when={refetchPredict.key} data-is="" hidden>You skipped it. It is still there in Setup.</p>
   </div>
-  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads each site as it is now. Only the name would change if it read the same set of pages with the same evidence for this row: no result posted or changed since Friday, and {down} still silent, since its page would be new evidence too. Nothing on screen said whether that held. A replay's pages are Friday's, byte for byte.</p>
+  <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads the sites as they are now. Only the name would change if nothing on any page had moved since Friday, and {down} was still silent. On Tuesday nothing on screen said whether that held. A replay's pages are Friday's, byte for byte.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is="unknown" hidden>You picked the only answer Tuesday's evidence supported.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That holds only if the re-fetch reads the same pages with the same evidence. {spell(changed.length, true)} pages had changed, and one of them posted a result this row counts.</p>
 
-  <p>In the sample, Tuesday's capture (Case 1) read the same {seven} pages, with {down} still unavailable. But on Saturday {lambertWin.homeName} beat {lambertWin.awayName} {lambertWin.home_score}–{lambertWin.away_score}, a conference match, and St. Lambert's site had posted it. So the re-fetch changes {spell(lambert.columns.length)} cells of one row, for two reasons: the replay changed only the name, so the rest are the pages'.</p>
+  <p>In the sample, {winner} beat {loser} {hi}–{lo} on Saturday. The re-fetch changes {spell(lambert.columns.length)} cells: the name, from the code (the replay shows that much), and {spell(byPages.length)} numbers, from the pages.</p>
   <div class="cv-scroll">
     <table class="cv-log ar-row">
       <caption>St. Lambert's row, Tuesday's table and the re-fetch</caption>
@@ -111,13 +114,13 @@ const calls = [
       <h4>Every capture</h4>
       <p>Each fetch is stored beside the last, with its fetch time. Nothing is overwritten.</p>
       <p><b>Can rebuild:</b> every past table, from the captures its manifest names.</p>
-      <p><b>Costs:</b> storage that grows with every run, much of it unchanged pages.</p>
+      <p><b>Costs:</b> storage. Stored by content hash, an unchanged page costs nothing; the archive grows with each change (<a href="../02-archive-field-work/?from=decision#retention">field work</a>).</p>
     </div>
   </div>
-  <p>Either way, a manifest's hash can verify a capture still held, but can't bring back one that is gone. A policy can also change with time: every capture while a table can still be questioned, less once it can't.</p>
+  <p>Either way, the content hash a manifest records verifies a capture's bytes, and the sidecar identifies the fetch, since two fetches of different addresses can return the same bytes. Neither can bring back a capture that is gone. A policy can also change with time: every capture while a table can still be questioned, less once it can't.</p>
 
   <p>Suppose Riley hadn't stopped Kick, and Tuesday's re-fetch had gone into the archive: all {sites} sites asked again, {seven} pages saved, {down} still unavailable. {spell(changed.length, true)} of the {seven} pages had changed since Friday, Harbor Point's among them; {names(same)} had not. Which archive can still do each task?</p>
-  <Check once="decide-policies" kind="Prediction" note={`Answer all ${spell(grid.length)}, then check.`}>
+  <Check once="decide-policies" kind="Apply it" note={`Answer all ${spell(grid.length)}, then check.`}>
     {grid.map((q) => <Choice save={`decide-${q.key}`} label={q.label} options={who} answer={q.answer} why={q.why} wrong={q.wrong} />)}
     <Fragment slot="reveal">
       <figure class="ar-shelf" aria-label={`Harbor Point's schedule page in each archive after a Tuesday re-fetch. Latest only holds Tuesday's capture, ${saturdayShort} ${cell(policies.harborCell.tuesday)}; Friday's was overwritten. Every capture holds Friday's, ${saturdayShort} ${cell(policies.harborCell.friday)}, and Tuesday's.`}>
@@ -146,7 +149,7 @@ const calls = [
   <h3 id="decision-touchline">What Touchline keeps</h3>
   <div class="cv-touchline">
     <p>Touchline keeps latest only, with each capture's fetch time. Monday's table could be rebuilt on Tuesday only because nothing had fetched those {seven} pages since Friday; Kick's “Re-fetching!” would have replaced all {seven}. So a parser change re-reads the archive and never fetches, and a re-fetch is a separate, deliberate act.</p>
-    <p>That is latest only's real cost: a published table stays rebuildable only until the next routine run captures a changed page. A table that may be disputed needs every capture its manifest names kept for as long as it can be questioned. <a href="../02-archive-field-work/?from=decision#retention">The field work</a> measures what that costs.</p>
+    <p>That is latest only's real cost: a published table stays rebuildable only until the next routine run captures a changed page. A table that may be disputed needs every capture its manifest names kept for as long as it can be questioned.</p>
   </div>
 
   <AiCard part="decision" />

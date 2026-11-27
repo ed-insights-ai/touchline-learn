@@ -19,7 +19,7 @@ const fp = slots.stale.boxParser;
 const ot = scoreByPeriod.head.findIndex((h) => h === "OT");
 const ordinal = (k: number) => ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth"][k - 1] ?? `${k}th`;
 const dash = (s: string) => s.replace(/(\d)-(\d)/g, "$1–$2");
-const match = dash(slots.tell.match.replace(/, \d{1,2} [A-Z][a-z]+$/, `, ${date}`));
+const match = dash(slots.tell.match);
 if (!match.endsWith(date)) throw new Error("Prove it's correction note no longer ends with the match date");
 const boxEntry = fridayManifest.pages.find((p) => p.fixture === proveIt.fixture)!;
 const savedOn = monthDay(boxEntry.fetched_at!);
@@ -117,7 +117,7 @@ const tell: [string, string][] = [
       why={`All ${n}, from their saved pages. Every box score went through the parser that changed, and Friday's captures already hold the right numbers. Fetching adds nothing and would replace those captures.`}
       wrong={{ one: `That is the match you know about. The parser that changed read all ${n}; guessing which it got wrong is the mistake Case 3 warned about.`, refetch: "The saved page already has the right numbers. A fetch brings back whatever the site shows now, and replaces Friday's capture.", allfetch: "The scope is right, but the saved pages are the evidence. A fetch replaces Friday's captures with whatever Alder Ridge's site shows now." }} />
     <Choice save="prove-stale" label="2. Which parsed files are stale, and what tells you?" options={stale} answer={staleAnswer}
-      why={`Each records ${fp.before}, and the parser is now ${fp.after}: the fingerprint decides, not a guess about what the bug touched. The ${fresh} parsed schedules record the schedule parser's fingerprint, which didn't change.`}
+      why={`All ${n} parsed box scores. Each records ${fp.before}, and the parser is now ${fp.after}: the fingerprint decides, not a guess about what the bug touched. The ${fresh} parsed schedules record the schedule parser's fingerprint, which didn't change.`}
       wrong={{ ot: "The OT column says where the bug showed, not which files the old parser wrote. The fingerprint decides: every file this parser wrote is stale.", hash: "A changed page is one reason a parsed file goes stale. Changed code is the other, and that is this case.", all: "Each parser has its own fingerprint. The schedule parser's didn't change." }} />
     <Choice save="prove-republish" label="3. What do you republish?" options={republish} answer={republishAnswer}
       why={`The match detail only. It is the one product built from the box score. The standings are built from the schedules, which already show ${published.home}–${published.away}, and a ${round} is postseason, outside the regular-season standings.`}
@@ -127,8 +127,8 @@ const tell: [string, string][] = [
       wrong={{ site: `The box score saved on ${savedOn} says ${published.home}–${published.away}. Nothing shows the site ever posted ${buggy.home}–${buggy.away}.`, refetch: "Nothing was fetched. The note would misstate where the corrected number came from.", table: `The standings didn't change. A ${round} isn't in them.` }} />
     <Fragment slot="reveal">
       <p class="cv-rule">Replay every box score the fixed parser reads, fetch nothing, republish the one product that was wrong, and say what changed and why.</p>
-      <p>Only box {box} has an {scoreByPeriod.head[ot]} column, so it is the only match detail expected to change. Replaying all {n} is what confirms the other {spell(boxes - slots.replay.withOvertime)} come out as they were.</p>
-      <p>Now suppose the box-score archive had kept only the parsed match detail: a final score for each match, with no periods and no goal times. The schedule's “{proveIt.schedules["alder-ridge"]}” would still show the final score was wrong, and that a goal was missing. It can't say when that goal came or that the match went to overtime. Only a fresh fetch could bring those back, if the site still shows them. No replay could.</p>
+      <p>Only box {box} has an {scoreByPeriod.head[ot]} column, so it is the only match detail expected to change. Replaying all {n} confirms the other {spell(boxes - slots.replay.withOvertime)} come out unchanged.</p>
+      <p>Now suppose the box-score archive had kept only the parsed match detail: a final score for each match, with no periods and no goal times. The schedule's “{proveIt.schedules["alder-ridge"]}” would still show the final score was wrong, and that a goal was missing. It can't say when that goal came or that the match went to overtime. Only a fresh fetch could bring those back, if the site still shows them.</p>
     </Fragment>
   </Check>
   <NextPart from="prove-it">Does the same fix work for an archive that kept less?</NextPart>
