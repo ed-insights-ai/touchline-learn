@@ -16,7 +16,7 @@ type Row = { output: string; fp: string; published: number; replayed: number | n
 const rows: Row[] = [
   { output: "Oak Pantry, January", fp: "Changed. Its inputs went through the corrected importer.", published: oakJan.published, replayed: oakJanReplayed, verdict: "Republish", rest: "after approval.", tone: "is-bad" },
   { output: "Oak Pantry, February", fp: "Changed. Its inputs went through the same importer.", published: 42, replayed: 42, verdict: "Keep", rest: "the published count. Record the verified replay internally.", tone: "is-ok" },
-  { output: "Maple Pantry, January", fp: "Matched. Its inputs came through a separate importer.", published: 25, replayed: null, verdict: "Leave alone", rest: "Skip replay.", tone: "is-quiet" },
+  { output: "Maple Pantry, January", fp: "Matched. Its inputs came through a separate importer.", published: 25, replayed: null, verdict: "Leave", rest: "the publication alone. Skip replay.", tone: "is-quiet" },
 ];
 const ids = Array.from({ length: oakJan.published }, (_, i) => i >= oakJan.published - oakJan.secondIds);
 
