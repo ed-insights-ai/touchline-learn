@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.setup;
 type Status = "approved" | "revoked";
@@ -52,7 +52,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("setup")}`}
   about="This is a reply an AI assistant gave to Module 2's re-fetch study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("setup", "Part 1")}
 >
   <h2 class="pr-title">One day of approved pages</h2>
   <p>Yesterday, a volunteer transcription project's website reported <strong>{before} approved pages</strong>. The source file listed {["no", "one", "two", "three", "four"][pages(saved).length]} approved pages, {pages(saved)[0]} through {pages(saved).at(-1)}, but page {twice[0]} appeared twice. The pipeline counted rows, so it counted {twice[0]} twice. The fix is to count distinct approved page IDs.</p>

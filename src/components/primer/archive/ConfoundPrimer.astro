@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi["case-saturday"];
 const rate = { before: 4, after: 6 };
@@ -49,7 +49,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-saturday")}`}
   about="This is a reply an AI assistant gave to Module 2's controlled-comparison study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 1 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("case-saturday", "Case 1")}
 >
   <h2 class="pr-title">One change at a time</h2>
   <p class="pr-pull">A controlled comparison changes one input and holds the other relevant conditions steady.</p>

@@ -78,7 +78,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
 
   <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
   <p>Kick apologized, fixed the rule in a minute, and kept going.</p>
-  <KickThink duration="Thought for a moment" thoughts={kickThoughts} />
+  <KickThink static duration="Thought for a moment" thoughts={kickThoughts} />
   <div class="cv-kplan ar-plan" role="region" aria-label="Kick's fix plan, stopped after the first step">
     <div class="cv-kplan-bar">
       <span class="cv-kplan-who">
@@ -144,7 +144,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       row.classList.toggle("is-open", locked);
       row.hidden = locked;
     };
-    radios.forEach((r) => r.addEventListener("change", () => setTimeout(sync)));
+    radios.forEach((r) => r.addEventListener("change", sync));
     btn.addEventListener("click", () => {
       const picked = radios.find((r) => r.checked);
       if (!picked) return;

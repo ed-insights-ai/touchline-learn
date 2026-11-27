@@ -44,7 +44,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify two runs against Tuesday's table, a replay with a new alias list and a re-fetch with a new alias list: controlled or confounded, and which inputs changed.",
+    returnTask: "Then come back and choose the changelog line for table B.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -56,7 +56,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: "Then come back to bug 4, a build that scored a draw as two points, and replay the corrected points rule over each archive.",
+    returnTask: "Then come back and choose the line Riley can write about where bug 4's fix was verified.",
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
@@ -68,7 +68,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and match three changes to a notebook's cache with the six changes on the bench.",
+    returnTask: "Then come back and choose the rebuild log line for the tidy rule fix.",
   },
   decision: {
     slug: "02-archive-ai-captures",
@@ -118,6 +118,18 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
     returnTask: "Then come back and make the strongest honest claim for each world.",
   },
+};
+
+const RETURN = "Then come back and ";
+for (const [part, card] of Object.entries(archiveAi)) {
+  if (!card.returnTask.startsWith(RETURN)) throw new Error(`Module 2 AI card ${part}: returnTask must start "${RETURN}"`);
+}
+
+/** The Send page's "Your turn" line, the one place the return instruction is reworded. */
+export const aiTurn = (part: ArchivePartId, where: string) => {
+  const turn = `In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to ${where} and ${archiveAi[part].returnTask.slice(RETURN.length)}`;
+  if (/then come back/i.test(turn)) throw new Error(`Module 2 AI card ${part}: the Send page's turn repeats the return prefix`);
+  return turn;
 };
 
 export const aiCardId = (part: ArchivePartId) => `${part}-ai-study`;

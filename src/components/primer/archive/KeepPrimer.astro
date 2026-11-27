@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 import { noScore } from "../../../lib/cases";
 
 const card = archiveAi["case-kept"];
@@ -48,7 +48,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-kept")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-zone study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 2 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("case-kept", "Case 2")}
 >
   <h2 class="pr-title">What a museum's archive must keep</h2>
   <p>Every night, a museum downloads collection records from a partner's website. One night, the partner sends a record that looks like this:</p>
@@ -113,7 +113,7 @@ const checks = [
   </div>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>Case 2's own blank score is {noScore.home} vs. {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
+    <p>Case 2's own blank score is {noScore.home} v {noScore.away} on {noScore.day}: a bare “Final” with no score, which the parsed-rows archive would record as a scoreless draw.</p>
     <p>One difference decides Case 2. In the museum the bug runs after extraction, so the extracted fields are the last layer before the damage. In Case 2 the tidy rule runs inside the parser, so the parsed rows already carry it, and the tidied HTML is a cleaned copy too: it was tidied before saving. Ask which step did the damage, then find the last copy saved before it.</p>
     <p>The sample's sidecar files are a smaller fetch record: the requested and final URL, status, fetch time, ETag and content hash, with no run ID or encoding. “Bronze layer” is the industry's common name for a raw zone, not this museum's own term.</p>
   </aside>

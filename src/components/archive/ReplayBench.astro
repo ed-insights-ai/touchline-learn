@@ -53,7 +53,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
       {choices.length > 1 && (
         <div class="ar-pick ar-pick-abc" role="group" aria-label="Which table to show">
           {choices.map((k) => (
-            <button type="button" data-rb-pick={k} aria-pressed={pressed(k === start)} aria-controls={`${id}-${k}`}>
+            <button type="button" data-rb-pick={k} aria-pressed={pressed(k === start)} aria-controls={`${id}-${k}`} aria-label={`${k}, ${tables[k].label}: ${tables[k].pages}, ${tables[k].rule}`}>
               <b><span class="ar-key">{k}</span><span class="ar-long">{tables[k].label}</span><span class="ar-short" aria-hidden="true">{shortLabel[k]}</span></b>
               <span>{tables[k].pages}, {tables[k].rule}</span>
             </button>
@@ -119,7 +119,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
               <div><dt>Pages fetched <span>(simulated requests)</span></dt><dd>{p.fetched}</dd></div>
               <div class:list={{ "is-lost": p.fridayEvidenceLost }}><dt>Friday's captures</dt><dd>{p.fridayEvidenceLost ? `${p.watch?.name ?? "One"}'s overwritten` : "All kept"}</dd></div>
             </dl>
-            <p class="ar-cap">A struck value is what a parsed schedule recorded before this run; beside it is the current value.</p>
+            <p class="ar-cap">A struck value is what a schedule recorded before this run; beside it is the current one.</p>
             <p class="ar-cue" aria-hidden="true">Scroll the table sideways for both hashes.</p>
             <div class="ar-scroll" tabindex="0" role="region" aria-label={`Parsed schedules for change ${i + 1}`}>
               <table class="ar-files">
@@ -140,7 +140,7 @@ const pressed = (on: boolean): "true" | "false" => (on ? "true" : "false");
           </div>
         );
       })}
-      <p class="ar-foot">A small staleness model over the sample's {spell(presets[0].files)} saved schedules; requests are simulated. Fingerprints are real hashes of the lab's parser and config, and of edited copies for changes {presets.findIndex((p) => p.id === "comment") + 1} and {presets.findIndex((p) => p.id === "alias") + 1}. Hashes show {presetFiles[presets[0].id][0].nowContent.length} characters. A “live” page is Tuesday's capture.</p>
+      <p class="ar-foot">A staleness model over the sample's {spell(presets[0].files)} saved schedules, with simulated requests. Fingerprints are real hashes of the lab's parser and config, and of edited copies for changes {presets.findIndex((p) => p.id === "comment") + 1} and {presets.findIndex((p) => p.id === "alias") + 1}, shown to {presetFiles[presets[0].id][0].nowContent.length} characters. A “live” page is Tuesday's capture.</p>
     </>
   )}
 </div>

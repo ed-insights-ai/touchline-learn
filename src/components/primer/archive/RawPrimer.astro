@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.idea;
 
@@ -58,7 +58,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("idea")}`}
   about="This is a reply an AI assistant gave to Module 2's raw-and-derived study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("idea", "Part 2")}
 >
   <h2 class="pr-title">Raw data, derived data and replay</h2>
   <p><strong>Raw data</strong> is what arrives at the boundary of your system. Save an exact copy before your processing code reads it. That gives you a record of what you actually received, even if your code misreads a number, drops a field, or rewrites some text. Save each revision as a separate copy when the source can change.</p>
