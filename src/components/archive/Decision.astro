@@ -79,7 +79,7 @@ const calls = [
     <p data-when={refetchPredict.key} data-is="" hidden>You skipped it. It is still there in Setup.</p>
   </div>
   <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads the sites as they are now. Only the name would change if nothing on any page had moved since Friday, and {down} was still silent. On Tuesday nothing on screen said whether that held. A replay's pages are Friday's, byte for byte.</p>
-  <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>You picked what the re-fetch does. On Tuesday that was a guess about the live sites.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>On Tuesday, that pick was a guess about the live sites.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is="unknown" hidden>You picked the only answer Tuesday's evidence supported.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That holds only if the re-fetch reads the same pages with the same evidence. {spell(changed.length, true)} pages had changed, and one of them posted a result this row counts.</p>
 
@@ -114,7 +114,7 @@ const calls = [
       <h4>Every capture</h4>
       <p>Each fetch is stored beside the last, with its fetch time. Nothing is overwritten.</p>
       <p><b>Can rebuild:</b> every past table, from the captures its manifest names.</p>
-      <p><b>Costs:</b> storage. Stored by content hash, an unchanged page costs nothing; the archive grows with each change (<a href="../02-archive-field-work/?from=decision#retention">field work</a>).</p>
+      <p><b>Costs:</b> storage. Stored by content hash, an unchanged page adds a fetch record but no page bytes; the archive grows with each change (<a href="../02-archive-field-work/?from=decision#retention">field work</a>).</p>
     </div>
   </div>
   <p>Either way, the content hash a manifest records verifies a capture's bytes, and the sidecar identifies the fetch, since two fetches of different addresses can return the same bytes. Neither can bring back a capture that is gone. A policy can also change with time: every capture while a table can still be questioned, less once it can't.</p>
@@ -160,7 +160,7 @@ const calls = [
     <Choice radio save="decide-call" label="Which archive policy should the office run?" options={calls.map((c) => [c.key, c.text])} answer="season"
       why="Every capture until the season closes, then the final table's. A dispute about an early week needs the pages that week's table read, which later fetches will have replaced. Once disputes close, only the final table is questioned, and its manifest names its captures."
       wrong={{ hashes: "A hash verifies that a page is unchanged. For a page that has changed since, it shows only that the old page was different, not what it said.", recent: "A coach can dispute any week until the season closes, the first week included. A month's window has already lost the pages the early weeks' tables read." }} />
-    <p slot="reveal">The policy follows from the questions the archive must answer, and for how long.</p>
+    <p slot="reveal">The policy follows from what the archive must answer, and for how long.</p>
   </Check>
 
   <NextPart from="decision">Riley's question asks for the right thing. What would Riley need to see?</NextPart>

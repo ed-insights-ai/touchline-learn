@@ -13,7 +13,7 @@ const criteria = [
   `Replay the schedule pages Friday's capture manifest lists: the ${spell(rewind.schedulesSaved)} saved, each matched to its content hash, and ${down} listed as unavailable.`,
   "Make zero network requests, counted by a counter you show catching a test request.",
   "Name the fingerprint of the fixed parser and the revision of the code that built the table.",
-  "Diff Tuesday's table against the rebuild, and explain every changed cell.",
+  "Diff Tuesday's table against the rebuild and explain every changed cell, and a second run gives the same table.",
 ];
 
 const find = (test: (l: string) => boolean, what: string) => rewind.lines.find(test) ?? (() => { throw new Error(`the replay report has no ${what} line`); })();
@@ -22,23 +22,22 @@ const short: [string, string][] = [["manifest", "1 · Pins the inputs"], ["reque
 const label = Object.fromEntries(short);
 const requestsLine = find((l) => l.startsWith("requests "), "requests");
 const lines = [
-  { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
-  { text: requestsLine, answer: "requests", why: `The counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.` },
-  { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
-  { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
+  { save: "listed", text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
+  { save: "requests", text: requestsLine, answer: "requests", why: `The counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.` },
+  { save: "revision", text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
+  { save: "cell", text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
 const agentRun: [string, string][] = [
-  ["enough", "This requests line: its counter caught both test requests"],
-  ["sandbox", "A run in a sandbox with no network"],
-  ["audit", "An audit of every network attempt by the agent, its child processes and its tool calls"],
-  ["pages", "A request count for each saved page"],
+  ["counter", "The same counter, catching four test requests, not two"],
+  ["sandbox", "A note that the run used a sandbox with no network"],
+  ["log", "The sandbox's log of every blocked attempt in the run: only a test request from an agent's tool"],
 ];
 ---
 
 <section id="rewind" class="ar-part">
   <PartHead id="rewind">Rewind: Tuesday with a replay requirement</PartHead>
-  <p>Module 1's Rewind gave Kick <strong>acceptance criteria</strong>: conditions its work must meet before Riley accepts it. Riley's Tuesday question has none yet.</p>
+  <p>Module 1's Rewind gave Kick <strong>acceptance criteria</strong>: conditions its work must meet before Riley accepts it. Riley's Tuesday question has none.</p>
   <p>Riley is asking for <strong>lineage</strong>, the record of which inputs and which code made a table, and <strong>reproducibility</strong>, the same table again from the same inputs and code. The target is Monday's table, rebuilt from Friday's pages with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” for “{story.tuesdayName}”.</p>
   <div class="cv-user-prompt" role="region" aria-label="Riley's question on Tuesday">
     <div class="cv-chat-bar">
@@ -71,12 +70,12 @@ const agentRun: [string, string][] = [
         <label><input type="checkbox" data-save="rewind-has-inputs" /><span>Pins the inputs by content hash, missing one named</span></label>
         <label><input type="checkbox" data-save="rewind-has-counter" /><span>Makes “no requests” a measurement</span></label>
         <label><input type="checkbox" data-save="rewind-has-code" /><span>Identifies the code</span></label>
-        <label><input type="checkbox" data-save="rewind-has-diff" /><span>Explains every change</span></label>
+        <label><input type="checkbox" data-save="rewind-has-diff" /><span>Explains every change; a rerun matches</span></label>
       </fieldset>
-      <p>Each criterion asks for evidence that could have come out differently: a hash can fail to match, a counter can count, a diff can show a cell nobody explained. Evidence that could never fail verifies nothing.</p>
+      <p>Each criterion asks for evidence that could have come out differently: a hash can fail to match, a counter can count, a diff can show an unexplained cell.</p>
 
       <h3>Kick's replay report</h3>
-      <p class="cv-label">The report section of <code>python labs/m02_archive.py</code>, quoted whole and checked against the lab.</p>
+      <p class="cv-label">The report section of <code>python labs/m02_archive.py</code>, checked against the lab.</p>
       <div class="cv-agent-reply ar-reply" role="region" aria-label="Kick's replay report">
         <div class="cv-chat-bar">
           <span class="cv-agent-badge">Kick · Coding agent</span>
@@ -84,28 +83,28 @@ const agentRun: [string, string][] = [
         </div>
         <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-rule": /^-+$/.test(l), "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
-      <p>A replay proves the fix only if the build is deterministic: run it twice and compare the output hashes.</p>
-      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the start of Git's hash of the program that built the table, so it changes whenever that file does. In a larger repository it would be the commit, plus a check that no file was edited after it.</p>
-      <p>The <code>requests</code> counter has a limit. It wraps the replay process's own socket calls and name lookups, so it misses requests from child processes and from tools an agent runs. A sandbox with no network blocks such traffic but does not show that nothing tried. Evidence of zero attempts needs an audit covering the agent, its child processes and its tool calls.</p>
+      <p>The report makes two checks. <strong>Repeatability</strong>: two builds into empty folders from the same recorded inputs give the same output hash, {rewind.rerunHash} on the <code>rerun</code> line. <strong>Verification</strong>: the keyed diff against Tuesday's table changes exactly the expected cell, nothing else. Matching hashes prove the build repeats, not that the fix is right.</p>
+      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, starts Git's hash of the program that built the table, so it changes whenever that file does.</p>
+      <p>The <code>requests</code> counter wraps only the replay process's own socket calls and name lookups, so it misses requests from child processes and an agent's tools. A sandbox with no network blocks such traffic; only one that logs every blocked attempt shows that nothing tried.</p>
 
       <AiCard part="rewind" />
 
       <h4 class="cv-try">Check the report against the criteria</h4>
-      <Check once="rewind-match" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
+      <Check once="rewind-report-check" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
         <p class="cv-qlabel">Which of Riley's criteria does each line support?</p>
-        {lines.map((l, i) => (
+        {lines.map((l) => (
           <div class="cv-line ar-match" data-q data-type="select" data-answer={l.answer} data-why={l.why}>
             <label class="cv-stack"><code>{l.text}</code>
-              <select data-save={`rewind-meets-${i}`} aria-label={`Criterion supported by the line ${l.text}`}><option value="">Choose a criterion</option>{short.map(([v, t]) => <option value={v}>{t}</option>)}</select>
+              <select data-save={`rewind-report-${l.save}`} aria-label={`Criterion supported by the line ${l.text}`}><option value="">Choose a criterion</option>{short.map(([v, t]) => <option value={v}>{t}</option>)}</select>
             </label>
             <p class="cv-fb" role="status"></p>
           </div>
         ))}
-        <Choice radio save="rewind-agent" label="Next time Kick runs the rebuild as an agent, starting other programs and calling tools. What evidence does Riley need for the second criterion?"
-          options={agentRun} answer="audit"
-          why="An audit of every attempt. The counter is proven only for the process it wraps, and a sandbox blocks traffic without recording what tried."
-          wrong={{ enough: "It caught test requests made by this process. A request from a child process or a tool never passes through it.", sandbox: "A sandbox stops the traffic, but a blocked attempt leaves no count. The criterion asks for zero attempts, measured.", pages: "The count is of network attempts, and splitting a 0 by page doesn't widen what the counter sees." }} />
-        <p slot="reveal">Without the criteria, Riley takes the report on trust; with them, Riley can check it in a minute.</p>
+        <Choice radio save="rewind-agent-evidence" label="Next time Kick rebuilds as an agent that starts programs and calls tools. Which evidence covers what the counter cannot see?"
+          options={agentRun} answer="log"
+          why="The log sits outside the agent, so it sees child processes and tools, and the tool's test request proves it."
+          wrong={{ counter: "More test requests from the same process pass through the same wrapper. A child process's request still never does.", sandbox: "It shows nothing got out, not that nothing tried: a blocked attempt leaves no trace unless it is logged." }} />
+        <p slot="reveal">Without criteria, Riley takes the report on trust; with them, Riley checks it in a minute.</p>
       </Check>
     </div>
   </div>

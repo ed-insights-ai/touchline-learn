@@ -57,8 +57,8 @@ const hash12 = sidecar.sha256.slice(0, 12);
 const claims: [string, string][] = [
   ["bytes", `Replayed over archive (c), Cedar Grove's bytes as fetched on ${fetchedOn}; they still hash to the sidecar's ${hash12}.`],
   ["site", "Replayed over archive (c); its sidecar proves the page still matches Cedar Grove's site."],
-  ["tidied", `Replayed over archive (b), which gave the right ${case2Draws.points.b}, so tidied HTML is raw enough.`],
-  ["parsed", "Replayed over archive (a), the parsed rows the table was built from."],
+  ["points", `Replayed over Cedar Grove's saved page, which gave the right ${case2Draws.points.c} points.`],
+  ["parsed", "Replayed over the parsed rows the table was built from."],
 ];
 const sidecarFields: [string, string][] = [
   ["final_url", "Where the site answered from after any redirects; Module 3 asks what a match with the request proves."],
@@ -178,7 +178,7 @@ const sidecarFields: [string, string][] = [
     <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one: damage stacks. Only the bytes as received come before every step.</p></div>
   </div>
   <Touchline part="case-kept" at={["Archive"]} note="Archive writes the bytes and a sidecar before anything parses them." title="Page bytes plus a sidecar">
-    <p>Touchline saves each page's bytes as received. Touchline's sidecar holds the fetch record, the content hash and signature, and the page's coverage state from Module 1. Its cached parse is silver, derived data kept beside the page, not part of the bronze bytes.</p>
+    <p>Touchline saves each page's bytes as received. Touchline's sidecar holds the fetch record, the content hash and signature, and the page's coverage state from Module 1. Its cached parse is derived data (silver) kept beside the page, not part of the bronze bytes.</p>
   </Touchline>
 
   <AiCard part="case-kept" />
@@ -186,13 +186,13 @@ const sidecarFields: [string, string][] = [
   <div class="cv-check" data-once="kept-claim">
     <p class="cv-kind">Apply it</p>
     <fieldset class="cv-opts" data-q data-type="radio" data-answer="bytes"
-      data-why="The bytes line. It names the layer before every step and two sidecar fields anyone can check: when the bytes arrived and their hash."
+      data-why="The bytes line. It names archive (c) by two sidecar fields anyone can check: when the bytes arrived and their hash."
       data-wrong={JSON.stringify({
         site: `The hash shows the file is the one that arrived on ${fetchedOn}. It says nothing about what the site serves now.`,
-        tidied: "Archive (b) got bug 4 right only because tidying never touched a result. It fails bug 1, so it can't verify every fix.",
-        parsed: `The parsed rows give ${case2Draws.points.a}: they still carry bug 3's 0–0.`,
+        points: `Archive (b) gives the same ${case2Draws.points.b} points, so the result can't say which bytes were used. The line needs the capture's date and hash.`,
+        parsed: `Riley replayed the bytes, not the rows, and the rows give ${case2Draws.points.a} points, not ${case2Draws.truth}: they still carry bug 3's 0–0.`,
       })}>
-      <legend>Riley's changelog says where bug 4's fix was verified. Which line can the archive back up?</legend>
+      <legend>Riley verified bug 4's fix by replaying archive (c). Which changelog line identifies the bytes used, so anyone can check it?</legend>
       {claims.map(([v, text]) => <label><input type="radio" name="ar-kept-claim" value={v} data-save="kept-claim" /><span>{text}</span></label>)}
       <p class="cv-fb" role="status"></p>
     </fieldset>

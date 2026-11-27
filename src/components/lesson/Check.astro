@@ -5,12 +5,13 @@ interface Props {
   note: string;
   button?: string;
   predict?: string;
+  tag?: string;
 }
-const { once, kind = "Knowledge check", note, button = "Check answers", predict } = Astro.props;
+const { once, kind = "Knowledge check", note, button = "Check answers", predict, tag } = Astro.props;
 ---
 
 <div class="cv-check" data-once={once} data-predict={predict !== undefined ? "" : undefined} data-predict-note={predict || undefined}>
-  <p class="cv-kind">{kind}</p>
+  <p class="cv-kind">{kind}{tag && " "}{tag && <span>{tag}</span>}</p>
   <slot />
   <p class="cv-once">{note}</p>
   <button type="button" data-submit>{button}</button>

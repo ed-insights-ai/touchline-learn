@@ -199,7 +199,7 @@ the same split into lines. Render it verbatim (a `<pre>`). It is stored in
 
 `rewind` also gives the parsed fields: `manifest`, `schedulesSaved` 7,
 `boxScoresSaved` 12, `requested` 20, `unavailable` (`{slug, name, reason}`: Dunmore),
-`requests` 0, `fingerprint` `cceba9f64b7c`, `fingerprintTuesday`
+`requests` 0, `rerunHash` (the output hash both fixed builds printed), `fingerprint` `cceba9f64b7c`, `fingerprintTuesday`
 `16ede3aa872b`, `buildRevision` (the git blob id of `labs/m02_archive.py`, so
 it changes whenever the lab does; it hashes the file's bytes, so a checkout
 that rewrites line endings would fail it), `cellsChanged` 1. At import the
@@ -207,7 +207,8 @@ build checks that both quoted fingerprints are the parsers', its build
 revision is the lab file as it stands, its request line is a counted 0, its
 one changed-cell line is exactly the one built from `diffAB`, its `parsed rows`
 line is exactly the renames computed here (so the TypeScript and Python tidy
-rules cannot drift apart), and its caption matches the tables.
+rules cannot drift apart), its `rerun` line reports an identical output hash
+from a second build into an empty folder, and its caption matches the tables.
 
 `tuesdayDiff` is the `--tuesday` run's confounded diff, stored in
 `src/data/quotes/m02_archive.tuesday-diff.txt`. At import the build checks its
@@ -230,6 +231,7 @@ tables         : Tuesday's 53 of 54 finished matches; rebuild 53 of 54 finished 
 cells changed  : 1
   Saint Lambert   name 'State Lambert' -> 'Saint Lambert': the tidy rule, the only input that changed
 unchanged      : the other 79 cells, every place and number
+rerun          : identical output hash 8f1d0280b359, a second build into an empty folder
 parsed rows    : 16 renamed, 'State Brendan' -> 'Saint Brendan' in 4, 'State Lambert' -> 'Saint Lambert' in 12
 named gap      : 2026-09-21 Cedar Grove v Saint Lambert finished with no score
 named gap      : Dunmore's page unavailable, its home results read from visitors' pages

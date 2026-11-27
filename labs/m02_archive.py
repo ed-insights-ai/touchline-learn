@@ -198,6 +198,10 @@ def standings(parsed: Path, pages: list[str], slugs: list[str]) -> dict:
             "no_score": sorted((m["date"], m["host"], m["visitor"]) for m in finished if not m["score"])}
 
 
+def output_hash(t: dict) -> str:
+    return sha256(json.dumps(t["rows"], sort_keys=True).encode())[:12]
+
+
 def caption(t: dict) -> str:
     return f"{t['scored']} of {t['finished']} finished matches"
 
@@ -316,6 +320,10 @@ def main() -> int:
         print("Saint schools now:", fixed)
         table_b = standings(rebuilt_dir, r3["read"], slugs)
         print_table(table_b)
+        rerun_dir = work / "rerun"
+        rerun_dir.mkdir()
+        rerun = standings(rerun_dir, replay(friday, root, m02_parser_fixed, rerun_dir)["read"], slugs)
+        same_output = output_hash(rerun) == output_hash(table_b)
 
         compare = table_b
         if args.tuesday:
@@ -383,6 +391,8 @@ def main() -> int:
         print(f"  {name_of[slug]:15} {', '.join(cells)}: the tidy rule, the only input that changed")
     unchanged = len(COLUMNS) * len(compare["rows"]) - len(changes)
     print(f"unchanged      : the other {unchanged} cells" + (", every place and number" if all(c[1] == "name" for c in changes) else ""))
+    print(f"rerun          : identical output hash {output_hash(table_b)}, a second build into an empty folder" if same_output
+          else f"rerun          : output hash {output_hash(rerun)} differs from {output_hash(table_b)}, the build does not repeat")
     renamed: dict[tuple, int] = {}
     before_rows = dict(parsed_rows(tuesday_dir, r1["read"]))
     for slug, rows in parsed_rows(rebuilt_dir, r3["read"]):
@@ -403,7 +413,7 @@ def main() -> int:
     only_name = changes == [("st-lambert", "name", "State Lambert", "Saint Lambert")]
     ok = (seen["schedules"] == 7 and len(r3["read"]) == 7 and not r3["refused"] and seen["hashes_ok"]
           and counter_works and requests == 0 and wrong == ["State Brendan", "State Lambert"]
-          and not r2["reparsed"] and len(r3["reparsed"]) == 7 and only_name
+          and not r2["reparsed"] and len(r3["reparsed"]) == 7 and only_name and same_output
           and renamed == {("State Brendan", "Saint Brendan"): 4, ("State Lambert", "Saint Lambert"): 12}
           and table_a["no_score"] == table_b["no_score"] and (table_a["scored"], table_a["finished"]) == (53, 54))
     print("\nRESULT:", "rebuilt by replay with 0 requests; only Saint Lambert's name changed" if ok

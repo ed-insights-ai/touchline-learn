@@ -96,7 +96,7 @@ const tell: [string, string][] = [
     <p class="ar-said" data-when="prove-where" data-is="site" hidden>The saved box score's F column says {published.home}–{published.away}, the same as the schedules.</p>
     <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column, so the goal at {goal.time}, a penalty kick in overtime, never reached the match detail.</p>
   </div>
-  <p>The parser is fixed in a minute. Now recover with what Cases 1 to 3 taught. Each parser module has its own fingerprint: the fix changes only the box-score parser's, to {fp.after}. The schedule parser's is still {fingerprints.v2}.</p>
+  <p>The parser fix takes a minute; recovery uses Cases 1 to 3. Each parser module has its own fingerprint: the fix changes only the box-score parser's, to {fp.after}. The schedule parser's is still {fingerprints.v2}.</p>
   <div class="cv-scroll">
     <table class="cv-log ar-lineage">
       <caption>What each output is built from</caption>
@@ -127,8 +127,8 @@ const tell: [string, string][] = [
       wrong={{ site: `The box score saved on ${savedOn} says ${published.home}–${published.away}. Nothing shows the site ever posted ${buggy.home}–${buggy.away}.`, refetch: "Nothing was fetched. The note would misstate where the corrected number came from.", table: `The standings didn't change. A ${round} isn't in them.` }} />
     <Fragment slot="reveal">
       <p class="cv-rule">Replay every box score the fixed parser reads, fetch nothing, republish the one product that was wrong, and say what changed and why.</p>
-      <p>Only box {box} has an {scoreByPeriod.head[ot]} column, so it is the only match detail expected to change. Replaying all {n} confirms the other {spell(boxes - slots.replay.withOvertime)} come out unchanged.</p>
-      <p>Now suppose the box-score archive had kept only the parsed match detail: a final score for each match, with no periods and no goal times. The schedule's “{proveIt.schedules["alder-ridge"]}” would still show the final score was wrong, and that a goal was missing. It can't say when that goal came or that the match went to overtime. Only a fresh fetch could bring those back, if the site still shows them.</p>
+      <p>Only box {box} has an {scoreByPeriod.head[ot]} column, so it is the only match detail expected to change. Nothing was replayed here: the other {spell(boxes - slots.replay.withOvertime)} are expected unchanged; replaying and diffing all {n} would confirm it.</p>
+      <p>Now suppose the box-score archive had kept only the parsed match detail: a final score per match, no periods, no goal times. The schedule's “{proveIt.schedules["alder-ridge"]}” would still show the final score was wrong, and that a goal was missing. It can't say when that goal came or that the match went to overtime. Only a fresh fetch could restore them, if the site still shows them.</p>
     </Fragment>
   </Check>
   <NextPart from="prove-it">Does the same fix work for an archive that kept less?</NextPart>

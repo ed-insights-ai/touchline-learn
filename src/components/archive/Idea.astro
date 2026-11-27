@@ -16,7 +16,7 @@ const terms = [
   {
     term: "Raw data",
     say: `is the bytes exactly as a site sent them, saved before any step changes them.`,
-    also: `A saved page plus its <strong>sidecar</strong>, a small record of when and how it was fetched, is a <strong>capture</strong>. Where you keep captures is the <strong>raw zone</strong>, also called the bronze layer.`,
+    also: `A saved page plus its <strong>sidecar</strong>, a small record of when and how it was fetched, is a <strong>capture</strong>. Where you keep captures is the <strong>raw zone</strong>, also called the bronze layer; derived layers are often called silver and gold.`,
     tuesday: `Friday's ${saved} schedule pages. Every one still says “${story.mondayName}”, byte for byte as it arrived.`,
   },
   {
@@ -110,7 +110,7 @@ const items: [string, string][] = [
     </figcaption>
   </figure>
   <div class="cv-define">
-    <p>A <dfn>controlled comparison</dfn> changes one input and holds the others fixed, isolating that input's effect. When two inputs change together, their effects are <dfn>confounded</dfn>: the comparison can't say which change did what.</p>
+    <p>A <dfn>controlled comparison</dfn> changes one input and holds the others fixed. When two inputs change together, their effects are <dfn>confounded</dfn>: the comparison can't say which change did what.</p>
   </div>
   <p>On Tuesday the recipe is the code and the oven is the pages. Kick's re-fetch is today's loaf: new code on new pages. A replay is the old oven column: both versions of the code on Friday's pages.</p>
 
@@ -127,7 +127,7 @@ const items: [string, string][] = [
     <figcaption id="ar-loop-cap">Lines 1 to 3 (tan) fetch and save; only line 2 asks a site for anything. Lines 4 to 6 (blue) rebuild and record from saved captures, with no requests. Rerun 4 to 6 after a parser fix: a replay. Rerun 1 to 3: a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
-  <p>{silent} is the site that never answered on Friday, so there is no {silent} page to replay. Its results still come from the other schools' pages, as on Monday.</p>
+  <p>{silent} never answered on Friday, so there is no {silent} page to replay; its results still come from the other schools' pages.</p>
 
   <AiCard part="idea" />
   <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption={`Replay, Don't Refetch. Sites are lettered and the numbers are illustrative; the site that never answered is ${silent}.`} />

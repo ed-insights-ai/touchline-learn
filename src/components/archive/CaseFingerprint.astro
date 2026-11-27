@@ -81,16 +81,16 @@ const claims: [string, string][] = [
       <p>{story.mondayName}'s own page names the school only in its title:</p>
       <pre class="ar-title" tabindex="0" aria-label={`${story.mondayName}'s page title`}><code>{`<title>${title}</title>`}</code></pre>
       <p>The table takes each team's name from the opponent column of the other schools' pages. {spell(skipped.length, true)} pages name {story.mondayName} there, and Kick skipped all {spell(kickPartial.pagesSkipped)}, so they still say “{story.tuesdayName}”. The one parsed row that changed is {stBrendanNote.opponent}, a non-member, now “{stBrendanNote.after}”.</p>
-      <p>The plan sounded careful because it followed the bug's subject. A replay has to follow its inputs: every parsed schedule the changed code wrote.</p>
+      <p>The plan sounded careful: it followed the bug's subject, not its inputs.</p>
     </div>
   </div></div>
 
-  <p>A fingerprint finds them without anyone working out where a name comes from.</p>
+  <p>A fingerprint finds every schedule the changed code wrote, without anyone working out where a name comes from.</p>
   <div class="cv-define">
-    <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even parts this parser doesn't read. Change any byte of them and it changes.</p>
+    <p>A <dfn>fingerprint</dfn> is a hash of the code and config behind a parse: the parser's module, the shared page reader it calls, and the build's config, even parts this parser doesn't read. Change any byte and it changes.</p>
     <p class="cv-formula"><span>fingerprint</span> = hash(<span>parser module</span>, page reader, alias list, membership list, season)</p>
   </div>
-  <p>Each capture's sidecar holds the page's <strong>content hash</strong>. The fingerprint tracks the code, the content hash the page, and each parsed schedule records both.</p>
+  <p>The fingerprint tracks the code; the <strong>content hash</strong> in each capture's sidecar tracks the page. Each parsed schedule records both.</p>
   <p class="ar-rule">A parsed schedule is <b>stale</b> when its recorded fingerprint differs from the current one, or its recorded content hash differs from the saved page's content hash now.</p>
   <p>On Tuesday all {spell(files)} parsed schedules recorded the old parser's fingerprint, <code>{fingerprints.v1}</code>; the fixed parser's is <code>{fingerprints.v2}</code>. So all {spell(nFiles)} are stale, the {spell(kickPartial.pagesSkipped)} Kick skipped among them, with no guessing: change 1 below.</p>
 
@@ -118,24 +118,23 @@ const claims: [string, string][] = [
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
-      <p>Run each change on the bench, reading each schedule's two hashes; compare {nRefetch} and {nLive}.</p>
       <ReplayBench mode="presets" id="ar-bench-presets" />
-      <p>Built after change {nRefetch}, the table takes {harbor}'s recorded {sat}, since {sat0.homeName}'s page leaves that fixture blank rather than contradicting it. It goes from {harborRefetch.before.scored} of {harborRefetch.before.finished} to {harborRefetch.after.scored} of {harborRefetch.after.finished} finished matches, a point for each team, with no error, and now mixes Friday's evidence with Tuesday's. Only pages that disagree on a fixture's score, date or host stop the build.</p>
+      <p>Built after change {nRefetch}, the table takes {harbor}'s recorded {sat}, since {sat0.homeName}'s page leaves that fixture blank rather than contradicting it. It goes from {harborRefetch.before.scored} of {harborRefetch.before.finished} to {harborRefetch.after.scored} of {harborRefetch.after.finished} finished matches, a point for each team, with no error, and now mixes Friday's evidence with Tuesday's. The build would stop only if the two pages disagreed on its score, date, host or either team's identity.</p>
     </div>
   </div>
 
   <Beat part="case-fingerprint" name="Name it" title="Cache invalidation, and why its mistakes aren't equal" />
   <p class="cv-lede">Deciding which saved results are out of date is <strong>cache invalidation</strong>.</p>
-  <p>Rebuilding too much costs work; rebuilding too little leaves stale output with no error, as Kick's plan did. So a whole-file fingerprint over-rebuilds on purpose.</p>
+  <p>Rebuilding too much costs work; rebuilding too little leaves stale output with no error, as Kick's plan did. So a whole-file fingerprint over-rebuilds on purpose. A second failure mode lies outside the cache: it can't see a source that changed but was never refetched, as in change {nLive}.</p>
   <Check once="stale-notebook" note="Match both, then check.">
     <p class="cv-qlabel">A notebook caches each cell's result under a hash of the cell's code and settings file plus the content hash of the data file it reads. Match each change to the bench change, 2 to 6, of the same kind.</p>
     <Choice save="stale-nb-comment" label="You add a blank line between two statements in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's text changed, so its hash did and the cell reruns: safe over-rebuilding." wrong={{ alias: "No setting changed. The code's text did." }} />
     <Choice save="stale-nb-live" label="The data provider has fixed an error in its file online. You rerun the notebook on the copy you saved last week." options={optionsOf} answer="live-changed" why="The cache compares only the file you saved, which hasn't changed, so the correction stays unseen." wrong={{ "refetch-harbor": "That preset fetches the new file. Here the notebook reads last week's copy.", nothing: "Your saved copy is unchanged, but the source isn't: the provider changed its file." }} />
-    <p slot="reveal">Like the bench, the cache compares two hashes, and neither sees a source you never fetched again.</p>
+    <p slot="reveal">Like the bench, the cache compares two hashes.</p>
   </Check>
 
   <Touchline part="case-fingerprint" at={["Archive", "Parse"]} note="A stale fingerprint sends Parse back to the archive, never to the site." title="A fingerprint over the whole parser">
-    <p>Touchline's fingerprint covers each parser's whole module plus aliases, membership and the season. When any of them changes, every result with an old fingerprint is re-read from the archived bytes, without a fetch.</p>
+    <p>Touchline's schedule-parser fingerprint covers its whole module, the shared page reader, aliases, membership and the season; the box-score parser's covers its module and the reader. When any input changes, every result with an old fingerprint is re-read from the archived bytes, never fetched.</p>
   </Touchline>
 
   <AiCard part="case-fingerprint" />

@@ -70,7 +70,7 @@ const checks = [
     <div aria-live="polite">
     <div class="pa-lanes">
       <div class="pa-lane is-old">
-        <p class="pa-lane-head"><b>Yesterday's report</b><span>saved copy, old code</span></p>
+        <p class="pa-lane-head"><b>Yesterday's published report</b><span>saved copy, old code</span></p>
         <ul>{saved.map((r) => <li><span>Page {r.page} · {r.status}</span><b>1</b></li>)}</ul>
         <p class="pa-lane-total"><span>Pages counted</span><b>{before}</b></p>
       </div>
@@ -94,7 +94,7 @@ const checks = [
       ))}
     </div>
     </div>
-    <figcaption>Shaded rows differ from yesterday's report, in status or in what they count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with both changes on, its total matches yesterday's while the pages behind it differ.</figcaption>
+    <figcaption>The pipeline's published report has the wrong {before}; the source file it counted has page {twice[0]}'s row twice. Shaded rows differ from yesterday's report, in status or in what they count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with both changes on, its total matches yesterday's while the pages behind it differ.</figcaption>
   </figure>
 
   <h2>2. What you can reproduce</h2>

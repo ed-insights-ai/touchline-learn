@@ -116,7 +116,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The reply's fingerprint covers a whole pantry-month: its input snapshot, steps, rules and configuration. In this course a fingerprint covers one parser's code and config, and each parsed file also keeps the content hash of the page it read. Either way, a difference marks the output stale, and the replay, not the fingerprint, decides what to republish.</p>
-    <p>In Part 8 the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, like every Oak month that went through the importer. The {fresh} schedules come through their own parser and stay fresh, like Maple. The other {others} box scores are Oak's February: replayed, unchanged, nothing to republish. Part 8's third slot asks the reply's Maple question of the match detail and of the standings: did the bug ever reach it?</p>
+    <p>In Part 8 the box-score parser's fingerprint changed, so all {boxes} parsed Alder Ridge box scores are stale, like every Oak month that went through the importer. The {fresh} schedules come through their own parser and stay fresh, like Maple. The other {others} box scores are Oak's February: expected unchanged, nothing to republish; replaying and diffing all {boxes} would confirm it, since Part 8 runs no replay. Part 8's third slot asks the reply's Maple question of the match detail and of the standings: did the bug ever reach it?</p>
   </aside>
 
   <h2>4. Check your understanding</h2>
@@ -124,6 +124,7 @@ const checks = [
 </PrimerChat>
 
 <style>
+  :global(.pr-thread) { grid-template-columns: minmax(0, 1fr); }
   .pa-ids { display: grid; grid-template-columns: repeat(10, 1fr); gap: 0.3rem; max-width: 22rem; margin: 0 0 0.6rem; padding: 0; list-style: none; }
   .pa-ids li { aspect-ratio: 1; border-radius: 4px; background: color-mix(in srgb, var(--pr-green) 55%, transparent); }
   .pa-ids li.is-second { border: 1.5px dashed var(--pr-red); background: transparent; }

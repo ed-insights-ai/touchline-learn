@@ -4,7 +4,7 @@ export type ArchivePartId = "setup" | "idea" | "case-saturday" | "case-kept" | "
 
 export const parts: (Part & { id: ArchivePartId })[] = [
   { id: "setup", phase: "discover", name: "Setup", short: "Setup", what: "Tuesday, one line of code" },
-  { id: "idea", phase: "discover", name: "The idea: replay", short: "The idea", what: "Raw, derived and replay" },
+  { id: "idea", phase: "discover", name: "The idea: raw, derived and replay", short: "The idea", what: "Raw, derived and replay" },
   { id: "case-saturday", phase: "investigate", name: "Case 1. Saturday's matches", short: "Case 1", what: "Replay versus re-fetch" },
   { id: "case-kept", phase: "investigate", name: "Case 2. What Kick kept", short: "Case 2", what: "Raw or already cooked" },
   { id: "case-fingerprint", phase: "investigate", name: "Case 3. Which outputs are stale", short: "Case 3", what: "Fingerprints, not guesses" },
