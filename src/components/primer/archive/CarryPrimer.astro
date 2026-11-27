@@ -150,6 +150,8 @@ const checks = [
   .pa-line-dot small { position: absolute; bottom: 0.95rem; left: 50%; transform: translateX(-50%); color: var(--sl-color-white); font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
   .pa-line-ticks { position: relative; height: 1.4rem; margin-top: 0.5rem; }
   .pa-line-ticks span { position: absolute; transform: translateX(-50%); color: var(--tl-muted); font-size: 0.78rem; white-space: nowrap; }
+  :global(.pr-thread) { grid-template-columns: minmax(0, 1fr); }
+  .pa-worlds :global(.pr-chip) { white-space: normal; }
   .pa-versions { display: grid; gap: 0.3rem; margin: 0 0 0.7rem; padding: 0; list-style: none; font-size: 0.88rem; }
   .pa-versions li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.3rem 0.55rem; border: 1px solid var(--tl-line); border-radius: 6px; }
   .pa-note { margin: 0 0 1rem; padding: 0.7rem 0.95rem; border-left: 3px solid var(--pr-yellow); border-radius: 6px; background: var(--tl-card); font-size: 0.95rem; }

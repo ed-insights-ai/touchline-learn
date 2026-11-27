@@ -18,6 +18,7 @@ export const outcomes: Outcome[] = [
   { can: "Tell a replay from a re-fetch, and say what a re-fetch changes besides the bug, including the evidence it can overwrite.", short: "Tell a replay from a re-fetch, and what a re-fetch changes besides the bug", href: "#case-saturday", where: "Case 1" },
   { can: "Say what an archive must hold so a bug can be fixed by replay, and find the last layer before the damage.", short: "Say what an archive must hold, and find the last layer before the damage", href: "#case-kept", where: "Case 2" },
   { can: "Decide which outputs are stale after a change from a fingerprint, not a guess, and say why rebuilding too little is the dangerous mistake.", short: "Decide what is stale from a fingerprint, not a guess", href: "#case-fingerprint", where: "Case 3" },
+  { can: "Choose how long to keep captures from the questions an archive must answer.", short: "Choose how long to keep captures from what the archive must answer", href: "#decision", where: "The decision" },
   { can: "Write acceptance criteria that make an agent's rebuild checkable, and check a rebuild report against them.", short: "Write acceptance criteria that make a rebuild checkable", href: "#rewind", where: "Rewind" },
 ];
 

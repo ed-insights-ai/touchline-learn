@@ -50,9 +50,9 @@ const verdict = (q: "today" | "monday" | "cedar") => {
 const who: [string, string][] = [["both", "Both policies"], ["latest", "Latest only"], ["every", "Every capture only"], ["neither", "Neither policy"]];
 const cedarHash = cedar.friday.sha256.slice(0, 12);
 const questions = [
-  { key: "today", label: "Tell a reader what the table says today.",
-    why: "Both policies. Today's table needs only the newest captures, and both archives hold Tuesday's.",
-    wrong: { latest: "Every capture holds Tuesday's captures too, beside Friday's.", every: "Latest only keeps one capture per page: the newest. That is the one today's table needs.", neither: "Both archives hold Tuesday's pages. That is what a re-fetch saves." } },
+  { key: "today", label: "Build a table from the sites as they stand today.",
+    why: "Both policies. A table of the sites as they stand needs only the newest captures, and both archives hold Tuesday's.",
+    wrong: { latest: "Every capture holds Tuesday's captures too, beside Friday's.", every: "Latest only keeps one capture per page: the newest. That is the one a table of today's sites needs.", neither: "Both archives hold Tuesday's pages. That is what a re-fetch saves." } },
   { key: "monday", label: "Rebuild Monday's table exactly, from its pages.",
     why: `Every capture only. Monday's table read Friday's ${seven} captures. Latest only replaced them on Tuesday, and ${spell(changed.length)} had changed, so their Friday bytes are gone.`,
     wrong: { latest: `Latest only replaced Friday's captures on Tuesday. Every capture still holds them.`, both: `Latest only now holds Tuesday's pages. ${spell(changed.length, true)} of them differ from Friday's, so it no longer has the full set Monday's table read.`, neither: `Every capture still holds Friday's ${seven} captures, each beside Tuesday's.` } },
@@ -148,7 +148,7 @@ const calls = [
 
   <h3 id="decision-touchline">What Touchline keeps</h3>
   <div class="cv-touchline">
-    <p>Touchline keeps latest only, with each capture's fetch time. Monday's table could be rebuilt on Tuesday only because nothing had fetched those {seven} pages since Friday; Kick's “Re-fetching!” would have replaced all {seven}. So a parser change re-reads the archive and never fetches, and a re-fetch is a separate, deliberate act.</p>
+    <p>Touchline keeps latest only, with each capture's fetch time. Monday's table could be rebuilt on Tuesday because Friday's exact bytes were still on disk. Kick's “Re-fetching!” would have overwritten the {spell(changed.length)} pages that had changed; the captures of {names(same)}, unchanged, would still be Friday's bytes. So a parser change re-reads the archive and never fetches, and a re-fetch is a separate, deliberate act.</p>
     <p>That is latest only's real cost: a published table stays rebuildable only until the next routine run captures a changed page. A table that may be disputed needs every capture its manifest names kept for as long as it can be questioned.</p>
   </div>
 

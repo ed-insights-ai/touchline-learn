@@ -119,13 +119,13 @@ const claims: [string, string][] = [
     <p class="cv-fb" role="status" data-need></p>
     <div class="cv-reveal">
       <ReplayBench mode="presets" id="ar-bench-presets" />
-      <p>Built after change {nRefetch}, the table takes {harbor}'s recorded {sat}, since {sat0.homeName}'s page leaves that fixture blank rather than contradicting it. It goes from {harborRefetch.before.scored} of {harborRefetch.before.finished} to {harborRefetch.after.scored} of {harborRefetch.after.finished} finished matches, a point for each team, with no error, and now mixes Friday's evidence with Tuesday's. The build would stop only if the two pages disagreed on its score, date, host or either team's identity.</p>
+      <p>Built after change {nRefetch}, the table takes {harbor}'s recorded {sat}, since {sat0.homeName}'s page leaves that fixture blank rather than contradicting it. It goes from {harborRefetch.before.scored} of {harborRefetch.before.finished} to {harborRefetch.after.scored} of {harborRefetch.after.finished} finished matches, a point for each team, with no error, and now mixes Friday's evidence with Tuesday's. This merge stops on pages that disagree about a fixture's score, date, host or either team, or that show one team under two names. A blank result claims no score, so it contradicts nothing.</p>
     </div>
   </div>
 
   <Beat part="case-fingerprint" name="Name it" title="Cache invalidation, and why its mistakes aren't equal" />
   <p class="cv-lede">Deciding which saved results are out of date is <strong>cache invalidation</strong>.</p>
-  <p>Rebuilding too much costs work; rebuilding too little leaves stale output with no error, as Kick's plan did. So a whole-file fingerprint over-rebuilds on purpose. A second failure mode lies outside the cache: it can't see a source that changed but was never refetched, as in change {nLive}.</p>
+  <p>Rebuilding too much costs work; rebuilding too little leaves stale output with no error, as Kick's plan did. So a whole-file fingerprint over-rebuilds on purpose. A second failure mode lies outside the cache: it can't see a source that changed but was never re-fetched, as in change {nLive}.</p>
   <Check once="stale-notebook" note="Match both, then check.">
     <p class="cv-qlabel">A notebook caches each cell's result under a hash of the cell's code and settings file plus the content hash of the data file it reads. Match each change to the bench change, 2 to 6, of the same kind.</p>
     <Choice save="stale-nb-comment" label="You add a blank line between two statements in the cell that draws a chart." options={optionsOf} answer="comment" why="The code's text changed, so its hash did and the cell reruns: safe over-rebuilding." wrong={{ alias: "No setting changed. The code's text did." }} />

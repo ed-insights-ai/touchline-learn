@@ -30,8 +30,9 @@ const yearOf = (s: string) => s.match(/\b(20\d\d)\b/)?.[1] ?? "";
 const asked = yearOf(sidecar.requested_url.split("/").pop()!);
 const titled = yearOf(title);
 const friday2026 = fridayPages.find((p) => p.slug === "cedar-grove")!;
+const friday2026Year = yearOf(fridayManifest.pages.find((p) => p.kind === "schedule" && p.programme === "cedar-grove")?.path ?? "");
 const fridayRecorded = fridayManifest.pages.find((p) => p.kind === "schedule" && p.programme === "cedar-grove")!.sha256;
-if (sidecar.status !== 200 || !asked || sidecar.final_url !== sidecar.requested_url || !titled || titled === asked || rows === 0 || actualHash !== sidecar.sha256 || actualHash !== friday2026.sha256 || actualHash !== fridayRecorded) {
+if (sidecar.status !== 200 || !asked || sidecar.final_url !== sidecar.requested_url || !titled || titled === asked || rows === 0 || actualHash !== sidecar.sha256 || actualHash !== friday2026.sha256 || actualHash !== fridayRecorded || !friday2026Year) {
   throw new Error("Cedar Grove's 2019 capture no longer sets up Module 3: a 200, both URLs the requested year, a full table, another year in the title, the same bytes as Friday's page");
 }
 const sideRows: [string, string][] = [
@@ -133,8 +134,8 @@ const staleOpts: [string, string][] = [
   </fieldset>
   <div class="ar-title" data-when="carry-season" hidden>
     <p class="ar-said" data-when="carry-season" data-is="yes" hidden>The URLs say which season was asked for and which address answered. They don't say what the page itself shows.</p>
-    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>A sidecar says only which season was asked for and which address answered. For what the page shows, the evidence is the sha256: compare it with Cedar Grove's Friday sidecar in <a href="#case-kept-look">Case 2</a>.</p>
-    <p class="ar-said" data-when="carry-season" data-is="no" hidden>Nothing in the URLs says so. If you suspect it, the evidence is the sha256: compare it with the sidecar of Cedar Grove's Friday page in <a href="#case-kept-look">Case 2</a>.</p>
+    <p class="ar-said" data-when="carry-season" data-is="unknown" hidden>A sidecar says only which season was asked for and which address answered. Its sha256 says which bytes came back: compare it with Cedar Grove's Friday sidecar in <a href="#case-kept-look">Case 2</a>. A match means the {asked} request returned the same bytes as Friday's {friday2026Year} capture. Which season they show is the page's own evidence, Module {nextModule.n}'s to check.</p>
+    <p class="ar-said" data-when="carry-season" data-is="no" hidden>Nothing in the URLs says so. Compare the sha256 with Cedar Grove's Friday sidecar in <a href="#case-kept-look">Case 2</a>: a match means both requests got the same bytes, not which season they show.</p>
     <p>The archive kept exactly what arrived, with a sidecar that says what was asked for. If the URLs are wrong about this page, every replay would file it the same way, faithfully.</p>
     <div class="cv-say cv-riley">
       <p class="cv-who">Riley</p>

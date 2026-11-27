@@ -198,8 +198,22 @@ def standings(parsed: Path, pages: list[str], slugs: list[str]) -> dict:
             "no_score": sorted((m["date"], m["host"], m["visitor"]) for m in finished if not m["score"])}
 
 
-def output_hash(t: dict) -> str:
-    return sha256(json.dumps(t["rows"], sort_keys=True).encode())[:12]
+def output_hash(t: dict, manifest: dict, slugs: list[str]) -> str:
+    """Hash of the whole published output: the rows, the caption and the named gaps."""
+    published = {"rows": t["rows"], "caption": caption(t), "gaps": named_gaps(t, manifest, slugs)}
+    return sha256(json.dumps(published, sort_keys=True).encode())[:12]
+
+
+def named_gaps(t: dict, manifest: dict, slugs: list[str]) -> list[str]:
+    name_of = {r["slug"]: r["name"] for r in t["rows"]}
+    gaps = [f"{d} {name_of[h]} v {name_of[v]} finished with no score" for d, h, v in t["no_score"]]
+    for p in manifest["pages"]:
+        if p["state"] != "saved":
+            found, due = t["hosted"][p["programme"]], len(slugs) - 1
+            gaps.append(f"{name_of[p['programme']]}'s page {p['state']}, its home results read from visitors' pages" if found == due
+                        else f"{name_of[p['programme']]}'s page {p['state']}, {found} of its {due} home matches read from "
+                             f"visitors' pages, {due - found} with no page on either side")
+    return gaps
 
 
 def caption(t: dict) -> str:
@@ -323,7 +337,8 @@ def main() -> int:
         rerun_dir = work / "rerun"
         rerun_dir.mkdir()
         rerun = standings(rerun_dir, replay(friday, root, m02_parser_fixed, rerun_dir)["read"], slugs)
-        same_output = output_hash(rerun) == output_hash(table_b)
+        rebuilt_hash, rerun_hash = output_hash(table_b, friday, slugs), output_hash(rerun, friday, slugs)
+        same_output = rerun_hash == rebuilt_hash
 
         compare = table_b
         if args.tuesday:
@@ -350,13 +365,7 @@ def main() -> int:
     by_row: dict[str, list[str]] = {}
     for slug, col, before, after in changes:
         by_row.setdefault(slug, []).append(f"{col} {show(before)} -> {show(after)}")
-    gaps = [f"{d} {name_of[h]} v {name_of[v]} finished with no score" for d, h, v in compare["no_score"]]
-    for p in friday["pages"]:
-        if p["state"] != "saved":
-            found, due = compare["hosted"][p["programme"]], len(slugs) - 1
-            gaps.append(f"{name_of[p['programme']]}'s page {p['state']}, its home results read from visitors' pages" if found == due
-                        else f"{name_of[p['programme']]}'s page {p['state']}, {found} of its {due} home matches read from "
-                             f"visitors' pages, {due - found} with no page on either side")
+    gaps = named_gaps(compare, friday, slugs)
     if args.tuesday:
         heading("Confounded diff: Tuesday's table against the re-fetch")
         print("inputs changed : parser code (Tuesday's -> fixed) and pages (Friday's -> Tuesday's)")
@@ -391,8 +400,8 @@ def main() -> int:
         print(f"  {name_of[slug]:15} {', '.join(cells)}: the tidy rule, the only input that changed")
     unchanged = len(COLUMNS) * len(compare["rows"]) - len(changes)
     print(f"unchanged      : the other {unchanged} cells" + (", every place and number" if all(c[1] == "name" for c in changes) else ""))
-    print(f"rerun          : identical output hash {output_hash(table_b)}, a second build into an empty folder" if same_output
-          else f"rerun          : output hash {output_hash(rerun)} differs from {output_hash(table_b)}, the build does not repeat")
+    print(f"rerun          : output hash {rebuilt_hash} (rows, caption, gaps), the same from a second build into an empty folder" if same_output
+          else f"rerun          : output hash {rerun_hash} differs from {rebuilt_hash}, the build does not repeat")
     renamed: dict[tuple, int] = {}
     before_rows = dict(parsed_rows(tuesday_dir, r1["read"]))
     for slug, rows in parsed_rows(rebuilt_dir, r3["read"]):

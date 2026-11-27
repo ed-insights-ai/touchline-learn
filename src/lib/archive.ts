@@ -320,7 +320,7 @@ export const rewind = {
   fingerprintTuesday: reportField("fingerprint").match(/was (\w+) on Tuesday/)?.[1] ?? fail("the replay report does not name Tuesday's fingerprint"),
   buildRevision: reportField("build revision").split(",")[0],
   cellsChanged: Number(reportField("cells changed")),
-  rerunHash: reportField("rerun").match(/^identical output hash ([0-9a-f]{12}), a second build into an empty folder$/)?.[1] ?? fail("the replay report's rerun line does not show an identical output hash"),
+  rerunHash: reportField("rerun").match(/^output hash ([0-9a-f]{12}) \(rows, caption, gaps\), the same from a second build into an empty folder$/)?.[1] ?? fail("the replay report's rerun line does not show the same output hash from a second build"),
   lines: replayReport.split("\n"),
 };
 check(rewind.manifest === "sample/manifests/2026-11-20-friday.json", "the quoted report did not replay Friday's manifest");

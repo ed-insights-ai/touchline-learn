@@ -384,7 +384,8 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
             <p>Now run it, and read the last line it prints.</p>
           </div>
         </Check>
-        <div data-when="fw-lab-tamper" hidden>
+        <input type="hidden" data-save="fw-lab-tamper-recorded" data-fw-recorded />
+        <div data-when="fw-lab-tamper-recorded" hidden>
         <Check once="fw-lab-ran" note="Run the lab first, then answer." button="Check">
           <Choice save="fw-lab-ran" label="The run's last line begins:" options={ran} answer="stop" why={ranWhy} wrong={ranWrong} />
           <div slot="reveal">
@@ -476,6 +477,13 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
 </style>
 
 <script>
+  const recorded = document.querySelector<HTMLInputElement>("[data-fw-recorded]");
+  const tamperBox = document.querySelector<HTMLElement>('[data-once="fw-lab-tamper"]');
+  if (recorded && tamperBox) {
+    const mark = () => { if (!recorded.value) { recorded.value = "1"; recorded.dispatchEvent(new Event("input")); } };
+    tamperBox.querySelector("[data-submit]")?.addEventListener("click", () => { if (tamperBox.querySelector("input[type=radio]:checked")) mark(); });
+    window.addEventListener("load", () => { if (tamperBox.querySelector(".cv-reveal.is-open")) mark(); });
+  }
   const names: Record<string, string> = {
     setup: "Setup", idea: "the idea", "case-saturday": "Case 1", "case-kept": "Case 2", "case-fingerprint": "Case 3",
     decision: "the decision", rewind: "Rewind", "prove-it": "Prove it", "carry-it": "Carry it",

@@ -13,12 +13,12 @@ const criteria = [
   `Replay the schedule pages Friday's capture manifest lists: the ${spell(rewind.schedulesSaved)} saved, each matched to its content hash, and ${down} listed as unavailable.`,
   "Make zero network requests, counted by a counter you show catching a test request.",
   "Name the fingerprint of the fixed parser and the revision of the code that built the table.",
-  "Diff Tuesday's table against the rebuild and explain every changed cell, and a second run gives the same table.",
+  "Diff Tuesday's table against the rebuild and explain every changed cell, then build again and get the same table.",
 ];
 
 const find = (test: (l: string) => boolean, what: string) => rewind.lines.find(test) ?? (() => { throw new Error(`the replay report has no ${what} line`); })();
 const tidy = (l: string) => l.trim().replace(/\s+:\s/, ": ").replace(/\s{2,}/g, " ");
-const short: [string, string][] = [["manifest", "1 · Pins the inputs"], ["requests", "2 · Measures the network"], ["code", "3 · Identifies the code"], ["diff", "4 · Explains the change"]];
+const short: [string, string][] = [["manifest", "1 · Pins the inputs"], ["requests", "2 · Measures the network"], ["code", "3 · Identifies the code"], ["diff", "4 · Explains the change and repeats"]];
 const label = Object.fromEntries(short);
 const requestsLine = find((l) => l.startsWith("requests "), "requests");
 const lines = [
@@ -26,12 +26,13 @@ const lines = [
   { save: "requests", text: requestsLine, answer: "requests", why: `The counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.` },
   { save: "revision", text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
   { save: "cell", text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
+  { save: "rerun", text: find((l) => l.startsWith("rerun "), "rerun"), answer: "diff", why: "A second build into an empty folder gave the same output hash: the same table again." },
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
 const agentRun: [string, string][] = [
   ["counter", "The same counter, catching four test requests, not two"],
   ["sandbox", "A note that the run used a sandbox with no network"],
-  ["log", "The sandbox's log of every blocked attempt in the run: only a test request from an agent's tool"],
+  ["log", "The sandbox's log of every blocked attempt: one entry, the test request sent from an agent's tool"],
 ];
 ---
 
@@ -83,14 +84,14 @@ const agentRun: [string, string][] = [
         </div>
         <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-rule": /^-+$/.test(l), "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
-      <p>The report makes two checks. <strong>Repeatability</strong>: two builds into empty folders from the same recorded inputs give the same output hash, {rewind.rerunHash} on the <code>rerun</code> line. <strong>Verification</strong>: the keyed diff against Tuesday's table changes exactly the expected cell, nothing else. Matching hashes prove the build repeats, not that the fix is right.</p>
+      <p>The report makes two checks. <strong>Repeatability</strong>: the rebuild over Tuesday's parsed files and a clean second build into an empty folder give the same output hash, {rewind.rerunHash}, over the rows, the caption and the named gaps. <strong>Verification</strong>: the keyed diff against Tuesday's table changes exactly the expected cell, nothing else. Matching hashes prove the build repeats, not that the fix is right.</p>
       <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, starts Git's hash of the program that built the table, so it changes whenever that file does.</p>
-      <p>The <code>requests</code> counter wraps only the replay process's own socket calls and name lookups, so it misses requests from child processes and an agent's tools. A sandbox with no network blocks such traffic; only one that logs every blocked attempt shows that nothing tried.</p>
+      <p>The <code>requests</code> counter wraps only the replay process's own socket calls and name lookups, so it misses requests from child processes and an agent's tools.</p>
 
       <AiCard part="rewind" />
 
       <h4 class="cv-try">Check the report against the criteria</h4>
-      <Check once="rewind-report-check" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
+      <Check once="rewind-report-check-v2" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
         <p class="cv-qlabel">Which of Riley's criteria does each line support?</p>
         {lines.map((l) => (
           <div class="cv-line ar-match" data-q data-type="select" data-answer={l.answer} data-why={l.why}>
@@ -104,7 +105,7 @@ const agentRun: [string, string][] = [
           options={agentRun} answer="log"
           why="The log sits outside the agent, so it sees child processes and tools, and the tool's test request proves it."
           wrong={{ counter: "More test requests from the same process pass through the same wrapper. A child process's request still never does.", sandbox: "It shows nothing got out, not that nothing tried: a blocked attempt leaves no trace unless it is logged." }} />
-        <p slot="reveal">Without criteria, Riley takes the report on trust; with them, Riley checks it in a minute.</p>
+        <p slot="reveal">A sandbox with no network blocks what the counter misses, but only its log of blocked attempts shows that nothing tried. Without criteria, Riley takes the report on trust; with them, Riley checks it in a minute.</p>
       </Check>
     </div>
   </div>
