@@ -1,0 +1,124 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi.decision;
+const seats = { monday: 12, tuesday: 3 };
+const threshold = { then: 10, later: 15 };
+const inReport = (n: number) => n >= threshold.then;
+
+const days = [
+  { day: "Monday", seats: seats.monday },
+  { day: "Tuesday", seats: seats.tuesday },
+];
+const policies = [
+  { id: "latest", name: "Latest only", kept: ["Tuesday"] },
+  { id: "every", name: "Every capture", kept: ["Monday", "Tuesday"] },
+];
+const questions = [
+  { q: "What did the latest fetch show?", needs: "Tuesday" },
+  { q: "With Monday's code and config kept, can it rebuild Monday's report exactly?", needs: "Monday" },
+  { q: "What did the archive see when it produced Monday's report?", needs: "Monday" },
+];
+
+const checks = [
+  ["A Wednesday dispute", "On Wednesday, someone disputes Monday's seat count. What could you check under each of the two storage policies?"],
+  ["Only the hash", "If Monday's page was overwritten but you still have its hash, what could you do with a file someone claims is Monday's page? What could you do with the hash alone?"],
+  ["Fewer courses", "You have Monday's exact page, but the report now lists fewer courses. What else would you look for to reproduce Monday's output?"],
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("decision")}`}
+  about="This is a reply an AI assistant gave to Module 2's archive-history study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 6 and ${card.returnTask.replace("Then come back and ", "")}`}
+>
+  <h2 class="pr-title">How much history should an archive keep?</h2>
+  <p>Suppose your archive fetches the university's course listings every morning. On Monday, it sees that Chemistry 101 has {seats.monday} open seats. On Tuesday, it sees {seats.tuesday}.</p>
+
+  <h2>1. What each policy lets you rebuild</h2>
+  <p><strong>Keep only the latest copy.</strong> Tuesday's fetch overwrites Monday's. You can use the saved page to rebuild a report from Tuesday's listings. To rebuild Monday's report, you'd need another copy of Monday's page.</p>
+  <p><strong>Keep every copy with its fetch time.</strong> You can retrieve Monday's page and use it to rebuild a report from the listings your archive saw that morning. The fetch time tells you when you observed the page. If the seat count changed Monday afternoon and changed again before Tuesday's fetch, the archive would have no record of those changes.</p>
+  <figure class="pr-card pa-cap">
+    <fieldset class="pr-seg">
+      <legend>Archive policy</legend>
+      {policies.map((p, i) => <label><input type="radio" name="pa-cap-policy" value={p.id} checked={i === 0} /><span>{p.name}</span></label>)}
+    </fieldset>
+    <div aria-live="polite">
+    {policies.map((p) => (
+      <div class="pa-cap-view" data-policy={p.id}>
+        <p class="pr-label">The archive after Tuesday's fetch</p>
+        <ol class="pa-cap-days">
+          {days.map((d) => {
+            const kept = p.kept.includes(d.day);
+            return (
+              <li class={kept ? "is-kept" : "is-gone"}>
+                <span>{d.day} morning</span>
+                <b>Chemistry 101: {kept ? `${d.seats} seats` : "unknown"}</b>
+                <small>{kept ? "in the archive" : "overwritten by Tuesday's fetch"}</small>
+              </li>
+            );
+          })}
+        </ol>
+        <p class="pr-label">Can the archive answer?</p>
+        <ul class="pa-cap-qs">
+          {questions.map((q) => {
+            const ok = p.kept.includes(q.needs);
+            return <li><span>{q.q}</span><span class:list={["pr-chip", ok ? "is-ok" : "is-bad"]}>{ok ? "Yes" : "No"}</span></li>;
+          })}
+        </ul>
+      </div>
+    ))}
+    </div>
+    <figcaption>These answers are about the pages. A rebuild also needs the code and configuration each report used, as section 4 shows.</figcaption>
+  </figure>
+
+  <h2>2. What a hash can tell you</h2>
+  <p>A hash is a short fingerprint computed from the page's bytes. If someone later gives you a file they believe is Monday's page, you can hash it and compare it with the recorded Monday hash. A match is strong evidence that the bytes are the same. A mismatch tells you they differ.</p>
+  <p class="pr-pull">The hash itself can't restore Monday's page.</p>
+  <p>Many different files can share a hash because the hash has a fixed length. It doesn't contain the course names, seat counts, or other information needed to reconstruct the page.</p>
+
+  <h2>3. How to choose how much history to keep</h2>
+  <p>Start with the questions your archive needs to answer. If people only ask, “What did the latest fetch show?”, keeping the latest copy is enough. If someone might dispute a Monday report and ask, “What did the archive see when it produced that result?”, keep the snapshots for as long as you expect to resolve those disputes.</p>
+  <p>Compare that retention period with the storage cost. If the page often stays the same, you can store one copy of the identical bytes and record each fetch time separately. That preserves the record of what you saw each morning without paying to store duplicate pages.</p>
+
+  <h2>4. What an exact rebuild needs</h2>
+  <p>Imagine Monday's report showed only courses with at least {threshold.then} open seats. A month later, the threshold changes to {threshold.later}, and the parser also changes how it handles cross-listed courses. Running today's code and settings on Monday's saved page could produce a different report.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Monday's saved page, two rule sets</p>
+    <ul class="pa-cap-qs">
+      <li><span>Monday's rule: at least {threshold.then} open seats</span><span class:list={["pr-chip", inReport(seats.monday) ? "is-ok" : "is-quiet"]}>{inReport(seats.monday) ? "Chemistry 101 listed" : "Not listed"}</span></li>
+      <li><span>Today's rule: at least {threshold.later} open seats</span><span class:list={["pr-chip", seats.monday >= threshold.later ? "is-ok" : "is-quiet"]}>{seats.monday >= threshold.later ? "Chemistry 101 listed" : "Not listed"}</span></li>
+    </ul>
+    <figcaption>The same page with {seats.monday} open seats gives two different reports. The saved page alone can't say which one Monday published.</figcaption>
+  </figure>
+  <p>To rebuild the report exactly, record which snapshot, code version, and configuration produced it. Preserve any other input that can affect the output too, such as dependency versions or the report date if it's printed in the file.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Touchline keeps the latest capture of each page, with its fetch time: the reply's first policy. The decision's two policies both assume every past run's code and config are kept in version control, the reply's section 4, so the pages are the only input whose past can be lost.</p>
+    <p>The league office's call is the reply's section 3: start from the questions it must answer, disputes about past tables, then weigh storage. Like Monday's seat count, Harbor Point's result cell for November 21 had changed by Tuesday, from blank to a result, and under latest only a Tuesday re-fetch would replace Friday's capture of it.</p>
+    <p>The reply calls a matching hash strong evidence; Part 7's replay report makes the same check, matching each saved page to its recorded content hash. The reply's “fingerprint” of a page is this course's content hash; the course keeps “fingerprint” for the hash of the parser code and its config.</p>
+  </aside>
+
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-cap .pr-seg { margin-bottom: 0.7rem; }
+  .pa-cap-view { display: none; }
+  .pa-cap:has([value="latest"]:checked) [data-policy="latest"],
+  .pa-cap:has([value="every"]:checked) [data-policy="every"] { display: block; }
+  .pa-cap-days { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin: 0 0 0.8rem; padding: 0; list-style: none; }
+  .pa-cap-days li { display: grid; gap: 0.1rem; padding: 0.5rem 0.7rem; border: 1px solid var(--pr-green); border-radius: 8px; background: var(--tl-bg); font-size: 0.85rem; }
+  .pa-cap-days li span { color: var(--tl-muted); }
+  .pa-cap-days li b { color: var(--sl-color-white); font-size: 1.15rem; }
+  .pa-cap-days li small { color: var(--tl-muted); }
+  .pa-cap-days li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; }
+  .pa-cap-days li.is-gone b { color: var(--tl-muted); }
+  .pa-cap-qs :global(.pr-chip.is-quiet) { border: 1px solid var(--tl-line); background: transparent; color: var(--tl-muted); }
+  .pa-cap-qs { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-cap-qs li { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; background: var(--tl-bg); }
+</style>

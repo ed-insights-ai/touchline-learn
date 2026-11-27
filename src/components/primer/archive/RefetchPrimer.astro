@@ -1,0 +1,144 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi.setup;
+type Status = "approved" | "pending" | "rejected";
+type Rec = { id: number; status: Status };
+const saved: Rec[] = [
+  { id: 1, status: "approved" },
+  { id: 2, status: "approved" },
+  { id: 3, status: "approved" },
+  { id: 4, status: "pending" },
+  { id: 5, status: "rejected" },
+];
+const changes = [
+  { key: "a", label: "Page 4 was approved", apply: (rs: Rec[]) => rs.map((r): Rec => (r.id === 4 ? { ...r, status: "approved" } : r)) },
+  { key: "n", label: "Page 6 was added, approved", apply: (rs: Rec[]): Rec[] => [...rs, { id: 6, status: "approved" }] },
+];
+const counts = { old: (r: Rec) => r.status !== "rejected", fixed: (r: Rec) => r.status === "approved" };
+const total = (rs: Rec[], code: keyof typeof counts) => rs.filter(counts[code]).length;
+const before = total(saved, "old");
+const replay = total(saved, "fixed");
+const fromCode = replay - before;
+const signed = (n: number) => (n === 0 ? "±0" : `${n < 0 ? "−" : "+"}${Math.abs(n)}`);
+const delta = (c: (typeof changes)[number]) => total(c.apply(saved), "fixed") - replay;
+const words = ["no", "one", "two", "three", "four", "five", "six"];
+
+const subsets = Array.from({ length: 1 << changes.length }, (_, m) => changes.filter((_, i) => m & (1 << i)));
+const states = subsets.map((on) => {
+  const rows = on.reduce((rs, c) => c.apply(rs), saved);
+  const t = total(rows, "fixed");
+  return {
+    key: changes.map((c) => (on.includes(c) ? c.key : "")).join("") || "0",
+    rows,
+    total: t,
+    diff: on.length === 0
+      ? `${signed(t - before)} from yesterday, all of it from the fix`
+      : `${signed(t - before)} from yesterday: ${signed(fromCode)} from the fix, ${on.map((c) => signed(delta(c))).join(" ")}${on.length > 1 ? ` = ${signed(t - replay)}` : ""} from the source`,
+  };
+});
+const today = states[states.length - 1];
+if (states.some((st) => st.total - replay !== changes.filter((c) => st.key.includes(c.key)).reduce((n, c) => n + delta(c), 0))) throw new Error("source changes are not additive");
+if (states.map((st) => st.key).sort().join() !== "0,a,an,n") throw new Error("lane styles expect the change keys a and n");
+const n = (s: Status) => saved.filter((r) => r.status === s).length;
+
+const checks = [
+  ["The fix alone", "You want to show that the bug fix alone changes yesterday's count. Which records and which versions of the code would you use?"],
+  [`${today.total} against ${before}`, `The fixed code reports ${today.total} after a re-fetch. What accounts for the difference between that and yesterday's published ${before}?`],
+  ["Today and yesterday", "A volunteer asks for today's count, and you still need to be able to verify yesterday's corrected report. What would you fetch, and what would you keep?"],
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("setup")}`}
+  about="This is a reply an AI assistant gave to Module 2's re-fetch study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and ${card.returnTask.replace("Then come back and ", "")}`}
+>
+  <h2 class="pr-title">One day at the volunteer archive</h2>
+  <p>Yesterday at 6 p.m., your pipeline fetched and saved {words[saved.length]} page records. {words[n("approved")].replace(/^./, (c) => c.toUpperCase())} were approved, {words[n("pending")]} was pending, and {words[n("rejected")]} was rejected. A bug counted the pending page as approved, so the report said <strong>{before}</strong>. The correct count for that snapshot was <strong>{replay}</strong>.</p>
+
+  <h2>1. Replay the saved copy</h2>
+  <p>A <strong>replay</strong> runs code against the same {words[saved.length]} records you saved yesterday. Replay them with the old code and you get <strong>{before}</strong> again. Replay them with the fixed code and you get <strong>{replay}</strong>. Because the input stayed the same, you can attribute the difference to the code fix.</p>
+  <p>To reproduce the entire report exactly, you also need the original versions of anything else that affected it, such as the report date and configuration.</p>
+
+  <h2>2. Re-fetch the live source</h2>
+  <p>A <strong>re-fetch</strong> asks the archive for a fresh copy. By this morning, a volunteer has approved the pending page and added a newly transcribed page that was also approved. The live source now has {words[today.rows.length]} records, {words[today.total]} of them approved. Your fixed code reports <strong>{today.total}</strong>.</p>
+  <p class="pr-pull">Comparing yesterday's {before} with today's {today.total} mixes two changes.</p>
+  <p>The fix removes {words[-fromCode]} page from yesterday's count, and the live updates add {words[today.total - replay]} approved pages. Live records can also be edited, deleted, or backdated between fetches. Even if two totals match, the records behind them may have changed.</p>
+  <figure class="pr-card pa-rf">
+    <fieldset class="pa-rf-controls">
+      <legend>What changed at the source since yesterday</legend>
+      {changes.map((c) => <label><input type="checkbox" value={c.key} checked /> <span>{c.label}</span></label>)}
+    </fieldset>
+    <div aria-live="polite">
+    <div class="pa-lanes">
+      <div class="pa-lane is-old">
+        <p class="pa-lane-head"><b>Yesterday's report</b><span>saved copy, old code</span></p>
+        <ul>{saved.map((r) => <li><span>Page {r.id} · {r.status}</span><b>{counts.old(r) ? 1 : 0}</b></li>)}</ul>
+        <p class="pa-lane-total"><span>Pages counted</span><b>{before}</b></p>
+      </div>
+      <div class="pa-lane is-replay">
+        <p class="pa-lane-head"><b>Replay</b><span>saved copy, fixed code</span></p>
+        <ul>{saved.map((r) => <li class={counts.fixed(r) !== counts.old(r) ? "is-moved" : ""}><span>Page {r.id} · {r.status}</span><b>{counts.fixed(r) ? 1 : 0}</b></li>)}</ul>
+        <p class="pa-lane-total"><span>Pages counted</span><b>{replay}</b></p>
+        <p class="pa-lane-diff">{signed(fromCode)} from yesterday, all of it from the fix</p>
+      </div>
+      {states.map((st) => (
+        <div class="pa-lane is-refetch" data-s={st.key}>
+          <p class="pa-lane-head"><b>Re-fetch</b><span>today's source, fixed code</span></p>
+          <ul>{st.rows.map((r) => <li class={(() => { const y = saved.find((x) => x.id === r.id); return !y || y.status !== r.status || counts.fixed(r) !== counts.old(y) ? "is-moved" : ""; })()}><span>Page {r.id} · {r.status}</span><b>{counts.fixed(r) ? 1 : 0}</b></li>)}</ul>
+          <p class="pa-lane-total"><span>Pages counted</span><b>{st.total}</b></p>
+          <p class="pa-lane-diff">{st.diff}</p>
+        </div>
+      ))}
+    </div>
+    </div>
+    <figcaption>Shaded rows differ from yesterday's saved record or count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with one change switched off its total matches yesterday's while the records behind it differ.</figcaption>
+  </figure>
+
+  <h2>3. What a re-fetch overwrites</h2>
+  <p>If you keep only the latest source copy, the re-fetch replaces the {words[saved.length]}-record snapshot. You lose the saved evidence that the pending page was still pending and the sixth page was absent. Yesterday's published total of <strong>{before}</strong> may still exist, but you can no longer use that snapshot to reproduce it or verify the corrected <strong>{replay}</strong>.</p>
+
+  <h2>4. When to re-fetch</h2>
+  <p>Re-fetch when you need today's count, when the archive has corrected its own records, or when yesterday's fetch was incomplete. If the source offers historical snapshots, you can also request the version from yesterday at 6 p.m.</p>
+  <p>Make the fetch a deliberate step. In this example, first replay yesterday's saved copy to verify the corrected <strong>{replay}</strong>, then fetch today's records and save them as a new snapshot to report <strong>{today.total}</strong>. Each result answers a different question.</p>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>The reply's “archive” is the volunteer project, the source being fetched. In this course the archive is what you saved. Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again. Friday's saved pages are the only copy Kick has of what the sites showed then.</p>
+    <p>Like the reply's {before} against {today.total}, a re-fetched table set beside Tuesday's would mix the tidy-rule fix with whatever the sites published after Friday, and nothing in Part 1 shows what that was. Keep that in mind when you weigh Part 1's prediction.</p>
+  </aside>
+
+  <h2>5. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+
+<style>
+  .pa-rf:not(:has([value="a"]:checked)):not(:has([value="n"]:checked)) [data-s="0"],
+  .pa-rf:has([value="a"]:checked):not(:has([value="n"]:checked)) [data-s="a"],
+  .pa-rf:not(:has([value="a"]:checked)):has([value="n"]:checked) [data-s="n"],
+  .pa-rf:has([value="a"]:checked):has([value="n"]:checked) [data-s="an"] { display: grid; }
+  .pa-rf-controls { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0 0 0.7rem; padding: 0; border: 0; font-size: 0.9rem; }
+  .pa-rf-controls legend { width: 100%; margin-bottom: 0.3rem; color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pa-rf-controls label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 40px; cursor: pointer; }
+  .pa-rf-controls input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
+  .pa-lanes { display: grid; gap: 0.6rem; }
+  @media (min-width: 46rem) { .pa-lanes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .pa-lane { display: grid; align-content: start; padding: 0.65rem 0.8rem; border: 1px solid var(--tl-line); border-top-width: 4px; border-radius: 8px; background: var(--tl-bg); }
+  .pa-lane.is-old { border-top-color: var(--tl-muted); }
+  .pa-lane.is-replay { border-top-color: var(--pr-green); }
+  .pa-lane.is-refetch { display: none; border-top-color: #d9822b; }
+  :global(.pr) .pa-lane-head { display: grid; margin: 0 0 0.4rem; }
+  .pa-lane-head b { color: var(--sl-color-white); }
+  .pa-lane-head span { color: var(--tl-muted); font-size: 0.82rem; }
+  .pa-lane ul { display: grid; gap: 0.2rem; margin: 0 0 0.4rem; padding: 0; list-style: none; font-size: 0.88rem; }
+  .pa-lane li { display: flex; justify-content: space-between; gap: 0.5rem; }
+  .pa-lane li.is-moved { margin: 0 -0.35rem; padding: 0 0.35rem; border-radius: 4px; background: color-mix(in srgb, #d9822b 18%, transparent); font-weight: 600; }
+  .pa-lane li b { font-variant-numeric: tabular-nums; }
+  :global(.pr) .pa-lane-total { display: flex; justify-content: space-between; margin: 0; padding-top: 0.35rem; border-top: 1px solid var(--tl-line); }
+  .pa-lane-total b { color: var(--sl-color-white); font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+  :global(.pr) .pa-lane-diff { margin: 0.35rem 0 0; color: var(--tl-muted); font-size: 0.82rem; }
+</style>

@@ -1,4 +1,12 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { ArchivePartId } from "./archive-parts";
+
+type Fixture = { date: string; home: string; away: string; home_score?: number; away_score?: number };
+const season = JSON.parse(readFileSync(join(process.cwd(), "sample", "data", "fixtures", "2026-men-plc.json"), "utf-8"));
+const wins: Fixture[] = season.fixtures.filter((f: Fixture) => f.home === "hartwell-tech" && f.away === "cedar-grove" && (f.away_score ?? 0) > (f.home_score ?? 0));
+if (wins.length !== 1) throw new Error("Case 2's return task expects one Cedar Grove win at Hartwell Tech");
+const win = wins[0];
 
 export type ArchiveAiCard = {
   slug: string;
@@ -13,56 +21,110 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   setup: {
     slug: "02-archive-ai-refetch",
     title: "What is a re-fetch, and what is a replay?",
-    prompt: `I'm learning how data pipelines recover from their own bugs. Teach me the difference between fetching a source again and rerunning my code over a copy I saved, with one running example that is not about sports.\n\n1. What a re-fetch is, and what a replay is.\n2. What can change on a live source between two fetches.\n3. Which of the two can rebuild yesterday's output exactly, and why.\n4. ${close}`,
-    returnTask: "Then come back and name one thing that can change on a live site between two fetches.",
+    prompt: `I'm learning how a data pipeline recovers when a bug is found in its own code. Teach me with one running example with small numbers: a volunteer archive that reports each day how many transcribed pages have been approved.
+
+1. The difference between fetching the source again (a re-fetch) and rerunning my fixed code over copies I saved earlier (a replay).
+2. What can change on a live source between two fetches besides the thing I meant to fix, and what that does when I compare the new output with the old one.
+3. Which of the two can reproduce yesterday's output exactly with the old code, or correct it with the fixed code, and what a re-fetch overwrites if I keep only the latest copy of each source.
+4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
+5. ${close}`,
+    returnTask: "Then come back and name one site change that could move Saint Lambert's numbers.",
   },
   idea: {
     slug: "02-archive-ai-raw",
-    title: "Raw and derived, outside sports",
-    prompt: `I'm learning the difference between raw data and derived data. Teach me with three short examples from three different fields, none of them sports.\n\n1. What raw data is, and why it is saved before any code reads it.\n2. What derived data is, and why it can be deleted and rebuilt.\n3. What a replay over saved raw data can and cannot recover.\n4. ${close}`,
-    returnTask: "Then come back and try the research team's check below.",
+    title: "What can you rebuild from raw data?",
+    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three worked examples, each from a different field, none of them about sports or sensors. Work each one through with small numbers.
+
+1. What raw data is, and why it is saved exactly as received, before any of my code reads it.
+2. What derived data is, and why it can be deleted and rebuilt as long as the raw data and the code and settings that produced it are kept.
+3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
+4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
+5. ${close}`,
+    returnTask: "Then come back and pick what the research team needs so a reviewer can see how a chart's number was produced.",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
-    title: "Why changing two things at once hides the cause",
-    prompt: `I'm learning about controlled comparisons. Teach me why changing two inputs at once hides which one caused a difference, using A/B tests and lab experiments as examples.\n\n1. What a controlled comparison is.\n2. What it means for two effects to be confounded.\n3. How to design a before-and-after comparison that has one cause.\n4. ${close}`,
-    returnTask: "Then come back and classify two new before-and-after comparisons.",
+    title: "Why two changes at once hide the cause",
+    prompt: `I'm learning about controlled comparisons. Teach me why changing two inputs at once hides which one caused a difference, using an A/B test on a website and a laboratory experiment as examples.
+
+1. What a controlled comparison is, and why it changes one input at a time.
+2. What it means for two effects to be confounded, with a before-and-after comparison where two things changed together and the difference can't be split between them.
+3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
+4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
+5. ${close}`,
+    returnTask: "Then come back and classify two runs against Tuesday's: a replay with a new alias list, and a re-fetch with one.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
     title: "What a raw zone keeps",
-    prompt: `I'm learning what a data archive must keep. Teach me what a raw zone holds and what breaks if a pipeline saves its data only after cleaning it, with one running example that is not about sports.\n\n1. What "the last layer before the damage" means.\n2. Why information lost in a transformation cannot be recovered from its output.\n3. What a small record saved beside each raw file should say about how it was fetched.\n4. ${close}`,
-    returnTask: "Then come back and place one more bug on the grid.",
+    prompt: `I'm learning what a data archive must keep so a bug can be fixed later. Teach me with one running example: a museum that imports its collection records from a partner's website every night.
+
+1. What a raw zone (also called a bronze layer) holds, and why it is written before any cleaning step runs.
+2. What "replay from the last layer before the damage" means: when a bug is in one particular step, which saved copies can verify the fix and which already carry the bug.
+3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
+4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
+5. ${close}`,
+    returnTask: `Then come back and place one more bug on the grid: a build step that gives Cedar Grove's ${win.away_score}–${win.home_score} win at Hartwell Tech two points instead of three.`,
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
     title: "How build tools decide what is stale",
-    prompt: `I'm learning how build tools and caches decide which outputs to rebuild. Teach me with make, notebooks and memoisation as examples.\n\n1. What a fingerprint of code and configuration is.\n2. Why an output is stale when its stored fingerprint or its input's hash differs from now.\n3. Why rebuilding too much is safe and rebuilding too little is dangerous.\n4. ${close}`,
-    returnTask: "Then come back and work one preset from a build outside sports.",
+    prompt: `I'm learning how build tools and caches decide which outputs to rebuild after a change. Teach me with make, notebook caches and memoisation as examples.
+
+1. What a fingerprint of code and configuration is, and why the settings a step reads belong in it, not only its code.
+2. Why an output is stale when either its stored fingerprint or the hash of the input it read differs from now, so nobody has to guess which outputs a change touched.
+3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
+4. What a fingerprint can't see, such as a source that changed but was never fetched again.
+5. ${close}`,
+    returnTask: "Then come back and compare the alias-list preset with a static site whose ten pages all read one settings file you edit.",
   },
   decision: {
     slug: "02-archive-ai-captures",
     title: "Latest only or every capture?",
-    prompt: `I'm learning how long a data archive should keep old copies of a source. Teach me the difference between keeping only the latest copy and keeping every copy with its fetch time, with one running example that is not about sports.\n\n1. What each policy can rebuild later.\n2. What a recorded hash can prove about a copy, and what it can never recover.\n3. How to choose a policy from the questions the archive must answer.\n4. ${close}`,
-    returnTask: "Then come back and pick a policy for a stated need.",
+    prompt: `I'm learning how much history a data archive should keep of a source that changes. Teach me with one running example: a university's course listings page that my archive fetches every morning.
+
+1. Two policies: keeping only the latest copy of each source, overwritten by every new fetch, and keeping every copy with the time it was fetched. What each can rebuild later.
+2. What a recorded hash can show about a copy, and why it can never bring back a copy that has been overwritten.
+3. How to choose a policy from the questions the archive will have to answer, such as disputes about past results, weighed against what storage costs.
+4. Why the code and configuration also need their own history for a rebuild of a past output to be exact.
+5. ${close}`,
+    returnTask: "Then come back and pick the league office's policy from the question it must answer.",
   },
   rewind: {
     slug: "02-archive-ai-criteria",
-    title: "Acceptance criteria for a reproducible rebuild",
-    prompt: `I'm learning how to ask an AI coding agent to rebuild a dataset so I can check what it did. Teach me how to write acceptance criteria for a reproducible rebuild, with one running example that is not about sports.\n\n1. What a rebuild report should list about its inputs and its code.\n2. How to make a claim like "no network requests" checkable.\n3. How a diff against the old output should explain each change.\n4. ${close}`,
-    returnTask: "Then come back and write one criterion for a rebuild of your own.",
+    title: "Making a rebuild checkable",
+    prompt: `I'm learning how to ask an AI coding agent to rebuild a dataset from saved inputs after I fix a bug in my code, so I can check what it did. Teach me how to write acceptance criteria for a reproducible rebuild, with one running example: a research lab's table of daily sensor readings, rebuilt from the same saved files after a fix to its averaging code.
+
+1. What a rebuild report should list about its inputs: which saved files it read, each identified by a content hash, and which expected inputs were missing.
+2. How to identify the code and configuration that produced the output, for example a commit and a fingerprint.
+3. How to make a claim like "no network requests" checkable rather than taken on trust.
+4. How a diff between the old output and the rebuild should explain every changed value when the inputs are unchanged and only the code was fixed, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
+5. ${close}`,
+    returnTask: "Then come back and write one criterion for a rebuild of your own, and find the closest line in Kick's report.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",
-    title: "Write the recovery plan as a prompt",
-    prompt: `I'm learning how to hand a parser bug fix to an AI coding agent. Help me turn a recovery plan into a prompt, with one running example that is not about sports.\n\n1. What to replay, and how the agent knows which outputs are stale.\n2. What to republish, and what to leave alone.\n3. What to tell the people who read the output.\n4. ${close}`,
-    returnTask: "Then come back and check the agent's plan against the four slots.",
+    title: "Turning a recovery plan into a prompt",
+    prompt: `I'm learning how to hand a bug fix to an AI coding agent when the bug is found months after the data was published. Help me turn a recovery plan into a prompt for the agent, with one running example with small numbers: a food bank network that publishes how many households each pantry served each month.
+
+1. What to replay, and how the agent decides which outputs are stale from a fingerprint rather than a guess about which records the bug touched.
+2. What to republish, and what to leave alone because the bug never reached it. Show one output's numbers before and after the fix.
+3. What to tell the people who used the published output: a correction note that names what changed and why.
+4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
+5. ${close}`,
+    returnTask: "Then come back and check the reply's finished prompt against the four slots.",
   },
   "carry-it": {
     slug: "02-archive-ai-carry",
-    title: "Same rows, different archives",
-    prompt: `I'm learning to carry one idea to new kinds of data: the same bug fix supports different recovery claims depending on what was archived. Teach me with one running example that is not about sports or healthcare.\n\n1. A world that kept every raw input, one that kept only the processed table, and one that overwrote inputs on resubmission.\n2. The honest recovery claim in each world.\n3. ${close}`,
-    returnTask: "Then come back and answer three new questions.",
+    title: "Same fix, different archives",
+    prompt: `I'm learning to carry one idea to new kinds of data: after the same bug is fixed, what I can honestly claim depends on what was archived. Teach me with one running example: a coffee roaster that imports the shipment weights its suppliers send.
+
+1. One processing bug that ran for months, in three situations: one that kept every raw input, one that kept only the processed table, and one that kept raw inputs but overwrote a source's file whenever it resubmitted.
+2. The honest recovery claim in each situation: what can be rebuilt exactly, what can only be flagged or estimated, and what is lost.
+3. What each situation would have needed to keep for a full recovery.
+4. How to say what was lost in a correction note without claiming more than the archive supports.
+5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
+    returnTask: "Then come back and ask each world which follow-up visits were filed as new patients.",
   },
 };
 

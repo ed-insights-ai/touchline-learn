@@ -1,0 +1,144 @@
+---
+import PrimerChat from "../PrimerChat.astro";
+import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+
+const card = archiveAi.rewind;
+
+const criteria = [
+  ["Account for every input.", "Require a manifest of the saved files actually read, with a relative path and SHA-256 hash of each file's bytes. Compare it with the expected-input list and report every missing file. Say which missing inputs are allowed and how they affect the output. A missing required file should fail the rebuild."],
+  ["Identify what produced the output.", "Record the Git commit, whether the working tree was clean, the exact rebuild command, and the runtime or pinned environment. Fingerprint the effective configuration after defaults and overrides have been applied. Specify how that fingerprint is computed, such as SHA-256 over canonical JSON. A second run with the same inputs, code, configuration, and environment should produce the same output hash."],
+  ["Attach evidence for “no network requests.”", "Run the rebuild and its child processes with network access blocked, and retain an audit log that records attempted connections, including blocked ones. Require zero attempts in that log. A network block establishes that connections could not succeed. The audit establishes whether the code tried."],
+  ["Explain every output difference.", "First verify that the old and new runs used the same input hashes and effective configuration. Compare rows by a stable key, such as (sensor_id, date), and report added or removed rows and changed values. For each changed value, give the old value, the new value, and the calculation or rule that connects the change to the fix. An unexplained difference means the rebuild has failed acceptance until you can account for it. It could point to another code change, a hidden input, or nondeterminism."],
+];
+
+const audits = [
+  ["sandbox: network blocked · audit log: none", "Unverified", "is-warn", "Connections could not succeed, but nothing shows whether the code tried."],
+  ["sandbox: network blocked · audit: 1 attempt, blocked", "Fail", "is-bad", "The block worked, but the zero-attempt criterion did not."],
+  ["sandbox: network blocked · audit: full run, 0 attempts", "Pass", "is-ok", "The block and the audit together cover the claim."],
+];
+
+const readings: (number | null)[] = [10, null, 20];
+const valid = readings.filter((r): r is number => r !== null);
+const sum = valid.reduce((a, b) => a + b, 0);
+const oldMean = (sum / readings.length).toFixed(1);
+const newMean = (sum / valid.length).toFixed(1);
+const commits = { old: "8e4c57f", fixed: "a91d2c7" };
+const listed = readings.map((r) => (r === null ? "blank" : String(r)));
+
+const report: [string, string][] = [
+  ["Inputs read", "saved/S1-2026-01-05.csv had SHA-256 9f2c4d7b8a1e6053d9c0b4f268a3e175c6d8f092b547ae31e0d9c6a54b738f21. The baseline manifest records the same path and hash. The expected optional file saved/S2-2026-01-05.csv was absent in both runs. Both runs omit the S2 row under the configured missing-file rule. All required inputs were present."],
+  ["Code and configuration", `Baseline commit ${commits.old}, rebuild commit ${commits.fixed}. Both used clean checkouts, Python 3.12.8, the same dependency lockfile, and python rebuild.py --config rebuild.json. Both used the same effective configuration fingerprint, SHA-256 4b806e32df21a759c4e06b8313da5f79a8b2d4c69fe1037a2e58b9c0d614f782, computed from canonical JSON after applying defaults. The configuration uses UTC dates and excludes blank readings from the mean.`],
+  ["Network evidence", "The rebuild and its child processes ran in a network-disabled sandbox. The attached network-audit.log covers the full run and records zero connection attempts, including blocked attempts."],
+  ["Output diff", `No rows were added or removed. The only changed cell was daily_mean for (S1, 2026-01-05), from ${oldMean} to ${newMean}. The saved readings were ${listed.slice(0, -1).join(", ")}, and ${listed[listed.length - 1]}. The old code divided the sum by all ${readings.length} rows, giving ${sum} ÷ ${readings.length} = ${oldMean}. The fix divides by the ${valid.length} valid readings, giving ${sum} ÷ ${valid.length} = ${newMean}. Every other cell matched.`],
+  ["Repeatability", "A second run under the same conditions produced the same output SHA-256, d74e50b1926fc083a31d58ce60fb24794da71c5b9f02e63881ad4357be6092fc. The rebuild passed."],
+];
+
+const codeToken = /(\b[0-9a-f]{7,64}\b|saved\/\S+?\.csv|network-audit\.log|python rebuild\.py --config rebuild\.json|daily_mean|\(S1, 2026-01-05\))/;
+const short = ["Every input", "What produced the output", "No network requests", "Every difference explained"];
+const breaks: { id: string; label: string; line: string; fails: number; skip?: number[]; why: string }[] = [
+  { id: "none", label: "Change nothing", line: "Every other cell matched.", fails: -1, why: "Every criterion has its evidence, so the rebuild passes." },
+  { id: "missing", label: "The S1 file is missing", line: "Expected required input saved/S1-2026-01-05.csv: missing", fails: 0, skip: [1, 2, 3], why: "A missing required file fails the rebuild before anything runs, so the other criteria are never reached." },
+  { id: "dirty", label: "The working tree has an edit", line: `Rebuild commit ${commits.fixed}, working tree not clean: 1 uncommitted change in the averaging code`, fails: 1, why: "The code that ran is not the code the commit records." },
+  { id: "attempt", label: "The audit shows one blocked attempt", line: "network-audit.log covers the full run: 1 connection attempt, blocked.", fails: 2, why: "The block worked, but the zero-attempt criterion did not." },
+  { id: "cell", label: "A second cell changed, unexplained", line: "Changed cells: 2. One has no calculation that connects it to the fix.", fails: 3, why: "An unexplained difference fails acceptance until someone accounts for it." },
+];
+
+const checks = [
+  ["Same name, new hash", "If a saved file has the same name in both runs but a different content hash, what can you conclude about the inputs?"],
+  ["The sandbox alone", "Why does a network-disabled sandbox alone fall short of proving that the code made no connection attempts?"],
+  ["No blanks", "If a daily mean changes for a sensor whose saved readings contain no blanks, what evidence would you need before accepting that change?"],
+];
+---
+
+<PrimerChat
+  prompt={card.prompt}
+  module="Module 2"
+  back={`../02-archive/#${aiCardId("rewind")}`}
+  about="This is a reply an AI assistant gave to Module 2's rebuild-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
+  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and ${card.returnTask.replace("Then come back and ", "")}`}
+>
+  <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
+  <p class="pr-pull">Write acceptance criteria so someone else can check the rebuild from the saved files, the output, and the evidence attached to the report.</p>
+
+  <h2>1. Four criteria for the sensor table</h2>
+  <ol class="pa-criteria">{criteria.map(([head, body]) => <li><b>{head}</b> {body}</li>)}</ol>
+  <figure class="pr-card">
+    <p class="pr-label">Criterion 3: three runs, judged</p>
+    <ul class="pa-audit">{audits.map(([what, v, tone, why]) => <li><code>{what}</code><span class:list={["pr-chip", tone]}>{v}</span><small>{why}</small></li>)}</ul>
+  </figure>
+
+  <h2>2. Example rebuild report</h2>
+  <p><em>Illustrative report for a lab's daily sensor table. The hashes and commit IDs are example values.</em></p>
+  <figure class="pr-card pa-report">
+    <p class="pr-label">Rebuild report</p>
+    <dl>{report.map(([head, body]) => <div><dt>{head}</dt><dd>{body.split(codeToken).map((part, i) => (i % 2 ? <code>{part}</code> : part))}</dd></div>)}</dl>
+  </figure>
+  <figure class="pr-card">
+    <p class="pr-label">The one changed cell, checked</p>
+    <div class="pa-cell">
+      <div><p class="pa-cell-head">{commits.old}, every row</p><p>{readings.map((r, i) => <span>{i > 0 && " · "}{r === null ? <mark>blank</mark> : r}</span>)}</p><p class="pa-cell-mean">{sum} ÷ {readings.length} = {oldMean}</p></div>
+      <div class="is-new"><p class="pa-cell-head">{commits.fixed}, valid readings</p><p>{valid.join(" · ")}</p><p class="pa-cell-mean">{sum} ÷ {valid.length} = {newMean}</p></div>
+    </div>
+    <figcaption>Same file, same hash, same configuration: only the commit differs, so the change must trace to the code. The configuration already said to leave blanks out of the mean; the old code divided by every row anyway.</figcaption>
+  </figure>
+  <figure class="pr-card pa-break">
+    <fieldset class="pr-seg">
+      <legend>Break one line of the report</legend>
+      {breaks.map((b, i) => <label><input type="radio" name="pa-crit-break" value={b.id} checked={i === 0} /><span>{b.label}</span></label>)}
+    </fieldset>
+    <div aria-live="polite">
+      {breaks.map((b) => (
+        <div class="pa-break-view" data-break={b.id}>
+          <p class="pa-break-line"><span>Report line</span><code>{b.line}</code></p>
+          {b.fails >= 0 && <label class="pa-reveal"><input type="checkbox" /> <span>Predict which criterion fails, then show the audit</span></label>}
+          <ul class="pa-audit">{short.map((c, i) => <li><span>{c}</span><span class:list={["pr-chip", i === b.fails ? "is-bad" : b.skip?.includes(i) ? "is-quiet" : "is-ok"]}>{i === b.fails ? "Fail" : b.skip?.includes(i) ? "Not reached" : "Pass"}</span></li>)}</ul>
+          <p class="pa-break-result"><b>Result: {b.fails < 0 ? "PASS" : "FAIL"}</b> {b.why}</p>
+        </div>
+      ))}
+    </div>
+  </figure>
+  <aside class="pr-course" aria-label="Course note">
+    <p class="pr-label">Course note</p>
+    <p>Riley's criteria in Part 7 are the reply's four: saved inputs by content hash, the fixed parser's fingerprint, zero network requests, and a diff that explains every changed cell. Dunmore's page is the reply's missing S2 file: expected, absent, and listed with its effect. The reply ties a commit to the running code with a clean checkout and a pinned environment. Kick's fingerprint and build revision hash the source and config files on disk instead; they don't show those files were committed, or cover libraries and the interpreter.</p>
+    <p>Like the reply's rebuild, Kick's replay holds the saved inputs fixed, so its one changed cell must trace to the code. Kick's zero requests covers the socket calls its counter patches, in its own process, during the replay; the reply's sandbox and audit would also cover child processes.</p>
+  </aside>
+
+  <h2>3. Check your understanding</h2>
+  <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
+</PrimerChat>
+
+<style>
+  .pa-criteria { display: grid; gap: 0.5rem; margin: 0 0 1rem; padding-left: 1.4rem; }
+  .pa-criteria li { padding-left: 0.2rem; }
+  .pa-criteria b { color: var(--sl-color-white); }
+  .pa-audit :global(.pr-chip.is-quiet) { border: 1px solid var(--tl-line); background: transparent; color: var(--tl-muted); }
+  .pa-audit { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-audit li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
+  .pa-audit small { flex-basis: 100%; color: var(--tl-muted); font-size: 0.82rem; }
+  .pa-report dl { display: grid; gap: 0.5rem; margin: 0; }
+  .pa-report dl div { display: grid; gap: 0.15rem; padding: 0.45rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
+  .pa-report dt { color: var(--sl-color-white); font-weight: 700; font-size: 0.9rem; }
+  .pa-report dd { margin: 0; font-size: 0.88rem; overflow-wrap: anywhere; }
+  .pa-break .pr-seg { margin-bottom: 0.7rem; }
+  .pa-break-view { display: none; }
+  .pa-break-view:has(.pa-reveal):not(:has(.pa-reveal input:checked)) .pa-audit,
+  .pa-break-view:has(.pa-reveal):not(:has(.pa-reveal input:checked)) .pa-break-result { display: none; }
+  .pa-reveal { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 40px; margin: 0 0 0.5rem; font-size: 0.88rem; cursor: pointer; }
+  .pa-reveal input { width: 1.1rem; height: 1.1rem; accent-color: var(--pr-ai); }
+  .pa-break:has([value="none"]:checked) [data-break="none"],
+  .pa-break:has([value="missing"]:checked) [data-break="missing"],
+  .pa-break:has([value="dirty"]:checked) [data-break="dirty"],
+  .pa-break:has([value="attempt"]:checked) [data-break="attempt"],
+  .pa-break:has([value="cell"]:checked) [data-break="cell"] { display: block; }
+  :global(.pr) .pa-break-line { display: grid; gap: 0.2rem; margin: 0 0 0.6rem; font-size: 0.85rem; }
+  .pa-break-line span { color: var(--tl-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  :global(.pr) .pa-break-result { margin: 0.6rem 0 0; font-size: 0.9rem; }
+  .pa-break-result b { color: var(--sl-color-white); }
+  .pa-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .pa-cell > div { padding: 0.55rem 0.75rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); font-family: var(--sl-font-mono); font-size: 0.9rem; }
+  .pa-cell > div.is-new { border-color: var(--pr-green); }
+  :global(.pr) .pa-cell p { margin: 0 0 0.2rem; }
+  :global(.pr) .pa-cell-head { color: var(--tl-muted); font-family: var(--sl-font); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  :global(.pr) .pa-cell-mean { margin: 0; color: var(--sl-color-white); font-size: 1.15rem; }
+  .pa-cell mark { padding: 0 0.2rem; border-radius: 3px; background: color-mix(in srgb, #d9822b 30%, transparent); color: inherit; }
+</style>
