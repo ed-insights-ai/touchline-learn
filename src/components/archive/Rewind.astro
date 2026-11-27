@@ -10,7 +10,7 @@ import { spell } from "../../lib/cases";
 const ask = "Can you rebuild Friday's table from the pages you kept, without asking a single site again, and show me you did?";
 const down = rewind.unavailable.map((u) => u.name).join(" and ");
 const criteria = [
-  `Replay the schedule pages Friday's capture manifest lists: the ${spell(rewind.schedulesSaved)} it saved, each matched to its content hash, and ${down} listed as unavailable, not left out.`,
+  `Replay the schedule pages Friday's capture manifest lists: the ${spell(rewind.schedulesSaved)} saved, each matched to its content hash, and ${down} listed as unavailable.`,
   "Make zero network requests, counted by a counter you show catching a test request.",
   "Name the fingerprint of the fixed parser and the revision of the code that built the table.",
   "Diff Tuesday's table against the rebuild, and explain every changed cell.",
@@ -20,28 +20,26 @@ const find = (test: (l: string) => boolean, what: string) => rewind.lines.find(t
 const tidy = (l: string) => l.trim().replace(/\s+:\s/, ": ").replace(/\s{2,}/g, " ");
 const short: [string, string][] = [["manifest", "1 · Pins the inputs"], ["requests", "2 · Measures the network"], ["code", "3 · Identifies the code"], ["diff", "4 · Explains the change"]];
 const label = Object.fromEntries(short);
+const requestsLine = find((l) => l.startsWith("requests "), "requests");
 const lines = [
-  { text: find((l) => l.startsWith("replayed "), "replayed"), answer: "manifest", why: "Every schedule page the manifest lists as saved was replayed, and each matched the hash Friday recorded." },
-  { text: find((l) => l.startsWith("requests "), "requests"), answer: "requests", why: `The counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.` },
-  { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
   { text: find((l) => l.startsWith("listed "), "listed"), answer: "manifest", why: `${down} is accounted for, with the reason, not quietly left out.` },
-  { text: find((l) => l.startsWith("fingerprint "), "fingerprint"), answer: "code", why: "It names the fixed parser and its config, beside Tuesday's." },
+  { text: requestsLine, answer: "requests", why: `The counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.` },
   { text: find((l) => l.startsWith("build revision "), "build revision"), answer: "code", why: "It names the program that built the table, beside the parser's fingerprint." },
-  { text: find((l) => l.startsWith("unchanged "), "unchanged"), answer: "diff", why: "Explaining every changed cell includes showing that no other cell changed." },
+  { text: find((l) => /^\s+\S.*->/.test(l) && l.includes(story.fixedName), "changed cell"), answer: "diff", why: "It names the one changed cell and the input that changed it." },
 ].map((l) => ({ ...l, text: tidy(l.text), why: `${label[l.answer]}. ${l.why}` }));
 
-const draft: [string, string][] = [
-  ["pages", `It should give a count for each of Friday's ${rewind.schedulesSaved} pages, not a total.`],
-  ["counter", "Nothing shows the counter would have noticed a request, so its 0 means nothing."],
-  ["fingerprint", "The fingerprint already shows nothing was fetched, so the line is redundant."],
-  ["offline", "A replay can't make requests at all, so the line belongs nowhere in the report."],
+const agentRun: [string, string][] = [
+  ["enough", "Yes. Its counter caught both test requests"],
+  ["offline", "Yes. A replay reads saved pages, so nothing would fetch"],
+  ["whole", "No. It must count the whole run's requests, child processes and tools included"],
+  ["pages", "No. It must count per saved page"],
 ];
 ---
 
 <section id="rewind" class="ar-part">
   <PartHead id="rewind">Rewind: Tuesday with a replay requirement</PartHead>
-  <p>In Module 1's Rewind, one added sentence gave Kick <strong>acceptance criteria</strong>: conditions its work had to meet before Riley would accept it. Riley's Tuesday question doesn't have any yet.</p>
-  <p>The rebuild target is Monday's table, the one readers have, built from Friday's pages, with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” where Tuesday's table says “{story.tuesdayName}”.</p>
+  <p>Module 1's Rewind gave Kick <strong>acceptance criteria</strong>: conditions its work must meet before Riley accepts it. Riley's Tuesday question has none yet.</p>
+  <p>Riley is asking for <strong>lineage</strong>, the record of which inputs and which code made a table, and <strong>reproducibility</strong>, the same table again from the same inputs and code. The target is Monday's table, rebuilt from Friday's pages with one name fixed: {tableB.caption}, the same named gaps, and “{story.fixedName}” for “{story.tuesdayName}”.</p>
   <div class="cv-user-prompt" role="region" aria-label="Riley's question on Tuesday">
     <div class="cv-chat-bar">
       <span class="cv-chat-badge">Prompt</span>
@@ -69,16 +67,16 @@ const draft: [string, string][] = [
         <ol class="ar-criteria">{criteria.map((c) => <li>{c}</li>)}</ol>
       </div>
       <fieldset class="cv-ticks">
-        <legend>Check what yours covers:</legend>
-        <label><input type="checkbox" data-save="rewind-has-inputs" /><span>Pins the inputs: Friday's pages, identified by content hash, with the missing one named</span></label>
-        <label><input type="checkbox" data-save="rewind-has-counter" /><span>Makes “no requests” a measurement, not a promise</span></label>
-        <label><input type="checkbox" data-save="rewind-has-code" /><span>Identifies the code that produced the table</span></label>
-        <label><input type="checkbox" data-save="rewind-has-diff" /><span>Requires every change in the table to be explained</span></label>
+        <legend>What yours covers:</legend>
+        <label><input type="checkbox" data-save="rewind-has-inputs" /><span>Pins the inputs by content hash, missing one named</span></label>
+        <label><input type="checkbox" data-save="rewind-has-counter" /><span>Makes “no requests” a measurement</span></label>
+        <label><input type="checkbox" data-save="rewind-has-code" /><span>Identifies the code</span></label>
+        <label><input type="checkbox" data-save="rewind-has-diff" /><span>Explains every change</span></label>
       </fieldset>
       <p>Each criterion asks for evidence that could have come out differently: a hash can fail to match, a counter can count, a diff can show a cell nobody explained. Evidence that could never fail verifies nothing.</p>
 
       <h3>Kick's replay report</h3>
-      <p class="cv-label">The report section of <code>python labs/m02_archive.py</code>, quoted whole. Every change to the site checks it against the lab's output.</p>
+      <p class="cv-label">The report section of <code>python labs/m02_archive.py</code>, quoted whole and checked against the lab.</p>
       <div class="cv-agent-reply ar-reply" role="region" aria-label="Kick's replay report">
         <div class="cv-chat-bar">
           <span class="cv-agent-badge">Kick · Coding agent</span>
@@ -86,7 +84,10 @@ const draft: [string, string][] = [
         </div>
         <pre class="ar-report"><code>{rewind.lines.map((l) => <span class:list={["ar-ln", { "is-rule": /^-+$/.test(l), "is-kv": /^\s*\S.*\s:\s/.test(l), "is-sub": /^\s/.test(l) && !/\s:\s/.test(l) }]}>{`${l}\n`}</span>)}</code></pre>
       </div>
-      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the first {spell(rewind.buildRevision.length)} characters of the hash Git computes from the bytes of the program that built the table (its blob hash), so it changes whenever that file does. Neither can be turned back into code. Anyone with the repository can hash their copy and compare, and with the pages Friday's manifest names, the same code, run the same way, gives the same table.</p>
+      <p>Two lines identify the code. The <strong>fingerprint</strong>, {rewind.fingerprint}, is Case 3's hash of the parser module, its page reader and its config. The <strong>build revision</strong>, {rewind.buildRevision}, is the start of Git's hash of the program that built the table, so it changes whenever that file does. In a larger repository it would be the commit, plus a check that no file was edited after it. Anyone with the repository can hash their copy and compare.</p>
+      <p>The <code>requests</code> counter has a limit. It wraps the replay process's own socket calls and name lookups. It would not see a request from a child process, or from a tool an agent ran beside it. For an agent's run, the criterion has to cover every process and tool, counted where all of them pass, such as a sandbox with no network.</p>
+
+      <AiCard part="rewind" />
 
       <h4 class="cv-try">Check the report against the criteria</h4>
       <Check once="rewind-match" kind="Apply it" note={`Answer all ${spell(lines.length + 1)}, then check.`}>
@@ -99,13 +100,12 @@ const draft: [string, string][] = [
             <p class="cv-fb" role="status"></p>
           </div>
         ))}
-        <Choice radio save="rewind-draft" label={`Kick's first draft said only “requests: ${rewind.requests}”. Riley sent it back. Why?`}
-          options={draft} answer="counter"
-          why={`The draft gives a count without showing the counter works. A counter nobody has seen catch anything reads 0 both when nothing was attempted and when it misses connections. The finished line says the counter caught its test requests, then recorded ${rewind.requests} attempts during the replay.`}
-          wrong={{ pages: "A replay reads saved pages from disk. The count is of network attempts, and splitting a 0 by page doesn't make it more trustworthy.", fingerprint: "The fingerprint names the code. A re-fetch with the fixed parser has the same fingerprint, so it says nothing about the network.", offline: "Kick's own plan was to re-fetch. Nothing stops code from making requests during a rebuild, so the report has to measure it." }} />
-        <p slot="reveal">Every line answers a criterion, and every criterion has a line that could have come out differently. Without the criteria, the same report is a page of text you either trust or don't. With them, Riley can check it in a minute, and so can anyone Riley sends the table to.</p>
+        <Choice radio save="rewind-agent" label="Next time Kick runs the rebuild as an agent, starting other programs and calling tools. Is a requests line like this one enough for Riley's second criterion?"
+          options={agentRun} answer="whole"
+          why="No. The counter is proven only for the process it wraps; a request from a child process or a tool never passes through it."
+          wrong={{ enough: "It caught test requests made by this process. A request from a child process or a tool never passes through it.", offline: "Kick's own plan was to re-fetch. Nothing stops a tool from fetching during a rebuild, so the run has to be measured.", pages: "The count is of network attempts, and splitting a 0 by page doesn't widen what the counter sees." }} />
+        <p slot="reveal">Every criterion has a line that could have come out differently. Without the criteria, the report is text you trust or don't; with them, Riley can check it in a minute.</p>
       </Check>
-      <AiCard part="rewind" />
     </div>
   </div>
   <NextPart from="rewind">This bug was caught in a day. What if one stays hidden for months?</NextPart>
@@ -125,9 +125,9 @@ const draft: [string, string][] = [
   .ar-report code { padding: 0; background: none; white-space: pre-wrap; }
   .ar-ln { display: block; }
   .ar-ln.is-kv { padding-left: 17ch; text-indent: -17ch; }
-  .ar-ln.is-sub { padding-left: 2ch; text-indent: -2ch; }
+  .ar-ln.is-sub { padding-left: 18ch; text-indent: -18ch; }
   .ar-ln.is-rule { overflow: hidden; white-space: nowrap; }
-  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } .ar-ln.is-kv { padding-left: 4ch; text-indent: -4ch; } }
+  @media (max-width: 40rem) { .ar-report { font-size: 0.7rem; } .ar-report code { overflow-wrap: anywhere; } .ar-ln.is-kv, .ar-ln.is-sub { padding-left: 4ch; text-indent: -4ch; } }
   .ar-match code { overflow-wrap: anywhere; font-size: 0.82rem; }
   .ar-match { padding: 0.5rem 0 0.25rem; border-bottom: 1px solid var(--tl-line); }
 </style>

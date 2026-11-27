@@ -179,7 +179,7 @@ then a Module 1 style `<figure class="cv-film">`, adding the poster
 those files exist. Two slots are reserved:
 
 - `replay-dont-refetch` in `archive/Idea.astro`: the lesson video.
-- `cedar-grove-2019` in `archive/CarryIt.astro`: the closer film.
+- `on-purpose-this-time` in `archive/CarryIt.astro`: the closer film, captioned “On Purpose, This Time”.
 
 ## Styles
 

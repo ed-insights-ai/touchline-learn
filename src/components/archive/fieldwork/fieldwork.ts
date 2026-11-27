@@ -296,7 +296,7 @@ check(counter[1] === counter[2], "the quoted run's counter missed a test request
 export const testRequests = Number(counter[2]);
 
 const lab = read("labs", "m02_archive.py").toString("utf-8");
-const ALTERED = "saved pages no longer match the manifest's hash";
+const ALTERED = "not matching the manifest's hash";
 check(lab.includes('RESULT: could not run, ') && lab.includes(ALTERED), "the lab no longer stops with 'could not run' when a saved page's hash differs");
 check(lab.includes('f"pages disagree on fixture {'), "the lab's table build no longer stops when two pages claim to host one match");
 /** What the lab prints when a saved page no longer matches Friday's manifest. */

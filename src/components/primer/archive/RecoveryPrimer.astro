@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { archiveAi } from "../../../lib/archive-ai";
 import { proveIt } from "../../../lib/archive";
 import { spell } from "../../../lib/cases";
 
@@ -65,7 +65,7 @@ const checks = [
 <PrimerChat
   prompt={card.prompt}
   module="Module 2"
-  back={`../02-archive/#${aiCardId("prove-it")}`}
+  back="../02-archive/#prove-it-slots"
   about="This is a reply an AI assistant gave to Module 2's recovery-plan study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 8 and ${card.returnTask.replace("Then come back and ", "")}`}
 >

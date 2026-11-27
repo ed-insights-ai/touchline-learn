@@ -6,7 +6,7 @@ listed         : Dunmore, unavailable: site did not answer after 3 tries
 requests       : 0, counted by a counter that caught 2 of 2 test requests
 fingerprint    : cceba9f64b7c, the fixed parser (was 16ede3aa872b on Tuesday)
   covers       : labs/m02_parser_fixed.py, labs/common.py, aliases.json, membership.json, season 2026
-build revision : 2ae2156f06da, git blob of labs/m02_archive.py
+build revision : b486318dd6a9, git blob of labs/m02_archive.py
 tables         : Tuesday's 53 of 54 finished matches; rebuild 53 of 54 finished matches
 cells changed  : 1
   Saint Lambert   name 'State Lambert' -> 'Saint Lambert': the tidy rule, the only input that changed

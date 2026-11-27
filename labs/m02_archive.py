@@ -92,6 +92,10 @@ def build_revision() -> str:
     return hashlib.sha1(b"blob %d\0" % len(body) + body).hexdigest()[:12]
 
 
+def saved_pages(n: int) -> str:
+    return f"{n} saved page{'' if n == 1 else 's'}"
+
+
 def sha256(body: bytes) -> str:
     return hashlib.sha256(body).hexdigest()
 
@@ -273,8 +277,8 @@ def main() -> int:
     seen = describe_manifest(friday, FRIDAY, root)
     lost = [p["path"] for p in seen["missing"] if not (args.missing and p["kind"] == "schedule" and p["programme"] == args.missing)]
     if seen["problems"] or seen["altered"] or lost:
-        why = seen["problems"] + ([f"{seen['altered']} saved pages no longer match the manifest's hash"] if seen["altered"] else [])
-        why += [f"{len(lost)} saved pages are missing from the archive"] if lost else []
+        why = seen["problems"] + ([f"{saved_pages(seen['altered'])} not matching the manifest's hash"] if seen["altered"] else [])
+        why += [f"{saved_pages(len(lost))} missing from the archive"] if lost else []
         print(f"\nRESULT: could not run, {'; '.join(why)}")
         return 2
 
@@ -321,8 +325,8 @@ def main() -> int:
             tuesday = load(TUESDAY)
             fresh = describe_manifest(tuesday, TUESDAY, SAMPLE)
             r4 = replay(tuesday, SAMPLE, m02_parser_fixed, refetch_dir)
-            why = fresh["problems"] + ([f"{fresh['altered']} saved pages no longer match the manifest's hash"] if fresh["altered"] else [])
-            why += [f"{len(fresh['missing'])} saved pages are missing from the capture"] if fresh["missing"] else []
+            why = fresh["problems"] + ([f"{saved_pages(fresh['altered'])} not matching the manifest's hash"] if fresh["altered"] else [])
+            why += [f"{saved_pages(len(fresh['missing']))} missing from the capture"] if fresh["missing"] else []
             if why or r4["refused"]:
                 print(f"\nRESULT: could not run, Tuesday's capture: {'; '.join(why) or 'a page was refused'}")
                 return 2

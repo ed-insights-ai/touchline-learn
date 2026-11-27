@@ -88,7 +88,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to choose a policy from the questions the archive will have to answer, such as disputes about past results, weighed against what storage costs.
 4. Why the code and configuration also need their own history for a rebuild of a past output to be exact.
 5. ${close}`,
-    returnTask: "Then come back and pick the league office's policy from the question it must answer.",
+    returnTask: "Then come back and make Your call for the conference office.",
   },
   rewind: {
     slug: "02-archive-ai-criteria",
@@ -100,7 +100,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to make a claim like "no network requests" checkable rather than taken on trust.
 4. How a diff between the old output and the rebuild should explain every changed value when the inputs are unchanged and only the code was fixed, and what an unexplained change tells me. Then show a short example report that meets all of these criteria.
 5. ${close}`,
-    returnTask: "Then come back and write one criterion for a rebuild of your own, and find the closest line in Kick's report.",
+    returnTask: "Then come back and check the report against the criteria, the agent's whole run included.",
   },
   "prove-it": {
     slug: "02-archive-ai-recovery",
@@ -112,7 +112,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What to tell the people who used the published output: a correction note that names what changed and why.
 4. What the agent should report back before anything is republished, and the finished prompt with all of this in it.
 5. ${close}`,
-    returnTask: "Then come back and check the reply's finished prompt against the four slots.",
+    returnTask: "Then come back and fill the four slots for the semifinal.",
   },
   "carry-it": {
     slug: "02-archive-ai-carry",
@@ -124,7 +124,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. What each situation would have needed to keep for a full recovery.
 4. How to say what was lost in a correction note without claiming more than the archive supports.
 5. End with three questions that check my understanding, each set in a different field. Wait for my answers before you give yours.`,
-    returnTask: "Then come back and ask each world which follow-up visits were filed as new patients.",
+    returnTask: "Then come back and make the strongest honest claim for each world.",
   },
 };
 
