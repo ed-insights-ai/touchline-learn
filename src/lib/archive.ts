@@ -99,7 +99,7 @@ export type Column = (typeof COLUMNS)[number];
 export type TableRow = { slug: string; name: string; place: number; p: number; w: number; d: number; l: number; gf: number; ga: number; gd: number; pts: number };
 export type Gap = { kind: "no-score"; date: string; home: string; away: string } | { kind: "unavailable"; programme: string; reason: string };
 export type Table = {
-  key: "A" | "B" | "C" | "D" | "Kick"; rows: TableRow[]; expected: number; listed: number; finished: number; scored: number;
+  key: "A" | "B" | "C" | "D" | "Kick" | "Harbor"; rows: TableRow[]; expected: number; listed: number; finished: number; scored: number;
   caption: string; postseason: string[]; gaps: Gap[]; parsed: Record<string, ParsedRow[]>;
 };
 
@@ -388,7 +388,7 @@ const bugs = [
     row: CASE2[0], wrong: variant(CASE2[0], "opponent", "State Lambert") },
   { id: "side", label: "The parser ignored the vs/at column, so away matches were stored as home matches", truth: CASE2[1].side,
     row: CASE2[1], wrong: variant(CASE2[1], "side", CASE2[1].side === "at" ? "vs" : "at") },
-  { id: "blank", label: "Cedar Grove's September 21 result reads \"Final\" with no score and was read as 0-0", truth: "no score published",
+  { id: "blank", label: "Cedar Grove's September 21 result reads \"Final\" with no score and was read as 0–0", truth: "no score published",
     row: CASE2[0], wrong: variant(CASE2[0], "result", "T 0-0") },
 ] as const;
 const verifiable = (b: (typeof bugs)[number], k: Kept) => keep[k](b.row) !== keep[k](b.wrong);
@@ -639,3 +639,15 @@ export const presetShowsSaturday: Record<string, number> = Object.fromEntries(pr
 }));
 check(presets.every((p) => presetShowsSaturday[p.id] === (p.id === "refetch-harbor" ? 1 : 0)), "only the Harbor Point re-fetch should show Saturday's 7318 result");
 check(saturday[0].fixture.endsWith(":7318"), "Saturday's first match is not 7318");
+
+const tableHarbor = build("Harbor", fridayPages.map((p) => ({ slug: p.slug, html: (p.slug === "harbor-point" ? tuesdayOf(p.slug) : p).html, tidy: tidyV2 })), down(fridayManifest));
+const harborPoints = cellsBetween(tableB, tableHarbor).filter((c) => c.column === "pts");
+/** Case 3's change 5 built: Friday's pages with Harbor Point's re-fetched, the fixed rule. One page records the 1-1 and the other is blank, so the build accepts it without an error. */
+export const harborRefetch = {
+  before: { scored: tableB.scored, finished: tableB.finished },
+  after: { scored: tableHarbor.scored, finished: tableHarbor.finished },
+  points: harborPoints.map((c) => ({ slug: c.slug, name: c.name, gained: Number(c.after) - Number(c.before) })),
+};
+check(harborRefetch.before.scored === 53 && harborRefetch.before.finished === 54 && harborRefetch.after.scored === 54 && harborRefetch.after.finished === 55, "Case 3's change 5 no longer moves the table from 53 of 54 to 54 of 55");
+check(harborPoints.map((c) => c.slug).sort().join() === "eastbrook-state,harbor-point" && harborRefetch.points.every((x) => x.gained === 1), "Case 3's change 5 no longer gives Eastbrook State and Harbor Point a point each");
+check(cellOn(fridayOf("eastbrook-state").html, "7318") === "" && cellOn(tuesdayOf("harbor-point").html, "7318") === "T 1-1", "Case 3's change 5 is no longer one recorded 1-1 beside a blank cell");

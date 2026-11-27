@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 import { fridayPages } from "../../../lib/archive";
 import { spell } from "../../../lib/cases";
 
@@ -46,7 +46,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("case-fingerprint")}`}
   about="This is a reply an AI assistant gave to Module 2's stale-output study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Case 3 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("case-fingerprint", "Case 3")}
 >
   <h2 class="pr-title">How a cache decides what is stale</h2>
   <p class="pr-pull">A cached output is a result plus a record of how it was produced.</p>
@@ -122,7 +122,7 @@ const checks = [
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
     <p>The lab's fingerprint hashes the parser's whole module, the shared page reader it imports, and the config the lab covers with it: the alias list the parser reads, and the membership file and season that pick the standings' teams. That is the reply's whole-source-file choice. One parser reads all {saved} saved schedules, so a comment edit in it makes all {saved} stale, where the figure's comment edit touched only one output. Each parsed schedule also keeps the content hash of the saved page it read, the reply's input hash.</p>
-    <p>Case 3's last preset is the reply's section 4. Harbor Point's site posted a result after Friday, but the saved page did not change, so its hash still matches and nothing looks stale until something fetches it.</p>
+    <p>Case 3's last change is the reply's section 4. Harbor Point's site posted a result after Friday, but the saved page did not change, so its hash still matches and nothing looks stale until something fetches it.</p>
   </aside>
 
   <h2>5. Check your understanding</h2>

@@ -6,6 +6,7 @@ interface Props {
   open?: boolean;
   inline?: string;
   highlight?: boolean;
+  static?: boolean;
 }
 const {
   label = "Kick · Thinking",
@@ -14,6 +15,7 @@ const {
   open = true,
   inline,
   highlight = false,
+  static: fixed = false,
 } = Astro.props;
 ---
 
@@ -32,6 +34,29 @@ const {
     </svg>
     <span>{inline}</span>
   </p>
+) : fixed ? (
+  <div class="cv-think">
+    <p style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 44px; margin: 0; padding: 0.45rem 0.9rem; border-bottom: 1px solid var(--tl-line); color: var(--tl-muted); font-size: 0.82rem;">
+      <span class="cv-think-head">
+        <svg class="cv-think-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+          <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+          <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
+          <path d="M17.599 6.5a3 3 0 0 0 .399-1.375" />
+          <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5" />
+          <path d="M3.477 10.896a4 4 0 0 1 .585-.396" />
+          <path d="M19.938 10.5a4 4 0 0 1 .585.396" />
+          <path d="M6 18a4 4 0 0 1-1.967-.516" />
+          <path d="M19.967 17.484A4 4 0 0 1 18 18" />
+        </svg>
+        <span class="cv-think-who">{label}</span>
+      </span>
+      {duration && <span style="font-variant-numeric: tabular-nums;">{duration}</span>}
+    </p>
+    <div class="cv-think-body">
+      {thoughts.map((line) => <p>{line}</p>)}
+    </div>
+  </div>
 ) : (
   <details class="cv-think" open={open}>
     <summary>

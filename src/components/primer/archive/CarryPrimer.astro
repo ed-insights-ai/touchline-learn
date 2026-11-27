@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi["carry-it"];
 const kg = { whole: 12, fraction: 12.8 };
@@ -64,7 +64,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("carry-it")}`}
   about="This is a reply an AI assistant gave to Module 2's transfer study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 9 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("carry-it", "Part 9")}
 >
   <h2 class="pr-title">One bug, three archives</h2>
   <p>For six months, a coffee roaster's importer rounded every shipment weight <strong>down</strong> to a whole kilogram. A supplier's <code>{kgs(kg.fraction)}</code> became <code>{kgs(kg.whole)}</code>. The roaster fixes the importer so it preserves the reported weight.</p>

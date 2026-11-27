@@ -33,12 +33,12 @@ const opponent = (slug: string) => {
 const why = (k: "B" | "C", slug: string) => {
   const a = answerOf(k, slug);
   const o = opponent(slug);
-  const result = o ? `${o.mine}-${o.theirs} ${o.mine > o.theirs ? "win over" : o.mine === o.theirs ? "draw with" : "loss to"} ${o.other}` : "";
+  const result = o ? `${o.mine}–${o.theirs} ${o.mine > o.theirs ? "win over" : o.mine === o.theirs ? "draw with" : "loss to"} ${o.other}` : "";
   const final = [championship.home, championship.away].includes(slug) ? ` Its page did change, with Sunday's championship result, but the build leaves that match out.` : "";
   if (a === "same") return k === "B" ? "Same: no “St.” here." : `Same: no match on ${saturdayName}.${final}`;
   if (a === "code") return `Code: the fixed rule shows “${fixedName}”.`;
   if (a === "both") return `Both: the rule renames it, and the pages add a ${result}.`;
-  return unsaved.includes(slug) ? `Pages: its site still doesn't answer, but ${o!.other}'s page shows the result, a ${o!.mine}-${o!.theirs} ${o!.mine > o!.theirs ? "win" : o!.mine === o!.theirs ? "draw" : "loss"}.` : `Pages: Tuesday's pages add a ${result}.`;
+  return unsaved.includes(slug) ? `Pages: its site still doesn't answer, but ${o!.other}'s page shows the result, a ${o!.mine}–${o!.theirs} ${o!.mine > o!.theirs ? "win" : o!.mine === o!.theirs ? "draw" : "loss"}.` : `Pages: Tuesday's pages add a ${result}.`;
 };
 if (diffAC.some((c) => c.column === "place")) throw new Error("Case 1 states that no team changes place");
 const finalists = [championship.home, championship.away];
@@ -128,7 +128,6 @@ const compare: [string, string][] = [["code", "Controlled: only the parser code 
   <p>A against B holds the pages fixed and changes only the code, so every difference has one cause, the fix: the evidence Riley asked for. B against C holds the code fixed and isolates Saturday.</p>
   <p>A re-fetch isn't wrong; it answers a different question: what do the sites say now? Replay first, for a diff that shows only the fix. Fetch later, on purpose, for a diff that shows only the new results.</p>
 
-  <AiCard part="case-saturday" />
   <div class="ar-choices"><Check once="sat-alias" note="Answer both, then check.">
     <p class="cv-qlabel">Kick leaves the parser as it was on Tuesday and edits only the alias list, which is config. Compare each run with Tuesday's table.</p>
     <Choice radio save="sat-alias-replay" label="Kick replays Friday's saved pages with the new alias list." options={compare} answer="config" why="Controlled: only the config changed. Friday's pages and Tuesday's parser are held fixed, so every difference from Tuesday's table comes from the alias list." wrong={{ code: "The parser is untouched. The alias list is config, the third input in the formula.", pages: "A replay reads Friday's saved pages, the ones Tuesday's table was built from.", both: "The pages are Friday's, so only one input changed." }} />
@@ -140,6 +139,7 @@ const compare: [string, string][] = [["code", "Controlled: only the parser code 
     <p>In Touchline a parser change re-reads the archived bytes and never sends a request. Fetching is a separate act, run on purpose. So each rebuild changes one input at a time: new code over the same pages, or new pages through the same code.</p>
   </Touchline>
 
+  <AiCard part="case-saturday" />
   <Beat part="case-saturday" name="Your claim" title="The changelog line for table B" />
   <div class="cv-check" data-once="sat-claim">
     <p class="cv-kind">Apply it</p>

@@ -18,8 +18,8 @@ const what: Record<Kept, string> = {
 };
 const reasons: Record<string, Record<Kept, [boolean, string]>> = {
   name: {
-    a: [false, "No. It holds “State Lambert”. The rule ran before the row was written."],
-    b: [false, "No. The saver ran the tidy rule too, so it also says “State Lambert”."],
+    a: [false, "No. The rule ran before the row was written."],
+    b: [false, "No. The saver ran the tidy rule too."],
     c: [true, `Yes. The bytes say “${story.mondayName}”, as the site published it.`],
   },
   side: {
@@ -28,7 +28,7 @@ const reasons: Record<string, Record<Kept, [boolean, string]>> = {
     c: [true, "Yes. The “at” cell is there, as published."],
   },
   blank: {
-    a: [false, "No. It holds 0-0, which looks exactly like a real 0-0."],
+    a: [false, "No. It holds 0–0, which looks exactly like a real 0–0."],
     b: [true, "Yes. The bare “Final” cell survives tidying."],
     c: [true, "Yes. “Final” with no score, as published."],
   },
@@ -37,9 +37,9 @@ grid.forEach((bug) => KEPT.forEach((k) => {
   if (reasons[bug.id]?.[k]?.[0] !== bug.answers[k]) throw new Error(`Case 2's reason for ${bug.id}/${k} disagrees with archive.ts`);
 }));
 const drawReasons: Record<Kept, [boolean, string]> = {
-  a: [false, `${case2Draws.points.a}. Archive (a) turned the bare “Final” into a 0-0, a draw nobody saw, and scores a point the published rows don't support. They support ${case2Draws.truth}.`],
-  b: [true, `${case2Draws.points.b}. The bare “Final” is an unknown score, left out of the counted results, so (b) agrees with the published rows. Under the bug it gave ${case2Draws.buggy.b}.`],
-  c: [true, `${case2Draws.points.c}, the published rows' total, with the bare “Final” left out. Under the bug the bytes gave ${case2Draws.buggy.c}.`],
+  a: [false, `${case2Draws.points.a}. Archive (a) scores its 0–0, a draw nobody saw. The published rows support ${case2Draws.truth}.`],
+  b: [true, `${case2Draws.points.b}. The bare “Final” is left out, so (b) agrees with the published rows. Under the bug it gave ${case2Draws.buggy.b}.`],
+  c: [true, `${case2Draws.points.c}, the published rows' total. Under the bug the bytes gave ${case2Draws.buggy.c}.`],
 };
 KEPT.forEach((k) => { if (drawReasons[k][0] !== case2Draws.answers[k] || (case2Draws.points[k] === case2Draws.truth) !== case2Draws.answers[k]) throw new Error(`Case 2's draw reason for ${k} disagrees with archive.ts`); });
 const yn: [string, string][] = [["yes", "Yes"], ["no", "No"]];
@@ -52,22 +52,30 @@ const resultIn = (k: Kept, row: string): string => {
   return m[1];
 };
 const fourResults = (k: Kept) => [...archives[k].rows, case2Draws.extra[k]].map((row) => resultIn(k, row)).join(" · ");
+const fetchedOn = day(sidecar.fetched_at);
+const hash12 = sidecar.sha256.slice(0, 12);
+const claims: [string, string][] = [
+  ["bytes", `Replayed over archive (c), Cedar Grove's bytes as fetched on ${fetchedOn}; they still hash to the sidecar's ${hash12}.`],
+  ["site", "Replayed over archive (c); its sidecar proves the page still matches Cedar Grove's site."],
+  ["tidied", `Replayed over archive (b), which gave the right ${case2Draws.points.b}, so tidied HTML is raw enough.`],
+  ["parsed", "Replayed over archive (a), the parsed rows the table was built from."],
+];
 const sidecarFields: [string, string][] = [
-  ["final_url", "Where the site answered from after any redirects. Here it matches the request; Module 3 asks what that proves."],
-  ["fetched_at", "When the bytes arrived: Friday's capture, not Tuesday's."],
-  ["sha256", "The content hash of the saved bytes. Recompute it later; a match shows the file is the one that arrived."],
+  ["final_url", "Where the site answered from after any redirects; Module 3 asks what a match with the request proves."],
+  ["fetched_at", "When the bytes arrived: Friday, not Tuesday."],
+  ["sha256", "The content hash of the bytes. Recompute it; a match shows the file is the one that arrived."],
 ];
 
 ---
 
 <section id="case-kept">
   <PartHead id="case-kept">Case 2. What Kick kept: raw or already cooked</PartHead>
-  <p>The replay worked because Kick kept Friday's pages. But “kept the pages” can mean several different files, and only some of them can check a fix.</p>
+  <p>The replay worked because Kick kept Friday's pages. But “kept the pages” can mean several files, and only some can check a fix.</p>
 
   <div class="cv-define">
-    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step, and every copy written after it holds the damaged value. Unless such a copy also kept the original, a fix can be verified only against a copy saved before that step.</p>
+    <p><strong>Replay from the last layer before the damage.</strong> A bug happens in one step, and every copy written after it holds the damaged value, so a fix can be verified only against a copy saved before that step.</p>
   </div>
-  <p>The film showed the tidy rule on the published table, but Kick wrote it inside the parser, so the parsed rows already carry the bug and only the page bytes are clean. Had it run only at the build, the parsed rows would have been enough.</p>
+  <p>Kick wrote the tidy rule into the parser, so the parsed rows carry the bug. Had it run only at the build, they would have been enough.</p>
   <figure class="ar-layers">
     {[
       { title: "Where Kick put the rule", hit: 0 },
@@ -109,7 +117,7 @@ const sidecarFields: [string, string][] = [
 
   <div class="cv-check ar-kgrid" data-once="kept-grid">
     <p class="cv-kind">Knowledge check</p>
-    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. Does each archive alone still hold what the site published for that value, so you can rerun the fixed step and verify it? Use only the excerpts.</p>
+    <p class="cv-qlabel">Three bugs, each in a step after the page arrived. Does each archive alone still hold what the site published, so you can rerun the fixed step and verify it? Use only the excerpts.</p>
     <div class="ar-kg" role="group" aria-label="Bugs against archives">
       <p class="ar-kg-head" aria-hidden="true"><span>Bug</span>{KEPT.map((k) => <span>{label(k)}</span>)}</p>
       {grid.map((bug, i) => (
@@ -141,25 +149,19 @@ const sidecarFields: [string, string][] = [
   <Beat part="case-kept" name="Name it" title="Raw, derived, and a loss that runs one way" />
   <p class="cv-lede">Saving after a transformation saves a derived copy, however raw it looks.</p>
   <p>Archive (b) is still HTML, so it looks raw. It isn't: the tidy step is code, and its bugs are in every file it saved. Raw data is the bytes as received, before any code reads them; everything else is derived.</p>
-  <p>The loss runs one way. Once a bare “Final” is stored as 0-0, nothing in the row can say it was blank. Once the vs/at cell is dropped, nothing says where the match was played. Archive (b) kept both cells but rewrote every “St.”. Only the bytes keep every cell as published.</p>
+  <p>The loss runs one way. Once a bare “Final” is stored as 0–0, nothing in the row can say it was blank. Once the vs/at cell is dropped, nothing says where the match was played. Archive (b) kept both cells but rewrote every “St.”. Only the bytes keep every cell as published.</p>
   <p>A raw copy also answers questions nobody has asked yet. Kick saved {rewind.boxScoresSaved} box scores on Friday that no parser has read for discipline. Module 4 will want them.</p>
 
-  <p>The record beside archive (c) is its <strong>sidecar</strong>, from Part 2. Three of its fields matter in later modules:</p>
+  <p>The record beside archive (c) is its <strong>sidecar</strong>, from Part 2. Three fields matter later:</p>
   <dl class="ar-fields">
     {sidecarFields.map(([k, s]) => <div><dt><code>{k}</code></dt><dd>{s}</dd></div>)}
   </dl>
-  <p>The other three record the address Kick asked for (<code>requested_url</code>), the server's answer (<code>status</code>, {sidecar.status}) and the site's version tag (<code>etag</code>).</p>
 
-  <Touchline part="case-kept" at={["Archive"]} note="Archive writes the bytes and a sidecar before anything parses them." title="Page bytes plus a sidecar">
-    <p>Touchline saves each page's bytes as received, with a sidecar that also holds the page's coverage state from Module 1, so the archive says what was missing as well as what arrived. The sample keeps that state in its capture manifest.</p>
-  </Touchline>
-
-  <AiCard part="case-kept" />
   <div class="cv-check ar-kgrid" data-once="kept-draws">
     <p class="cv-kind">One more bug</p>
-    <p class="cv-qlabel">4. {case2Draws.label}. This bug runs after all three archives are written, and bug 3 is still in archive (a). Cedar Grove's page has one more row, a real draw. With the three rows above, here are the four results as each archive holds them:</p>
-    <ul class="ar-extra">{KEPT.map((k) => <li><span>{label(k)}</span><code>{fourResults(k)}</code></li>)}</ul>
-    <p class="cv-qlabel">Replay the corrected points rule, three for a win and one for a draw, over each archive's four rows. A bare “Final” is an unknown score: leave it out of the counted results, don't score it as zero. How many points does each archive give Cedar Grove?</p>
+    <p class="cv-qlabel">4. {case2Draws.label}. It runs after all three archives are written, and bug 3 is still in archive (a). With one more row, a real draw, here are Cedar Grove's four results as each archive holds them:</p>
+    <ul class="ar-extra">{KEPT.map((k) => <li><span>{label(k)}{k === "a" && " (Cedar Grove first)"}</span><code>{fourResults(k)}</code></li>)}</ul>
+    <p class="cv-qlabel">Replay the corrected rule, three points for a win and one for a draw, leaving a bare “Final” out as an unknown score, not a zero. How many points does each archive give Cedar Grove?</p>
     <div class="ar-kg ar-kg-one" role="group" aria-label="Bug 4: Cedar Grove's points from each archive">
       <div class="ar-kg-row">
         {KEPT.map((k) => (
@@ -173,7 +175,31 @@ const sidecarFields: [string, string][] = [
     <p class="cv-once">Enter a number for all three archives, then check.</p>
     <button type="button" data-submit>Check answers</button>
     <p class="cv-fb" role="status" data-need></p>
-    <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one: damage stacks. Archive (b) passes only because tidying never touched a result, and it still fails bug 1. Only the bytes as received come before every step.</p></div>
+    <div class="cv-reveal"><p>The last layer before this bug is the parsed rows, but they carry an earlier one: damage stacks. Only the bytes as received come before every step.</p></div>
+  </div>
+  <Touchline part="case-kept" at={["Archive"]} note="Archive writes the bytes and a sidecar before anything parses them." title="Page bytes plus a sidecar">
+    <p>Touchline saves each page's bytes as received. Touchline's sidecar holds the fetch record, the content hash and signature, and the page's coverage state from Module 1. Its cached parse is silver, derived data kept beside the page, not part of the bronze bytes.</p>
+  </Touchline>
+
+  <AiCard part="case-kept" />
+  <Beat part="case-kept" name="Your claim" title="Where the fix was verified" />
+  <div class="cv-check" data-once="kept-claim">
+    <p class="cv-kind">Apply it</p>
+    <fieldset class="cv-opts" data-q data-type="radio" data-answer="bytes"
+      data-why="The bytes line. It names the layer before every step and two sidecar fields anyone can check: when the bytes arrived and their hash."
+      data-wrong={JSON.stringify({
+        site: `The hash shows the file is the one that arrived on ${fetchedOn}. It says nothing about what the site serves now.`,
+        tidied: "Archive (b) got bug 4 right only because tidying never touched a result. It fails bug 1, so it can't verify every fix.",
+        parsed: `The parsed rows give ${case2Draws.points.a}: they still carry bug 3's 0–0.`,
+      })}>
+      <legend>Riley's changelog says where bug 4's fix was verified. Which line can the archive back up?</legend>
+      {claims.map(([v, text]) => <label><input type="radio" name="ar-kept-claim" value={v} data-save="kept-claim" /><span>{text}</span></label>)}
+      <p class="cv-fb" role="status"></p>
+    </fieldset>
+    <p class="cv-once">Pick one, then check.</p>
+    <button type="button" data-submit>Check answer</button>
+    <p class="cv-fb" role="status" data-need></p>
+    <div class="cv-reveal"><p>A fix is verified only as far as the layer it was replayed over.</p></div>
   </div>
   <NextPart from="case-kept">The bytes are kept and the parser is fixed. Which parsed schedules are now out of date?</NextPart>
 </section>

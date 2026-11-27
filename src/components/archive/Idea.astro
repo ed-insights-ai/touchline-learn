@@ -38,9 +38,9 @@ const bakes = [
 ];
 
 const rules = [
-  { rule: "Save the bytes as received, before any step changes them.", then: "Then a bug can damage only derived data, which can be rebuilt. And a site may change or remove its page, leaving your copy the only one.", clause: "from the pages you kept", where: "Case 2" },
-  { rule: "Change one thing at a time.", then: "Not asking a site again keeps the pages fixed. The config stays the same too, so every difference comes from the code.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Note which exact captures, code and config produced each output, so anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3, Rewind" },
+  { rule: "Save the bytes as received, before any step changes them.", then: "Then a bug can damage only derived data, which can be rebuilt. And a site may change or remove its page, leaving your copy the only one.", clause: "from the pages you kept" },
+  { rule: "Change one thing at a time.", then: "Not asking a site again keeps the pages fixed. The config stays the same too, so every difference comes from the code.", clause: "without asking a single site again" },
+  { rule: "Record what produced each output.", then: `Note which exact captures, code and config produced each output, so anyone can check a rebuild instead of trusting it.`, clause: "and show me you did" },
 ];
 
 const loop = [
@@ -118,7 +118,7 @@ const items: [string, string][] = [
   <ol class="cv-rules">
     {rules.map((r) => (
       <li><b>{r.rule}</b> {r.then}
-        <p class="cv-rule-call"><span>Riley</span>“{r.clause}”<em>{r.where}</em></p></li>
+        <p class="cv-rule-call"><span>Riley</span>“{r.clause}”</p></li>
     ))}
   </ol>
   <p>Together, the rules give a loop that fetches and saves first, then computes everything from the archive.</p>

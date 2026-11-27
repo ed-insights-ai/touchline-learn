@@ -1,6 +1,6 @@
 ---
 import PrimerChat from "../PrimerChat.astro";
-import { aiCardId, archiveAi } from "../../../lib/archive-ai";
+import { aiCardId, aiTurn, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.rewind;
 
@@ -55,7 +55,7 @@ const checks = [
   module="Module 2"
   back={`../02-archive/#${aiCardId("rewind")}`}
   about="This is a reply an AI assistant gave to Module 2's rebuild-criteria study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
-  turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 7 and ${card.returnTask.replace("Then come back and ", "")}`}
+  turn={aiTurn("rewind", "Part 7")}
 >
   <h2 class="pr-title">Acceptance criteria for a reproducible rebuild</h2>
   <p class="pr-pull">Write acceptance criteria so someone else can check the rebuild from the saved files, the output, and the evidence attached to the report.</p>

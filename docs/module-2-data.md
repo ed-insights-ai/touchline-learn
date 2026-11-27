@@ -169,6 +169,7 @@ holds for it after the run.
 | `case2Draws` | A fourth Case 2 bug in the build step: a draw scored two points. `row` is Cedar Grove's first conference draw and `extra` shows it in each archive form. Cedar Grove's points over the three Case 2 rows plus that draw: `truth` from the published rows, `points` replaying the fixed rule over each archive (bug 3 still in archive (a)), `buggy` under the bug. | row 4926, 2026-09-13 v Dunmore, T 1-1; truth 4; points a 5, b 4, c 4; buggy b 5, c 5; answers a no, b yes, c yes |
 | `case2Sidecar` | Cedar Grove's full Friday sidecar, all six fields the sample records (archive (c)'s `sidecar` keeps five). The build checks the field names and that its `sha256` matches archive (c). | `etag` and `sha256` both start `6d6d02cd4de212ac` |
 | `presetShowsSaturday` | Per preset, how many of the seven parsed schedules after the run read a page that shows Saturday's Eastbrook State v Harbor Point result (fixture 7318). The build checks that only the Harbor Point re-fetch shows it. | `refetch-harbor` 1; every other preset 0 |
+| `harborRefetch` | Case 3's change 5 built: Friday's pages with Harbor Point's re-fetched page, the fixed rule. Harbor Point's page records the 7318 result and Eastbrook State's is blank, so the build accepts it without an error. The build checks the counts, the two teams and the two cells. | `before` 53 of 54; `after` 54 of 55; Eastbrook State and Harbor Point gain 1 point each |
 
 ### Part 6: two archive policies
 
