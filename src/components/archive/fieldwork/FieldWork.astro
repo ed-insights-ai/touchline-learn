@@ -248,7 +248,7 @@ const ranWrong = { replay: "Read the line again: the run never reached a table."
     <h2>What every capture costs</h2>
     <p class="ar-for">For anyone who decides what a pipeline keeps.</p>
     <p><a href={lesson("decision")}>The decision</a> compares two policies. <strong>Latest only</strong> keeps one capture per page, and a new fetch overwrites it. <strong>Every capture</strong> keeps each capture beside the last. Here is what each costs, in page bytes from the sample. The figures count the pages only, not the record of each fetch that an every-capture archive also keeps.</p>
-    <p>Every capture can be stored two ways that never write the same page twice:</p>
+    <p>Two stores cut what every capture costs by never writing the same page twice. They differ in what they can read back:</p>
     <ul class="ar-pair">
       <li><b>{POLICY.dedup}.</b> Each file is named by its content hash. A fetch byte-identical to a file already held lands on that name and writes nothing; any other fetch writes a new file. Every distinct set of bytes is kept, so every capture a manifest names can be read back exactly and checked against its hash.</li>
       <li><b>{POLICY.sig}.</b> Each file is named by its signature, and the first capture with a signature stands in for every later one. A re-render that only added noise writes nothing, so its exact bytes are not kept: a manifest that recorded that fetch's content hash names a file the store does not hold.</li>

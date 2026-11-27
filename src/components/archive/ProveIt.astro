@@ -91,10 +91,10 @@ const tell: [string, string][] = [
     {where.map(([v, t]) => <label><input type="radio" name="ar-prove-where" value={v} data-save="prove-where" /><span>{t}</span></label>)}
   </fieldset>
   <div class="ar-diag" data-when="prove-where" hidden>
-    <p class="ar-said" data-when="prove-where" data-is="pk" hidden>The penalty kick is in the scoring summary and in the OT column. What the parser missed is the column.</p>
-    <p class="ar-said" data-when="prove-where" data-is="ot" hidden>The parser left out the overtime period.</p>
+    <p class="ar-said" data-when="prove-where" data-is="pk" hidden>That fits the {published.home}–{published.away} too: the only overtime goal is the penalty kick. The saved page can't separate the two; the parser's code can.</p>
+    <p class="ar-said" data-when="prove-where" data-is="ot" hidden>That fits, and so does a skipped penalty kick: the only overtime goal is one. The saved page can't separate the two; the parser's code can.</p>
     <p class="ar-said" data-when="prove-where" data-is="site" hidden>The saved box score's F column says {published.home}–{published.away}, the same as the schedules.</p>
-    <p>Friday's saved box score has the right score. The box-score parser added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column, so the goal at {goal.time}, a penalty kick in overtime, never reached the match detail.</p>
+    <p>Friday's saved box score has the right score. Reading the box-score parser settles it: it added up periods {scoreByPeriod.head[1]} and {scoreByPeriod.head[2]} and stopped: {buggy.home}–{buggy.away}. It dropped the {scoreByPeriod.head[ot]} column, so the goal at {goal.time}, a penalty kick in overtime, never reached the match detail.</p>
   </div>
   <p>The parser fix takes a minute; recovery uses Cases 1 to 3. Each parser module has its own fingerprint: the fix changes only the box-score parser's, to {fp.after}. The schedule parser's is still {fingerprints.v2}.</p>
   <div class="cv-scroll">

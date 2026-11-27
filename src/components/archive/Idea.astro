@@ -15,7 +15,7 @@ const silent = rewind.unavailable.map((u) => u.name).join(" and ");
 const terms = [
   {
     term: "Raw data",
-    say: `is the bytes exactly as a site sent them, saved before any step changes them.`,
+    say: `is the bytes exactly as a site sent them, saved before any code reads them.`,
     also: `A saved page plus its <strong>sidecar</strong>, a small record of when and how it was fetched, is a <strong>capture</strong>. Where you keep captures is the <strong>raw zone</strong>, also called the bronze layer; derived layers are often called silver and gold.`,
     tuesday: `Friday's ${saved} schedule pages. Every one still says “${story.mondayName}”, byte for byte as it arrived.`,
   },
@@ -38,7 +38,7 @@ const bakes = [
 ];
 
 const rules = [
-  { rule: "Save the bytes as received, before any step changes them.", then: "Then a bug can damage only derived data, which can be rebuilt. And a site may change or remove its page, leaving your copy the only one.", clause: "from the pages you kept" },
+  { rule: "Save the bytes as received, before any code reads them.", then: "Then a bug can damage only derived data, which can be rebuilt. And a site may change or remove its page, leaving your copy the only one.", clause: "from the pages you kept" },
   { rule: "Change one thing at a time.", then: "Not asking a site again keeps the pages fixed. The config stays the same too, so every difference comes from the code.", clause: "without asking a single site again" },
   { rule: "Record what produced each output.", then: `Note which exact captures, code and config produced each output, so anyone can check a rebuild instead of trusting it.`, clause: "and show me you did" },
 ];
@@ -130,7 +130,7 @@ const items: [string, string][] = [
   <p>{silent} never answered on Friday, so there is no {silent} page to replay; its results still come from the other schools' pages.</p>
 
   <AiCard part="idea" />
-  <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption={`Replay, Don't Refetch. Sites are lettered and the numbers are illustrative; the site that never answered is ${silent}.`} />
+  <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption={`Replay, Don't Refetch. Sites are lettered and the numbers are illustrative. In the course sample, the site that never answered is ${silent}.`} />
 
   <h3 class="cv-try" id="idea-check">Check your understanding: a research team</h3>
   <p>A research team ran a survey through a vendor's site and kept four things: the export, exactly as the vendor sent it; a cleaned spreadsheet and a summary chart, both made by a cleaning script; and the script, in version control, settings included.</p>

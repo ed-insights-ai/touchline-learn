@@ -81,7 +81,7 @@ const calls = [
   <p><strong>“Can't tell” was the justified answer on Tuesday.</strong> A re-fetch reads the sites as they are now. Only the name would change if nothing on any page had moved since Friday, and {down} was still silent. On Tuesday nothing on screen said whether that held. A replay's pages are Friday's, byte for byte.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is={resolved} hidden>On Tuesday, that pick was a guess about the live sites.</p>
   <p class="ar-yours" data-when={refetchPredict.key} data-is="unknown" hidden>You picked the only answer Tuesday's evidence supported.</p>
-  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That holds only if the re-fetch reads the same pages with the same evidence. {spell(changed.length, true)} pages had changed, and one of them posted a result this row counts.</p>
+  <p class="ar-yours" data-when={refetchPredict.key} data-is={others} hidden>That holds only if the new captures leave every number in this row as it was. {spell(changed.length, true)} pages had changed, and one of them posted {winner}'s {hi}–{lo} win over {loser}, a result this row counts.</p>
 
   <p>In the sample, {winner} beat {loser} {hi}–{lo} on Saturday. The re-fetch changes {spell(lambert.columns.length)} cells: the name, from the code (the replay shows that much), and {spell(byPages.length)} numbers, from the pages.</p>
   <div class="cv-scroll">
@@ -191,6 +191,7 @@ const calls = [
   .ar-cap.is-gone { border: 2px dashed var(--cv-red); opacity: 0.75; }
   .ar-cap.is-gone b, .ar-cap.is-gone .cv-mono { text-decoration: line-through; }
   .ar-cap.is-gone span:last-child { color: var(--cv-red); font-weight: 700; }
+  :global(:root:not([data-theme="light"])) .ar-cap.is-gone span:last-child { color: var(--sl-color-red-high); }
   @media (max-width: 32rem) { .ar-lane { grid-template-columns: 1fr; } .ar-cap { min-width: 0; flex: 1 1 9rem; } }
   @media (max-width: 32rem) { .cv-scroll:has(.ar-row), .ar-key { display: none; } .ar-changes { display: table; } .ar-changes td.is-code { background: color-mix(in srgb, var(--sl-color-accent) 28%, transparent); } .ar-changes td.is-pages { background: color-mix(in srgb, var(--cv-yellow) 30%, transparent); } }
 </style>

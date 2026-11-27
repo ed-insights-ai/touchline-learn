@@ -105,7 +105,7 @@ const agentRun: [string, string][] = [
           options={agentRun} answer="log"
           why="The log sits outside the agent, so it sees child processes and tools, and the tool's test request proves it."
           wrong={{ counter: "More test requests from the same process pass through the same wrapper. A child process's request still never does.", sandbox: "It shows nothing got out, not that nothing tried: a blocked attempt leaves no trace unless it is logged." }} />
-        <p slot="reveal">A sandbox with no network blocks what the counter misses, but only its log of blocked attempts shows that nothing tried. Without criteria, Riley takes the report on trust; with them, Riley checks it in a minute.</p>
+        <p slot="reveal">A sandbox with no network blocks what the counter misses, but only its log of blocked attempts shows that nothing but the test tried. Without criteria, Riley takes the report on trust; with them, Riley checks it in a minute.</p>
       </Check>
     </div>
   </div>

@@ -8,7 +8,7 @@ interface Props { part: ArchivePartId }
 const { part } = Astro.props;
 const card = archiveAi[part];
 const sendable = modulePageExists(card.slug);
-const lead = sendable ? "Send this prompt to read the reply an AI assistant gave, or copy it into your own." : "Copy this prompt into your own AI assistant.";
+const lead = sendable ? "Optional. Send this prompt to read the reply an AI assistant gave, or copy it into your own." : "Optional. Copy this prompt into your own AI assistant.";
 ---
 
 <AiStudy id={aiCardId(part)} title={card.title} note={`${lead} ${card.returnTask}`} prompt={card.prompt} href={sendable ? aiHref(part) : undefined} />
