@@ -23,8 +23,8 @@ const unscored = tableA.gaps.filter((g) => g.kind === "no-score").length;
 const silentSites = tableA.gaps.filter((g) => g.kind === "unavailable").length;
 
 const kickThoughts = [
-  `Saint Lambert is right. The fix is one line in the parser: “St.” in front of a name means Saint.`,
-  "Now the table. Patching one cell by hand would hide the fix, so the table should be regenerated from scratch with the new rule.",
+  `${story.mondayName} is right. The fix is one line in the parser: “St.” in front of a name means Saint.`,
+  "Patching one cell by hand would hide the fix, so I'll regenerate the table with the new rule.",
   `Friday's pages are from before the weekend, and Dunmore didn't answer on Friday. Fresh pages would pick up any result posted since, and give Dunmore another chance. Re-fetching!`,
 ];
 
@@ -48,9 +48,12 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       <span>Previously: Monday, Then Tuesday</span>
     </a>
     <div>
-      <p>Monday's table went out at {monday} finished matches. It named the gaps: {spell(unscored)} match with no score and {spell(silentSites)} site that didn't answer. Nobody called.</p>
-      <p>On Tuesday, Kick added a tidy rule to spell out abbreviations in school names. Every “St.” became “State”.</p>
-      <p>Then Saint Lambert called.</p>
+      <ol class="ar-timeline" aria-label="Module 1 so far">
+        <li><b>Friday</b><span>Kick's first table: {story.fridayOriginal} conference matches.</span></li>
+        <li><b>Monday</b><span>The repair: {monday} finished, {spell(unscored)} missing score and {spell(silentSites)} silent site named.</span></li>
+        <li><b>Tuesday</b><span>Monday's numbers again, with one new name.</span></li>
+      </ol>
+      <p>On Tuesday, Kick added a tidy rule to spell out abbreviations in school names. Every “St.” became “State”. Then {story.mondayName} called.</p>
     </div>
   </div>
 
@@ -63,13 +66,18 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   <div class="cv-vm ar-vm">
     <div class="cv-vm-head">
       <span class="cv-vm-tag">Voicemail · Tuesday</span>
-      <p class="cv-who">Saint Lambert soccer</p>
+      <p class="cv-who">{story.mondayName} soccer</p>
     </div>
-    <p class="cv-vm-line">“Saint, as in the saint. Your table says State Lambert. We are not a state school. Please fix it.”</p>
+    <p class="cv-vm-line">“Saint, as in the saint. Your table says {story.tuesdayName}. We are not a state school. Please fix it.”</p>
   </div>
+  <dl class="ar-names" aria-label="Three spellings used in this module">
+    <div><dt>{story.mondayName}</dt><dd>what the pages say</dd></div>
+    <div><dt>{story.tuesdayName}</dt><dd>Tuesday's bug</dd></div>
+    <div><dt>{story.fixedName}</dt><dd>the fix</dd></div>
+  </dl>
 
   <h3 class="cv-step" id="setup-fix"><span>2</span>Kick's fix</h3>
-  <p>Kick apologized, fixed the rule in a minute, and kept going. This is what Kick was thinking when it said “Re-fetching!”.</p>
+  <p>Kick apologized, fixed the rule in a minute, and kept going.</p>
   <KickThink duration="Thought for a moment" thoughts={kickThoughts} />
   <div class="cv-kplan ar-plan" role="region" aria-label="Kick's fix plan, stopped after the first step">
     <div class="cv-kplan-bar">
@@ -91,8 +99,7 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
       ))}
     </ol>
   </div>
-  <p>Every step sounds sensible.</p>
-  <p>The film showed the rule on the published table. Kick actually wrote it into the parser, so the parsed rows already say “{story.tuesdayName}” before any table is built.</p>
+  <p>Every step sounds sensible. Unlike the film, Kick put the rule in the parser, so the parsed rows already say “{story.tuesdayName}” (more in Case 2).</p>
 
   <h3 class="cv-step" id="setup-ask"><span>3</span>Riley's question</h3>
   <p>Riley stopped the run before a single page was fetched, and asked one question instead.</p>
@@ -103,11 +110,12 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
     </div>
     <p class="cv-chat-text ar-clauses">{clauses.map((c, i) => <><span class="ar-clause"><sup aria-hidden="true">{i + 1}</sup>{c}</span>{i < clauses.length - 1 && " "}</>)}</p>
   </div>
-  <p>By “Friday's table”, Riley means Monday's table, {monday} finished matches, built again from Friday's {spell(fridayPages.length)} saved schedule pages with the name spelled “{story.fixedName}”.</p>
+  <p>“Friday's table” is Monday's {monday}, built again from Friday's {spell(fridayPages.length)} saved schedule pages, with “{story.fixedName}”.</p>
 
+  <AiCard part="setup" />
   <h3 class="cv-step" id="setup-predict"><span>4</span>Before you read on</h3>
   <fieldset class="cv-choice" data-ar-lock>
-    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Suppose Riley hadn't stopped it. If Kick had re-fetched all {spell(story.sites)} sites on Tuesday and rebuilt with the fixed rule, what would Saint Lambert's row show, compared with Tuesday's table?</legend>
+    <legend><span class="cv-kind">Prediction <span>not graded</span></span>Suppose Riley hadn't stopped it. If Kick had re-fetched all {spell(story.sites)} sites and rebuilt with the fixed rule, what would {story.mondayName}'s row show, compared with Tuesday's table?</legend>
     {refetchPredict.options.map(([value, label]) => (
       <label><input type="radio" name="ar-refetch-predict" value={value} /><span>{label}</span></label>
     ))}
@@ -119,7 +127,6 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   <p class="ar-saved" data-when={refetchPredict.key} role="status" tabindex="-1" hidden>Prediction locked in. Case 1 puts Tuesday's pages beside Friday's, and Part 6 comes back to your answer.</p>
   <p class="cv-once ar-once" data-when={refetchPredict.key} data-is="">Pick a prediction, then lock it in.</p>
 
-  <AiCard part="setup" />
   <NextPart from="setup">Kick fixed the code in a minute. What else went into Tuesday's table?</NextPart>
 </section>
 
@@ -155,7 +162,14 @@ const clauses = ["Can you rebuild Friday's table from the pages you kept,", "wit
   .ar-previously { display: grid; gap: 0.9rem; align-items: center; margin: 0 0 1.25rem; }
   @media (min-width: 40rem) { .ar-previously { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.25rem; } }
   .ar-previously p { margin: 0 0 0.5rem; }
-  .ar-previously p:last-child { margin: 0; color: var(--sl-color-white); font-weight: 650; }
+  .ar-previously p:last-child { margin: 0; }
+  .ar-timeline { display: grid; gap: 0.2rem; margin: 0 0 0.6rem !important; padding: 0 !important; list-style: none; font-size: 0.92rem; }
+  .ar-timeline li { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); margin: 0; color: var(--tl-muted); }
+  .ar-timeline b { color: var(--sl-color-white); }
+  .ar-names { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 1rem; }
+  .ar-names div { display: flex; align-items: baseline; gap: 0.4rem; padding: 0.25rem 0.6rem; border: 1px solid var(--tl-line); border-radius: 4px; background: var(--tl-card); font-size: 0.88rem; }
+  .ar-names dt { color: var(--sl-color-white); font-weight: 700; }
+  .ar-names dd { margin: 0; color: var(--tl-muted); }
   .ar-poster { display: grid; gap: 0.35rem; color: var(--tl-muted); font-size: 0.82rem; text-decoration: none; }
   .ar-poster img { display: block; width: 100%; height: auto; border: 1px solid var(--tl-line); border-radius: 8px; }
   .ar-poster span { text-decoration: underline; text-underline-offset: 2px; }

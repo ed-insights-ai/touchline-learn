@@ -35,7 +35,7 @@ const salesFix = changes.find((c) => c.id === "sales")!;
 const tryIt = changes.filter((c) => c !== salesFix);
 
 const checks = [
-  ["A hidden setting", "A memoised function takes a price and reads the tax rate from a global setting. What should its cache key account for, and why?"],
+  ["A hidden setting", "A memoized function takes a price and reads the tax rate from a global setting. What should its cache key account for, and why?"],
   ["One hash differs", "A report's recipe fingerprint matches its stored value, but one of its input hashes differs. Should the report be reused? How might a comment-only edit behave in a system that hashes whole source files?"],
   ["Outdated but verified", "A notebook verifies the hash of a downloaded CSV every time it runs. How could it still show outdated data, and what additional check would catch that?"],
 ];
@@ -54,7 +54,7 @@ const checks = [
 
   <h2>1. Fingerprint the recipe and its settings</h2>
   <p>A fingerprint is a compact identifier, usually a hash, computed from the code and configuration that determine what a step does. Suppose a notebook cell reads sales data and computes monthly totals. If the cell reads a <code>timezone</code> setting, changing that setting can move a sale from one month to another. The cell's code can stay byte-for-byte identical while its correct output changes. The timezone therefore belongs in the fingerprint.</p>
-  <p>Memoisation follows the same rule. A cache for <code>monthly_totals(data, timezone)</code> can key on both arguments. If the function instead reads the timezone from a global setting, the cache still needs to account for it.</p>
+  <p>Memoization follows the same rule. A cache for <code>monthly_totals(data, timezone)</code> can key on both arguments. If the function instead reads the timezone from a global setting, the cache still needs to account for it.</p>
 
   <h2>2. Check the recipe and the inputs</h2>
   <p>When the step runs, store its fingerprint and the hash of each input it actually used. On a later run, mark the output stale if <strong>either</strong> comparison differs.</p>

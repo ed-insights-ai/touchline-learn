@@ -1,12 +1,4 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { ArchivePartId } from "./archive-parts";
-
-type Fixture = { date: string; home: string; away: string; home_score?: number; away_score?: number };
-const season = JSON.parse(readFileSync(join(process.cwd(), "sample", "data", "fixtures", "2026-men-plc.json"), "utf-8"));
-const wins: Fixture[] = season.fixtures.filter((f: Fixture) => f.home === "hartwell-tech" && f.away === "cedar-grove" && (f.away_score ?? 0) > (f.home_score ?? 0));
-if (wins.length !== 1) throw new Error("Case 2's return task expects one Cedar Grove win at Hartwell Tech");
-const win = wins[0];
 
 export type ArchiveAiCard = {
   slug: string;
@@ -21,26 +13,26 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
   setup: {
     slug: "02-archive-ai-refetch",
     title: "What is a re-fetch, and what is a replay?",
-    prompt: `I'm learning how a data pipeline recovers when a bug is found in its own code. Teach me with one running example with small numbers: a volunteer archive that reports each day how many transcribed pages have been approved.
+    prompt: `I'm learning how a data pipeline recovers when a bug is found in its own code. Teach me with one running example with small numbers: a volunteer transcription project whose website shows each day how many transcribed pages have been approved.
 
 1. The difference between fetching the source again (a re-fetch) and rerunning my fixed code over copies I saved earlier (a replay).
 2. What can change on a live source between two fetches besides the thing I meant to fix, and what that does when I compare the new output with the old one.
 3. Which of the two can reproduce yesterday's output exactly with the old code, or correct it with the fixed code, and what a re-fetch overwrites if I keep only the latest copy of each source.
 4. When a re-fetch is still the right step, and why it should be a deliberate step of its own rather than part of a bug fix.
 5. ${close}`,
-    returnTask: "Then come back and name one site change that could move Saint Lambert's numbers.",
+    returnTask: "Then come back and lock in your prediction for St. Lambert's row.",
   },
   idea: {
     slug: "02-archive-ai-raw",
     title: "What can you rebuild from raw data?",
-    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three worked examples, each from a different field, none of them about sports or sensors. Work each one through with small numbers.
+    prompt: `I'm learning the difference between raw data and derived data, and why it decides whether a bug can be fixed later. Teach me with three worked examples from different fields: a shop's receipts, a teacher's quiz scores and a newsroom's headline drafts. Work each one through with small numbers.
 
 1. What raw data is, and why it is saved exactly as received, before any of my code reads it.
 2. What derived data is, and why it can be deleted and rebuilt as long as the raw data and the code and settings that produced it are kept.
 3. What a replay over saved raw data can recover after a bug, and what no replay can recover: a version of the source that was never saved, or a saved copy that was later overwritten.
 4. Why each output should record which raw inputs, which version of the code and which settings produced it. Show two outputs that disagree and how that record explains why.
 5. ${close}`,
-    returnTask: "Then come back and pick what the research team needs so a reviewer can see how a chart's number was produced.",
+    returnTask: "Then come back and work through the research team's survey: what it can never rebuild, what a fix needs, and what a reviewer needs.",
   },
   "case-saturday": {
     slug: "02-archive-ai-confound",
@@ -52,7 +44,7 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. How to redesign that comparison so the difference has one cause, and what to hold fixed.
 4. How the same idea applies when I fix a bug in a data pipeline: why I rerun the fixed code on the inputs I already have instead of on freshly collected ones. Show it with a small before-and-after example with numbers.
 5. ${close}`,
-    returnTask: "Then come back and classify two runs against Tuesday's: a replay with a new alias list, and a re-fetch with one.",
+    returnTask: "Then come back and classify two runs against Tuesday's table, a replay with a new alias list and a re-fetch with a new alias list: controlled or confounded, and which inputs changed.",
   },
   "case-kept": {
     slug: "02-archive-ai-keep",
@@ -64,19 +56,19 @@ export const archiveAi: Record<ArchivePartId, ArchiveAiCard> = {
 3. Why information a transformation throws away, such as stripped markup, rewritten names or a blank read as zero, can never be recovered from its output, and how a raw copy also answers questions nobody has asked yet.
 4. What a small record saved beside each raw file should say about how and when it was fetched, and why each field is worth keeping.
 5. ${close}`,
-    returnTask: `Then come back and place one more bug on the grid: a build step that gives Cedar Grove's ${win.away_score}–${win.home_score} win at Hartwell Tech two points instead of three.`,
+    returnTask: "Then come back to bug 4, a build that scored a draw as two points, and replay the corrected points rule over each archive.",
   },
   "case-fingerprint": {
     slug: "02-archive-ai-fingerprint",
     title: "How build tools decide what is stale",
-    prompt: `I'm learning how build tools and caches decide which outputs to rebuild after a change. Teach me with make, notebook caches and memoisation as examples.
+    prompt: `I'm learning how build tools and caches decide which outputs to rebuild after a change. Teach me with make, notebook caches and memoization as examples.
 
 1. What a fingerprint of code and configuration is, and why the settings a step reads belong in it, not only its code.
 2. Why an output is stale when either its stored fingerprint or the hash of the input it read differs from now, so nobody has to guess which outputs a change touched.
 3. Why rebuilding too much only costs time while rebuilding too little gives a wrong result with no error, and why some systems hash a whole source file on purpose, so that even editing a comment triggers a rebuild.
 4. What a fingerprint can't see, such as a source that changed but was never fetched again.
 5. ${close}`,
-    returnTask: "Then come back and compare the alias-list preset with a static site whose ten pages all read one settings file you edit.",
+    returnTask: "Then come back and match three changes to a notebook's cache with the six changes on the bench.",
   },
   decision: {
     slug: "02-archive-ai-captures",

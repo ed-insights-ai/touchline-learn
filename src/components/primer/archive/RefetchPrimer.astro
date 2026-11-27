@@ -3,32 +3,28 @@ import PrimerChat from "../PrimerChat.astro";
 import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.setup;
-type Status = "approved" | "pending" | "rejected";
-type Rec = { id: number; status: Status };
-const saved: Rec[] = [
-  { id: 1, status: "approved" },
-  { id: 2, status: "approved" },
-  { id: 3, status: "approved" },
-  { id: 4, status: "pending" },
-  { id: 5, status: "rejected" },
-];
+type Status = "approved" | "revoked";
+type Rec = { page: string; status: Status };
+const saved: Rec[] = ["A", "B", "B", "C", "D"].map((page) => ({ page, status: "approved" }));
 const changes = [
-  { key: "a", label: "Page 4 was approved", apply: (rs: Rec[]) => rs.map((r): Rec => (r.id === 4 ? { ...r, status: "approved" } : r)) },
-  { key: "n", label: "Page 6 was added, approved", apply: (rs: Rec[]): Rec[] => [...rs, { id: 6, status: "approved" }] },
+  { key: "a", label: "Pages E and F were approved", apply: (rs: Rec[]): Rec[] => [...rs, { page: "E", status: "approved" }, { page: "F", status: "approved" }] },
+  { key: "n", label: "Page C's approval was revoked", apply: (rs: Rec[]) => rs.map((r): Rec => (r.page === "C" ? { ...r, status: "revoked" } : r)) },
 ];
-const counts = { old: (r: Rec) => r.status !== "rejected", fixed: (r: Rec) => r.status === "approved" };
-const total = (rs: Rec[], code: keyof typeof counts) => rs.filter(counts[code]).length;
-const before = total(saved, "old");
-const replay = total(saved, "fixed");
+const approved = (rs: Rec[]) => rs.filter((r) => r.status === "approved");
+const counts = { old: (rs: Rec[]) => approved(rs).length, fixed: (rs: Rec[]) => new Set(approved(rs).map((r) => r.page)).size };
+const before = counts.old(saved);
+const replay = counts.fixed(saved);
 const fromCode = replay - before;
 const signed = (n: number) => (n === 0 ? "±0" : `${n < 0 ? "−" : "+"}${Math.abs(n)}`);
-const delta = (c: (typeof changes)[number]) => total(c.apply(saved), "fixed") - replay;
-const words = ["no", "one", "two", "three", "four", "five", "six"];
+const delta = (c: (typeof changes)[number]) => counts.fixed(c.apply(saved)) - replay;
+const twice = saved.filter((r, i) => saved.findIndex((x) => x.page === r.page) !== i).map((r) => r.page);
+const pages = (rs: Rec[]) => [...new Set(rs.map((r) => r.page))];
+const countedTwice = (rs: Rec[], r: Rec, i: number) => rs.findIndex((x) => x.page === r.page) !== i;
 
 const subsets = Array.from({ length: 1 << changes.length }, (_, m) => changes.filter((_, i) => m & (1 << i)));
 const states = subsets.map((on) => {
   const rows = on.reduce((rs, c) => c.apply(rs), saved);
-  const t = total(rows, "fixed");
+  const t = counts.fixed(rows);
   return {
     key: changes.map((c) => (on.includes(c) ? c.key : "")).join("") || "0",
     rows,
@@ -41,12 +37,13 @@ const states = subsets.map((on) => {
 const today = states[states.length - 1];
 if (states.some((st) => st.total - replay !== changes.filter((c) => st.key.includes(c.key)).reduce((n, c) => n + delta(c), 0))) throw new Error("source changes are not additive");
 if (states.map((st) => st.key).sort().join() !== "0,a,an,n") throw new Error("lane styles expect the change keys a and n");
-const n = (s: Status) => saved.filter((r) => r.status === s).length;
+if (today.total !== before || twice.join() !== "B") throw new Error("the reply's coincidence no longer holds");
+const list = (xs: string[]) => `${xs.slice(0, -1).join(", ")}, and ${xs.at(-1)}`;
 
 const checks = [
-  ["The fix alone", "You want to show that the bug fix alone changes yesterday's count. Which records and which versions of the code would you use?"],
-  [`${today.total} against ${before}`, `The fixed code reports ${today.total} after a re-fetch. What accounts for the difference between that and yesterday's published ${before}?`],
-  ["Today and yesterday", "A volunteer asks for today's count, and you still need to be able to verify yesterday's corrected report. What would you fetch, and what would you keep?"],
+  ["Replay", "What totals do the old and fixed code produce when you replay yesterday's saved file?"],
+  [`${today.total} again`, `Today's fresh fetch gives ${today.total} with the fixed code, the same number the website showed yesterday. Why does that match tell you so little?`],
+  ["Yesterday and today", "If you need to correct yesterday's count and publish today's count, which operation would you use for each, and which source copies would you keep?"],
 ];
 ---
 
@@ -57,17 +54,14 @@ const checks = [
   about="This is a reply an AI assistant gave to Module 2's re-fetch study prompt, lightly edited. Send the same prompt yourself and you will get a different reply."
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 1 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
-  <h2 class="pr-title">One day at the volunteer archive</h2>
-  <p>Yesterday at 6 p.m., your pipeline fetched and saved {words[saved.length]} page records. {words[n("approved")].replace(/^./, (c) => c.toUpperCase())} were approved, {words[n("pending")]} was pending, and {words[n("rejected")]} was rejected. A bug counted the pending page as approved, so the report said <strong>{before}</strong>. The correct count for that snapshot was <strong>{replay}</strong>.</p>
+  <h2 class="pr-title">One day of approved pages</h2>
+  <p>Yesterday, a volunteer transcription project's website reported <strong>{before} approved pages</strong>. The source file listed {["no", "one", "two", "three", "four"][pages(saved).length]} approved pages, {pages(saved)[0]} through {pages(saved).at(-1)}, but page {twice[0]} appeared twice. The pipeline counted rows, so it counted {twice[0]} twice. The fix is to count distinct approved page IDs.</p>
 
-  <h2>1. Replay the saved copy</h2>
-  <p>A <strong>replay</strong> runs code against the same {words[saved.length]} records you saved yesterday. Replay them with the old code and you get <strong>{before}</strong> again. Replay them with the fixed code and you get <strong>{replay}</strong>. Because the input stayed the same, you can attribute the difference to the code fix.</p>
-  <p>To reproduce the entire report exactly, you also need the original versions of anything else that affected it, such as the report date and configuration.</p>
-
-  <h2>2. Re-fetch the live source</h2>
-  <p>A <strong>re-fetch</strong> asks the archive for a fresh copy. By this morning, a volunteer has approved the pending page and added a newly transcribed page that was also approved. The live source now has {words[today.rows.length]} records, {words[today.total]} of them approved. Your fixed code reports <strong>{today.total}</strong>.</p>
-  <p class="pr-pull">Comparing yesterday's {before} with today's {today.total} mixes two changes.</p>
-  <p>The fix removes {words[-fromCode]} page from yesterday's count, and the live updates add {words[today.total - replay]} approved pages. Live records can also be edited, deleted, or backdated between fetches. Even if two totals match, the records behind them may have changed.</p>
+  <h2>1. Replay and re-fetch</h2>
+  <p>A <strong>replay</strong> runs your code over the source file you saved yesterday. The old code gives <strong>{before}</strong> again. The fixed code gives <strong>{replay}</strong>. Because both runs use the same input, the one-page difference comes from the code change.</p>
+  <p>A <strong>re-fetch</strong> asks the live source for a fresh copy. Suppose that by today, volunteers have approved pages E and F and revoked C's approval. The fixed code now counts <strong>{today.total}</strong> approved pages: {list(pages(approved(today.rows)))}. That matches yesterday's published number by coincidence.</p>
+  <p class="pr-pull">Comparing the two totals hides both the bug fix and the changes in approvals.</p>
+  <p>Live sources can also change when someone corrects a record, deletes an entry, or backfills an approval.</p>
   <figure class="pr-card pa-rf">
     <fieldset class="pa-rf-controls">
       <legend>What changed at the source since yesterday</legend>
@@ -77,41 +71,45 @@ const checks = [
     <div class="pa-lanes">
       <div class="pa-lane is-old">
         <p class="pa-lane-head"><b>Yesterday's report</b><span>saved copy, old code</span></p>
-        <ul>{saved.map((r) => <li><span>Page {r.id} · {r.status}</span><b>{counts.old(r) ? 1 : 0}</b></li>)}</ul>
+        <ul>{saved.map((r) => <li><span>Page {r.page} · {r.status}</span><b>1</b></li>)}</ul>
         <p class="pa-lane-total"><span>Pages counted</span><b>{before}</b></p>
       </div>
       <div class="pa-lane is-replay">
         <p class="pa-lane-head"><b>Replay</b><span>saved copy, fixed code</span></p>
-        <ul>{saved.map((r) => <li class={counts.fixed(r) !== counts.old(r) ? "is-moved" : ""}><span>Page {r.id} · {r.status}</span><b>{counts.fixed(r) ? 1 : 0}</b></li>)}</ul>
+        <ul>{saved.map((r, i) => <li class={countedTwice(saved, r, i) ? "is-moved" : ""}><span>Page {r.page} · {r.status}{countedTwice(saved, r, i) && " · repeat"}</span><b>{countedTwice(saved, r, i) ? 0 : 1}</b></li>)}</ul>
         <p class="pa-lane-total"><span>Pages counted</span><b>{replay}</b></p>
         <p class="pa-lane-diff">{signed(fromCode)} from yesterday, all of it from the fix</p>
       </div>
       {states.map((st) => (
         <div class="pa-lane is-refetch" data-s={st.key}>
           <p class="pa-lane-head"><b>Re-fetch</b><span>today's source, fixed code</span></p>
-          <ul>{st.rows.map((r) => <li class={(() => { const y = saved.find((x) => x.id === r.id); return !y || y.status !== r.status || counts.fixed(r) !== counts.old(y) ? "is-moved" : ""; })()}><span>Page {r.id} · {r.status}</span><b>{counts.fixed(r) ? 1 : 0}</b></li>)}</ul>
+          <ul>{st.rows.map((r, i) => {
+            const y = saved[i];
+            const counts1 = r.status === "approved" && !countedTwice(st.rows, r, i);
+            return <li class={!y || y.status !== r.status || !counts1 ? "is-moved" : ""}><span>Page {r.page} · {r.status}{countedTwice(st.rows, r, i) && " · repeat"}</span><b>{counts1 ? 1 : 0}</b></li>;
+          })}</ul>
           <p class="pa-lane-total"><span>Pages counted</span><b>{st.total}</b></p>
           <p class="pa-lane-diff">{st.diff}</p>
         </div>
       ))}
     </div>
     </div>
-    <figcaption>Shaded rows differ from yesterday's saved record or count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with one change switched off its total matches yesterday's while the records behind it differ.</figcaption>
+    <figcaption>Shaded rows differ from yesterday's report, in status or in what they count. Switch the source's changes off and on. The replay never moves, because its input is the saved copy. The re-fetch moves with the source, and with both changes on, its total matches yesterday's while the pages behind it differ.</figcaption>
   </figure>
 
-  <h2>3. What a re-fetch overwrites</h2>
-  <p>If you keep only the latest source copy, the re-fetch replaces the {words[saved.length]}-record snapshot. You lose the saved evidence that the pending page was still pending and the sixth page was absent. Yesterday's published total of <strong>{before}</strong> may still exist, but you can no longer use that snapshot to reproduce it or verify the corrected <strong>{replay}</strong>.</p>
+  <h2>2. What you can reproduce</h2>
+  <p>The saved copy lets you reproduce yesterday's <strong>{before}</strong> with the old code and correct it to <strong>{replay}</strong> with the fixed code. Exact reproduction also depends on preserving any other inputs or settings that affected the run, such as the reporting cutoff and time zone.</p>
+  <p>If you keep only the latest copy, a re-fetch replaces yesterday's source file with today's version. The published <strong>{before}</strong> might still be in your logs, but that number alone can't tell you which pages were approved yesterday or which row appeared twice.</p>
 
-  <h2>4. When to re-fetch</h2>
-  <p>Re-fetch when you need today's count, when the archive has corrected its own records, or when yesterday's fetch was incomplete. If the source offers historical snapshots, you can also request the version from yesterday at 6 p.m.</p>
-  <p>Make the fetch a deliberate step. In this example, first replay yesterday's saved copy to verify the corrected <strong>{replay}</strong>, then fetch today's records and save them as a new snapshot to report <strong>{today.total}</strong>. Each result answers a different question.</p>
+  <h2>3. When to re-fetch</h2>
+  <p>Re-fetch when you want today's count, when your saved copy is missing or incomplete, or when the source team has published a correction you want to incorporate. If your goal is to repair yesterday's result, replay the fixed code on yesterday's copy first. Then record a re-fetch as its own step so you can tell which changes came from the code and which came from the source.</p>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>The reply's “archive” is the volunteer project, the source being fetched. In this course the archive is what you saved. Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, regenerate. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again. Friday's saved pages are the only copy Kick has of what the sites showed then.</p>
-    <p>Like the reply's {before} against {today.total}, a re-fetched table set beside Tuesday's would mix the tidy-rule fix with whatever the sites published after Friday, and nothing in Part 1 shows what that was. Keep that in mind when you weigh Part 1's prediction.</p>
+    <p>The reply's saved source file plays the part of Friday's captures in Kick's archive. Kick's plan in Part 1 is the reply's re-fetch: fix the tidy rule, fetch every school's site again, rebuild. Riley's ask is the replay: the fixed rule over the pages saved on Friday, with no site asked again.</p>
+    <p>Like the reply's {today.total} against {before}, a re-fetched table set beside Tuesday's would mix the tidy rule fix with whatever the sites published after Friday. Keep that in mind when you lock in your prediction in Part 1.</p>
   </aside>
 
-  <h2>5. Check your understanding</h2>
+  <h2>Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
