@@ -388,7 +388,7 @@ const bugs = [
     row: CASE2[0], wrong: variant(CASE2[0], "opponent", "State Lambert") },
   { id: "side", label: "The parser ignored the vs/at column, so away matches were stored as home matches", truth: CASE2[1].side,
     row: CASE2[1], wrong: variant(CASE2[1], "side", CASE2[1].side === "at" ? "vs" : "at") },
-  { id: "blank", label: "Cedar Grove's 21 September result reads \"Final\" with no score and was read as 0-0", truth: "no score published",
+  { id: "blank", label: "Cedar Grove's September 21 result reads \"Final\" with no score and was read as 0-0", truth: "no score published",
     row: CASE2[0], wrong: variant(CASE2[0], "result", "T 0-0") },
 ] as const;
 const verifiable = (b: (typeof bugs)[number], k: Kept) => keep[k](b.row) !== keep[k](b.wrong);

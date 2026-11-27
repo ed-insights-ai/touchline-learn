@@ -16,19 +16,19 @@ const terms = [
   {
     term: "Raw data",
     say: `is the bytes exactly as a site sent them, saved before any step changes them.`,
-    also: `Where you keep raw data is the <strong>raw zone</strong>, also called the bronze layer.`,
+    also: `A saved page plus its <strong>sidecar</strong>, a small record of when and how it was fetched, is a <strong>capture</strong>. Where you keep captures is the <strong>raw zone</strong>, also called the bronze layer.`,
     tuesday: `Friday's ${saved} schedule pages. Every one still says “${story.mondayName}”, byte for byte as it arrived.`,
   },
   {
     term: "Derived data",
-    say: `is anything computed from raw data: parsed rows, the table, its caption. You can delete it and compute it again, as long as you kept the raw data, code and config that made it. You can't do that with raw data: a later fetch may no longer return the same bytes.`,
+    say: `is anything computed from raw data: parsed rows, the table, its caption. Delete it and you can compute it again from the raw data, code and config. Raw data can't be recomputed: a later fetch may return different bytes.`,
     tuesday: `“${story.tuesdayName}” exists only in derived data. No saved page ever said it. Kick's tidy rule wrote it.`,
   },
   {
     term: "Replay",
     say: `is rerunning code over raw data you saved.`,
     also: `A replay that rebuilds past runs is also called a <strong>backfill</strong>.`,
-    tuesday: `Run the fixed parser over Friday's ${saved} pages and build again. The pages and config are the ones Monday's table was built from. Only the code is different.`,
+    tuesday: `Run the fixed parser over Friday's ${saved} captures and build again. The pages and config are Monday's; only the code differs.`,
   },
 ];
 
@@ -38,18 +38,18 @@ const bakes = [
 ];
 
 const rules = [
-  { rule: "Save the bytes as received, before any step changes them.", then: "A tidy rule, a parser bug or a bad alias can then damage only derived data, and derived data can be rebuilt. A site can also change or remove its page, so your copy may be the only one left.", clause: "from the pages you kept", where: "Case 2" },
-  { rule: "Change one thing at a time.", then: "Not asking a site again is what keeps the pages fixed. The config stays the same too, so every difference in the output comes from the code you changed.", clause: "without asking a single site again", where: "Case 1" },
-  { rule: "Record what produced each output.", then: `Note which exact pages produced each output and which code and config ran. Then anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3, Rewind" },
+  { rule: "Save the bytes as received, before any step changes them.", then: "Then a bug can damage only derived data, which can be rebuilt. And a site may change or remove its page, leaving your copy the only one.", clause: "from the pages you kept", where: "Case 2" },
+  { rule: "Change one thing at a time.", then: "Not asking a site again keeps the pages fixed. The config stays the same too, so every difference comes from the code.", clause: "without asking a single site again", where: "Case 1" },
+  { rule: "Record what produced each output.", then: `Note which exact captures, code and config produced each output, so anyone can check a rebuild instead of trusting it.`, clause: "and show me you did", where: "Case 3, Rewind" },
 ];
 
 const loop = [
   ["for page in expected_pages:", "fetch"],
   ["    raw = fetch(page)", "fetch"],
   ["    save(page, raw, fetched_at=now())  # or mark it unavailable", "fetch"],
-  ["capture = archive.load()", "replay"],
-  ["table = build([parse(p, code, config) for p in capture.schedules], capture.unavailable, config)", "replay"],
-  ["record(table, capture, version(code, config))", "replay"],
+  ["captures = archive.load(run)", "replay"],
+  ["table = build([parse(p, code, config) for p in captures.schedules], captures.unavailable, config)", "replay"],
+  ["record(table, captures, version(code, config))", "replay"],
 ];
 
 const items: [string, string][] = [
@@ -62,18 +62,18 @@ const items: [string, string][] = [
 
 <section id="idea">
   <PartHead id="idea">The idea: raw, derived and replay</PartHead>
-  <p>Kick fixed the code, yet Tuesday's table still says “{story.tuesdayName}”. That's because the table isn't the code. It's what the code computed from the inputs it was given.</p>
+  <p>Kick fixed the code, yet Tuesday's table still says “{story.tuesdayName}”. The table isn't the code. It's what the code computed from its inputs.</p>
 
   <div class="cv-define">
     <p><strong>Derived data is a calculation over saved evidence.</strong> Every number and name in a published table is the output of three inputs.</p>
-    <p class="cv-formula ar-formula"><span class="is-out">table</span> = build(parse(<span class="is-pages">saved pages</span>, <span class="is-code">code</span>, <span class="is-config">config</span>))</p>
+    <p class="cv-formula ar-formula"><span class="is-out">table</span> = build(parse(<span class="is-pages">saved pages</span>, <span class="is-code">parser code</span>, <span class="is-config">config</span>))</p>
   </div>
   <ul class="ar-inputs">
-    <li class="is-pages"><b>Saved pages</b><span>The {saved} schedule pages Kick saved on Friday. {silent}'s site didn't answer, and the run recorded that, so the table can name the gap.</span></li>
-    <li class="is-code"><b>Code</b><span>The parser, with its tidy rule, and the build that turns rows into standings.</span></li>
-    <li class="is-config"><b>Config</b><span>The alias list, the membership file and the season, {SEASON}, read by the parser and the build.</span></li>
+    <li class="is-pages"><b>Saved pages</b><span>The {saved} schedule pages Kick saved on Friday, and the run's record that {silent}'s site didn't answer.</span></li>
+    <li class="is-code"><b>Parser code</b><span>The parser, with its tidy rule, and the build that turns rows into standings.</span></li>
+    <li class="is-config"><b>Config</b><span>The alias list, the membership file and the season, {SEASON}.</span></li>
   </ul>
-  <p>When Kick added the tidy rule on Tuesday, one input changed, the code, and the table changed with it.</p>
+  <p>On Tuesday one input changed, the code, and the table changed with it.</p>
 
   <h3 id="idea-terms">Raw, derived and replay</h3>
   <ol class="ar-terms">
@@ -87,13 +87,11 @@ const items: [string, string][] = [
   </ol>
 
   <h3 id="idea-lanes">Replay or re-fetch</h3>
-  <p>A re-fetch asks the sites for their pages again. Kick's plan and Riley's question both end with the fixed parser and a new table. Compare what each one changes on the way, and what each one leaves in the archive.</p>
+  <p>A re-fetch asks the sites for their pages again. Both plans end with the fixed parser and a new table. Compare what each changes on the way, and what each leaves in the archive.</p>
   <TwoLanes />
-  <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption="Replay, Don't Refetch." />
 
   <h3 id="idea-one-change">One change at a time</h3>
-  <p>Step away from soccer for a moment. A baker switches to a new bread recipe on the same morning the bakery's new oven arrives. That afternoon the bread is better. Was it the recipe?</p>
-  <p>From last week's loaf and today's, nobody can say. Two inputs changed together, the recipe and the oven, so the better bread might come from either, or both. To test the recipe, bake both recipes in the old oven from the same flour on the same afternoon. Only the recipe differs, so a difference that repeats is the recipe's, at least in that oven.</p>
+  <p>Step away from soccer. A baker switches to a new recipe the morning a new oven arrives, and the bread is better. Was it the recipe? Last week's loaf against today's can't say: two inputs changed. To test the recipe, bake both recipes in the old oven, same flour, same afternoon. Only the recipe differs.</p>
   <figure class="ar-bake" aria-labelledby="ar-bake-cap">
     <table>
       <thead><tr><td></td><th scope="col">Old oven</th><th scope="col">New oven</th></tr></thead>
@@ -107,14 +105,14 @@ const items: [string, string][] = [
       </tbody>
     </table>
     <figcaption id="ar-bake-cap">
-      <span><i class="is-two" aria-hidden="true"></i>Today's loaf: recipe and oven both changed from last week's (old recipe, old oven).</span>
+      <span><i class="is-two" aria-hidden="true"></i>Today's loaf: recipe and oven both changed since last week.</span>
       <span><i class="is-one" aria-hidden="true"></i>Two test loaves in the old oven: only the recipe differs.</span>
     </figcaption>
   </figure>
   <div class="cv-define">
-    <p>A <dfn>controlled comparison</dfn> changes one input and holds the others fixed, so it isolates that input's effect. When two inputs change together, their effects are <dfn>confounded</dfn>: that before and after pair can't tell you which change did what.</p>
+    <p>A <dfn>controlled comparison</dfn> changes one input and holds the others fixed, isolating that input's effect. When two inputs change together, their effects are <dfn>confounded</dfn>: the comparison can't say which change did what.</p>
   </div>
-  <p>Map it to Tuesday: the recipe is the code, and the oven is the pages. Kick's re-fetch is today's loaf, new code on newly fetched pages. Comparing Tuesday's table with a replay is the old oven column: the buggy code and the fixed code each run on Friday's pages, and unlike bread, the same code and config on the same pages give the same table every time.</p>
+  <p>On Tuesday the recipe is the code and the oven is the pages. Kick's re-fetch is today's loaf: new code on new pages. A replay is the old oven column: both versions of the code on Friday's pages.</p>
 
   <h3 id="idea-rules">Three rules, one for each clause</h3>
   <ol class="cv-rules">
@@ -123,27 +121,28 @@ const items: [string, string][] = [
         <p class="cv-rule-call"><span>Riley</span>“{r.clause}”<em>{r.where}</em></p></li>
     ))}
   </ol>
-  <p>Put together, the rules give a loop that fetches and saves first, and computes everything else from the archive.</p>
+  <p>Together, the rules give a loop that fetches and saves first, then computes everything from the archive.</p>
   <figure class="ar-loop" aria-labelledby="ar-loop-cap">
     <pre><code>{loop.map(([line, part], i) => <span class:list={["ar-ln", `is-${part}`]}><span class="ar-n" aria-hidden="true">{i + 1}</span><span class="ar-c">{line}</span></span>)}</code></pre>
-    <figcaption id="ar-loop-cap">Lines 1 to 3, the tan bar, fetch and save: only line 2 asks a site for a page, and none of them parse. Lines 4 to 6, the blue bar, rebuild and record: they make no requests, and read the saved capture, which on Tuesday is still Friday's, plus the code and the config. Rerunning them after a parser fix is a replay. Rerunning lines 1 to 3 is a re-fetch.</figcaption>
+    <figcaption id="ar-loop-cap">Lines 1 to 3 (tan) fetch and save; only line 2 asks a site for anything. Lines 4 to 6 (blue) rebuild and record from saved captures, with no requests. Rerun 4 to 6 after a parser fix: a replay. Rerun 1 to 3: a re-fetch.</figcaption>
   </figure>
   <p class="cv-rule ar-exact">A replay can rebuild only from pages that were saved.</p>
-  <p>{silent}'s site didn't answer on Friday, so Friday's capture has no {silent} page, and no replay can recover one. {silent}'s results still come from the other schools' pages, as they did on Monday.</p>
+  <p>{silent} is the site that never answered on Friday, so there is no {silent} page to replay. Its results still come from the other schools' pages, as on Monday.</p>
 
   <AiCard part="idea" />
+  <FilmSlot name="replay-dont-refetch" label="Replay, Don't Refetch, a short lesson video" caption={`Replay, Don't Refetch. Sites are lettered and the numbers are illustrative; the site that never answered is ${silent}.`} />
 
-  <h3 class="cv-try" id="idea-check">Check your understanding: a research survey</h3>
-  <p>A research team ran an online survey through a vendor's site. They kept four things: the survey export, exactly as the vendor's site sent it; a cleaned spreadsheet and a summary chart, both produced by a cleaning script; and the script itself, in version control, with every cleaning and chart setting written into it. Since then they have downloaded fresh exports more than once.</p>
+  <h3 class="cv-try" id="idea-check">Check your understanding: a research team</h3>
+  <p>A research team ran a survey through a vendor's site and kept four things: the export, exactly as the vendor sent it; a cleaned spreadsheet and a summary chart, both made by a cleaning script; and the script, in version control, settings included.</p>
   <Check once="idea-survey" note="Answer all three, then check your answers.">
-    <Choice save="idea-gone" label="The export behind the published study includes responses more than a year old. The vendor deletes every response older than a year, so no later export has them. Which of the four could the team never rebuild if that item alone were lost?"
+    <Choice save="idea-gone" label="The published study includes responses more than a year old, and the vendor deletes every response older than a year. Which item has no other copy anywhere, so losing the team's copy would lose it for good?"
       options={items}
       answer="export"
-      why="The survey export. The spreadsheet and chart are derived from it and can be computed again, and the script is kept in version control. Later exports leave out the deleted responses, so the team's copy of that export is the only one left."
+      why="The survey export. Later exports leave out the deleted responses, so the team's copy is the only one. The spreadsheet and chart can be rebuilt from it, and the script is in version control."
       wrong={{
-        sheet: "The spreadsheet can be rebuilt by running the script over the export.",
-        chart: "The chart can be redrawn by running the script again.",
-        script: "The script is in version control. The deleted responses are in nobody's.",
+        sheet: "There is no other copy, but the script can rebuild it from the export, so it isn't lost for good.",
+        chart: "The script can redraw it from the export, so it isn't lost for good.",
+        script: "The script is in version control, so another copy exists. The deleted responses are in nobody's.",
       }} />
     <Choice save="idea-bug" label="The team finds a bug in the cleaning script: it dropped some valid responses. What do they need to produce a corrected spreadsheet and chart for the study they published?"
       options={[
@@ -173,10 +172,10 @@ const items: [string, string][] = [
         current: "They have several exports, and nothing here says which one, or which version of the script, made this number.",
         image: "The image shows the number, not the responses or the code that produced it.",
       }} />
-    <p slot="reveal">The vendor deleting responses is rule 1: save the bytes, because the source can take them away. The bug fix is rule 2: replay the saved export, so the code is the only thing that changes. The reviewer is rule 3: record what produced each output. None of the four things the team kept records it. The same three rules hold for Friday's pages.</p>
+    <p slot="reveal">Rule 1: save the bytes; the source can take them away. Rule 2: replay the saved export, so only the code changes. Rule 3: record what produced each output; nothing the team kept does.</p>
   </Check>
 
-  <NextPart from="idea">Saturday's matches finished after Friday's run. What does that do to a re-fetch?</NextPart>
+  <NextPart from="idea">Both plans end with the fixed parser. Case 1 sets their tables side by side.</NextPart>
 </section>
 
 <style>

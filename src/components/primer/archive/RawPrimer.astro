@@ -4,35 +4,52 @@ import { aiCardId, archiveAi } from "../../../lib/archive-ai";
 
 const card = archiveAi.idea;
 
-const lines = [10, 5];
-const off = 20;
-const cut = (x: number) => (x * (100 - off)) / 100;
-const v1 = lines.map((x, i) => (i === 0 ? cut(x) : x));
-const v2 = lines.map(cut);
-const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+type Run = { result: string; input: string; code: string; setting: string };
+const cols: [keyof Run, string][] = [["result", "Derived result"], ["input", "Raw input"], ["code", "Code version"], ["setting", "Settings"]];
+const differs = (runs: Run[], k: keyof Run) => runs.some((r) => r[k] !== runs[0][k]);
+const cause = (runs: Run[]) => cols.filter(([k]) => k !== "result" && differs(runs, k)).map(([, name]) => name.toLowerCase());
+
 const usd = (n: number) => `$${n}`;
-const runs = [
-  { code: "v1, discounts only the first line", parts: v1 },
-  { code: "v2, discounts both lines", parts: v2 },
+const lines = [12, 8];
+const discount = 3;
+const gross = lines.reduce((a, b) => a + b, 0);
+const net = gross - discount;
+const shop: Run[] = [
+  { result: usd(gross), input: "R17", code: "v1", setting: "After discounts" },
+  { result: usd(net), input: "R17", code: "v2", setting: "After discounts" },
 ];
 
-const first = [6, 10];
-const corrected = [8, 10];
-const avg = (xs: number[]) => sum(xs) / xs.length;
-const states = [
-  { id: "kept", label: "Both exports kept", held: [first, corrected] },
-  { id: "over", label: "First export overwritten", held: [corrected] },
+const quiz: [number, number][] = [[2, 3], [1, 2]];
+const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
+const equalWeight = quiz.reduce((a, [e, p]) => a + e / p, 0) / quiz.length;
+const earned = quiz.reduce((a, [e]) => a + e, 0);
+const possible = quiz.reduce((a, [, p]) => a + p, 0);
+const byPoints = earned / possible;
+const grades: Run[] = [
+  { result: pct(equalWeight), input: "Q8", code: "v1", setting: "Total points" },
+  { result: pct(byPoints), input: "Q8", code: "v2", setting: "Total points" },
 ];
-const sameAvg = Array.from({ length: 3 }, (_, i) => [first[0] + i, first[1] - i]).filter(([a, b]) => a <= b);
 
-const saved = "A blue moon";
-const reported = 2;
+const drafts = [
+  { id: "H4-d1", text: "City council approves new park" },
+  { id: "H4-d2", text: "City council approves new riverside park" },
+];
 const words = (s: string) => s.split(/\s+/).length;
+const second = drafts[1];
+const check = (limit: number) => `${words(second.text) <= limit ? "Pass" : "Fail"}, ${words(second.text)} words`;
+const limits = [words(second.text), words(second.text) - 1];
+const headlines: Run[] = limits.map((n) => ({ result: check(n), input: second.id, code: "v1", setting: `Maximum ${n} words` }));
+const stores = [
+  { id: "kept", label: "Each draft saved under its own ID", held: drafts },
+  { id: "over", label: "Second draft saved over the first", held: [second] },
+];
+
+if (cause(shop).join() !== "code version" || cause(grades).join() !== "code version" || cause(headlines).join() !== "settings") throw new Error("RawPrimer's records no longer differ in one column each");
 
 const checks = [
-  ["Only the total", `If the shop had saved only the ${usd(sum(v1))} total, why would the corrected code need the original receipt to calculate the right total?`],
-  [`The old ${avg(first)}`, `Why can the teacher's old average of ${avg(first)} survive even though replay can't recover the original scores?`],
-  ["Two word counts", "Two word counts disagree for the same saved draft. What would you check in their records to find out why?"],
+  [`The ${usd(net)} total`, `The shop still has R17 and the corrected code. What else does it need to reproduce the corrected ${usd(net)} total?`],
+  ["Only the percentage", "A teacher kept only a student's final percentage. Why is that percentage alone insufficient to recalculate the grade under a policy that gives question 2 double weight?"],
+  ["Two headline reports", "Two headline reports disagree. Their draft ID and code version match. What would you check next, and what could you recover if the only copy of that draft had been overwritten?"],
 ];
 ---
 
@@ -44,101 +61,83 @@ const checks = [
   turn={`In a live chat, you would answer those three questions and the assistant would review your reasoning. To try that, copy the prompt into your own AI assistant. Then go back to Part 2 and ${card.returnTask.replace("Then come back and ", "")}`}
 >
   <h2 class="pr-title">Raw data, derived data and replay</h2>
-  <p><strong>Raw data</strong> is what your system receives from a source. Save an exact copy before your processing code reads it, so a parsing or cleaning bug can't change the only copy. <strong>Derived data</strong> is what your code calculates from that copy. You can delete and rebuild it if you keep the raw inputs, the code version, and the settings that produced it.</p>
-  <p>A <strong>replay</strong> runs the calculation again on saved inputs. Use the original code and settings to reproduce an old result, or use corrected code to regenerate it.</p>
-  <p class="pr-pull">Each output should carry a record of its exact input versions, code version, and settings so you can tell which run produced it.</p>
+  <p><strong>Raw data</strong> is what arrives at the boundary of your system. Save an exact copy before your processing code reads it. That gives you a record of what you actually received, even if your code misreads a number, drops a field, or rewrites some text. Save each revision as a separate copy when the source can change.</p>
+  <p><strong>Derived data</strong> is what your code produces from those inputs. You can delete and rebuild a derived result if you keep the exact raw inputs, the code version, and the settings that produced it. Running the old version can reproduce the old result. Running a corrected version over the same saved inputs is called a <strong>replay</strong>.</p>
 
-  <h2>1. Retail receipts: a replay fixes the total</h2>
-  <p>A shop receives receipt <code>R17</code> with two line amounts, <code>{usd(lines[0])}</code> and <code>{usd(lines[1])}</code>. It saves the receipt exactly as received. The discounted total is derived.</p>
+  <h2>1. A shop's receipts</h2>
+  <p>Receipt <code>R17</code> arrives with two line items, {lines.map(usd).join(" and ")}, and a {usd(discount)} discount. The shop saves the receipt exactly as it arrived. Its daily sales report uses one setting for this example, <code>total = after discounts</code>.</p>
   <figure class="pr-card">
-    <p class="pr-label">Two derived totals and their records</p>
-    <div class="pa-prov">
-      {runs.map((r) => (
-        <div>
-          <p class="pa-prov-head"><b>Derived total</b><strong>{usd(sum(r.parts))}</strong></p>
-          <dl>
-            <div><dt>Saved input</dt><dd><code>R17</code>, revision 1</dd></div>
-            <div class="is-diff"><dt>Code</dt><dd>{r.code}</dd></div>
-            <div><dt>Setting</dt><dd>{off}% off both lines</dd></div>
-          </dl>
-          <p class="pa-prov-sum">{r.parts.map(usd).join(" + ")} = {usd(sum(r.parts))}</p>
-        </div>
-      ))}
-    </div>
-    <figcaption>Same input, same setting. Only the code line differs between the two records. An exact rebuild can also depend on more than these three lines, such as library versions or the date a run used.</figcaption>
+    <p class="pr-label">Two totals and their records</p>
+    <table class="pr-table pa-runs">
+      <thead><tr>{cols.map(([, name]) => <th scope="col">{name}</th>)}</tr></thead>
+      <tbody>{shop.map((r) => <tr>{cols.map(([k]) => <td class:list={{ "is-diff": k !== "result" && differs(shop, k) }}>{r[k]}</td>)}</tr>)}</tbody>
+    </table>
+    <figcaption>Shaded: the one recorded input that differs between the two records.</figcaption>
   </figure>
-  <p>Version 1 calculated <code>{v1.map(usd).join(" + ")} = {usd(sum(v1))}</code>. Version 2 calculated <code>{v2.map(usd).join(" + ")} = {usd(sum(v2))}</code>. The records show that the input and settings were identical, so the code change explains the difference. Since both line amounts survived in the archive, the shop can delete the incorrect total and rebuild it with v2.</p>
+  <p>Both rows point to the same receipt and setting. The code changed. Version <code>v1</code> skipped the discount and added {lines.map(usd).join(" + ")}. Version <code>v2</code> computes {lines.map(usd).join(" + ")} − {usd(discount)} = {usd(net)}. Replaying the saved receipt with <code>v2</code> repairs the total. If the shop kept only the {usd(gross)} result and overwrote its copy of <code>R17</code>, that total alone gives it no way to recover the {usd(discount)} discount.</p>
 
-  <h2>2. Classroom grades: an overwrite loses the earlier scores</h2>
-  <p>A teacher exports two quiz scores, <code>{first[0]}</code> and <code>{first[1]}</code>. With equal weights, the derived average is <code>({first.join(" + ")}) ÷ {first.length} = {avg(first)}</code>.</p>
-  <p>Later the teacher corrects the first score to <code>{corrected[0]}</code>. The new export contains <code>{corrected[0]}</code> and <code>{corrected[1]}</code>, and the average becomes <code>({corrected.join(" + ")}) ÷ {corrected.length} = {avg(corrected)}</code>. If the import overwrites the archived first export, replay can still produce <code>{avg(corrected)}</code>, but it can't recover the original scores. Even if the old average of <code>{avg(first)}</code> survives, <code>{sameAvg[1][0]}</code> and <code>{sameAvg[1][1]}</code> would also average to <code>{avg(first)}</code>. Keeping both raw exports under separate revision IDs would let you reproduce either result.</p>
-  <figure class="pr-card pa-grades">
+  <h2>2. A teacher's quiz scores</h2>
+  <p>The teacher's grading form submits <code>{quiz[0][0]} of {quiz[0][1]}</code> points on question 1 and <code>{quiz[1][0]} of {quiz[1][1]}</code> on question 2. The system saves that submission as <code>Q8</code>. The teacher's setting is <code>percentage = total points earned ÷ total points possible</code>.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Two grades and their records</p>
+    <table class="pr-table pa-runs">
+      <thead><tr>{cols.map(([, name]) => <th scope="col">{name}</th>)}</tr></thead>
+      <tbody>{grades.map((r) => <tr>{cols.map(([k]) => <td class:list={{ "is-diff": k !== "result" && differs(grades, k) }}>{r[k]}</td>)}</tr>)}</tbody>
+    </table>
+  </figure>
+  <p>Version <code>v1</code> gave each question equal weight by averaging {quiz.map(([e, p]) => `${e}/${p}`).join(" and ")}. Version <code>v2</code> adds the points first and computes ({quiz.map(([e]) => e).join(" + ")}) ÷ ({quiz.map(([, p]) => p).join(" + ")}) = {pct(byPoints).replace(".0%", "%")}. The records show that the teacher's grading policy stayed the same. Replaying <code>Q8</code> fixes the grade. If the teacher had entered <code>3 of 3</code> on question 1 earlier and changed it before the form was ever submitted, that earlier version is outside the saved record.</p>
+
+  <h2>3. A newsroom's headline drafts</h2>
+  <p>An editor submits two drafts. The newsroom saves the exact text of each.</p>
+  <ul class="pa-drafts">{drafts.map((d) => <li><code>{d.id}</code> “{d.text}” ({words(d.text)} words)</li>)}</ul>
+  <p>A headline checker produces a derived pass or fail result.</p>
+  <figure class="pr-card">
+    <p class="pr-label">Two checks and their records</p>
+    <table class="pr-table pa-runs">
+      <thead><tr>{cols.map(([, name]) => <th scope="col">{name}</th>)}</tr></thead>
+      <tbody>{headlines.map((r) => <tr>{cols.map(([k]) => <td class:list={{ "is-diff": k !== "result" && differs(headlines, k) }}>{r[k]}</td>)}</tr>)}</tbody>
+    </table>
+  </figure>
+  <p>Here the raw draft and code are identical. The word limit explains the disagreement. If a checker bug is fixed later, the newsroom can replay both drafts. If it had saved both under the same filename and the second draft overwrote the only copy of the first, replay would have only the second draft to work with.</p>
+  <figure class="pr-card pa-store">
     <fieldset class="pr-seg">
-      <legend>What the archive holds</legend>
-      {states.map((st, i) => <label><input type="radio" name="pa-raw-grades" value={st.id} checked={i === 0} /><span>{st.label}</span></label>)}
+      <legend>How the newsroom saved the drafts</legend>
+      {stores.map((st, i) => <label><input type="radio" name="pa-raw-drafts" value={st.id} checked={i === 0} /><span>{st.label}</span></label>)}
     </fieldset>
     <div aria-live="polite">
-    {states.map((st) => (
-      <div class="pa-grades-view" data-grades={st.id}>
-        <ul class="pa-rows">
-          {[first, corrected].map((ex, i) => {
-            const kept = st.held.includes(ex);
-            return <li class={kept ? "" : "is-gone"}><span>Export {i + 1}: {kept ? ex.join(" and ") : "overwritten"}</span><b>{kept ? `replays to ${avg(ex)}` : "can't replay"}</b></li>;
+      {stores.map((st) => (
+        <ul class="pa-rows" data-store={st.id}>
+          {drafts.map((d) => {
+            const kept = st.held.includes(d);
+            return <li class={kept ? "" : "is-gone"}><span><code>{d.id}</code> {kept ? `“${d.text}”` : "overwritten"}</span><b>{kept ? `replays to ${words(d.text)} words` : "nothing to replay"}</b></li>;
           })}
         </ul>
-        <p class="pa-grades-say">{st.id === "kept"
-          ? "Either average can be reproduced from its own export."
-          : `The old average of ${avg(first)} may survive as a number, but each of these score pairs gives it:`}</p>
-        {st.id === "over" && <ul class="pa-pairs">{sameAvg.map((p) => <li><code>{p.join(" and ")}</code></li>)}</ul>}
-      </div>
-    ))}
+      ))}
     </div>
-    <figcaption>An average of {avg(first)} leaves several possible score pairs, so only the saved export says which pair it was.</figcaption>
+    <figcaption>A replay runs only on what was saved. The overwritten draft's words are gone, whatever the checker's code or settings.</figcaption>
   </figure>
 
-  <h2>3. Publishing: a replay can only use the draft that was saved</h2>
-  <p>An editor wants to count the words in each draft of a headline. The writer says the first draft had {["no", "one", "two", "three"][reported]} words, but only the later draft, <code>{saved}</code>, was saved. Replaying the word counter can produce <code>{words(saved)}</code> for the saved draft. It can't recover the earlier wording because that version never entered the archive. The writer's recollection can supply a reported count of <code>{reported}</code>, but there's no saved first draft to run the counter on.</p>
-  <figure class="pr-card">
-    <p class="pr-label">What the word counter can run on</p>
-    <ul class="pa-rows">
-      <li class="is-gone"><span>First draft · never saved</span><b>reported {reported}, not counted</b></li>
-      <li class="is-fix"><span>Later draft · <code>{saved}</code></span><b>counted {words(saved)}</b></li>
-    </ul>
-  </figure>
   <aside class="pr-course" aria-label="Course note">
     <p class="pr-label">Course note</p>
-    <p>In Tuesday's story, the raw data is the schedule pages Kick saved on Friday. Monday's table and Tuesday's table are both derived: each is a calculation over those pages, the parser code and its config. The tidy rule fix is the receipt's: one code change, replayed over the same saved input.</p>
-    <p>Dunmore's page is like the reply's unsaved first draft: the site never answered on Friday, so there is no copy for a replay to run on. Unlike the writer's recollection, though, its conference results are still on record: its opponents' saved pages show them, as they did on Monday.</p>
+    <p>In Tuesday's story the raw data is the schedule pages Kick saved on Friday, and every table is derived from them. The tidy rule fix is the receipt's case: one code change, replayed over the same saved input. A change to the alias list is the headline's: same pages, same code, a different setting.</p>
+    <p>Dunmore's page is like the teacher's unsubmitted entry: the site never answered on Friday, so no copy exists to replay. Its conference results are still on record, because its opponents' saved pages show them. A re-fetch that saves each new page over Friday's copy is the overwritten draft.</p>
   </aside>
 
-  <h2>4. Check your understanding</h2>
+  <h2>Check your understanding</h2>
   <ol class="pr-checks">{checks.map(([name, q]) => <li><b>{name}</b><span>{q}</span></li>)}</ol>
 </PrimerChat>
 
 <style>
-  .pa-prov { display: grid; gap: 0.6rem; }
-  @media (min-width: 46rem) { .pa-prov { grid-template-columns: 1fr 1fr; } }
-  .pa-prov > div { padding: 0.6rem 0.8rem; border: 1px solid var(--tl-line); border-radius: 8px; background: var(--tl-bg); }
-  :global(.pr) .pa-prov-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 0.4rem; }
-  .pa-prov-head b { color: var(--tl-muted); font-size: 0.85rem; }
-  .pa-prov-head strong { color: var(--sl-color-white); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
-  .pa-prov dl { display: grid; gap: 0.25rem; margin: 0; font-size: 0.88rem; }
-  .pa-prov dl div { display: grid; grid-template-columns: 6rem 1fr; gap: 0.5rem; padding: 0.2rem 0.45rem; border-radius: 6px; }
-  .pa-prov dt { color: var(--tl-muted); }
-  .pa-prov dd { margin: 0; }
-  .pa-prov .is-diff { background: color-mix(in srgb, #d9822b 18%, transparent); font-weight: 600; }
-  :global(.pr) .pa-prov-sum { margin: 0.45rem 0 0; color: var(--tl-muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
-  .pa-grades .pr-seg { margin-bottom: 0.7rem; }
-  .pa-grades-view { display: none; }
-  .pa-grades:has([value="kept"]:checked) [data-grades="kept"],
-  .pa-grades:has([value="over"]:checked) [data-grades="over"] { display: block; }
-  .pa-rows { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .pa-runs td.is-diff { background: color-mix(in srgb, #d9822b 18%, transparent); font-weight: 600; }
+  .pa-runs td:first-child { color: var(--sl-color-white); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pa-drafts { margin: 0 0 1rem; }
+  .pa-store .pr-seg { margin-bottom: 0.7rem; }
+  .pa-store [data-store] { display: none; }
+  .pa-store:has([value="kept"]:checked) [data-store="kept"],
+  .pa-store:has([value="over"]:checked) [data-store="over"] { display: grid; }
+  .pa-rows { gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
   .pa-rows li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.3rem 0.6rem; padding: 0.4rem 0.65rem; border-radius: 6px; background: var(--tl-bg); }
   .pa-rows li b { color: var(--sl-color-white); font-variant-numeric: tabular-nums; }
-  .pa-rows li.is-fix { box-shadow: inset 0 0 0 1px var(--pr-green); }
   .pa-rows li.is-gone { border: 1.5px dashed var(--pr-red); background: transparent; color: var(--tl-muted); }
   .pa-rows li.is-gone b { color: var(--tl-muted); font-weight: 600; }
-  :global(.pr) .pa-grades-say { margin: 0.6rem 0 0; font-size: 0.9rem; }
-  .pa-pairs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.45rem 0 0; padding: 0; list-style: none; }
-  .pa-pairs li { padding: 0.2rem 0.55rem; border: 1px solid var(--tl-line); border-radius: 999px; font-size: 0.85rem; }
 </style>
